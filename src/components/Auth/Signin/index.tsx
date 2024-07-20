@@ -29,21 +29,19 @@ export default function Signin() {
 				<div className='mb-4.5 flex w-full items-center justify-between gap-1.5 rounded-10 border border-stroke p-1 dark:border-stroke-dark'>
 					<button
 						onClick={() => setSigninOption("magic-link")}
-						className={`h-[38px] w-full rounded-lg font-satoshi text-base font-medium tracking-[-.2px] ${
-							signinOption === "magic-link"
-								? "bg-primary/[.08] text-primary"
-								: "text-dark dark:text-white"
-						}`}
+						className={`h-[38px] w-full rounded-lg font-satoshi text-base font-medium tracking-[-.2px] ${signinOption === "magic-link"
+							? "bg-primary/[.08] text-primary"
+							: "text-dark dark:text-white"
+							}`}
 					>
 						Magic Link
 					</button>
 					<button
 						onClick={() => setSigninOption("password")}
-						className={`h-[38px] w-full rounded-lg font-satoshi text-base font-medium tracking-[-.2px] ${
-							signinOption === "password"
-								? "bg-primary/[.08] text-primary"
-								: "text-dark dark:text-white"
-						}`}
+						className={`h-[38px] w-full rounded-lg font-satoshi text-base font-medium tracking-[-.2px] ${signinOption === "password"
+							? "bg-primary/[.08] text-primary"
+							: "text-dark dark:text-white"
+							}`}
 					>
 						Password
 					</button>
@@ -64,9 +62,7 @@ export default function Signin() {
 					</Link>
 				</p>
 
-				<span className='my-10 block h-px w-full bg-stroke dark:bg-stroke-dark '></span>
 
-				<DemoSignin />
 			</div>
 		</>
 	);

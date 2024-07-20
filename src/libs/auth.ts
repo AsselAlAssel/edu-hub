@@ -101,8 +101,6 @@ export const authOptions: NextAuthOptions = {
 					...session.user,
 					picture: session.user.image,
 					image: session.user.image,
-					stripePriceId: session.user.stripePriceId,
-					stripeCurrentPeriodEnd: session.user.stripeCurrentPeriodEnd,
 				};
 			}
 
@@ -110,8 +108,6 @@ export const authOptions: NextAuthOptions = {
 				return {
 					...token,
 					uid: user.id,
-					stripePriceId: user.stripePriceId,
-					stripeCurrentPeriodEnd: user.stripeCurrentPeriodEnd,
 					role: user.role,
 					picture: user.image,
 					image: user.image,
@@ -127,8 +123,6 @@ export const authOptions: NextAuthOptions = {
 					user: {
 						...session.user,
 						id: token.sub,
-						stripePriceId: token.stripePriceId,
-						stripeCurrentPeriodEnd: token.stripeCurrentPeriodEnd,
 						role: token.role,
 						image: token.picture,
 					},

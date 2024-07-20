@@ -31,11 +31,7 @@ export default function AdminDashboard() {
 					</p>
 				</div>
 
-				<div className='grid gap-7.5 md:grid-cols-2 xl:grid-cols-3'>
-					{overviewData.map((data) => (
-						<GraphCard key={data?.id} data={data} />
-					))}
-				</div>
+
 			</div>
 		</>
 	);

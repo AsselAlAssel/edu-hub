@@ -22,8 +22,6 @@ const PriceItem = ({ plan, isBilling, subscriptionPlan }: Props) => {
 			subsProp = {
 				userId: session?.user?.id,
 				email: session?.user?.email,
-				stripePriceId: plan.stripePriceId,
-				stripeCustomerId: subscriptionPlan?.stripeCustomerId,
 				isSubscribed: !!subscriptionPlan?.isSubscribed,
 				isCurrentPlan: subscriptionPlan?.nickname === plan.nickname,
 				isCanceled: subscriptionPlan?.isCanceled,
@@ -56,17 +54,15 @@ const PriceItem = ({ plan, isBilling, subscriptionPlan }: Props) => {
 
 	return (
 		<div
-			className={`relative  rounded-[20px] p-10 shadow-dropdown ${
-				active && !isBilling ? "bg-primary" : "bg-white dark:bg-gray-dark"
-			}`}
+			className={`relative  rounded-[20px] p-10 shadow-dropdown ${active && !isBilling ? "bg-primary" : "bg-white dark:bg-gray-dark"
+				}`}
 		>
 			{active && (
 				<span
-					className={`absolute right-4.5 top-4.5 inline-flex rounded-[5px] px-3 py-[5px] font-satoshi font-medium  ${
-						isBilling
-							? "bg-primary/10 text-primary dark:bg-white/10 dark:text-white"
-							: "bg-white/10 text-white"
-					}`}
+					className={`absolute right-4.5 top-4.5 inline-flex rounded-[5px] px-3 py-[5px] font-satoshi font-medium  ${isBilling
+						? "bg-primary/10 text-primary dark:bg-white/10 dark:text-white"
+						: "bg-white/10 text-white"
+						}`}
 				>
 					Popular
 				</span>
@@ -74,9 +70,8 @@ const PriceItem = ({ plan, isBilling, subscriptionPlan }: Props) => {
 
 			<div className='mb-7 flex items-center gap-5'>
 				<div
-					className={`flex h-18 w-full max-w-[72px] items-center justify-center rounded-2xl ${
-						active && !isBilling ? "bg-white/10" : "bg-primary/10"
-					}`}
+					className={`flex h-18 w-full max-w-[72px] items-center justify-center rounded-2xl ${active && !isBilling ? "bg-white/10" : "bg-primary/10"
+						}`}
 				>
 					{plan?.icon2 && isBilling ? (
 						<Image
@@ -96,16 +91,14 @@ const PriceItem = ({ plan, isBilling, subscriptionPlan }: Props) => {
 				</div>
 				<div>
 					<span
-						className={`block text-lg font-medium dark:text-gray-4 ${
-							active && !isBilling && "text-white"
-						}`}
+						className={`block text-lg font-medium dark:text-gray-4 ${active && !isBilling && "text-white"
+							}`}
 					>
 						{plan?.subtitle}
 					</span>
 					<h3
-						className={`font-satoshi text-2xl font-bold ${
-							active && !isBilling ? "text-white" : "text-black dark:text-white"
-						}`}
+						className={`font-satoshi text-2xl font-bold ${active && !isBilling ? "text-white" : "text-black dark:text-white"
+							}`}
 					>
 						{plan.nickname}
 					</h3>
@@ -118,30 +111,26 @@ const PriceItem = ({ plan, isBilling, subscriptionPlan }: Props) => {
 
 			{/* <!-- divider --> */}
 			<div
-				className={`my-6 h-px w-full ${
-					active && !isBilling ? "bg-white/30" : "bg-stroke dark:bg-stroke-dark"
-				}`}
+				className={`my-6 h-px w-full ${active && !isBilling ? "bg-white/30" : "bg-stroke dark:bg-stroke-dark"
+					}`}
 			></div>
 
 			<h4
-				className={`mb-4.5 font-satoshi text-heading-4 font-bold leading-[1.22] lg:text-heading-2 xl:text-[54px] ${
-					active && !isBilling ? "text-white" : "text-[#170F49] dark:text-white"
-				}`}
+				className={`mb-4.5 font-satoshi text-heading-4 font-bold leading-[1.22] lg:text-heading-2 xl:text-[54px] ${active && !isBilling ? "text-white" : "text-[#170F49] dark:text-white"
+					}`}
 			>
 				${plan?.unit_amount / 100}
 				<span
-					className={`ml-1 text-xl font-medium -tracking-[0.3px] ${
-						active && !isBilling ? "text-white" : "text-gray-6 dark:text-white"
-					}`}
+					className={`ml-1 text-xl font-medium -tracking-[0.3px] ${active && !isBilling ? "text-white" : "text-gray-6 dark:text-white"
+						}`}
 				>
 					/monthly
 				</span>
 			</h4>
 
 			<h5
-				className={`mb-7.5 font-satoshi text-lg font-bold -tracking-[0.2px] dark:text-white ${
-					active && !isBilling ? "text-white" : "text-black"
-				}`}
+				className={`mb-7.5 font-satoshi text-lg font-bold -tracking-[0.2px] dark:text-white ${active && !isBilling ? "text-white" : "text-black"
+					}`}
 			>
 				What&apos;s included
 			</h5>
@@ -185,11 +174,10 @@ const PriceItem = ({ plan, isBilling, subscriptionPlan }: Props) => {
 
 			<button
 				onClick={handleSubscription}
-				className={`mt-9 flex w-full justify-center rounded-full  p-3.5 font-satoshi font-medium ${
-					isSubscribed && isBilling
-						? "bg-gray-3 text-dark hover:bg-gray-4"
-						: activeStyle
-				} ${isSubscribed && "cursor-not-allowed"}`}
+				className={`mt-9 flex w-full justify-center rounded-full  p-3.5 font-satoshi font-medium ${isSubscribed && isBilling
+					? "bg-gray-3 text-dark hover:bg-gray-4"
+					: activeStyle
+					} ${isSubscribed && "cursor-not-allowed"}`}
 				disabled={!isSubscribed ? false : true}
 			>
 				{isBilling
