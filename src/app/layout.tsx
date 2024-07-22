@@ -1,16 +1,22 @@
+import ThemeRegistry from "@/components/ThemeRegistry/ThemeRegistry";
 import "../styles/globals.css";
-import "../styles/satoshi.css";
-import { Inter } from "next/font/google";
-const inter = Inter({ subsets: ["latin"] });
+import { IBM_Plex_Sans } from "next/font/google";
+
+const font = IBM_Plex_Sans({
+	weight: ["100", "200", "300", "400", "500", "600", "700"],
+	subsets: ["cyrillic"],
+});
 
 const layout = ({ children }: { children: React.ReactNode }) => {
 	return (
 		<html lang='en' suppressHydrationWarning={true}>
-			<body
-				className={`${inter.className} flex min-h-screen flex-col dark:bg-[#151F34]`}
-			>
-				{children}
-			</body>
+			<ThemeRegistry options={{ key: "mui" }}>
+				<body
+					className={`${font.className} flex min-h-screen flex-col dark:bg-[#151F34]`}
+				>
+					{children}
+				</body>
+			</ThemeRegistry>
 		</html>
 	);
 };

@@ -1,38 +1,33 @@
-import DataStatsCard from "@/components/Admin/Dashboard/DataStatsCard";
-import GraphCard from "@/components/Admin/Dashboard/GraphCard";
+import Classes from "@/components/Admin/Classes";
 import Breadcrumb from "@/components/Common/Dashboard/Breadcrumb";
-import { dataStats, overviewData } from "@/staticData/statsData";
+import { getClasses } from "@/libs/class";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
 	title: `Dashboard - ${process.env.SITE_NAME}`,
 	description: `Dashboard Description`,
 };
 
-export default function AdminDashboard() {
+const ClassesSection = async () => {
+	const classes = await getClasses();
+	return (
+		<Classes
+			classes={classes}
+		/>
+	);
+
+}
+
+export default async function ClassesPage() {
+
 	return (
 		<>
 			<Breadcrumb pageTitle='Dashboard' />
+			<Suspense fallback={<div>Loading...</div>} >
+				<ClassesSection />
+			</Suspense>
 
-			<div className='mb-11 grid grid-cols-1 gap-7.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-4'>
-				{dataStats.map((data) => (
-					<DataStatsCard key={data?.id} data={data} />
-				))}
-			</div>
-
-			<div>
-				<div className='mb-7.5'>
-					<h3 className='mb-2 font-satoshi text-heading-5 font-bold tracking-[-.5px] text-dark dark:text-white'>
-						Overview
-					</h3>
-					<p className='font-satoshi font-medium tracking-[-.2px] text-body dark:text-gray-4'>
-						An overview of your organization’s activity and performance across
-						all your projects.
-					</p>
-				</div>
-
-
-			</div>
 		</>
 	);
 }

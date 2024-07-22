@@ -1,173 +1,19 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+	.font-IBM {
+		font-family: 'IBM Plex Sans', sans-serif;
+	}
+
 	html {
 		@apply scroll-smooth;
 	}
 
 	body {
-		@apply relative z-1 font-inter text-base font-normal -tracking-[0.16px] text-body;
+		@apply relative z-1 font-IBM text-base font-normal -tracking-[0.16px] text-body;
 	}
 }
-
-@layer components {
-	.dropdown {
-		@apply left-0 hidden min-w-max flex-col gap-0 rounded-lg bg-white p-2.5 shadow-dropdown duration-200 ease-in dark:bg-gray-dark xl:invisible
-    xl:absolute xl:flex xl:w-[220px] xl:translate-y-10 xl:opacity-0
-    xl:group-hover:visible xl:group-hover:translate-y-7 xl:group-hover:opacity-100;
-	}
-
-	.account-dropdown {
-		@apply left-0 hidden min-w-max flex-col gap-0 rounded-lg bg-white p-2.5 shadow-dropdown duration-200 ease-in dark:bg-gray-dark lg:invisible
-    lg:absolute lg:flex lg:translate-y-4 lg:opacity-0 lg:group-hover:visible
-    lg:group-hover:translate-y-2 lg:group-hover:opacity-100 xl:w-[220px];
-	}
-}
-
-@layer utilities {
-	/* Chrome, Safari and Opera */
-	.no-scrollbar::-webkit-scrollbar {
-		display: none;
-	}
-
-	.no-scrollbar {
-		-ms-overflow-style: none; /* IE and Edge */
-		scrollbar-width: none; /* Firefox */
-	}
-}
-
-/* ========= Third Party Plugins CSS ========== */
-.ql-toolbar.ql-snow {
-	@apply rounded-t-lg border border-stroke px-5 py-3 dark:border-stroke-dark;
-}
-
-.ql-container.ql-snow {
-	@apply rounded-b-lg border border-stroke dark:border-stroke-dark;
-}
-
-.ql-snow .ql-stroke {
-	@apply stroke-current;
-}
-
-.ql-snow .ql-fill {
-	@apply fill-current;
-}
-
-.ql-editor.ql-blank::before {
-	@apply left-6 text-base font-medium text-body dark:text-gray-4;
-}
-
-.ql-editor {
-	@apply px-6 py-5 text-base font-medium text-dark dark:text-white;
-}
-
-.ql-editor:focus {
-	@apply rounded-lg ring-offset-1 focus:!border-transparent focus:!shadow-input focus:!ring-2 focus:!ring-primary/20;
-}
-
-.ql-snow .ql-picker,
-.ql-snow .ql-stroke,
-.ql-snow .ql-formats {
-	@apply !text-body dark:!text-gray-4;
-}
-.ql-snow .ql-stroke {
-	@apply !stroke-body dark:!stroke-gray-4;
-}
-
-.editor .ql-container {
-	@apply h-[300px];
-}
-
-.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-options {
-	@apply dark:bg-slate-800 dark:border-black;
-}
-
-
-/* ApexChart */
-.apexcharts-legend-text {
-	@apply !text-body dark:!text-gray-4;
-}
-.apexcharts-text {
-	@apply !fill-body dark:!fill-gray-4;
-}
-.apexcharts-xcrosshairs {
-	@apply !fill-stroke dark:!fill-stroke-dark;
-}
-.apexcharts-gridline {
-	@apply !stroke-stroke dark:!stroke-stroke-dark;
-}
-.apexcharts-series.apexcharts-pie-series path {
-	@apply dark:!stroke-transparent;
-}
-.apexcharts-legend-series {
-	@apply !inline-flex gap-1.5;
-}
-.apexcharts-tooltip.apexcharts-theme-light {
-	@apply dark:!border-stroke-dark dark:!bg-dark-4;
-}
-.apexcharts-tooltip.apexcharts-theme-light .apexcharts-tooltip-title {
-	@apply dark:!border-stroke-dark dark:!bg-dark-4;
-}
-.apexcharts-xaxistooltip,
-.apexcharts-yaxistooltip {
-	@apply dark:!border-dark-4 dark:!bg-dark-4 dark:!text-gray-4;
-}
-.apexcharts-xaxistooltip-bottom:after {
-	@apply dark:!border-b-dark-4;
-}
-.apexcharts-xaxistooltip-bottom:before {
-	@apply dark:!border-b-dark-4;
-}
-.apexcharts-tooltip-series-group {
-	@apply !pl-1.5;
-}
-
-.blog-details p {
-	@apply mb-6 dark:text-slate-400;
-}
-
-.blog-details h2 {
-	@apply mb-4.5 font-satoshi text-3xl font-bold -tracking-[1px] text-black dark:text-white;
-}
-
-.blog-details h3 {
-	@apply mb-4.5 font-satoshi text-2xl font-bold -tracking-[1px] text-black dark:text-white;
-}
-
-.blog-details h4 {
-	@apply mb-4.5 font-satoshi text-xl font-bold -tracking-[1px] text-black dark:text-white;
-}
-
-.blog-details h5 {
-	@apply mb-4.5 font-satoshi text-lg font-bold -tracking-[1px] text-black dark:text-white;
-}
-
-.blog-details img {
-	@apply rounded-[15px];
-}
-
-.blog-details blockquote {
-	@apply my-9 mb-6 border-l-[3px] border-primary py-5 pl-7.5 font-medium italic text-black dark:text-white;
-}
-
-.blog-details strong {
-	@apply dark:text-gray-5;
-}
-
-.active {
-	@apply bg-primary/5 text-primary dark:bg-white/5 dark:text-white;
-}
-
-/* select {
-	appearance: none; 
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	background: url("/images/icon/arrow.svg") no-repeat;
-	background-position: 89% center;
-	background-size: 16px 16px;
-	padding-right: 20px;
-} */
