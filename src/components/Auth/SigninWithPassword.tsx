@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Loader from "../Common/Loader";
+import { setCookie } from "cookies-next";
 
 export default function SigninWithPassword() {
 	const [data, setData] = useState({
@@ -40,9 +41,15 @@ export default function SigninWithPassword() {
 				toast.error(callback.error);
 				setLoading(false);
 			}
+			console.log("callback", callback);
 
 			if (callback?.ok && !callback?.error) {
 				toast.success("Logged in successfully");
+				// setCookie("sessionId", callback., {
+				// 	httpOnly: true,
+				// 	secure: true,
+				// 	sameSite: "strict",
+				// });
 				setLoading(false);
 				setData({ email: "", password: "", remember: false });
 				router.push("/admin");

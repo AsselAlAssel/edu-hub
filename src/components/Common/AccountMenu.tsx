@@ -38,11 +38,10 @@ const AccountMenu = ({ user }: any) => {
 						<li key={item?.id} className='mx-2.5 mb-1'>
 							<Link
 								href={`${item?.path}`}
-								className={`flex w-full items-center gap-2 rounded-lg px-3.5 py-2.5 font-satoshi font-medium text-body hover:bg-gray-2 hover:text-dark dark:hover:bg-primary dark:hover:text-white ${
-									pathname === item?.path
+								className={`flex w-full items-center gap-2 rounded-lg px-3.5 py-2.5 font-satoshi font-medium text-body hover:bg-gray-2 hover:text-dark dark:hover:bg-primary dark:hover:text-white ${pathname === item?.path
 										? "bg-gray-2 text-dark dark:bg-primary dark:text-white"
 										: ""
-								}`}
+									}`}
 							>
 								<span>{item?.icon}</span>
 								{item?.title}

@@ -1,13 +1,7 @@
 "use client";
-import Link from "next/link";
-import { useState } from "react";
-import GithubSigninButton from "../GithubSigninButton";
-import GoogleSigninButton from "../GoogleSigninButton";
-import SigninWithMagicLink from "../SigninWithMagicLink";
 import SigninWithPassword from "../SigninWithPassword";
 
 export default function Signin() {
-	const [signinOption, setSigninOption] = useState("magic-link");
 
 	return (
 		<>

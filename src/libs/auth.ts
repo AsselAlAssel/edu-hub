@@ -2,12 +2,13 @@ import { prisma } from "@/libs/prismaDb";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { type NextAuthOptions, DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GitHubProvider from "next-auth/providers/github";
-import GoogleProvider from "next-auth/providers/google";
-import EmailProvider from "next-auth/providers/email";
 import { getServerSession } from "next-auth";
 import bcrypt from "bcrypt";
 import { User } from "@prisma/client";
+import { setCookie } from 'cookies-next';
+import { cookies } from "next/headers";
+import { v4 as uuid } from "uuid";
+
 
 declare module "next-auth" {
 	interface Session extends DefaultSession {
@@ -34,13 +35,13 @@ export const authOptions: NextAuthOptions = {
 				username: { label: "Username", type: "text", placeholder: "Jhon Doe" },
 			},
 
-			async authorize(credentials) {
-				// check to see if eamil and password is there
+			async authorize(credentials, req) {
+				// check to see if email and password is there
 				if (!credentials?.email || !credentials?.password) {
 					throw new Error("Please enter an email or password");
 				}
 
-				// check to see if user already exist
+				// check to see if user already exists
 				const user = await prisma.user.findUnique({
 					where: {
 						email: credentials.email,
@@ -65,28 +66,6 @@ export const authOptions: NextAuthOptions = {
 				return user;
 			},
 		}),
-
-		EmailProvider({
-			server: {
-				host: process.env.EMAIL_SERVER_HOST,
-				port: Number(process.env.EMAIL_SERVER_PORT),
-				auth: {
-					user: process.env.EMAIL_SERVER_USER,
-					pass: process.env.EMAIL_SERVER_PASSWORD,
-				},
-			},
-			from: process.env.EMAIL_FROM,
-		}),
-
-		GitHubProvider({
-			clientId: process.env.GITHUB_CLIENT_ID || "",
-			clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
-		}),
-
-		GoogleProvider({
-			clientId: process.env.GOOGLE_CLIENT_ID || "",
-			clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-		}),
 	],
 
 	callbacks: {
@@ -95,24 +74,44 @@ export const authOptions: NextAuthOptions = {
 			const user: User = payload.user;
 
 			if (trigger === "update") {
-				// console.log(token.picture, session.user);
 				return {
 					...token,
 					...session.user,
 					picture: session.user.image,
 					image: session.user.image,
+					test: "1"
 				};
 			}
 
 			if (user) {
+				const sessionId = uuid();
+				token.sessionId = sessionId;
+				await prisma.session.create({
+					data: {
+						userId: user.id,
+						expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+						sessionId,
+					},
+				});
+				token.sessionId = sessionId;
 				return {
 					...token,
 					uid: user.id,
 					role: user.role,
 					picture: user.image,
 					image: user.image,
+					test: "2"
 				};
 			}
+			const tempSession = await prisma.session.findUnique({
+				where: {
+					sessionId: token.sessionId,
+				},
+			});
+			if (!tempSession) {
+				throw new Error("Session not found");
+			}
+
 			return token;
 		},
 
@@ -125,11 +124,21 @@ export const authOptions: NextAuthOptions = {
 						id: token.sub,
 						role: token.role,
 						image: token.picture,
+						sessionId: token.sessionId,
 					},
 				};
 			}
 			return session;
 		},
+
+		signIn: async ({ user }) => {
+			await prisma.session.deleteMany({
+				where: {
+					userId: user.id,
+				},
+			});
+			return true;
+		}
 	},
 
 	// debug: process.env.NODE_ENV === "developement",
