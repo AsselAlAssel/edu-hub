@@ -27,7 +27,7 @@ export const userSidebarData: Sidebar[] = [
 				/>
 			</svg>
 		),
-	}
+	},
 ];
 
 export const userMenuData: Sidebar[] = [
@@ -204,8 +204,6 @@ export const adminSidebarData: Sidebar[] = [
 			</svg>
 		),
 	},
-
-
 ];
 
 export const adminSidebarOtherData: Sidebar[] = [

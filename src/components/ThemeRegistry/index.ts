@@ -1,1 +1,1 @@
-export { default } from './ThemeRegistry';
+export { default } from "./ThemeRegistry";

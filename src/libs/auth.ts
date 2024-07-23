@@ -5,10 +5,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { getServerSession } from "next-auth";
 import bcrypt from "bcrypt";
 import { User } from "@prisma/client";
-import { setCookie } from 'cookies-next';
+import { setCookie } from "cookies-next";
 import { cookies } from "next/headers";
 import { v4 as uuid } from "uuid";
-
+import { signOut } from "next-auth/react";
 
 declare module "next-auth" {
 	interface Session extends DefaultSession {
@@ -79,7 +79,7 @@ export const authOptions: NextAuthOptions = {
 					...session.user,
 					picture: session.user.image,
 					image: session.user.image,
-					test: "1"
+					test: "1",
 				};
 			}
 
@@ -94,13 +94,13 @@ export const authOptions: NextAuthOptions = {
 					},
 				});
 				token.sessionId = sessionId;
+				console.log("sessionId1111:", sessionId);
 				return {
 					...token,
 					uid: user.id,
 					role: user.role,
 					picture: user.image,
 					image: user.image,
-					test: "2"
 				};
 			}
 			const tempSession = await prisma.session.findUnique({
@@ -109,7 +109,7 @@ export const authOptions: NextAuthOptions = {
 				},
 			});
 			if (!tempSession) {
-				throw new Error("Session not found");
+				signOut({ callbackUrl: "/auth/signin" });
 			}
 
 			return token;
@@ -138,7 +138,7 @@ export const authOptions: NextAuthOptions = {
 				},
 			});
 			return true;
-		}
+		},
 	},
 
 	// debug: process.env.NODE_ENV === "developement",

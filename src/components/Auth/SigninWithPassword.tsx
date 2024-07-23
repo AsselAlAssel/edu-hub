@@ -1,15 +1,17 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import FormButton from "../Common/Dashboard/FormButton";
 import InputGroup from "../Common/Dashboard/InputGroup";
 import toast from "react-hot-toast";
-import { signIn } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Loader from "../Common/Loader";
 import { setCookie } from "cookies-next";
+import { useQueryState } from "next-usequerystate";
 
 export default function SigninWithPassword() {
+	const [signOutQuery, setSignOut] = useQueryState("signOut");
 	const [data, setData] = useState({
 		email: "",
 		password: "",
@@ -57,6 +59,12 @@ export default function SigninWithPassword() {
 		});
 	};
 
+	useEffect(() => {
+		if (signOutQuery) {
+			signOut({ callbackUrl: "/auth/signin" });
+		}
+	}, [signOutQuery]);
+
 	return (
 		<form className='mb-5 space-y-4' onSubmit={handleSubmit}>
 			<InputGroup
@@ -99,8 +107,9 @@ export default function SigninWithPassword() {
 						}
 					/>
 					<span
-						className={`mr-2.5 inline-flex h-5.5 w-5.5 items-center justify-center rounded-md border border-stroke bg-white text-white text-opacity-0 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-opacity-100 dark:border-stroke-dark dark:bg-white/5 ${data.remember ? "bg-primary" : ""
-							}`}
+						className={`mr-2.5 inline-flex h-5.5 w-5.5 items-center justify-center rounded-md border border-stroke bg-white text-white text-opacity-0 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-opacity-100 dark:border-stroke-dark dark:bg-white/5 ${
+							data.remember ? "bg-primary" : ""
+						}`}
 					>
 						<svg
 							width='10'

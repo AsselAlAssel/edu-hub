@@ -30,9 +30,9 @@ export default function Sidebar({
 					</p>
 					<ul className='space-y-2'>
 						{sidebarData &&
-							sidebarData?.map((item: any, key: number) =>
+							sidebarData?.map((item: any, key: number) => (
 								<SidebarListItem key={key} item={item} pathname={pathname} />
-							)}
+							))}
 					</ul>
 				</div>
 				{sidebarOthersData && (
@@ -42,8 +42,7 @@ export default function Sidebar({
 						</p>
 						<ul className='space-y-2'>
 							{sidebarOthersData?.map((item: any, key: number) => (
-								<SidebarListItem key={key}
-									item={item} pathname={pathname} />
+								<SidebarListItem key={key} item={item} pathname={pathname} />
 							))}
 						</ul>
 					</div>

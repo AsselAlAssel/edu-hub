@@ -9,8 +9,8 @@ const font = IBM_Plex_Sans({
 
 const layout = ({ children }: { children: React.ReactNode }) => {
 	return (
-		<html lang='en' suppressHydrationWarning={true}>
-			<ThemeRegistry options={{ key: "mui" }}>
+		<html lang='ar' suppressHydrationWarning={true} dir='rtl'>
+			<ThemeRegistry direction='rtl'>
 				<body
 					className={`${font.className} flex min-h-screen flex-col dark:bg-[#151F34]`}
 				>

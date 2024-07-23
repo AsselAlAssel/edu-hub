@@ -1,28 +1,78 @@
-import AccountButton from "./AccountButton";
-import Notifications from "./NotificationMenu/Notifications";
+"use client";
+import PageContainer from "@/components/PageContainer";
+import { Box, Stack, Typography } from "@mui/material";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
+
+export const APP_BAR_HEIGHT = 80;
+
+const LinkItem = ({
+	children,
+	href,
+}: {
+	children: React.ReactNode;
+	href: string;
+}) => {
+	return (
+		<Typography
+			sx={{
+				fontWeight: 600,
+				color: "primary.contrastText",
+				textAlign: "center",
+				height: "100%",
+			}}
+		>
+			<Link
+				href={href}
+				style={{
+					textDecoration: "none",
+					color: "inherit",
+					height: "100%",
+				}}
+			>
+				{children}
+			</Link>
+		</Typography>
+	);
+};
 
 export default function Header({ openSidebar, setOpenSidebar }: any) {
 	const { data: session } = useSession();
 
 	return (
-		<div className='sticky top-0 z-999 flex items-center justify-between border-b border-stroke bg-white px-5 py-5 dark:border-stroke-dark dark:bg-gray-dark md:px-10'>
-			<div onClick={() => setOpenSidebar(!openSidebar)} className='lg:hidden '>
-				<span className='relative block h-5.5 w-5.5 cursor-pointer'>
-					<span className='du-block absolute right-0 h-full w-full'>
-						<span className='relative left-0 top-0 my-1 block h-0.5 w-full rounded-sm bg-black delay-[0] duration-200 ease-in-out dark:bg-white'></span>
-						<span className='relative left-0 top-0 my-1 block h-0.5 w-full rounded-sm bg-black delay-[0] duration-200 ease-in-out dark:bg-white'></span>
-						<span className='relative left-0 top-0 my-1 block h-0.5 w-full rounded-sm bg-black delay-[0] duration-200 ease-in-out dark:bg-white'></span>
-					</span>
-				</span>
-			</div>
-			<p className='hidden whitespace-nowrap font-satoshi text-xl font-medium capitalize text-dark dark:text-white lg:block'>
-				Welcome {session?.user?.name}! 👋
-			</p>
-
-			<div className='flex w-full items-center justify-end gap-4'>
-				<AccountButton user={session?.user} />
-			</div>
-		</div>
+		<Box
+			sx={(theme) => ({
+				borderBottom: `1px solid ${theme.palette.border.main}`,
+				height: APP_BAR_HEIGHT,
+				zIndex: 999,
+				position: "fixed",
+				width: "100%",
+				top: 0,
+				p: 0,
+				backgroundColor: theme.palette.primary.main,
+			})}
+		>
+			<PageContainer
+				sx={(theme) => ({
+					[theme.breakpoints.down("sm")]: {
+						px: "32px !important",
+					},
+				})}
+			>
+				<Stack
+					direction='row'
+					justifyContent='space-between'
+					alignItems='center'
+					height={APP_BAR_HEIGHT}
+				>
+					<Stack direction='row' spacing={2.5} alignItems='center'>
+						<LinkItem href='/'>الرئيسية</LinkItem>
+						<LinkItem href='/about'>عن هذه المنصة</LinkItem>
+						<LinkItem href='/contact'>اتصل بنا</LinkItem>
+						<LinkItem href='/auth/signin'>تسجيل الدخول</LinkItem>
+					</Stack>
+				</Stack>
+			</PageContainer>
+		</Box>
 	);
 }

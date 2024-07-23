@@ -11,23 +11,16 @@ export const metadata: Metadata = {
 
 const ClassesSection = async () => {
 	const classes = await getClasses();
-	return (
-		<Classes
-			classes={classes}
-		/>
-	);
-
-}
+	return <Classes classes={classes} />;
+};
 
 export default async function ClassesPage() {
-
 	return (
 		<>
 			<Breadcrumb pageTitle='Dashboard' />
-			<Suspense fallback={<div>Loading...</div>} >
+			<Suspense fallback={<div>Loading...</div>}>
 				<ClassesSection />
 			</Suspense>
-
 		</>
 	);
 }

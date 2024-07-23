@@ -6,7 +6,7 @@
 
 @layer base {
 	.font-IBM {
-		font-family: 'IBM Plex Sans', sans-serif;
+		font-family: "IBM Plex Sans", sans-serif;
 	}
 
 	html {
@@ -14,6 +14,6 @@
 	}
 
 	body {
-		@apply relative z-1 font-IBM text-base font-normal -tracking-[0.16px] text-body;
+		@apply font-IBM relative z-1 text-base font-normal -tracking-[0.16px] text-body;
 	}
 }
