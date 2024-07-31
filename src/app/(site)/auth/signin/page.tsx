@@ -1,6 +1,7 @@
 import React from "react";
 import Signin from "@/components/Auth/Signin";
 import { Metadata } from "next";
+import PageContainer from "@/components/PageContainer";
 
 export const metadata: Metadata = {
 	title: `Sign in - ${process.env.SITE_NAME}`,
@@ -9,9 +10,9 @@ export const metadata: Metadata = {
 
 const SigninPage = () => {
 	return (
-		<main className='pt-[150px]'>
+		<PageContainer>
 			<Signin />
-		</main>
+		</PageContainer>
 	);
 };
 

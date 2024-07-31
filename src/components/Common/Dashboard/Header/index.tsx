@@ -1,26 +1,30 @@
 "use client";
 import PageContainer from "@/components/PageContainer";
-import { Box, Stack, Typography } from "@mui/material";
-import { useSession } from "next-auth/react";
+import { Box, Button, Stack, Typography } from "@mui/material";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export const APP_BAR_HEIGHT = 80;
 
 const LinkItem = ({
 	children,
 	href,
+	onClick,
 }: {
 	children: React.ReactNode;
 	href: string;
+	onClick?: () => void;
 }) => {
 	return (
 		<Typography
 			sx={{
 				fontWeight: 600,
-				color: "primary.contrastText",
+				color: "primary.main",
 				textAlign: "center",
 				height: "100%",
 			}}
+			onClick={onClick}
 		>
 			<Link
 				href={href}
@@ -39,17 +43,32 @@ const LinkItem = ({
 export default function Header({ openSidebar, setOpenSidebar }: any) {
 	const { data: session } = useSession();
 
+	const [isScrolled, setIsScrolled] = useState(false);
+	useEffect(() => {
+		const handleScroll = () => {
+			if (window.scrollY > 0) {
+				setIsScrolled(true);
+			} else {
+				setIsScrolled(false);
+			}
+		};
+		window.addEventListener("scroll", handleScroll);
+		return () => {
+			window.removeEventListener("scroll", handleScroll);
+		};
+	}, []);
+
 	return (
 		<Box
 			sx={(theme) => ({
-				borderBottom: `1px solid ${theme.palette.border.main}`,
 				height: APP_BAR_HEIGHT,
 				zIndex: 999,
 				position: "fixed",
 				width: "100%",
 				top: 0,
 				p: 0,
-				backgroundColor: theme.palette.primary.main,
+				borderBottom: `1px solid ${theme.palette.divider}`,
+				backgroundColor: theme.palette.background.paper
 			})}
 		>
 			<PageContainer
@@ -57,22 +76,58 @@ export default function Header({ openSidebar, setOpenSidebar }: any) {
 					[theme.breakpoints.down("sm")]: {
 						px: "32px !important",
 					},
+					minHeight: APP_BAR_HEIGHT,
+					maxHeight: APP_BAR_HEIGHT,
 				})}
 			>
-				<Stack
-					direction='row'
-					justifyContent='space-between'
-					alignItems='center'
+				<Stack direction='row' justifyContent='space-between' alignItems='center'
 					height={APP_BAR_HEIGHT}
 				>
-					<Stack direction='row' spacing={2.5} alignItems='center'>
-						<LinkItem href='/'>الرئيسية</LinkItem>
-						<LinkItem href='/about'>عن هذه المنصة</LinkItem>
-						<LinkItem href='/contact'>اتصل بنا</LinkItem>
-						<LinkItem href='/auth/signin'>تسجيل الدخول</LinkItem>
+					<Box
+						sx={{
+							flex: 1,
+							display: "flex",
+							justifyContent: "flex-start",
+							marginRight: "auto",
+						}}
+					>
+						Logo
+					</Box>
+					<Stack
+						direction='row'
+						justifyContent='center'
+						alignItems='center'
+					>
+						<Stack direction='row' spacing={2.5} alignItems='center'>
+							<LinkItem href='/'>الرئيسية</LinkItem>
+							<LinkItem href='/classes'>الصفوف</LinkItem>
+							<LinkItem href='/about'>عن هذه المنصة</LinkItem>
+
+							<LinkItem href='/contact'>اتصل بنا</LinkItem>
+
+						</Stack>
 					</Stack>
+					<Box
+						sx={{
+							marginLeft: "auto",
+							flex: 1,
+							justifyContent: "flex-end",
+							display: "flex",
+						}}
+					>
+						{session ? (
+							<Button href='#'
+								onClick={() => signOut()}
+							>تسجيل الخروج</Button>
+						) : (
+							<Button href='/auth/signin'
+
+							>تسجيل الدخول</Button>
+						)}
+					</Box>
+
 				</Stack>
 			</PageContainer>
-		</Box>
+		</Box >
 	);
 }

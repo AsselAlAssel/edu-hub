@@ -34,3 +34,23 @@ export const getClasses = async () => {
 
 	return classesWithResources;
 };
+
+export const getClass = async (classId: string) => {
+	const folders = await prisma.folder.findMany({
+		where: {
+			classId,
+		},
+	});
+
+	const videos = await prisma.video.findMany({
+		where: {
+			classId,
+		},
+	});
+
+	return {
+		folders,
+		videos,
+	};
+
+}

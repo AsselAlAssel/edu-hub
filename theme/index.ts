@@ -83,17 +83,22 @@ export const createEduTheme = (direction: Direction) => {
 				styleOverrides: {
 					root: ({ theme }) => ({
 						textTransform: "none",
-						boxShadow: "0px 1px 2px 0px #1018280D",
+						boxShadow: "0px 1px 2px 0px rgba(0, 0, 0, 0.05)",
 						borderRadius: 8,
 						fontWeight: 600,
 						fontSize: 16,
 						border: "1px solid",
-						borderColor: mainColor,
+						borderColor: "transparent",
 						flexShrink: 0,
 						padding: "12px 20px",
+						backgroundColor: mainColor,
+						color: "#FFFFFF",
 						[theme.breakpoints.down("sm")]: {
 							padding: "12px 16px",
 							fontSize: 14,
+						},
+						"&:hover": {
+							backgroundColor: `${secondaryColor} !important`,
 						},
 					}),
 					sizeLarge: {

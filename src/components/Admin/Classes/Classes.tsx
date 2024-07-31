@@ -2,8 +2,9 @@ import { Class } from "@prisma/client";
 import React from "react";
 import ClassItem from "./ClassItem";
 import { Grid } from "@mui/material";
+import { ClassesWithResources } from "@/types/types";
 
-export default function Classes({ classes }: { classes: Class[] }) {
+export default function Classes({ classes }: { classes: ClassesWithResources[] }) {
 	return (
 		<Grid container spacing={2}>
 			{classes.map((classItem) => (

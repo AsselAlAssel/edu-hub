@@ -1,5 +1,6 @@
 import Classes from "@/components/Admin/Classes";
 import Breadcrumb from "@/components/Common/Dashboard/Breadcrumb";
+import PageContainer from "@/components/PageContainer";
 import { getClasses } from "@/libs/class";
 import { Metadata } from "next";
 import { Suspense } from "react";
@@ -16,11 +17,10 @@ const ClassesSection = async () => {
 
 export default async function ClassesPage() {
 	return (
-		<>
-			<Breadcrumb pageTitle='Dashboard' />
+		<PageContainer>
 			<Suspense fallback={<div>Loading...</div>}>
 				<ClassesSection />
 			</Suspense>
-		</>
+		</PageContainer>
 	);
 }
