@@ -1,4 +1,4 @@
-import { prisma } from "@/libs/prismaDb";
+import { getClass } from "@/libs/class";
 import { isUser } from "@/libs/uitls";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -12,15 +12,7 @@ export const GET = async (
 		return new NextResponse("Unauthorized", { status: 401 });
 	}
 
-	const classes = await prisma.class.findUnique({
-		where: {
-			id: params.classId,
-		},
-		include: {
-			folders: true,
-			videos: true,
-		},
-	});
+	const classItem = await getClass(params.classId);
 
-	return NextResponse.json(classes);
+	return NextResponse.json(classItem);
 };

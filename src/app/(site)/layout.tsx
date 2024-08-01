@@ -15,7 +15,7 @@ export default function RootLayout({
 }) {
 	return (
 		<>
-			{/* <Loader /> */}
+			<Loader />
 			<>
 				<ToastContext />
 				<Providers>

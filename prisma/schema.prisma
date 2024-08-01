@@ -53,6 +53,7 @@ model VerificationToken {
 model Class {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
   name     String
+  description String?
   folders  Folder[] @relation("ClassFolders")
   videos   Resource[]
   createdAt DateTime @default(now())
@@ -67,7 +68,8 @@ model Folder {
   parentFolder  Folder?  @relation("ParentFolder", fields: [parentFolderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   parentFolderId String? @db.ObjectId
   subFolders    Folder[] @relation("ParentFolder")
-  videos        Resource[]
+  resource        Resource[]
+  isRoot       Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -78,9 +80,9 @@ model Resource {
  resourceId String
  resourceType ResourceType
   classId    String?  @db.ObjectId
-  class      Class?   @relation(fields: [classId], references: [id])
+  class      Class?   @relation(fields: [classId], references: [id] ,onDelete: SetNull)
   folderId   String?  @db.ObjectId
-  folder     Folder?  @relation(fields: [folderId], references: [id])
+  folder     Folder?  @relation(fields: [folderId], references: [id] ,onDelete: SetNull)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }

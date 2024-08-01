@@ -1,9 +1,14 @@
 "use client";
 import PageContainer from "@/components/PageContainer";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { alpha, Avatar, Box, Button, Stack, Typography } from "@mui/material";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
+import SideBar from "../Sidebar";
+import { useRouter } from "next/navigation";
+import useRole from "@/hooks/useRole";
 
 export const APP_BAR_HEIGHT = 80;
 
@@ -40,10 +45,14 @@ const LinkItem = ({
 	);
 };
 
-export default function Header({ openSidebar, setOpenSidebar }: any) {
+export default function Header() {
 	const { data: session } = useSession();
+	const user = session?.user;
+	const [openSidebar, setOpenSidebar] = useState(false);
+	const router = useRouter();
+	const { isAdmin } = useRole();
 
-	const [isScrolled, setIsScrolled] = useState(false);
+	const [, setIsScrolled] = useState(false);
 	useEffect(() => {
 		const handleScroll = () => {
 			if (window.scrollY > 0) {
@@ -68,7 +77,7 @@ export default function Header({ openSidebar, setOpenSidebar }: any) {
 				top: 0,
 				p: 0,
 				borderBottom: `1px solid ${theme.palette.divider}`,
-				backgroundColor: theme.palette.background.paper
+				backgroundColor: theme.palette.background.paper,
 			})}
 		>
 			<PageContainer
@@ -80,7 +89,10 @@ export default function Header({ openSidebar, setOpenSidebar }: any) {
 					maxHeight: APP_BAR_HEIGHT,
 				})}
 			>
-				<Stack direction='row' justifyContent='space-between' alignItems='center'
+				<Stack
+					direction='row'
+					justifyContent='space-between'
+					alignItems='center'
 					height={APP_BAR_HEIGHT}
 				>
 					<Box
@@ -97,14 +109,20 @@ export default function Header({ openSidebar, setOpenSidebar }: any) {
 						direction='row'
 						justifyContent='center'
 						alignItems='center'
+						display={{ xs: "none", md: "flex" }}
 					>
 						<Stack direction='row' spacing={2.5} alignItems='center'>
 							<LinkItem href='/'>الرئيسية</LinkItem>
 							<LinkItem href='/classes'>الصفوف</LinkItem>
-							<LinkItem href='/about'>عن هذه المنصة</LinkItem>
+							{isAdmin ? (
+								<LinkItem href='/admin/users'>الطلاب</LinkItem>
+							) : (
+								<>
+									<LinkItem href='/#about'>عن هذه المنصة</LinkItem>
 
-							<LinkItem href='/contact'>اتصل بنا</LinkItem>
-
+									<LinkItem href='/contact'>اتصل بنا</LinkItem>
+								</>
+							)}
 						</Stack>
 					</Stack>
 					<Box
@@ -112,22 +130,67 @@ export default function Header({ openSidebar, setOpenSidebar }: any) {
 							marginLeft: "auto",
 							flex: 1,
 							justifyContent: "flex-end",
-							display: "flex",
+							display: { xs: "none", md: "flex" },
 						}}
 					>
 						{session ? (
-							<Button href='#'
-								onClick={() => signOut()}
-							>تسجيل الخروج</Button>
+							<Avatar
+								sx={(theme) => ({
+									width: 40,
+									height: 40,
+									border: "1px solid",
+									borderColor: alpha("#000", 0.08),
+									backgroundColor: theme.palette.primary.main,
+									fontSize: 20,
+									cursor: "pointer",
+								})}
+								//   onClick={(e) => {
+								// 	if (isTabletOrLess) {
+								// 	  setShowSideBar(true);
+								// 	  return;
+								// 	}
+								// 	handleOpen(e);
+								//   }}
+							>
+								{user?.name?.charAt(0)?.toUpperCase() || "A"}
+							</Avatar>
 						) : (
-							<Button href='/auth/signin'
-
-							>تسجيل الدخول</Button>
+							<Button href='/auth/signin'>تسجيل الدخول</Button>
 						)}
 					</Box>
-
+					<Box
+						sx={{
+							display: { xs: "flex", md: "none" },
+						}}
+					>
+						{openSidebar ? (
+							<CloseIcon
+								onClick={() => setOpenSidebar(!openSidebar)}
+								sx={{
+									cursor: "pointer",
+								}}
+							/>
+						) : (
+							<MenuIcon
+								onClick={() => setOpenSidebar(!openSidebar)}
+								sx={{
+									cursor: "pointer",
+								}}
+							/>
+						)}
+					</Box>
 				</Stack>
 			</PageContainer>
-		</Box >
+			<SideBar
+				login={() => {
+					router.push("/auth/signin");
+				}}
+				signUp={() => {
+					signOut();
+				}}
+				showSideBar={openSidebar}
+				onClose={() => setOpenSidebar(false)}
+			/>
+		</Box>
 	);
 }

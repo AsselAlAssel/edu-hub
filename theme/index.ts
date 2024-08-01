@@ -18,7 +18,6 @@ const successColor = "#4CAF50";
 const errorColor = "#F44336";
 const warningColor = "#FF9800";
 const infoColor = "#2196F3";
-const backgroundColor = "#F0F2F5";
 const borderColor = "#D0D5DD";
 
 export const createEduTheme = (direction: Direction) => {
@@ -191,7 +190,7 @@ export const createEduTheme = (direction: Direction) => {
 			},
 			MuiTextField: {
 				styleOverrides: {
-					root: ({ theme }) => ({
+					root: {
 						borderRadius: 10,
 						"& .MuiInputBase-root": {
 							backgroundColor: "white",
@@ -199,7 +198,7 @@ export const createEduTheme = (direction: Direction) => {
 								borderColor: borderColor,
 							},
 						},
-					}),
+					},
 				},
 
 				variants: [
@@ -265,9 +264,9 @@ export const createEduTheme = (direction: Direction) => {
 					size: "medium",
 				},
 				styleOverrides: {
-					root: ({ theme }) => ({
+					root: {
 						fontWeight: 500,
-					}),
+					},
 					sizeMedium: {
 						height: 28,
 					},
@@ -284,35 +283,35 @@ export const createEduTheme = (direction: Direction) => {
 					},
 					{
 						props: { color: "secondary" },
-						style: ({ theme }) => ({
+						style: {
 							color: "#5925DC",
 							borderColor: "#D9D6FE",
 							backgroundColor: "#F4F3FF",
-						}),
+						},
 					},
 					{
 						props: { color: "error" },
-						style: ({ theme }) => ({
+						style: {
 							color: "#C11574",
 							backgroundColor: "#FDF2FA",
 							borderColor: "#FCCEEE",
-						}),
+						},
 					},
 					{
 						props: { color: "warning" },
-						style: ({ theme }) => ({
+						style: {
 							color: "#B93815",
 							backgroundColor: "#FEF6EE",
 							borderColor: "#F9DBAF",
-						}),
+						},
 					},
 					{
 						props: { color: "info" },
-						style: ({ theme }) => ({
+						style: {
 							color: "#363F72",
 							borderColor: "#D5D9EB",
 							backgroundColor: "#F8F9FC",
-						}),
+						},
 					},
 					{
 						props: { color: "success" },
@@ -397,21 +396,21 @@ export const createEduTheme = (direction: Direction) => {
 					},
 					{
 						props: { color: "secondary" },
-						style: ({ theme }) => ({
+						style: {
 							color: "#344054",
-						}),
+						},
 					},
 					{
 						props: { color: "warning" },
-						style: ({ theme }) => ({
+						style: {
 							color: "#F79009",
-						}),
+						},
 					},
 					{
 						props: { color: "error" },
-						style: ({ theme }) => ({
+						style: {
 							color: "#D92D20",
-						}),
+						},
 					},
 				],
 			},

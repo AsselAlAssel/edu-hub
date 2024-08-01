@@ -1,19 +1,20 @@
-import { Typography } from "@mui/material";
-import React from "react";
+import { Box } from "@mui/material";
+import { StyledSectionSubTitle, StyledSectionTitle } from "./Styled";
 
 export default function AboutSection() {
 	return (
-		<Typography
+		<Box
 			sx={{
-				fontSize: "2rem",
-				fontWeight: 600,
-				color: "primary.main",
-				mt: "2rem",
+				my: 10,
 			}}
+			id='about'
 		>
-			"لوريم ايبسوم دولار سيت أميت ,كونسيكتيتور أدايبا يسكينج أليايت,سيت دو
-			أيوسمود تيمبور أنكايديديونتيوت لابوري ات دولار ماجنا أليكيوا . يوت انيم أد
-			مينيم فينايم,كيواس نوستريد
-		</Typography>
+			<StyledSectionTitle>عن هذه المنصة</StyledSectionTitle>
+			<StyledSectionSubTitle>
+				منصة تعليمية تهدف إلى تسهيل عملية التعلم والتعليم في مادة الفيزياء
+				للطلاب
+			</StyledSectionSubTitle>
+			{/* add some data here */}
+		</Box>
 	);
 }

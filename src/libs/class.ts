@@ -1,56 +1,52 @@
 import { prisma } from "./prismaDb";
 
-const getNumberOfResources = async (classId: string) => {
-	const folders = await prisma.folder.count({
-		where: {
-			classId,
-		},
-	});
-
-	const videos = await prisma.video.count({
-		where: {
-			classId,
-		},
-	});
-
-	return {
-		folders,
-		videos,
-	};
-};
-
 export const getClasses = async () => {
-	const classes = await prisma.class.findMany();
-	const classesWithResources = await Promise.all(
-		classes.map(async (classItem) => {
-			const { folders, videos } = await getNumberOfResources(classItem.id);
-			return {
-				...classItem,
-				folders,
-				videos,
-			};
-		})
-	);
+	const classes = await prisma.class.findMany({
+		include: {
+			folders: {
+				where: {
+					isRoot: true,
+				},
+			},
+		},
+	});
 
-	return classesWithResources;
+	return classes;
 };
 
 export const getClass = async (classId: string) => {
+	const classData = await prisma.class.findUnique({
+		where: {
+			id: classId,
+		},
+		include: {
+			folders: {
+				where: {
+					isRoot: true,
+				},
+			},
+		},
+	});
+
+	return classData;
+};
+
+export const getResources = async (folderId: string) => {
 	const folders = await prisma.folder.findMany({
 		where: {
-			classId,
+			parentFolderId: folderId,
 		},
 	});
-
-	const videos = await prisma.video.findMany({
+	const resources = await prisma.resource.findMany({
 		where: {
-			classId,
+			folderId: folderId,
 		},
 	});
 
-	return {
+	const resourceData = {
 		folders,
-		videos,
+		resources,
 	};
 
-}
+	return resourceData;
+};

@@ -1,14 +1,15 @@
 import { prisma } from "@/libs/prismaDb";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { type NextAuthOptions, DefaultSession } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { getServerSession } from "next-auth";
-import bcrypt from "bcrypt";
 import { User } from "@prisma/client";
-import { setCookie } from "cookies-next";
-import { cookies } from "next/headers";
-import { v4 as uuid } from "uuid";
+import bcrypt from "bcrypt";
+import {
+	type NextAuthOptions,
+	DefaultSession,
+	getServerSession,
+} from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { signOut } from "next-auth/react";
+import { v4 as uuid } from "uuid";
 
 declare module "next-auth" {
 	interface Session extends DefaultSession {
@@ -35,7 +36,7 @@ export const authOptions: NextAuthOptions = {
 				username: { label: "Username", type: "text", placeholder: "Jhon Doe" },
 			},
 
-			async authorize(credentials, req) {
+			async authorize(credentials) {
 				// check to see if email and password is there
 				if (!credentials?.email || !credentials?.password) {
 					throw new Error("Please enter an email or password");

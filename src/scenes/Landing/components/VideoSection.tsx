@@ -14,7 +14,6 @@ export default function VideoSection() {
 				referrerPolicy='strict-origin-when-cross-origin'
 				allowFullScreen
 			></iframe>
-
 		</Box>
 	);
 }

@@ -1,6 +1,5 @@
 "use client";
 import Header from "@/components/Common/Dashboard/Header";
-import { useState } from "react";
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 	return (

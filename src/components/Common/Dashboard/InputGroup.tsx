@@ -35,7 +35,7 @@ export default function InputGroup(props: any) {
 					style={{ height: height }}
 					required={required}
 					maxLength={maxlength}
-					dir="ltr"
+					dir='ltr'
 				/>
 				{type === "password" && (
 					<span className='absolute right-5 top-1/2 -translate-y-1/2 text-body dark:text-gray-6'>

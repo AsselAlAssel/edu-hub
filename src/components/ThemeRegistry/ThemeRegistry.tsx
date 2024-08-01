@@ -1,11 +1,10 @@
 "use client";
 import createCache from "@emotion/cache";
-import { useServerInsertedHTML } from "next/navigation";
 import { CacheProvider, ThemeProvider } from "@emotion/react";
-import { createEduTheme } from "../../../theme";
 import React, { useMemo } from "react";
 import { prefixer } from "stylis";
 import rtlPlugin from "stylis-plugin-rtl";
+import { createEduTheme } from "../../../theme";
 
 // This implementation is from emotion-js
 // https://github.com/emotion-js/emotion/issues/2928#issuecomment-1319747902

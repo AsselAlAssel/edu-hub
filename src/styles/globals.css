@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+	scroll-behavior: smooth;
+}
+
 @layer base {
 	.font-IBM {
 		font-family: "IBM Plex Sans", sans-serif;
@@ -15,5 +19,31 @@
 
 	body {
 		@apply font-IBM relative z-1 text-base font-normal -tracking-[0.16px] text-body;
+	}
+}
+
+@keyframes landingImgUpAndDown {
+	0%,
+	100% {
+		top: 0px;
+	}
+
+	50% {
+		top: -50px;
+	}
+}
+
+@keyframes landingRowUpAndDown {
+	0%,
+	40%,
+	60%,
+	80%,
+	100% {
+		transform: translateY(0px);
+	}
+
+	50%,
+	70% {
+		transform: translateY(-15px);
 	}
 }

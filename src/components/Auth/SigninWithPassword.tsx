@@ -1,17 +1,15 @@
 "use client";
+import { signIn, signOut } from "next-auth/react";
+import { useQueryState } from "next-usequerystate";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import toast from "react-hot-toast";
 import FormButton from "../Common/Dashboard/FormButton";
 import InputGroup from "../Common/Dashboard/InputGroup";
-import toast from "react-hot-toast";
-import { signIn, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Loader from "../Common/Loader";
-import { setCookie } from "cookies-next";
-import { useQueryState } from "next-usequerystate";
 
 export default function SigninWithPassword() {
-	const [signOutQuery, setSignOut] = useQueryState("signOut");
+	const [signOutQuery] = useQueryState("signOut");
 	const [data, setData] = useState({
 		email: "",
 		password: "",
@@ -82,7 +80,6 @@ export default function SigninWithPassword() {
 				height='50px'
 				handleChange={handleChange}
 				value={data.password}
-
 			/>
 			<br />
 

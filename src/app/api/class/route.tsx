@@ -1,14 +1,13 @@
-import { authOptions } from "@/libs/auth";
+import { getClasses } from "@/libs/class";
 import { prisma } from "@/libs/prismaDb";
 import { isAdmin, isUser } from "@/libs/uitls";
-import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
 export const POST = async (req: Request) => {
 	const body = await req.json();
-	const { name } = body;
+	const { name, description } = body;
 
 	if (!name) {
 		return new NextResponse("Missing Fields", { status: 400 });
@@ -18,9 +17,18 @@ export const POST = async (req: Request) => {
 		return new NextResponse("Unauthorized", { status: 401 });
 	}
 
-	await prisma.class.create({
+	const classItem = await prisma.class.create({
 		data: {
 			name,
+			description: description || "",
+		},
+	});
+
+	await prisma.folder.create({
+		data: {
+			name: "Root Folder",
+			classId: classItem.id,
+			isRoot: true,
 		},
 	});
 
@@ -32,7 +40,7 @@ export const GET = async () => {
 		return new NextResponse("Unauthorized", { status: 401 });
 	}
 
-	const classes = await prisma.class.findMany();
+	const classes = await getClasses();
 
 	return NextResponse.json(classes);
 };
