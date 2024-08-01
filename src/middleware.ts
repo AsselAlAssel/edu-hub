@@ -3,11 +3,14 @@ import { NextResponse } from "next/server";
 
 async function checkSession(sessionId: string): Promise<boolean> {
 	try {
-		const res = await fetch("http://localhost:3000/api/check-session", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ sessionId }),
-		});
+		const res = await fetch(
+			`${process.env.NEXT_PUBLIC_DOMAIN}/api/check-session`,
+			{
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ sessionId }),
+			}
+		);
 		if (!res.ok) {
 			return false;
 		}

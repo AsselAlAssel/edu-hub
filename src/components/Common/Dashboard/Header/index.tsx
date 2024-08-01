@@ -155,7 +155,9 @@ export default function Header() {
 								{user?.name?.charAt(0)?.toUpperCase() || "A"}
 							</Avatar>
 						) : (
-							<Button href='/auth/signin'>تسجيل الدخول</Button>
+							<Button onClick={() => router.push("/auth/signin")}>
+								تسجيل الدخول
+							</Button>
 						)}
 					</Box>
 					<Box
