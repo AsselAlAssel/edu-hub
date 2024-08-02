@@ -14,8 +14,7 @@ enum Role {
 
 enum ResourceType {
   VIDEO
-  DOCUMENT
-  image
+  FILE
 }
 
 
@@ -55,7 +54,7 @@ model Class {
   name     String
   description String?
   folders  Folder[] @relation("ClassFolders")
-  videos   Resource[]
+  resources   Resource[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -65,7 +64,7 @@ model Folder {
   name          String
   parentClass   Class    @relation("ClassFolders", fields: [classId], references: [id])
   classId       String   @db.ObjectId
-  parentFolder  Folder?  @relation("ParentFolder", fields: [parentFolderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parentFolder  Folder?  @relation("ParentFolder", fields: [parentFolderId], references: [id], onDelete: NoAction ,onUpdate: NoAction)
   parentFolderId String? @db.ObjectId
   subFolders    Folder[] @relation("ParentFolder")
   resource        Resource[]
@@ -77,7 +76,8 @@ model Folder {
 model Resource {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   title      String
- resourceId String
+ resourceId String?
+ url       String
  resourceType ResourceType
   classId    String?  @db.ObjectId
   class      Class?   @relation(fields: [classId], references: [id] ,onDelete: SetNull)

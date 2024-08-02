@@ -80,12 +80,27 @@ export const DELETE = async (req: Request) => {
 	if (!(await isAdmin())) {
 		return new NextResponse("Unauthorized", { status: 401 });
 	}
-
-	await prisma.class.delete({
+	const folders = await prisma.folder.findMany({
 		where: {
-			id,
+			classId: id,
 		},
 	});
+
+	// Delete each folder
+	for (const folder of folders) {
+		await prisma.folder.delete({
+			where: {
+				id: folder.id,
+			},
+		});
+	}
+
+	// Then, delete the class
+	// await prisma.class.delete({
+	// 	where: {
+	// 		id,
+	// 	},
+	// });
 
 	return new NextResponse("Class deleted", { status: 200 });
 };

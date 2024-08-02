@@ -90,7 +90,7 @@ export const useAllClass = (classes: Class[]) => {
 	return { data };
 };
 
-export const getClass = async (key: string) => {
+const getClass = async (key: string) => {
 	const response = await axios.get(key);
 	return response.data;
 };

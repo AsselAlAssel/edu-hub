@@ -7,18 +7,21 @@ import "../../styles/globals.css";
 import "../../styles/satoshi.css";
 import ToastContext from "../context/ToastContext";
 import { Providers } from "./providers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/libs/auth";
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
+	const session = await getServerSession(authOptions);
 	return (
 		<>
 			<Loader />
 			<>
 				<ToastContext />
-				<Providers>
+				<Providers session={session}>
 					<NextTopLoader
 						color='#635BFF'
 						crawlSpeed={300}

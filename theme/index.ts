@@ -414,6 +414,30 @@ export const createEduTheme = (direction: Direction) => {
 					},
 				],
 			},
+			MuiDialog: {
+				styleOverrides: {
+					paper: {
+						boxShadow: "0px 8px 8px - 4px #10182808",
+					},
+				},
+			},
+			MuiDialogContent: {
+				styleOverrides: {
+					root: {
+						padding: "24px",
+					},
+				},
+			},
+			MuiDialogActions: {
+				styleOverrides: {
+					root: ({ theme }) => ({
+						padding: theme.spacing(3),
+						justifyContent: "space-between",
+						borderTop: "1px solid",
+						borderColor: theme.palette.border.main,
+					}),
+				},
+			},
 		},
 	});
 	return theme;
