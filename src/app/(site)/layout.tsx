@@ -4,7 +4,6 @@ import FooterWrapper from "@/components/Footer/FooterWrapper";
 import NextTopLoader from "nextjs-toploader";
 import "react-quill/dist/quill.snow.css";
 import "../../styles/globals.css";
-import "../../styles/satoshi.css";
 import ToastContext from "../context/ToastContext";
 import { Providers } from "./providers";
 import { getServerSession } from "next-auth";

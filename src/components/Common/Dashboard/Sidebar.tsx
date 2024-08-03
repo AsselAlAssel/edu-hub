@@ -3,7 +3,6 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { APP_BAR_HEIGHT } from "./Header";
 
 type SideBarProps = {
@@ -45,7 +44,6 @@ const LinkItem = ({
 };
 
 export default function SideBar(props: SideBarProps) {
-	const { t } = useTranslation("common");
 	const { showSideBar, onClose, login } = props;
 	const { data } = useSession();
 	const user = data?.user;
@@ -107,7 +105,7 @@ export default function SideBar(props: SideBarProps) {
 											color: "#B42318",
 										}}
 									>
-										{t("logout")}
+										تسجيل الخروج
 									</Button>
 								) : (
 									<Button
@@ -122,7 +120,7 @@ export default function SideBar(props: SideBarProps) {
 											mr: 1.5,
 										}}
 									>
-										{t("login")}
+										تسجيل الدخول
 									</Button>
 								)}
 							</Stack>

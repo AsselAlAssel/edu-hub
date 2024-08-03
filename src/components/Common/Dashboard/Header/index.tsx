@@ -305,9 +305,6 @@ export default function Header() {
 				login={() => {
 					router.push("/auth/signin");
 				}}
-				signUp={() => {
-					signOut();
-				}}
 				showSideBar={openSidebar}
 				onClose={() => setOpenSidebar(false)}
 			/>
