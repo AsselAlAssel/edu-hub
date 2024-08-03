@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { prisma } from "@/libs/prismaDb";
-import { ResourceType } from "@prisma/client";
 
 export async function POST(req: NextRequest) {
 	try {
@@ -10,6 +9,7 @@ export async function POST(req: NextRequest) {
 		const file = formData.get("file") as Blob;
 		const folderId = formData.get("folderId") as string;
 		const classId = formData.get("classId") as string;
+		const type = formData.get("type") as string;
 
 		if (!file) {
 			return NextResponse.json({ error: "No file found" }, { status: 400 });
@@ -23,23 +23,26 @@ export async function POST(req: NextRequest) {
 
 		// Upload to Bunny CDN
 		const response = await axios.put(
-			`https://${process.env.NEXT_PUBLIC_BASE_HOSTNAME}/${process.env.NEXT_PUBLIC_STORAGE_ZONE_NAME}/${fileName}`,
+			`https://${(process.env.NEXT_BUNNYCDN_BASE_HOSTNAME =
+				"storage.bunnycdn.com")}/${
+				process.env.NEXT_BUNNYCDN_STORAGE_ZONE_NAME
+			}/${fileName}`,
 			buffer,
 			{
 				headers: {
 					"Content-Type": "application/octet-stream",
-					AccessKey: process.env.NEXT_PUBLIC_ACCESS_KEY,
+					AccessKey: process.env.NEXT_BUNNYCDN_FILE_ACCESS_KEY,
 				},
 			}
 		);
-		const url = `https://${process.env.NEXT_PUBLIC_PULL_ZONE_NAME}.b-cdn.net/${fileName}`;
-		await prisma.resource.create({
+		const url = `https://${process.env.NEXT_BUNNYCDN_PULL_ZONE_NAME}.b-cdn.net/${fileName}`;
+		await prisma.file.create({
 			data: {
-				title: fileName,
+				name: fileName,
 				url: url,
 				folderId: folderId,
 				classId: classId,
-				resourceType: ResourceType.FILE,
+				type: type,
 			},
 		});
 

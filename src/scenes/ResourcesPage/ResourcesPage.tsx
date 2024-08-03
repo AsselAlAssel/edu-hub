@@ -4,11 +4,12 @@ import EmptyState from "@/components/EmptyState";
 import PageContainer from "@/components/PageContainer";
 import { useResource } from "@/hooks/useResourceApi";
 import useRole from "@/hooks/useRole";
-import { Typography } from "@mui/material";
-import { Folder, Resource } from "@prisma/client";
+import { Stack, Typography } from "@mui/material";
+import { File, Folder, Video } from "@prisma/client";
 import { useMemo } from "react";
-import FolderSection from "./components/FolderSection";
 import FilesSection from "./components/FilesSection";
+import FolderSection from "./components/FolderSection";
+import VideosSection from "./components/VideosSection";
 
 export default function ResourcesPage({
 	resources,
@@ -18,7 +19,8 @@ export default function ResourcesPage({
 }: {
 	resources: {
 		folders: Folder[];
-		resources: Resource[];
+		files: File[];
+		videos: Video[];
 	};
 	folderId: string;
 	isRootFolder: boolean;
@@ -34,8 +36,13 @@ export default function ResourcesPage({
 
 	const isDataEmpty = useMemo(() => {
 		if (data === undefined) return true;
-		return data?.folders.length === 0 && data?.resources.length === 0;
+		return (
+			data?.folders.length === 0 &&
+			data?.files.length === 0 &&
+			data?.videos.length === 0
+		);
 	}, [data]);
+	console.log("data", data);
 
 	return (
 		<PageContainer>
@@ -48,15 +55,32 @@ export default function ResourcesPage({
 					title='لا توجد موارد لعرضها حتى الآن'
 					description='سيتم إضافة الموارد قريباً'
 				/>
-			) : null}
-			{isDataEmpty && isAdmin ? (
-				<EmptyAddResources folderId={folderId} classId={classId} />
-			) : null}
-			{data?.folders.length ? <FolderSection folders={data.folders} /> : null}
+			) : (
+				<Stack spacing={3}>
+					{isDataEmpty && isAdmin ? (
+						<EmptyAddResources folderId={folderId} classId={classId} />
+					) : (
+						<>
+							<FolderSection
+								folders={data?.folders ?? []}
+								classId={classId}
+								folderId={folderId}
+							/>
+							<VideosSection
+								videos={data?.videos ?? []}
+								classId={classId}
+								folderId={folderId}
+							/>
 
-			{data?.resources.length ? (
-				<FilesSection resources={data.resources} />
-			) : null}
+							<FilesSection
+								files={data?.files ?? []}
+								classId={classId}
+								folderId={folderId}
+							/>
+						</>
+					)}
+				</Stack>
+			)}
 		</PageContainer>
 	);
 }

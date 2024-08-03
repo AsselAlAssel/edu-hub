@@ -3,14 +3,7 @@ import queryString from "query-string";
 import { prisma } from "./prismaDb";
 import { getIsAuthorized } from "./uitls";
 
-const signUrl = async (
-	url: string,
-	securityKey: string,
-	expirationTime = 3600,
-	userIp: string | null = null,
-	isDirectory = false,
-	pathAllowed: string = ""
-) => {
+const signUrl = async (url: string, expirationTime = 3600) => {
 	let parameterData = "",
 		parameterDataUrl = "",
 		signaturePath = "",
@@ -40,7 +33,7 @@ const signUrl = async (
 		});
 	}
 	hashableBase =
-		securityKey +
+		process.env.NEXT_BUNNYCDN_FILES_AUTHENTICATION_KEY +
 		signaturePath +
 		expires +
 		(userIp != null ? userIp : "") +
@@ -79,8 +72,17 @@ const signUrl = async (
 		);
 	}
 };
+const createQuery = (videoId: string) => {
+	const expired = Math.floor((new Date() as any) / 1000) + 3600;
+	const token = crypto
+		.createHash("sha256")
+		.update(
+			process.env.NEXT_BUNNYCDN_VIDEOS_AUTHENTICATION_KEY + videoId + expired
+		)
+		.digest("hex");
+	return queryString.stringify({ token, expires: expired });
+};
 
-const securityKey = "ca30ea94-171e-4804-a9dc-31e332400289";
 const expirationTime = 3600;
 const userIp = null;
 const isDirectory = false;
@@ -124,44 +126,68 @@ export const getResources = async (folderId: string) => {
 			parentFolderId: folderId,
 		},
 	});
-	let resources = await prisma.resource.findMany({
+	let videos = await prisma.video.findMany({
+		where: {
+			folderId: folderId,
+		},
+	});
+	let files = await prisma.file.findMany({
 		where: {
 			folderId: folderId,
 		},
 	});
 	if (!isAuthorized) {
-		resources =
-			resources?.map((resource) => {
-				if (resource) {
+		files =
+			files?.map((file) => {
+				if (file) {
 					return {
-						...resource,
+						...file,
 						url: "#",
 					};
 				}
-				return resource;
+				return file;
+			}) || [];
+		videos =
+			videos?.map((video) => {
+				if (video) {
+					return {
+						...video,
+						url: "#",
+						thumbnail: video.thumbnail + "?" + createQuery(video.id),
+					};
+				}
+				return video;
 			}) || [];
 	}
 	if (isAuthorized) {
-		resources = await Promise.all(
-			resources.map(async (resource) => {
-				console.log(11111111, resource.url);
+		files = await Promise.all(
+			files.map(async (file) => {
 				return {
-					...resource,
-					url: await signUrl(
-						resource.url,
-						securityKey,
-						expirationTime,
-						userIp,
-						isDirectory,
-						pathAllowed
-					),
+					...file,
+					url: await signUrl(file.url, expirationTime),
+				};
+			})
+		);
+
+		videos = await Promise.all(
+			videos.map(async (video) => {
+				return {
+					...video,
+					url:
+						video.url +
+						"?" +
+						createQuery(video.videoId) +
+						"&autoplay=true&loop=false&muted=false&preload=true&responsive=true",
+					thumbnail: video.thumbnail + "?" + createQuery(video.videoId),
 				};
 			})
 		);
 	}
+
 	const resourceData = {
 		folders,
-		resources,
+		files,
+		videos,
 	};
 
 	return resourceData;

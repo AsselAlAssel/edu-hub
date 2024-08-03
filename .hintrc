@@ -16,6 +16,7 @@
           "iframe[loading]"
         ]
       }
-    ]
+    ],
+    "detect-css-reflows/composite": "off"
   }
 }

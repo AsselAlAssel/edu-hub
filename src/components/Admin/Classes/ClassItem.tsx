@@ -17,12 +17,11 @@ import {
 	Typography,
 } from "@mui/material";
 import { Class } from "@prisma/client";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState } from "react";
 import { mutate } from "swr";
 
 export default function ClassItem({ classItem }: { classItem: any }) {
-	const router = useRouter();
 	const { isAdmin } = useRole();
 	const [open, anchorEl, handleOpen, handleClose] = usePopoverState();
 	const [selectedClass, setSelectedClass] = useState<Class | undefined>(
@@ -42,7 +41,7 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 
 	return (
 		<>
-			<Stack
+			<Box
 				gap={2}
 				sx={{
 					borderRadius: 1.25,
@@ -63,28 +62,29 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 						},
 					}),
 				}}
-				onClick={() => {
-					console.log("classItem.id", classItem.id);
-					router.push(
-						`/class/${classItem.id}/folder/${classItem.folders[0].id}`
-					);
-				}}
 			>
-				<Box
-					sx={{
-						height: "150px",
-						width: "100%",
-						backgroundColor: "red",
-					}}
-				></Box>
-				<Box
-					sx={{
-						px: 1.25,
-						pb: 1.25,
-					}}
+				<Link
+					href={`/class/${classItem.id}/folder/${classItem.folders[0].id}`}
+					style={{ width: "100%" }}
 				>
-					<Typography variant='h6'>{classItem.name}</Typography>
-				</Box>
+					<Stack direction='column' spacing={2}>
+						<Box
+							sx={{
+								height: "150px",
+								width: "100%",
+								backgroundColor: "red",
+							}}
+						></Box>
+						<Box
+							sx={{
+								px: 1.25,
+								pb: 1.25,
+							}}
+						>
+							<Typography variant='h6'>{classItem.name}</Typography>
+						</Box>
+					</Stack>
+				</Link>
 
 				{isAdmin && (
 					<ActionsIconButton
@@ -101,7 +101,7 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 						}}
 					/>
 				)}
-			</Stack>
+			</Box>
 			<Menu
 				anchorEl={anchorEl}
 				open={open}

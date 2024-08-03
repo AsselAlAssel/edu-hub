@@ -33,6 +33,7 @@ export default function AttachmentsForm({
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
 	const { getRootProps, getInputProps } = useDropzone({
+		multiple: false,
 		onDrop: (acceptedFiles) => {
 			console.log(acceptedFiles[0]);
 			if (acceptedFiles.length > 0) {
@@ -53,15 +54,20 @@ export default function AttachmentsForm({
 			setErrorMessage("يجب تحديد ملف واحد على الأقل");
 			return;
 		}
+		const name = file.name;
+		const type = name.split(".").pop() as string;
+
 		const formData = new FormData();
 		formData.append("file", file);
 		formData.append("folderId", folderId);
 		formData.append("classId", classId);
+		formData.append("type", type);
 
 		await upload({
 			file: formData,
 		});
 		mutate(`/api/resources/${folderId}`);
+		handleCloseDialog();
 	};
 
 	return (

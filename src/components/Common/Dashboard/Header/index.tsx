@@ -1,6 +1,17 @@
 "use client";
 import PageContainer from "@/components/PageContainer";
-import { alpha, Avatar, Box, Button, Stack, Typography } from "@mui/material";
+import {
+	alpha,
+	Avatar,
+	Box,
+	Button,
+	ListItemIcon,
+	ListItemText,
+	Menu,
+	MenuItem,
+	Stack,
+	Typography,
+} from "@mui/material";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -9,6 +20,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import SideBar from "../Sidebar";
 import { useRouter } from "next/navigation";
 import useRole from "@/hooks/useRole";
+import usePopoverState from "@/hooks/usePopoverState";
+import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
+import LogoutIcon from "@mui/icons-material/Logout";
+import useMuiMediaQuery from "@/hooks/useMuiMediaQuery";
 
 export const APP_BAR_HEIGHT = 80;
 
@@ -51,6 +66,8 @@ export default function Header() {
 	const [openSidebar, setOpenSidebar] = useState(false);
 	const router = useRouter();
 	const { isAdmin } = useRole();
+	const [open, anchorEl, handleOpen, handleClose] = usePopoverState();
+	const { isTabletOrLess } = useMuiMediaQuery();
 
 	const [, setIsScrolled] = useState(false);
 	useEffect(() => {
@@ -144,13 +161,13 @@ export default function Header() {
 									fontSize: 20,
 									cursor: "pointer",
 								})}
-								//   onClick={(e) => {
-								// 	if (isTabletOrLess) {
-								// 	  setShowSideBar(true);
-								// 	  return;
-								// 	}
-								// 	handleOpen(e);
-								//   }}
+								onClick={(e) => {
+									if (isTabletOrLess) {
+										setOpenSidebar(true);
+										return;
+									}
+									handleOpen(e);
+								}}
 							>
 								{user?.name?.charAt(0)?.toUpperCase() || "A"}
 							</Avatar>
@@ -183,6 +200,107 @@ export default function Header() {
 					</Box>
 				</Stack>
 			</PageContainer>
+			<Menu
+				sx={{
+					mt: "50px",
+				}}
+				id='menu-appbar'
+				anchorEl={anchorEl}
+				anchorOrigin={{
+					vertical: "top",
+					horizontal: "right",
+				}}
+				keepMounted
+				transformOrigin={{
+					vertical: "top",
+					horizontal: "right",
+				}}
+				open={open}
+				onClose={handleClose}
+				slotProps={{
+					paper: {
+						sx: {
+							minWidth: 240,
+							boxShadow: "0px 4px 9px rgba(48, 60, 88, 0.07)",
+							p: 0,
+						},
+					},
+				}}
+			>
+				<MenuItem
+					onClick={() => {
+						router.push(`/home`);
+						handleClose();
+					}}
+					sx={{
+						py: 1.5,
+						px: 2,
+					}}
+				>
+					<Stack direction='row' spacing={8} alignItems={"center"}>
+						<Stack direction='row' spacing={1.5}>
+							<Avatar
+								sx={(theme) => ({
+									width: 40,
+									height: 40,
+									border: "1px solid",
+									borderColor: alpha("#000", 0.08),
+									backgroundColor: theme.palette.primary.main,
+									fontSize: 20,
+								})}
+							>
+								{user?.name?.[0]?.toUpperCase()}
+							</Avatar>
+							<Box>
+								<ListItemText
+									sx={{
+										"& .MuiTypography-root": {
+											fontWeight: "600 !important",
+										},
+									}}
+								>
+									{user?.name}
+								</ListItemText>
+								<ListItemText
+									sx={{
+										color: "text.tertiary",
+										fontWeight: 400,
+									}}
+								>
+									{user?.email}
+								</ListItemText>
+							</Box>
+						</Stack>
+						<ArrowRightAltIcon
+							sx={{
+								color: "primary.main",
+								fontSize: 20,
+							}}
+						/>
+					</Stack>
+				</MenuItem>
+				<MenuItem
+					onClick={() => {
+						router.push("/");
+						signOut();
+					}}
+					sx={{
+						borderTop: "1px solid #D0D5DD",
+						borderRadius: "0px",
+						py: 1.75,
+						px: 2,
+					}}
+				>
+					<ListItemIcon>
+						<LogoutIcon
+							sx={{
+								fontSize: 16,
+							}}
+						/>
+					</ListItemIcon>
+					<ListItemText>تسجيل الخروج</ListItemText>
+				</MenuItem>
+			</Menu>
 			<SideBar
 				login={() => {
 					router.push("/auth/signin");

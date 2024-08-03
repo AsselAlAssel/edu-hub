@@ -1,6 +1,5 @@
 import { Box, Button, Drawer, Stack, Typography } from "@mui/material";
-import { deleteCookie } from "cookies-next";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -11,7 +10,6 @@ type SideBarProps = {
 	showSideBar: boolean;
 	onClose: () => void;
 	login: () => void;
-	signUp: () => void;
 };
 const LinkItem = ({
 	children,
@@ -48,17 +46,10 @@ const LinkItem = ({
 
 export default function SideBar(props: SideBarProps) {
 	const { t } = useTranslation("common");
-	const { showSideBar, onClose, login, signUp } = props;
+	const { showSideBar, onClose, login } = props;
 	const { data } = useSession();
 	const user = data?.user;
 	const router = useRouter();
-	const logout = () => {
-		router.push("/");
-		deleteCookie("token");
-		deleteCookie("userId");
-		onClose();
-		router.refresh();
-	};
 	return (
 		<Drawer
 			open={showSideBar}
@@ -106,7 +97,10 @@ export default function SideBar(props: SideBarProps) {
 							<Stack spacing={1.5}>
 								{user ? (
 									<Button
-										onClick={logout}
+										onClick={async () => {
+											await signOut();
+											router.push("/");
+										}}
 										variant={"outlined"}
 										color='error'
 										sx={{
@@ -116,33 +110,20 @@ export default function SideBar(props: SideBarProps) {
 										{t("logout")}
 									</Button>
 								) : (
-									<>
-										<Button
-											onClick={() => {
-												login();
-												onClose();
-											}}
-											variant='outlined'
-											color='secondary'
-											sx={{
-												height: 44,
-												mr: 1.5,
-											}}
-										>
-											{t("login")}
-										</Button>
-										<Button
-											onClick={() => {
-												signUp();
-												onClose();
-											}}
-											sx={{
-												height: 44,
-											}}
-										>
-											{t("sign-up")}
-										</Button>
-									</>
+									<Button
+										onClick={() => {
+											login();
+											onClose();
+										}}
+										variant='outlined'
+										color='secondary'
+										sx={{
+											height: 44,
+											mr: 1.5,
+										}}
+									>
+										{t("login")}
+									</Button>
 								)}
 							</Stack>
 						</Stack>

@@ -1,5 +1,5 @@
 import { ButtonBase, ButtonProps } from "@mui/material";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 export default function ActionsIconButton(props: ButtonProps) {
 	return (
@@ -14,7 +14,7 @@ export default function ActionsIconButton(props: ButtonProps) {
 				...props.sx,
 			}}
 		>
-			<MoreHorizIcon color='primary' />
+			<MoreVertIcon color='primary' />
 		</ButtonBase>
 	);
 }

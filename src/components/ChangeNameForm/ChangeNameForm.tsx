@@ -1,4 +1,3 @@
-import { useCreateFolder, useUpdateFolderName } from "@/hooks/useFolderApis";
 import CloseIcon from "@mui/icons-material/Close";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
@@ -10,19 +9,17 @@ import {
 	IconButton,
 	Typography,
 } from "@mui/material";
-import { Controller, useForm } from "react-hook-form";
-import { mutate } from "swr";
-import CustomTextField from "../CustomTextField";
 import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import CustomTextField from "../CustomTextField";
 
 type FolderFormProps = {
 	open: boolean;
 	handleClose: () => void;
 	title: string;
-	folderId: string;
-	classId: string;
-	folderName?: string;
-	parentFolderId?: string;
+	name?: string;
+	onSubmit: (name: string) => Promise<void>;
+	isUpdatingName: boolean;
 };
 
 type FolderFormValues = {
@@ -33,44 +30,22 @@ const defaultValues = {
 	name: "",
 };
 
-export default function FolderForm({
+export default function ChangeNameForm({
 	open,
 	handleClose,
 	title,
-	folderId,
-	classId,
-	folderName,
-	parentFolderId,
+	name,
+	onSubmit,
+	isUpdatingName,
 }: FolderFormProps) {
-	console.log(folderName);
 	const { control, handleSubmit, reset } = useForm<FolderFormValues>({
 		defaultValues: {
-			name: folderName || "",
+			name: name || "",
 		},
 	});
-	const { createFolder, isCreatingFolder } = useCreateFolder();
-	const { isUpdatingFolder, updateFolderName } = useUpdateFolderName();
 	const handleCloseDialog = () => {
 		reset(defaultValues);
 		handleClose();
-	};
-	const handleCreateFolder = async (data: FolderFormValues) => {
-		await createFolder({
-			name: data.name,
-			parentFolderId: folderId,
-			classId,
-		});
-		mutate(`/api/resources/${folderId}`);
-		handleCloseDialog();
-	};
-	const handleUpdateFolderName = async (data: FolderFormValues) => {
-		await updateFolderName({
-			name: data.name,
-			parentFolderId: folderId,
-			classId,
-		});
-		mutate(`/api/resources/${parentFolderId || folderId}`);
-		handleCloseDialog();
 	};
 
 	useEffect(() => {
@@ -78,7 +53,7 @@ export default function FolderForm({
 			if (e.key === "Enter") {
 				e.preventDefault();
 				handleSubmit((data) => {
-					handleCreateFolder(data);
+					onSubmit(data.name);
 				})();
 			}
 		};
@@ -89,12 +64,12 @@ export default function FolderForm({
 	}, []);
 
 	useEffect(() => {
-		if (folderName) {
+		if (name) {
 			reset({
-				name: folderName,
+				name: name,
 			});
 		}
-	}, [folderName]);
+	}, [name]);
 
 	return (
 		<Dialog
@@ -137,13 +112,12 @@ export default function FolderForm({
 					name='name'
 					control={control}
 					rules={{
-						required: "اسم المجلد مطلوب",
+						required: "الإسم مطلوب",
 					}}
 					render={({ field, fieldState: { error } }) => (
 						<CustomTextField
 							fullWidth
-							placeholder='أدخل اسم المجلد'
-							label='اسم المجلد'
+							label='الإسم'
 							{...field}
 							error={!!error}
 							helperText={error?.message}
@@ -154,16 +128,12 @@ export default function FolderForm({
 			<DialogActions>
 				<LoadingButton
 					onClick={handleSubmit(async (data) => {
-						if (folderName) {
-							await handleUpdateFolderName(data);
-						} else {
-							await handleCreateFolder(data);
-						}
+						onSubmit(data.name);
 					})}
 					fullWidth
-					loading={isCreatingFolder || isUpdatingFolder}
+					loading={isUpdatingName}
 				>
-					{folderName ? "تعديل" : "إنشاء"}
+					حفظ
 				</LoadingButton>
 			</DialogActions>
 		</Dialog>

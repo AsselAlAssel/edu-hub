@@ -4,8 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const DELETE = async (req: NextRequest) => {
 	const body = await req.json();
-	const { videoId } = body;
-	if (!videoId) {
+	const { fileId } = body;
+	if (!fileId) {
 		return NextResponse.json(
 			{
 				message: "Missing Fields",
@@ -22,9 +22,9 @@ export const DELETE = async (req: NextRequest) => {
 		);
 	}
 
-	const isFolderExist = await prisma.video.findUnique({
+	const isFolderExist = await prisma.file.findUnique({
 		where: {
-			id: videoId,
+			id: fileId,
 		},
 	});
 	if (!isFolderExist) {
@@ -36,9 +36,9 @@ export const DELETE = async (req: NextRequest) => {
 		);
 	}
 
-	await prisma.video.delete({
+	await prisma.file.delete({
 		where: {
-			id: videoId,
+			id: fileId,
 		},
 	});
 
@@ -47,8 +47,8 @@ export const DELETE = async (req: NextRequest) => {
 
 export const PUT = async (req: NextRequest) => {
 	const body = await req.json();
-	const { videoId, name } = body;
-	if (!videoId || !name) {
+	const { fileId, name } = body;
+	if (!fileId || !name) {
 		return NextResponse.json(
 			{
 				message: "Missing Fields",
@@ -65,9 +65,9 @@ export const PUT = async (req: NextRequest) => {
 		);
 	}
 
-	const isFolderExist = await prisma.video.findUnique({
+	const isFolderExist = await prisma.file.findUnique({
 		where: {
-			id: videoId,
+			id: fileId,
 		},
 	});
 	if (!isFolderExist) {
@@ -79,9 +79,9 @@ export const PUT = async (req: NextRequest) => {
 		);
 	}
 
-	await prisma.video.update({
+	await prisma.file.update({
 		where: {
-			id: videoId,
+			id: fileId,
 		},
 		data: {
 			name,

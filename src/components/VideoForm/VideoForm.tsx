@@ -62,6 +62,7 @@ export default function VideoForm({
 			file: formData,
 		});
 		mutate(`/api/resources/${folderId}`);
+		handleCloseDialog();
 	};
 
 	return (
@@ -116,7 +117,7 @@ export default function VideoForm({
 						height: 200,
 					}}
 				>
-					<input {...getInputProps()} type='file' accept='video/*' />
+					<input {...getInputProps()} type='file' />
 					{/* {files.length ? <Typography
                         variant='h6'
                         color='textPrimary'
