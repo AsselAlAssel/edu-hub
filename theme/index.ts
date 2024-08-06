@@ -10,60 +10,33 @@ const notoSansFont = IBM_Plex_Sans_Arabic({
 	weight: ["100", "200", "300", "400", "500", "600", "700"],
 	subsets: ["arabic"],
 });
-
-const mainColor = "#0E172B";
-const secondaryColor = "#374060";
-const tertiaryColor = "#6B7487";
-const successColor = "#4CAF50";
-const errorColor = "#F44336";
-const warningColor = "#FF9800";
-const infoColor = "#2196F3";
-const borderColor = "#D0D5DD";
-
 export const createEduTheme = (direction: Direction) => {
 	const theme = createTheme({
 		direction,
 		palette: {
 			primary: {
-				main: mainColor,
-				contrastText: "#FFFFFF",
-			},
-			secondary: {
-				main: secondaryColor,
-				contrastText: "#FFFFFF",
-			},
-			tertiary: {
-				main: tertiaryColor,
+				main: "#0088DD",
+				dark: "#005991",
 				contrastText: "#FFFFFF",
 			},
 			success: {
-				main: successColor,
-			},
-			error: {
-				main: errorColor,
-			},
-			warning: {
-				main: warningColor,
-			},
-			info: {
-				main: infoColor,
+				main: "#079455",
 			},
 			background: {
-				brand: mainColor,
-				"brand-secondary": secondaryColor,
-				"brand-section": tertiaryColor,
+				brand: "#0071B8",
+				["brand-secondary"]: "#99D8FF",
 			},
 			text: {
-				primary: mainColor,
-				secondary: secondaryColor,
-				secondaryLight: tertiaryColor,
-				tertiary: tertiaryColor,
+				primary: "#101828",
+				secondary: "#005991",
+				secondaryLight: "#0088DD",
+				tertiary: "#475467",
 				placeholder: "#667085",
-				"brand-tertiary": mainColor,
-				"brand-secondary": secondaryColor,
+				["brand-tertiary"]: "#0071B8",
+				["brand-secondary"]: "#005991",
 			},
 			border: {
-				main: borderColor,
+				main: "#D0D5DD",
 				secondary: "#EAECF0",
 			},
 		},
@@ -82,22 +55,22 @@ export const createEduTheme = (direction: Direction) => {
 				styleOverrides: {
 					root: ({ theme }) => ({
 						textTransform: "none",
-						boxShadow: "0px 1px 2px 0px rgba(0, 0, 0, 0.05)",
+						boxShadow: "0px 1px 2px 0px #1018280D",
 						borderRadius: 8,
 						fontWeight: 600,
 						fontSize: 16,
 						border: "1px solid",
-						borderColor: "transparent",
+						borderColor: "#0088DD",
 						flexShrink: 0,
 						padding: "12px 20px",
-						backgroundColor: mainColor,
-						color: "#FFFFFF",
+						backgroundColor: theme.palette.primary.main,
+						color: theme.palette.primary.contrastText,
 						[theme.breakpoints.down("sm")]: {
 							padding: "12px 16px",
 							fontSize: 14,
 						},
 						"&:hover": {
-							backgroundColor: `${secondaryColor} !important`,
+							backgroundColor: `${theme.palette.primary.dark} !important`,
 						},
 					}),
 					sizeLarge: {
@@ -134,8 +107,8 @@ export const createEduTheme = (direction: Direction) => {
 						props: { color: "secondary" },
 						style: {
 							backgroundColor: "#fff",
-							color: secondaryColor,
-							borderColor: borderColor,
+							color: "#344054",
+							borderColor: "#D0D5DD",
 							"&:hover": {
 								backgroundColor: "#F2F4F7",
 								boxShadow: "none",
@@ -146,7 +119,7 @@ export const createEduTheme = (direction: Direction) => {
 						props: { variant: "outlined", color: "secondary" },
 						style: {
 							"&:hover": {
-								borderColor: mainColor,
+								borderColor: "#0088DD",
 							},
 						},
 					},
@@ -154,7 +127,7 @@ export const createEduTheme = (direction: Direction) => {
 						props: { variant: "outlined", color: "error" },
 						style: {
 							backgroundColor: "#fff",
-							color: errorColor,
+							color: "#B42318",
 							borderColor: "#FDA29B",
 							"&:hover": {
 								backgroundColor: "#FDE8E4",
@@ -195,7 +168,7 @@ export const createEduTheme = (direction: Direction) => {
 						"& .MuiInputBase-root": {
 							backgroundColor: "white",
 							"& fieldset": {
-								borderColor: borderColor,
+								borderColor: "#D0D5DD",
 							},
 						},
 					},
@@ -413,30 +386,6 @@ export const createEduTheme = (direction: Direction) => {
 						},
 					},
 				],
-			},
-			MuiDialog: {
-				styleOverrides: {
-					paper: {
-						boxShadow: "0px 8px 8px - 4px #10182808",
-					},
-				},
-			},
-			MuiDialogContent: {
-				styleOverrides: {
-					root: {
-						padding: "24px",
-					},
-				},
-			},
-			MuiDialogActions: {
-				styleOverrides: {
-					root: ({ theme }) => ({
-						padding: theme.spacing(3),
-						justifyContent: "space-between",
-						borderTop: "1px solid",
-						borderColor: theme.palette.border.main,
-					}),
-				},
 			},
 		},
 	});

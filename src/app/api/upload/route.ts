@@ -14,6 +14,22 @@ export async function POST(req: NextRequest) {
 		if (!file) {
 			return NextResponse.json({ error: "No file found" }, { status: 400 });
 		}
+		const classItem = await prisma.class.findUnique({
+			where: {
+				id: classId,
+			},
+		});
+		if (!classItem) {
+			return NextResponse.json({ error: "Class not found" }, { status: 404 });
+		}
+		const folder = await prisma.folder.findUnique({
+			where: {
+				id: folderId,
+			},
+		});
+		if (!folder) {
+			return NextResponse.json({ error: "Folder not found" }, { status: 404 });
+		}
 
 		const fileName = (file as File).name;
 
@@ -26,7 +42,7 @@ export async function POST(req: NextRequest) {
 			`https://${(process.env.NEXT_BUNNYCDN_BASE_HOSTNAME =
 				"storage.bunnycdn.com")}/${
 				process.env.NEXT_BUNNYCDN_STORAGE_ZONE_NAME
-			}/${fileName}`,
+			}/${folder.bunnyStorageFolderBath}${fileName}`,
 			buffer,
 			{
 				headers: {
@@ -35,7 +51,7 @@ export async function POST(req: NextRequest) {
 				},
 			}
 		);
-		const url = `https://${process.env.NEXT_BUNNYCDN_PULL_ZONE_NAME}.b-cdn.net/${fileName}`;
+		const url = `https://${process.env.NEXT_BUNNYCDN_PULL_ZONE_NAME}.b-cdn.net/${folder.bunnyStorageFolderBath}${fileName}`;
 		await prisma.file.create({
 			data: {
 				name: fileName,

@@ -69,20 +69,26 @@ export default function Header() {
 					/>
 				</Box>
 			</Stack>
-			<KeyboardDoubleArrowDownIcon
-				style={{
+			<Box
+				sx={{
 					position: "absolute",
-					bottom: "10",
-					left: "50%",
-					transform: "translateX(-50%)",
-					fontSize: "3rem",
-					animation: "landingRowUpAndDown 1.5s linear infinite",
-					cursor: "pointer",
+					bottom: 0,
+					width: "100%",
+					display: "flex",
+					justifyContent: "center",
 				}}
-				onClick={() => {
-					router.push("/#video");
-				}}
-			/>
+			>
+				<KeyboardDoubleArrowDownIcon
+					style={{
+						fontSize: "50px",
+						animation: "landingRowUpAndDown 1.5s linear infinite",
+						cursor: "pointer",
+					}}
+					onClick={() => {
+						router.push("/#video");
+					}}
+				/>
+			</Box>
 		</StyledStack>
 	);
 }

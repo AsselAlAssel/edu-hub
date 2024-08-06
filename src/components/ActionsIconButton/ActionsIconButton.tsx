@@ -14,7 +14,11 @@ export default function ActionsIconButton(props: ButtonProps) {
 				...props.sx,
 			}}
 		>
-			<MoreVertIcon color='primary' />
+			<MoreVertIcon
+				sx={{
+					color: "text.primary",
+				}}
+			/>
 		</ButtonBase>
 	);
 }

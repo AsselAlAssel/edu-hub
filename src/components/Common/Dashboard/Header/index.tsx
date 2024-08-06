@@ -40,7 +40,7 @@ const LinkItem = ({
 		<Typography
 			sx={{
 				fontWeight: 600,
-				color: "primary.main",
+				color: "text.primary",
 				textAlign: "center",
 				height: "100%",
 			}}

@@ -63,6 +63,7 @@
 		"stripe": "^14.13.0",
 		"stylis-plugin-rtl": "^2.1.1",
 		"swr": "^2.2.5",
+		"tus-js-client": "^1.6.0",
 		"uuid": "^10.0.0"
 	},
 	"devDependencies": {

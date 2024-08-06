@@ -1,3 +1,4 @@
+import { createFolder } from "@/libs/bunny";
 import { prisma } from "@/libs/prismaDb";
 import { isAdmin } from "@/libs/uitls";
 import { NextRequest, NextResponse } from "next/server";
@@ -22,12 +23,12 @@ export const POST = async (req: NextRequest) => {
 		);
 	}
 
-	const isClassExist = await prisma.class.findUnique({
+	const classItem = await prisma.class.findUnique({
 		where: {
 			id: classId,
 		},
 	});
-	if (!isClassExist) {
+	if (!classItem) {
 		return NextResponse.json(
 			{
 				message: "Class not found",
@@ -35,12 +36,12 @@ export const POST = async (req: NextRequest) => {
 			{ status: 404 }
 		);
 	}
-	const isParentFolderExist = await prisma.folder.findUnique({
+	const parentFolder = await prisma.folder.findUnique({
 		where: {
 			id: parentFolderId,
 		},
 	});
-	if (!isParentFolderExist) {
+	if (!parentFolder) {
 		return NextResponse.json(
 			{
 				message: "Parent Folder not found",
@@ -49,11 +50,18 @@ export const POST = async (req: NextRequest) => {
 		);
 	}
 
+	await createFolder(name, parentFolder.bunnyStorageFolderBath);
+
 	const folder = await prisma.folder.create({
 		data: {
 			name,
 			classId,
 			parentFolderId,
+			bunnyStorageFolderBath: `${
+				parentFolder.bunnyStorageFolderBath
+			}${encodeURIComponent(name)}/`,
+			bunnyStorageFolderName: encodeURIComponent(name),
+			bunnyVideoCollectionId: parentFolder.bunnyVideoCollectionId,
 		},
 	});
 

@@ -64,7 +64,7 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 				}}
 			>
 				<Link
-					href={`/class/${classItem.id}/folder/${classItem.folders[0].id}`}
+					href={`/class/${classItem.id}/folder/${classItem?.folders[0]?.id}`}
 					style={{ width: "100%" }}
 				>
 					<Stack direction='column' spacing={2}>

@@ -63,6 +63,9 @@ model Class {
 model Folder {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   name           String
+  bunnyStorageFolderName String
+  bunnyStorageFolderBath String
+  bunnyVideoCollectionId String
   parentClass    Class    @relation("ClassFolders", fields: [classId], references: [id])
   classId        String   @db.ObjectId
   parentFolder   Folder?  @relation("ParentFolder", fields: [parentFolderId], references: [id], onDelete: NoAction ,onUpdate: NoAction)

@@ -13,6 +13,8 @@ import {
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { mutate } from "swr";
+// @ts-expect-error: tus-js-client has no types
+import tus from "tus-js-client";
 
 type FolderFormProps = {
 	open: boolean;
@@ -58,9 +60,43 @@ export default function VideoForm({
 		formData.append("folderId", folderId);
 		formData.append("classId", classId);
 
-		await upload({
+		const response = await upload({
 			file: formData,
 		});
+		const {
+			videoId,
+			collectionId,
+			AuthorizationSignature,
+			AuthorizationExpire,
+			LibraryId,
+		} = response;
+		const upload1 = new tus.Upload(file, {
+			endpoint: "https://video.bunnycdn.com/tusupload",
+			retryDelays: [0, 3000, 5000, 10000, 20000, 60000, 60000],
+			headers: {
+				AuthorizationSignature: AuthorizationSignature,
+				AuthorizationExpire: AuthorizationExpire,
+				VideoId: videoId,
+				LibraryId: LibraryId,
+			},
+			metadata: {
+				filetype: file.type,
+				title: file.name,
+				collection: collectionId,
+			},
+			onError: function () {
+				// todo handle delete video
+			},
+			onProgress: function (bytesUploaded: any, bytesTotal: any) {
+				console.log(videoId);
+				const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+				console.log(bytesUploaded, bytesTotal, percentage + "%");
+			},
+			onSuccess: function () {
+				console.log("Download " + upload1.file.name + " from " + upload1.url);
+			},
+		});
+		upload1.start();
 		mutate(`/api/resources/${folderId}`);
 		handleCloseDialog();
 	};
@@ -118,20 +154,6 @@ export default function VideoForm({
 					}}
 				>
 					<input {...getInputProps()} type='file' />
-					{/* {files.length ? <Typography
-                        variant='h6'
-                        color='textPrimary'
-                    >
-                        {files.map(file => file.name).join(', ')}
-                    </Typography> :
-
-                        <Typography
-                            variant='body1'
-                            color='textSecondary'
-                        >
-                            اسحب الملفات هنا أو انقر لتحميلها
-                        </Typography>
-                    } */}
 					<Typography variant='body1' color='textSecondary'>
 						اسحب الملفات هنا أو انقر لتحميلها
 					</Typography>
