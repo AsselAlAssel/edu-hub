@@ -9,6 +9,7 @@ import DeleteDialog from "@/components/DeleteDialog";
 import { useDeleteFile, useUpdateFileName } from "@/hooks/useResourceApi";
 import { mutate } from "swr";
 import ChangeNameForm from "@/components/ChangeNameForm";
+import { deleteObjectFromR2 } from "@/actions/upload";
 
 export default function FilesSection({
 	files,
@@ -105,6 +106,9 @@ export default function FilesSection({
 							revalidate: false,
 						}
 					);
+					const url = selectedFile.url;
+					const key = url.split("/").pop() as string;
+					await deleteObjectFromR2(key);
 					setOpenDelete(false);
 				}}
 				title='حذف المجلد'

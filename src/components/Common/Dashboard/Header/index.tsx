@@ -131,12 +131,9 @@ export default function Header() {
 						<Stack direction='row' spacing={2.5} alignItems='center'>
 							<LinkItem href='/'>الرئيسية</LinkItem>
 							<LinkItem href='/classes'>الصفوف</LinkItem>
-							{isAdmin ? (
-								<LinkItem href='/admin/users'>الطلاب</LinkItem>
-							) : (
+							{isAdmin ? null : (
 								<>
 									<LinkItem href='/#about'>عن هذه المنصة</LinkItem>
-
 									<LinkItem href='/contact'>اتصل بنا</LinkItem>
 								</>
 							)}

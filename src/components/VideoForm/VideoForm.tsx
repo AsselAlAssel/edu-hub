@@ -1,4 +1,4 @@
-import { useUploadVideo } from "@/hooks/useResourceApi";
+import { useAddVideo } from "@/hooks/useResourceApi";
 import CloseIcon from "@mui/icons-material/Close";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
@@ -8,13 +8,27 @@ import {
 	DialogContent,
 	DialogTitle,
 	IconButton,
+	Stack,
 	Typography,
 } from "@mui/material";
-import { useState } from "react";
-import { useDropzone } from "react-dropzone";
+import { Controller, useForm } from "react-hook-form";
+import CustomTextField from "../CustomTextField";
 import { mutate } from "swr";
-// @ts-expect-error: tus-js-client has no types
-import tus from "tus-js-client";
+
+const youtubeRegex =
+	// eslint-disable-next-line no-useless-escape
+	/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/(watch\?v=|embed\/|v\/|.+\?v=)?([^&=%\?]{11})/;
+
+export function isYouTubeVideo(url: string) {
+	return youtubeRegex.test(url);
+}
+export function getYouTubeVideoID(url: string) {
+	const regex =
+		// eslint-disable-next-line no-useless-escape
+		/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+	const match = url.match(regex);
+	return match ? match[1] : null;
+}
 
 type FolderFormProps = {
 	open: boolean;
@@ -24,6 +38,16 @@ type FolderFormProps = {
 	classId: string;
 };
 
+type VideoFormValues = {
+	name: string;
+	url: string;
+};
+
+const defaultValues = {
+	name: "",
+	url: "",
+};
+
 export default function VideoForm({
 	open,
 	handleClose,
@@ -31,74 +55,29 @@ export default function VideoForm({
 	folderId,
 	classId,
 }: FolderFormProps) {
-	const [file, setFile] = useState<File | null>(null);
-	const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-	const { getRootProps, getInputProps } = useDropzone({
-		onDrop: (acceptedFiles) => {
-			console.log(acceptedFiles[0]);
-			if (acceptedFiles.length > 0) {
-				setFile(acceptedFiles[0]);
-			}
-		},
-	});
-
-	const { isLoading, upload } = useUploadVideo();
+	const { control, handleSubmit, setError, clearErrors, reset } =
+		useForm<VideoFormValues>({
+			defaultValues,
+		});
+	const { addVideo, isLoading } = useAddVideo();
 
 	const handleCloseDialog = () => {
-		setFile(null);
+		reset(defaultValues);
 		handleClose();
 	};
 
-	const handleUpload = async (file: File | null) => {
-		if (file === null) {
-			setErrorMessage("يجب تحديد ملف واحد على الأقل");
-			return;
-		}
-		const formData = new FormData();
-		formData.append("file", file);
-		formData.append("folderId", folderId);
-		formData.append("classId", classId);
-
-		const response = await upload({
-			file: formData,
+	const onSubmit = async (data: VideoFormValues) => {
+		const videId = getYouTubeVideoID(data.url) ?? "";
+		await addVideo({
+			name: data.name,
+			url: data.url,
+			folderId,
+			classId,
+			videoId: videId,
 		});
-		const {
-			videoId,
-			collectionId,
-			AuthorizationSignature,
-			AuthorizationExpire,
-			LibraryId,
-		} = response;
-		const upload1 = new tus.Upload(file, {
-			endpoint: "https://video.bunnycdn.com/tusupload",
-			retryDelays: [0, 3000, 5000, 10000, 20000, 60000, 60000],
-			headers: {
-				AuthorizationSignature: AuthorizationSignature,
-				AuthorizationExpire: AuthorizationExpire,
-				VideoId: videoId,
-				LibraryId: LibraryId,
-			},
-			metadata: {
-				filetype: file.type,
-				title: file.name,
-				collection: collectionId,
-			},
-			onError: function () {
-				// todo handle delete video
-			},
-			onProgress: function (bytesUploaded: any, bytesTotal: any) {
-				console.log(videoId);
-				const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-				console.log(bytesUploaded, bytesTotal, percentage + "%");
-			},
-			onSuccess: function () {
-				console.log("Download " + upload1.file.name + " from " + upload1.url);
-			},
-		});
-		upload1.start();
 		mutate(`/api/resources/${folderId}`);
 		handleCloseDialog();
+		reset(defaultValues);
 	};
 
 	return (
@@ -138,37 +117,65 @@ export default function VideoForm({
 				</Typography>
 			</DialogTitle>
 			<DialogContent>
-				<Box
-					{...getRootProps()}
-					sx={{
-						display: "flex",
-						flexDirection: "column",
-						alignItems: "center",
-						justifyContent: "center",
-						p: 3,
-						border: "1px dashed",
-						borderColor: "grey.300",
-						borderRadius: 1,
-						cursor: "pointer",
-						height: 200,
-					}}
-				>
-					<input {...getInputProps()} type='file' />
-					<Typography variant='body1' color='textSecondary'>
-						اسحب الملفات هنا أو انقر لتحميلها
-					</Typography>
-				</Box>
-				<Typography variant='body2' color='error' sx={{ mt: 1 }}>
-					{errorMessage}
-				</Typography>
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<Stack spacing={2}>
+						<Controller
+							name='name'
+							control={control}
+							rules={{
+								required: "يجب ادخال اسم الفيديو",
+							}}
+							render={({ field, fieldState: { error } }) => (
+								<CustomTextField
+									{...field}
+									label='اسم الفيديو'
+									error={!!error}
+									helperText={error?.message}
+								/>
+							)}
+						/>
+						<Controller
+							name='url'
+							control={control}
+							rules={{
+								required: "يجب ادخال رابط الفيديو",
+								pattern: {
+									value: youtubeRegex,
+									message: "يجب ادخال رابط يوتيوب",
+								},
+							}}
+							render={({ field, fieldState: { error } }) => (
+								<CustomTextField
+									{...field}
+									label='رابط الفيديو على يوتيوب'
+									error={!!error}
+									helperText={error?.message}
+									onBlur={(e) => {
+										const url = e.target.value.trim() as string;
+										if (!url) {
+											setError("url", { message: "يجب ادخال رابط الفيديو" });
+											return;
+										}
+										if (!isYouTubeVideo(url)) {
+											setError("url", { message: "يجب ادخال رابط يوتيوب" });
+											return;
+										}
+										clearErrors("url");
+										field.onChange(url);
+									}}
+								/>
+							)}
+						/>
+					</Stack>
+				</form>
 			</DialogContent>
 			<DialogActions>
 				<LoadingButton
 					fullWidth
-					onClick={() => handleUpload(file)}
+					onClick={handleSubmit(onSubmit)}
 					loading={isLoading}
 				>
-					تحميل
+					إضافة
 				</LoadingButton>
 			</DialogActions>
 		</Dialog>

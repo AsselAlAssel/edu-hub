@@ -1,6 +1,7 @@
 import CloseIcon from "@mui/icons-material/Close";
 import { Backdrop, Box, IconButton } from "@mui/material";
 import React, { useState } from "react";
+import ReactPlayer from "react-player";
 
 export default function VideoPlayer({
 	open,
@@ -33,21 +34,34 @@ export default function VideoPlayer({
 			open={open}
 			onClick={handleDialogClose}
 		>
-			<iframe
-				style={{
-					width: "100%",
-					height: "100%",
-					border: "none",
-					borderRadius: "8px",
-					overflow: "hidden",
-					maxWidth: "800px",
-					maxHeight: "600px",
-				}}
-				src={videoUrl}
-				loading='lazy'
-				allow='accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;'
-				allowFullScreen
-			></iframe>
+			{url === "" && (
+				<Box
+					sx={{
+						color: "white",
+						fontSize: "30px",
+						textAlign: "center",
+						marginTop: "50px",
+					}}
+				>
+					جاري التحميل...
+				</Box>
+			)}
+			{url ? (
+				<ReactPlayer
+					url={videoUrl}
+					playing={open}
+					controls
+					width='100%'
+					height='100%'
+					style={{
+						border: "none",
+						borderRadius: "8px",
+						overflow: "hidden",
+						maxWidth: "800px",
+						maxHeight: "600px",
+					}}
+				/>
+			) : null}
 
 			<Box position='absolute' right={24} top={24} zIndex={1}>
 				<IconButton color='default' size='large' onClick={handleDialogClose}>

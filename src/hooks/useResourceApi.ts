@@ -37,28 +37,33 @@ export const useResource = ({
 	};
 };
 
-const uploadFiles = async (
+const addFile = async (
 	key: string,
 	{
 		arg,
 	}: {
 		arg: {
-			file: FormData;
+			name: string;
+			url: string;
+			folderId: string;
+			classId: string;
+			type: string;
 		};
 	}
 ) => {
-	const response = await axios.post("/api/upload", arg.file);
+	const response = await axios.post(key, arg);
 	return response.data;
 };
-export const useUploadFile = () => {
-	const { isMutating: isLoading, trigger: upload } = useSWRMutation(
-		"/api/upload",
-		uploadFiles
+
+export const useAddFile = () => {
+	const { isMutating: isLoading, trigger: addFileMutation } = useSWRMutation(
+		"/api/file",
+		addFile
 	);
 
 	return {
 		isLoading,
-		upload,
+		addFile: addFileMutation,
 	};
 };
 
@@ -99,29 +104,33 @@ export const useUpdateFileName = () => {
 	};
 };
 
-const uploadVideo = async (
+const addVideo = async (
 	key: string,
 	{
 		arg,
 	}: {
 		arg: {
-			file: FormData;
+			name: string;
+			url: string;
+			folderId: string;
+			classId: string;
+			videoId: string;
 		};
 	}
 ) => {
-	const response = await axios.post("/api/upload/video", arg.file);
+	const response = await axios.post(key, arg);
 	return response.data;
 };
 
-export const useUploadVideo = () => {
-	const { isMutating: isLoading, trigger: upload } = useSWRMutation(
-		"/api/upload/video",
-		uploadVideo
+export const useAddVideo = () => {
+	const { isMutating: isLoading, trigger: addVideoMutation } = useSWRMutation(
+		"/api/video",
+		addVideo
 	);
 
 	return {
 		isLoading,
-		upload,
+		addVideo: addVideoMutation,
 	};
 };
 

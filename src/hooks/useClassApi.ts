@@ -89,24 +89,3 @@ export const useAllClass = (classes: Class[]) => {
 	});
 	return { data };
 };
-
-const getClass = async (key: string) => {
-	const response = await axios.get(key);
-	return response.data;
-};
-
-export const useClass = ({
-	classId,
-	classItem,
-}: {
-	classId: string;
-	classItem: Class | null;
-}) => {
-	const { data, mutate } = useSwr<Class>(`/api/class/${classId}`, getClass, {
-		fallbackData: classItem ? classItem : undefined,
-	});
-	return {
-		data,
-		mutate,
-	};
-};
