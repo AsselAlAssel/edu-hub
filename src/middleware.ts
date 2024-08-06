@@ -85,8 +85,6 @@ export default withAuth(
 		const pathname = req.nextUrl?.pathname;
 		const sessionId = req.nextauth.token?.sessionId as string;
 
-		console.log("test22222222222");
-
 		// السماح بالوصول إلى صفحة /classes بدون تسجيل الدخول
 
 		if (sessionId) {
@@ -115,7 +113,6 @@ export default withAuth(
 		secret: process.env.SECRET,
 		callbacks: {
 			authorized: ({ token, req }) => {
-				console.log("test1111111111111");
 				if (token) {
 					return true;
 				}

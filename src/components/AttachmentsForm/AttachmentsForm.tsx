@@ -1,4 +1,5 @@
-import { useUploadFile } from "@/hooks/useResourceApi";
+import { getSignedURL } from "@/actions/upload";
+import { useAddFile } from "@/hooks/useResourceApi";
 import CloseIcon from "@mui/icons-material/Close";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
@@ -10,8 +11,10 @@ import {
 	IconButton,
 	Typography,
 } from "@mui/material";
+import axios from "axios";
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
+import toast from "react-hot-toast";
 import { mutate } from "swr";
 
 type FolderFormProps = {
@@ -31,6 +34,8 @@ export default function AttachmentsForm({
 }: FolderFormProps) {
 	const [file, setFile] = useState<File | null>(null);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
+	const { addFile } = useAddFile();
 
 	const { getRootProps, getInputProps } = useDropzone({
 		multiple: false,
@@ -42,32 +47,62 @@ export default function AttachmentsForm({
 		},
 	});
 
-	const { isLoading, upload } = useUploadFile();
-
 	const handleCloseDialog = () => {
 		setFile(null);
 		handleClose();
 	};
 
-	const handleUpload = async (file: File | null) => {
-		if (file === null) {
-			setErrorMessage("يجب تحديد ملف واحد على الأقل");
-			return;
+	const handleFileUpload = async (file: File) => {
+		const signedUrl = await getSignedURL(file.type, file.size);
+		if (signedUrl.failure !== undefined) {
+			toast.error(signedUrl.failure);
+
+			return null;
 		}
-		const name = file.name;
-		const type = name.split(".").pop() as string;
+		console.log(signedUrl);
 
-		const formData = new FormData();
-		formData.append("file", file);
-		formData.append("folderId", folderId);
-		formData.append("classId", classId);
-		formData.append("type", type);
-
-		await upload({
-			file: formData,
+		const url = signedUrl.success.url;
+		const response = await axios.put(url, file, {
+			headers: {
+				"Content-Type": file.type,
+			},
 		});
-		mutate(`/api/resources/${folderId}`);
-		handleCloseDialog();
+
+		if (response.status !== 200) {
+			return null;
+		}
+
+		return signedUrl.success.key;
+	};
+
+	const handleSubmit = async (file: File | null) => {
+		try {
+			setErrorMessage(null);
+			setIsLoading(true);
+			if (file === null) {
+				setErrorMessage("يجب تحديد ملف واحد على الأقل");
+				return;
+			}
+			const fileKey = await handleFileUpload(file);
+			if (fileKey === null) {
+				toast.error("فشل تحميل الملف");
+				return;
+			}
+			const url = `${process.env.NEXT_PUBLIC_FILES_URL}/${fileKey}`;
+			await addFile({
+				name: file.name,
+				url,
+				folderId,
+				classId,
+				type: file.name.split(".").pop() || "",
+			});
+			mutate(`/api/resources/${folderId}`);
+			handleCloseDialog();
+		} catch (error) {
+			console.error("Error uploading file:", error);
+			toast.error("فشل تحميل الملف");
+		}
+		setIsLoading(false);
 	};
 
 	return (
@@ -148,7 +183,7 @@ export default function AttachmentsForm({
 			<DialogActions>
 				<LoadingButton
 					fullWidth
-					onClick={() => handleUpload(file)}
+					onClick={() => handleSubmit(file)}
 					loading={isLoading}
 				>
 					تحميل

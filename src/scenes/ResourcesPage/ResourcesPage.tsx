@@ -32,7 +32,6 @@ export default function ResourcesPage({
 		folderId,
 		resources,
 	});
-	console.log(data);
 
 	const isDataEmpty = useMemo(() => {
 		if (data === undefined) return true;
@@ -42,7 +41,6 @@ export default function ResourcesPage({
 			data?.videos.length === 0
 		);
 	}, [data]);
-	console.log("data", data);
 
 	return (
 		<PageContainer>

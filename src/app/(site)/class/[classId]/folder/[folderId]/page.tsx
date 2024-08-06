@@ -11,7 +11,6 @@ export default async function page({
 		folderId: string;
 	};
 }) {
-	console.log("params", params.folderId);
 	const { folderId } = params;
 	if (!folderId) {
 		return notFound();

@@ -1,12 +1,8 @@
-import { createFolder, createVideoCollection } from "@/libs/bunny";
-import { getClasses } from "@/libs/class";
 import { prisma } from "@/libs/prismaDb";
-import { isAdmin, isUser } from "@/libs/uitls";
-import { NextResponse } from "next/server";
+import { isAdmin, recursiveDelete } from "@/libs/uitls";
+import { NextRequest, NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic";
-
-export const POST = async (req: Request) => {
+export const POST = async (req: NextRequest) => {
 	const body = await req.json();
 	const { name, description } = body;
 
@@ -24,35 +20,19 @@ export const POST = async (req: Request) => {
 			description: description || "",
 		},
 	});
-	const uniqueNameForFolder = name + classItem.id;
-	await createFolder(uniqueNameForFolder, "");
-	const collection = await createVideoCollection(name);
 
 	await prisma.folder.create({
 		data: {
 			name: "Root Folder",
 			classId: classItem.id,
 			isRoot: true,
-			bunnyStorageFolderBath: `${encodeURIComponent(uniqueNameForFolder)}/`,
-			bunnyStorageFolderName: encodeURIComponent(uniqueNameForFolder),
-			bunnyVideoCollectionId: collection.guid,
 		},
 	});
 
 	return new NextResponse("Class created", { status: 201 });
 };
 
-export const GET = async () => {
-	if (!(await isUser())) {
-		return new NextResponse("Unauthorized", { status: 401 });
-	}
-
-	const classes = await getClasses();
-
-	return NextResponse.json(classes);
-};
-
-export const PUT = async (req: Request) => {
+export const PUT = async (req: NextRequest) => {
 	const body = await req.json();
 	const { id, name } = body;
 
@@ -74,29 +54,6 @@ export const PUT = async (req: Request) => {
 	});
 
 	return new NextResponse("Class updated", { status: 200 });
-};
-
-export const recursiveDelete = async (folderId: string) => {
-	const folders = await prisma.folder.findMany({
-		where: { parentFolderId: folderId },
-	});
-
-	if (folders.length === 0) {
-		await prisma.file.deleteMany({ where: { folderId } });
-		await prisma.video.deleteMany({ where: { folderId } });
-		await prisma.folder.delete({ where: { id: folderId } });
-		return;
-	}
-
-	await Promise.all(
-		folders.map(async (folder) => {
-			await recursiveDelete(folder.id);
-		})
-	);
-
-	await prisma.file.deleteMany({ where: { folderId } });
-	await prisma.video.deleteMany({ where: { folderId } });
-	await prisma.folder.delete({ where: { id: folderId } });
 };
 
 export const DELETE = async (req: Request) => {

@@ -1,4 +1,3 @@
-import { createFolder } from "@/libs/bunny";
 import { prisma } from "@/libs/prismaDb";
 import { isAdmin } from "@/libs/uitls";
 import { NextRequest, NextResponse } from "next/server";
@@ -50,18 +49,11 @@ export const POST = async (req: NextRequest) => {
 		);
 	}
 
-	await createFolder(name, parentFolder.bunnyStorageFolderBath);
-
 	const folder = await prisma.folder.create({
 		data: {
 			name,
 			classId,
 			parentFolderId,
-			bunnyStorageFolderBath: `${
-				parentFolder.bunnyStorageFolderBath
-			}${encodeURIComponent(name)}/`,
-			bunnyStorageFolderName: encodeURIComponent(name),
-			bunnyVideoCollectionId: parentFolder.bunnyVideoCollectionId,
 		},
 	});
 

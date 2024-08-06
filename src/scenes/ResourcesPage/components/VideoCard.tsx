@@ -16,7 +16,6 @@ import {
 	Typography,
 } from "@mui/material";
 import { Video } from "@prisma/client";
-import { useMemo } from "react";
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
 	height: 45,
@@ -43,9 +42,7 @@ export default function VideoCard({
 }) {
 	const [open, anchorEl, handleOpen, handleClose] = usePopoverState();
 	const { isAdmin } = useRole();
-	const isClosed = useMemo(() => {
-		return video.url === "#";
-	}, [video.url]);
+	const isClosed = false;
 
 	return (
 		<Stack
@@ -83,7 +80,7 @@ export default function VideoCard({
 				}}
 			>
 				<img
-					src={video.thumbnail}
+					src={video.thumbnailUrl}
 					alt={video.name}
 					style={{
 						width: "100%",
