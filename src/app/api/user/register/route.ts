@@ -22,11 +22,11 @@ export async function POST(request: Request) {
 		throw new Error("Email already exists");
 	}
 
-	const adminEmails = process.env.ADMIN_EMAILS?.split(",") || [];
+	const adminEmails = process.env.ADMIN_EMAIL;
 
-	// Function to check if an email is in the list of admin emails
-	function isAdminEmail(email: string) {
-		return adminEmails.includes(email);
+	const isAdminEmail = formatedEmail === adminEmails;
+	if (!isAdminEmail) {
+		return new NextResponse("You are not allowed to register", { status: 403 });
 	}
 
 	const hashedPassword = await bcrypt.hash(password, 10);
@@ -35,12 +35,8 @@ export async function POST(request: Request) {
 		name,
 		email: formatedEmail,
 		password: hashedPassword,
-		role: "USER",
+		role: "ADMIN",
 	};
-
-	if (isAdminEmail(formatedEmail)) {
-		newUser.role = "ADMIN";
-	}
 
 	try {
 		const user = await prisma.user.create({

@@ -1,7 +1,8 @@
 import { getClass, getResources } from "@/libs/class";
 import ResourcesPage from "@/scenes/ResourcesPage";
+import { Stack } from "@mui/material";
 import { notFound } from "next/navigation";
-import React from "react";
+import React, { Suspense } from "react";
 
 export default async function page({
 	params,
@@ -27,12 +28,20 @@ export default async function page({
 	const isRootFolder = rootFolderId === folderId;
 
 	return (
-		<ResourcesPage
-			resources={resources}
-			folderId={folderId}
-			isRootFolder={isRootFolder}
-			className={classItem?.name}
-			classId={params.classId}
-		/>
+		<Suspense
+			fallback={
+				<Stack justifyContent={"center"} alignItems={"center"}>
+					Loading...
+				</Stack>
+			}
+		>
+			<ResourcesPage
+				resources={resources}
+				folderId={folderId}
+				isRootFolder={isRootFolder}
+				className={classItem?.name}
+				classId={params.classId}
+			/>
+		</Suspense>
 	);
 }

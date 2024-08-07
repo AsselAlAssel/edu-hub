@@ -1,5 +1,11 @@
 "use client";
 import PageContainer from "@/components/PageContainer";
+import useMuiMediaQuery from "@/hooks/useMuiMediaQuery";
+import usePopoverState from "@/hooks/usePopoverState";
+import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
+import CloseIcon from "@mui/icons-material/Close";
+import LogoutIcon from "@mui/icons-material/Logout";
+import MenuIcon from "@mui/icons-material/Menu";
 import {
 	alpha,
 	Avatar,
@@ -13,17 +19,11 @@ import {
 	Typography,
 } from "@mui/material";
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import MenuIcon from "@mui/icons-material/Menu";
-import CloseIcon from "@mui/icons-material/Close";
-import SideBar from "../Sidebar";
 import { useRouter } from "next/navigation";
-import useRole from "@/hooks/useRole";
-import usePopoverState from "@/hooks/usePopoverState";
-import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
-import LogoutIcon from "@mui/icons-material/Logout";
-import useMuiMediaQuery from "@/hooks/useMuiMediaQuery";
+import { useEffect, useState } from "react";
+import SideBar from "../Sidebar";
 
 export const APP_BAR_HEIGHT = 80;
 
@@ -65,7 +65,6 @@ export default function Header() {
 	const user = session?.user;
 	const [openSidebar, setOpenSidebar] = useState(false);
 	const router = useRouter();
-	const { isAdmin } = useRole();
 	const [open, anchorEl, handleOpen, handleClose] = usePopoverState();
 	const { isTabletOrLess } = useMuiMediaQuery();
 
@@ -120,7 +119,14 @@ export default function Header() {
 							marginRight: "auto",
 						}}
 					>
-						Logo
+						<Link href='/'>
+							<Image
+								src='/images/logo/logo.svg'
+								alt='Logo'
+								width={50}
+								height={50}
+							/>
+						</Link>
 					</Box>
 					<Stack
 						direction='row'
@@ -129,14 +135,10 @@ export default function Header() {
 						display={{ xs: "none", md: "flex" }}
 					>
 						<Stack direction='row' spacing={2.5} alignItems='center'>
-							<LinkItem href='/'>الرئيسية</LinkItem>
+							<LinkItem href='/#home'>الرئيسية</LinkItem>
 							<LinkItem href='/classes'>الصفوف</LinkItem>
-							{isAdmin ? null : (
-								<>
-									<LinkItem href='/#about'>عن هذه المنصة</LinkItem>
-									<LinkItem href='/contact'>اتصل بنا</LinkItem>
-								</>
-							)}
+							<LinkItem href='/#about'>عن هذه المنصة</LinkItem>
+							<LinkItem href='/#contact'>اتصل بنا</LinkItem>
 						</Stack>
 					</Stack>
 					<Box

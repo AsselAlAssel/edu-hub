@@ -2,10 +2,11 @@ import PageContainer from "@/components/PageContainer";
 import { Box } from "@mui/material";
 import AboutSection from "./components/AboutSection";
 import Header from "./components/Header";
+import ContactUs from "./components/ContactUs";
 
 export default async function Landing() {
 	return (
-		<Box>
+		<Box id='home'>
 			<Header />
 			<PageContainer
 				sx={{
@@ -30,6 +31,7 @@ export default async function Landing() {
 				</video>
 				<AboutSection />
 			</PageContainer>
+			<ContactUs />
 		</Box>
 	);
 }

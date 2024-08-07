@@ -78,7 +78,7 @@ export default function SideBar(props: SideBarProps) {
 							justifyContent={"space-between"}
 						>
 							<Stack spacing={4} mt={user ? 4 : 0}>
-								<LinkItem href='/' onClick={onClose}>
+								<LinkItem href='/#home' onClick={onClose}>
 									الرئيسية
 								</LinkItem>
 								<LinkItem href='/classes' onClick={onClose}>
@@ -88,7 +88,7 @@ export default function SideBar(props: SideBarProps) {
 									عن هذه المنصة
 								</LinkItem>
 
-								<LinkItem href='/contact' onClick={onClose}>
+								<LinkItem href='/#contact' onClick={onClose}>
 									اتصل بنا
 								</LinkItem>
 							</Stack>

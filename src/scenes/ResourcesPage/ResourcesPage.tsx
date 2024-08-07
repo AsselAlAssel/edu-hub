@@ -43,7 +43,11 @@ export default function ResourcesPage({
 	}, [data]);
 
 	return (
-		<PageContainer>
+		<PageContainer
+			sx={{
+				mb: 20,
+			}}
+		>
 			<Typography variant='h4' textAlign={"center"} mb={4}>
 				مرحباً بك في {className}
 			</Typography>

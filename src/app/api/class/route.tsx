@@ -1,6 +1,8 @@
+import { getClasses } from "@/libs/class";
 import { prisma } from "@/libs/prismaDb";
 import { isAdmin, recursiveDelete } from "@/libs/uitls";
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
 
 export const POST = async (req: NextRequest) => {
 	const body = await req.json();
@@ -92,4 +94,10 @@ export const DELETE = async (req: Request) => {
 	await prisma.class.delete({ where: { id } });
 
 	return new NextResponse("Class deleted", { status: 200 });
+};
+
+export const GET = async () => {
+	const classes = await getClasses();
+
+	return NextResponse.json(classes);
 };

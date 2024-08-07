@@ -17,6 +17,7 @@ import {
 	Typography,
 } from "@mui/material";
 import { Class } from "@prisma/client";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { mutate } from "swr";
@@ -72,9 +73,19 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 							sx={{
 								height: "150px",
 								width: "100%",
-								backgroundColor: "red",
+								backgroundColor: "#f2f2f2",
+								display: "flex",
+								justifyContent: "center",
+								alignItems: "center",
 							}}
-						></Box>
+						>
+							<Image
+								src='/images/logo/logo.svg'
+								alt='Logo'
+								width={70}
+								height={70}
+							/>
+						</Box>
 						<Box
 							sx={{
 								px: 1.25,
@@ -145,9 +156,13 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 					}}
 				>
 					<ListItemIcon>
-						<DeleteIcon />
+						<DeleteIcon
+							sx={{
+								color: "error.main",
+							}}
+						/>
 					</ListItemIcon>
-					<ListItemText>حذف</ListItemText>
+					<Typography color='error.main'>حذف</Typography>
 				</ListItem>
 			</Menu>
 			<ClassDialog

@@ -1,5 +1,5 @@
 import { prisma } from "@/libs/prismaDb";
-import { isAdmin } from "@/libs/uitls";
+import { isAdmin, recursiveDelete } from "@/libs/uitls";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
@@ -154,12 +154,7 @@ export const DELETE = async (req: NextRequest) => {
 			{ status: 404 }
 		);
 	}
-
-	await prisma.folder.delete({
-		where: {
-			id: folderId,
-		},
-	});
+	await recursiveDelete(folderId);
 
 	return new NextResponse(null, { status: 204 });
 };

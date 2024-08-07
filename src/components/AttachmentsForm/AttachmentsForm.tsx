@@ -59,7 +59,6 @@ export default function AttachmentsForm({
 
 			return null;
 		}
-		console.log(signedUrl);
 
 		const url = signedUrl.success.url;
 		const response = await axios.put(url, file, {
@@ -158,23 +157,10 @@ export default function AttachmentsForm({
 					}}
 				>
 					<input {...getInputProps()} />
-					{/* {files.length ? <Typography
-                        variant='h6'
-                        color='textPrimary'
-                    >
-                        {files.map(file => file.name).join(', ')}
-                    </Typography> :
-
-                        <Typography
-                            variant='body1'
-                            color='textSecondary'
-                        >
-                            اسحب الملفات هنا أو انقر لتحميلها
-                        </Typography>
-                    } */}
-					<Typography variant='body1' color='textSecondary'>
+					<Typography variant='body1' mb={2} color='textSecondary'>
 						اسحب الملفات هنا أو انقر لتحميلها
 					</Typography>
+					{file ? <Typography variant='body1'>{file.name}</Typography> : null}
 				</Box>
 				<Typography variant='body2' color='error' sx={{ mt: 1 }}>
 					{errorMessage}
@@ -185,6 +171,7 @@ export default function AttachmentsForm({
 					fullWidth
 					onClick={() => handleSubmit(file)}
 					loading={isLoading}
+					loadingIndicator='تحميل...'
 				>
 					تحميل
 				</LoadingButton>

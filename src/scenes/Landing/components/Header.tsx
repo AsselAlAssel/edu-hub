@@ -18,7 +18,6 @@ export default function Header() {
 			}}
 			justifyContent={"center"}
 			alignItems={"center"}
-			id='home'
 			sx={{
 				height: `calc(100vh - ${APP_BAR_HEIGHT}px - 40px)`,
 				position: "relative",
@@ -32,11 +31,17 @@ export default function Header() {
 					alignItems={{ xs: "center", sm: "flex-start" }}
 				>
 					<Box>
-						<StyledTitle>مرحبًا بكم في موقع الفيزياء</StyledTitle>
+						<StyledTitle>مرحبًا بكم في عالم الفيزياء</StyledTitle>
 					</Box>
 					<Box>
-						<StyledSubTitle>
+						<StyledSubTitle
+							sx={{
+								color: "text.primary",
+							}}
+						>
 							اكتشف عالم الفيزياء من خلال دروس ومقاطع فيديو شاملة ومفيدة
+							<br />
+							للأستاذ محمد انور صبح
 						</StyledSubTitle>
 					</Box>
 					<Button

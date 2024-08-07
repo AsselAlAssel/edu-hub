@@ -68,15 +68,19 @@ export default function FileCard({
 			<WarperComponent
 				href={file.url ?? "#"}
 				download={true}
+				target='_blank'
 				style={{ width: "100%" }}
 			>
 				<Typography
 					variant='h6'
 					sx={{
+						maxWidth: "80%",
+						display: "-webkit-box",
+						WebkitLineClamp: 2,
+						WebkitBoxOrient: "vertical",
 						overflow: "hidden",
 						textOverflow: "ellipsis",
-						whiteSpace: "nowrap",
-						maxWidth: "80%",
+						cursor: "pointer",
 					}}
 				>
 					{file.name}

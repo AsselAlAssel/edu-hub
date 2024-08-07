@@ -387,6 +387,13 @@ export const createEduTheme = (direction: Direction) => {
 					},
 				],
 			},
+			MuiDialogActions: {
+				styleOverrides: {
+					root: {
+						padding: "16px 24px",
+					},
+				},
+			},
 		},
 	});
 	return theme;
