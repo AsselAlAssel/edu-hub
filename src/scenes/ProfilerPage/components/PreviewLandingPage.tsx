@@ -1,13 +1,17 @@
+import React from "react";
+import { Box } from "@mui/system";
+import Header from "@/scenes/Landing/components/Header";
 import PageContainer from "@/components/PageContainer";
-import { Box } from "@mui/material";
-import AboutSection from "./components/AboutSection";
-import Header from "./components/Header";
-import ContactUs from "./components/ContactUs";
-import { LandingPage } from "@prisma/client";
+import AboutSection from "@/scenes/Landing/components/AboutSection";
+import ContactUs from "@/scenes/Landing/components/ContactUs";
 
-export default async function Landing({ data }: { data: LandingPage | null }) {
+export default function PreviewLandingPage({ data }: { data: any }) {
 	return (
-		<Box id='home'>
+		<Box
+			sx={{
+				backgroundColor: "white",
+			}}
+		>
 			<Header
 				headerTitle={data?.headerTitle}
 				headerSubtitle={data?.headerSubtitle}
@@ -15,12 +19,7 @@ export default async function Landing({ data }: { data: LandingPage | null }) {
 				isVideoExist={!!data?.landingVideo}
 			/>
 
-			<PageContainer
-				sx={{
-					minHeight: "auto !important",
-					mb: 15,
-				}}
-			>
+			<PageContainer>
 				{data?.landingVideo && (
 					<Box
 						sx={{

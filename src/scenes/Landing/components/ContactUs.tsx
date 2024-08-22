@@ -11,7 +11,12 @@ import {
 	StyledSubTitle,
 } from "./Styled";
 
-export default function ContactUs() {
+export default function ContactUs(props: {
+	whatsappNumber?: string;
+	address?: string;
+	email?: string;
+}) {
+	const { whatsappNumber, address, email } = props;
 	return (
 		<SectionTemplate
 			sx={{
@@ -64,7 +69,7 @@ export default function ContactUs() {
 					<Stack justifyContent={"center"} spacing={2.5} alignItems={"center"}>
 						<StyledContactUsIconButton
 							onClick={() => {
-								window.open("mailto:info@edentist.ai", "_blank");
+								window.open(`mailto:${email}`, "_blank");
 							}}
 						>
 							<EmailOutlinedIcon />
@@ -73,9 +78,10 @@ export default function ContactUs() {
 						<Box>
 							<StyledContactUsText
 								component={"a"}
-								href={"mailto:info@edentist.ai"}
+								href={`mailto:${email}`}
+								target='_blank'
 							>
-								info@edentist.ai
+								{email}
 							</StyledContactUsText>
 						</Box>
 					</Stack>
@@ -84,12 +90,12 @@ export default function ContactUs() {
 							<LocationOnIcon />
 						</StyledContactUsIconButton>
 						<StyledSubTitle>العنوان</StyledSubTitle>
-						<StyledContactUsText>نابلس، فلسطين</StyledContactUsText>
+						<StyledContactUsText>{address}</StyledContactUsText>
 					</Stack>
 					<Stack justifyContent={"center"} spacing={2.5} alignItems={"center"}>
 						<StyledContactUsIconButton
 							onClick={() => {
-								window.open(`https://wa.me/97334384057`, "_blank");
+								window.open(`https://wa.me/${whatsappNumber}`, "_blank");
 							}}
 						>
 							<WhatsAppIcon />
@@ -101,7 +107,7 @@ export default function ContactUs() {
 							target='_blank'
 							rel='noopener noreferrer'
 						>
-							<span dir='ltr'>+973 343 840 57</span>
+							<span dir='ltr'>+{whatsappNumber}</span>
 						</StyledContactUsText>
 					</Stack>
 				</Stack>

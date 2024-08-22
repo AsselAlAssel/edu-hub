@@ -3,13 +3,19 @@ import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrow
 import { Box, Button, Stack } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import LandingImageHeader from "../../../../public/images/landing/landing-header.jpg";
 import { StyledStack, StyledSubTitle, StyledTitle } from "./Styled";
 
 const APP_BAR_HEIGHT = 80;
-
-export default function Header() {
+type HeaderProps = {
+	headerTitle?: string;
+	headerSubtitle?: string | null;
+	headerImage?: string | null;
+	isVideoExist: boolean;
+};
+export default function Header(props: HeaderProps) {
+	const { headerTitle, headerSubtitle, headerImage, isVideoExist } = props;
 	const router = useRouter();
+	console.log("headerImage", !!headerImage);
 	return (
 		<StyledStack
 			flexDirection={{
@@ -28,72 +34,96 @@ export default function Header() {
 				<Stack
 					direction={"column"}
 					spacing={3}
-					alignItems={{ xs: "center", sm: "flex-start" }}
+					alignItems={
+						!headerImage
+							? { xs: "center", sm: "flex-start" }
+							: { xs: "center", sm: "center" }
+					}
 				>
-					<Box>
-						<StyledTitle>مرحبًا بكم في عالم الفيزياء</StyledTitle>
+					<Box width={"100%"}>
+						<StyledTitle
+							sx={{
+								textAlign: headerImage ? "left" : "center",
+							}}
+						>
+							{headerTitle}
+						</StyledTitle>
 					</Box>
-					<Box>
+					<Box width={"100%"}>
 						<StyledSubTitle
 							sx={{
 								color: "text.primary",
+								textAlign: headerImage ? "left" : "center",
 							}}
 						>
-							اكتشف عالم الفيزياء من خلال دروس ومقاطع فيديو شاملة ومفيدة
-							<br />
-							للأستاذ محمد انور صبح
+							{headerSubtitle}
 						</StyledSubTitle>
 					</Box>
+
 					<Button
+						onClick={() => {
+							if (isVideoExist) {
+								router.push("/#video");
+								return;
+							}
+							router.push("/classes");
+						}}
+						sx={{
+							alignSelf: headerImage ? "flex-start" : "center",
+						}}
+					>
+						{isVideoExist ? "شاهد الفيديو التعريفي" : "تعرف على الصفوف"}
+					</Button>
+				</Stack>
+				{headerImage && (
+					<Box
+						sx={{
+							display: {
+								xs: "none",
+								sm: "block",
+								maxWidth: "500px",
+							},
+						}}
+					>
+						<Image
+							src={headerImage}
+							alt='landing-header'
+							layout='responsive'
+							width={500}
+							height={500}
+							style={{
+								width: "100%",
+								height: "100%",
+								transition: "all 0.5s",
+								position: "relative",
+								animation: "landingImgUpAndDown 5s linear infinite",
+							}}
+						/>
+					</Box>
+				)}
+			</Stack>
+			{isVideoExist && (
+				<Box
+					sx={{
+						position: "absolute",
+						bottom: 0,
+						width: "100%",
+						display: "flex",
+						justifyContent: "center",
+					}}
+				>
+					<KeyboardDoubleArrowDownIcon
+						style={{
+							fontSize: "50px",
+							animation: "landingRowUpAndDown 1.5s linear infinite",
+							cursor: "pointer",
+						}}
 						onClick={() => {
 							router.push("/#video");
 						}}
-					>
-						شاهد الفيديو التعريفي
-					</Button>
-				</Stack>
-				<Box
-					sx={{
-						display: {
-							xs: "none",
-							sm: "block",
-							maxWidth: "500px",
-						},
-					}}
-				>
-					<Image
-						src={LandingImageHeader}
-						alt='landing-header'
-						style={{
-							width: "100%",
-							height: "100%",
-							transition: "all 0.5s",
-							position: "relative",
-							animation: "landingImgUpAndDown 5s linear infinite",
-						}}
 					/>
 				</Box>
-			</Stack>
-			<Box
-				sx={{
-					position: "absolute",
-					bottom: 0,
-					width: "100%",
-					display: "flex",
-					justifyContent: "center",
-				}}
-			>
-				<KeyboardDoubleArrowDownIcon
-					style={{
-						fontSize: "50px",
-						animation: "landingRowUpAndDown 1.5s linear infinite",
-						cursor: "pointer",
-					}}
-					onClick={() => {
-						router.push("/#video");
-					}}
-				/>
-			</Box>
+			)}
 		</StyledStack>
 	);
 }

@@ -10,7 +10,6 @@ import {
 	alpha,
 	Avatar,
 	Box,
-	Button,
 	ListItemIcon,
 	ListItemText,
 	Menu,
@@ -149,32 +148,35 @@ export default function Header() {
 							display: { xs: "none", md: "flex" },
 						}}
 					>
-						{session ? (
-							<Avatar
-								sx={(theme) => ({
-									width: 40,
-									height: 40,
-									border: "1px solid",
-									borderColor: alpha("#000", 0.08),
-									backgroundColor: theme.palette.primary.main,
-									fontSize: 20,
-									cursor: "pointer",
-								})}
-								onClick={(e) => {
-									if (isTabletOrLess) {
-										setOpenSidebar(true);
-										return;
-									}
-									handleOpen(e);
-								}}
-							>
-								{user?.name?.charAt(0)?.toUpperCase() || "A"}
-							</Avatar>
-						) : (
-							<Button onClick={() => router.push("/auth/signin")}>
-								تسجيل الدخول
-							</Button>
-						)}
+						{
+							session ? (
+								<Avatar
+									sx={(theme) => ({
+										width: 40,
+										height: 40,
+										border: "1px solid",
+										borderColor: alpha("#000", 0.08),
+										backgroundColor: theme.palette.primary.main,
+										fontSize: 20,
+										cursor: "pointer",
+									})}
+									onClick={(e) => {
+										if (isTabletOrLess) {
+											setOpenSidebar(true);
+											return;
+										}
+										handleOpen(e);
+									}}
+								>
+									{user?.name?.charAt(0)?.toUpperCase() || "A"}
+								</Avatar>
+							) : null
+							//   (
+							// 	<Button onClick={() => router.push("/auth/signin")}>
+							// 		تسجيل الدخول
+							// 	</Button>
+							// )
+						}
 					</Box>
 					<Box
 						sx={{
@@ -228,7 +230,7 @@ export default function Header() {
 			>
 				<MenuItem
 					onClick={() => {
-						router.push(`/home`);
+						router.push(`/admin/profile`);
 						handleClose();
 					}}
 					sx={{

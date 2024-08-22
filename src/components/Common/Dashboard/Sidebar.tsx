@@ -44,7 +44,7 @@ const LinkItem = ({
 };
 
 export default function SideBar(props: SideBarProps) {
-	const { showSideBar, onClose, login } = props;
+	const { showSideBar, onClose } = props;
 	const { data } = useSession();
 	const user = data?.user;
 	const router = useRouter();
@@ -93,36 +93,37 @@ export default function SideBar(props: SideBarProps) {
 								</LinkItem>
 							</Stack>
 							<Stack spacing={1.5}>
-								{user ? (
-									<Button
-										onClick={async () => {
-											await signOut();
-											router.push("/");
-										}}
-										variant={"outlined"}
-										color='error'
-										sx={{
-											color: "#B42318",
-										}}
-									>
-										تسجيل الخروج
-									</Button>
-								) : (
-									<Button
-										onClick={() => {
-											login();
-											onClose();
-										}}
-										variant='outlined'
-										color='secondary'
-										sx={{
-											height: 44,
-											mr: 1.5,
-										}}
-									>
-										تسجيل الدخول
-									</Button>
-								)}
+								{
+									user ? (
+										<Button
+											onClick={async () => {
+												await signOut();
+												router.push("/");
+											}}
+											variant={"outlined"}
+											color='error'
+											sx={{
+												color: "#B42318",
+											}}
+										>
+											تسجيل الخروج
+										</Button>
+									) : null
+									// <Button
+									// 	onClick={() => {
+									// 		login();
+									// 		onClose();
+									// 	}}
+									// 	variant='outlined'
+									// 	color='secondary'
+									// 	sx={{
+									// 		height: 44,
+									// 		mr: 1.5,
+									// 	}}
+									// >
+									// 	تسجيل الدخول
+									// </Button>
+								}
 							</Stack>
 						</Stack>
 					</Box>

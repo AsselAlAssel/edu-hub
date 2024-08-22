@@ -10,12 +10,14 @@ import { useMemo } from "react";
 import FilesSection from "./components/FilesSection";
 import FolderSection from "./components/FolderSection";
 import VideosSection from "./components/VideosSection";
+import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 
 export default function ResourcesPage({
 	resources,
 	folderId,
 	className,
 	classId,
+	breadcrumb,
 }: {
 	resources: {
 		folders: Folder[];
@@ -26,6 +28,10 @@ export default function ResourcesPage({
 	isRootFolder: boolean;
 	className: string;
 	classId: string;
+	breadcrumb: {
+		id: string;
+		name: string;
+	}[];
 }) {
 	const { isAdmin } = useRole();
 	const { data } = useResource({
@@ -51,6 +57,11 @@ export default function ResourcesPage({
 			<Typography variant='h4' textAlign={"center"} mb={4}>
 				مرحباً بك في {className}
 			</Typography>
+			<Breadcrumb
+				breadcrumb={breadcrumb}
+				classId={classId}
+				folderId={folderId}
+			/>
 
 			{isDataEmpty && !isAdmin ? (
 				<EmptyState

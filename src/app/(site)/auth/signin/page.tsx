@@ -4,8 +4,8 @@ import { Metadata } from "next";
 import PageContainer from "@/components/PageContainer";
 
 export const metadata: Metadata = {
-	title: `Sign in - ${process.env.SITE_NAME}`,
-	description: `This is Sign in page for ${process.env.SITE_NAME}`,
+	title: "تسجيل الدخول",
+	description: "تسجيل الدخول",
 };
 
 const SigninPage = () => {
