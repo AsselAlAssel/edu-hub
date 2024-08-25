@@ -13,7 +13,11 @@ export default function ClassesPage({ classes }: { classes: Class[] }) {
 	const { isAdmin } = useRole();
 
 	return (
-		<PageContainer>
+		<PageContainer
+			sx={{
+				mb: 15,
+			}}
+		>
 			{isAdmin && <CreateClass />}
 			<Grid container spacing={4}>
 				{data?.map((c) => (

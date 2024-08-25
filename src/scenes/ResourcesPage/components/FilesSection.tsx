@@ -27,6 +27,8 @@ export default function FilesSection({
 	const { isAdmin } = useRole();
 	const { deleteFile, isLoading } = useDeleteFile();
 	const { isLoading: isUpdatingName, updateFileName } = useUpdateFileName();
+	const isDataEmpty = files.length === 0;
+	if (isDataEmpty && !isAdmin) return null;
 	return (
 		<Box>
 			<Typography variant='h5' mb={2}>

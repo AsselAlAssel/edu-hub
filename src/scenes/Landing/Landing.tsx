@@ -25,8 +25,14 @@ export default async function Landing({ data }: { data: LandingPage | null }) {
 					<Box
 						sx={{
 							width: "100%",
-							height: "100%",
+							height: {
+								xs: "400px",
+								sm: "500px",
+								md: "600px",
+								lg: "700px",
+							},
 							pt: 11,
+							alignSelf: "center",
 						}}
 						id='video'
 					>
@@ -34,7 +40,7 @@ export default async function Landing({ data }: { data: LandingPage | null }) {
 							style={{
 								objectFit: "cover",
 								width: "100%",
-								height: "700px",
+								height: "100%",
 							}}
 							src={`https://www.youtube.com/embed/${data.landingVideoId}`}
 							title='YouTube video player'
