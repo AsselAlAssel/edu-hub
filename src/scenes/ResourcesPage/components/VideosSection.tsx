@@ -29,6 +29,8 @@ export default function VideosSection({
 	const { isLoading, updateVideoName } = useUpdateVideoName();
 	const { deleteVideo, isLoading: isDeleting } = useDeleteVideo();
 	const { isAdmin } = useRole();
+	const isDataEmpty = videos.length === 0;
+	if (isDataEmpty && !isAdmin) return;
 
 	return (
 		<Box>

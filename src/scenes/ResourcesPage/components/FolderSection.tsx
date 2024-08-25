@@ -23,6 +23,8 @@ export default function FolderSection({
 	const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null);
 	const { deleteFolder, isDeletingFolder } = useDeleteFolder();
 	const { isAdmin } = useRole();
+	const isEmpty = folders.length === 0;
+	if (isEmpty && !isAdmin) return null;
 	return (
 		<Box>
 			<Typography variant='h5' mb={2}>
