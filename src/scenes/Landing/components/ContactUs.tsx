@@ -103,7 +103,7 @@ export default function ContactUs(props: {
 						<StyledSubTitle>الواتساب</StyledSubTitle>
 						<StyledContactUsText
 							component={"a"}
-							href={`https://wa.me/97334384057`}
+							href={`https://wa.me/${whatsappNumber}`}
 							target='_blank'
 							rel='noopener noreferrer'
 						>
