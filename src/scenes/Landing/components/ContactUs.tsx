@@ -66,25 +66,38 @@ export default function ContactUs(props: {
 					spacing={4}
 					justifyContent={"space-between"}
 				>
-					<Stack justifyContent={"center"} spacing={2.5} alignItems={"center"}>
-						<StyledContactUsIconButton
-							onClick={() => {
-								window.open(`mailto:${email}`, "_blank");
-							}}
+					<Box
+						sx={{
+							flex: 1,
+							display: "flex",
+							justifyContent: "flex-start",
+							marginRight: "auto",
+						}}
+					>
+						<Stack
+							justifyContent={"center"}
+							spacing={2.5}
+							alignItems={"center"}
 						>
-							<EmailOutlinedIcon />
-						</StyledContactUsIconButton>
-						<StyledSubTitle>البريد الإلكتروني</StyledSubTitle>
-						<Box>
-							<StyledContactUsText
-								component={"a"}
-								href={`mailto:${email}`}
-								target='_blank'
+							<StyledContactUsIconButton
+								onClick={() => {
+									window.open(`mailto:${email}`, "_blank");
+								}}
 							>
-								{email}
-							</StyledContactUsText>
-						</Box>
-					</Stack>
+								<EmailOutlinedIcon />
+							</StyledContactUsIconButton>
+							<StyledSubTitle>البريد الإلكتروني</StyledSubTitle>
+							<Box>
+								<StyledContactUsText
+									component={"a"}
+									href={`mailto:${email}`}
+									target='_blank'
+								>
+									{email}
+								</StyledContactUsText>
+							</Box>
+						</Stack>
+					</Box>
 					<Stack justifyContent={"center"} spacing={2.5} alignItems={"center"}>
 						<StyledContactUsIconButton>
 							<LocationOnIcon />
@@ -92,24 +105,38 @@ export default function ContactUs(props: {
 						<StyledSubTitle>العنوان</StyledSubTitle>
 						<StyledContactUsText>{address}</StyledContactUsText>
 					</Stack>
-					<Stack justifyContent={"center"} spacing={2.5} alignItems={"center"}>
-						<StyledContactUsIconButton
-							onClick={() => {
-								window.open(`https://wa.me/${whatsappNumber}`, "_blank");
-							}}
+					<Box
+						sx={{
+							flex: 1,
+							display: "flex",
+							justifyContent: "flex-end",
+							marginLeft: "auto",
+						}}
+					>
+						<Stack
+							spacing={2.5}
+							justifyContent={"center"}
+							alignItems={"center"}
+							width={"auto"}
 						>
-							<WhatsAppIcon />
-						</StyledContactUsIconButton>
-						<StyledSubTitle>الواتساب</StyledSubTitle>
-						<StyledContactUsText
-							component={"a"}
-							href={`https://wa.me/${whatsappNumber}`}
-							target='_blank'
-							rel='noopener noreferrer'
-						>
-							<span dir='ltr'>+{whatsappNumber}</span>
-						</StyledContactUsText>
-					</Stack>
+							<StyledContactUsIconButton
+								onClick={() => {
+									window.open(`https://wa.me/${whatsappNumber}`, "_blank");
+								}}
+							>
+								<WhatsAppIcon />
+							</StyledContactUsIconButton>
+							<StyledSubTitle>الواتساب</StyledSubTitle>
+							<StyledContactUsText
+								component={"a"}
+								href={`https://wa.me/${whatsappNumber}`}
+								target='_blank'
+								rel='noopener noreferrer'
+							>
+								<span dir='ltr'>+{whatsappNumber}</span>
+							</StyledContactUsText>
+						</Stack>
+					</Box>
 				</Stack>
 			</Box>
 		</SectionTemplate>
