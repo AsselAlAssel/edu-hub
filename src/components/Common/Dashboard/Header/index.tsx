@@ -20,7 +20,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import SideBar from "../Sidebar";
 
@@ -30,16 +30,18 @@ const LinkItem = ({
 	children,
 	href,
 	onClick,
+	isSelected,
 }: {
 	children: React.ReactNode;
 	href: string;
 	onClick?: () => void;
+	isSelected?: boolean;
 }) => {
 	return (
 		<Typography
 			sx={{
 				fontWeight: 600,
-				color: "text.primary",
+				color: isSelected ? "text.secondaryLight" : "text.tertiary",
 				textAlign: "center",
 				height: "100%",
 			}}
@@ -66,6 +68,7 @@ export default function Header() {
 	const router = useRouter();
 	const [open, anchorEl, handleOpen, handleClose] = usePopoverState();
 	const { isTabletOrLess } = useMuiMediaQuery();
+	const pathName = usePathname();
 
 	const [, setIsScrolled] = useState(false);
 	useEffect(() => {
@@ -135,7 +138,9 @@ export default function Header() {
 					>
 						<Stack direction='row' spacing={2.5} alignItems='center'>
 							<LinkItem href='/#home'>الرئيسية</LinkItem>
-							<LinkItem href='/classes'>الصفوف</LinkItem>
+							<LinkItem href='/classes' isSelected={pathName === "/classes"}>
+								الصفوف
+							</LinkItem>
 							<LinkItem href='/#about'>عن هذه المنصة</LinkItem>
 							<LinkItem href='/#contact'>اتصل بنا</LinkItem>
 						</Stack>

@@ -8,19 +8,18 @@ import { LandingPage } from "@prisma/client";
 export default async function Landing({ data }: { data: LandingPage | null }) {
 	return (
 		<Box id='home'>
-			<Header
-				headerTitle={data?.headerTitle}
-				headerSubtitle={data?.headerSubtitle}
-				headerImage={data?.headerImage}
-				isVideoExist={!!data?.landingVideo}
-			/>
-
 			<PageContainer
 				sx={{
 					minHeight: "auto !important",
 					mb: 15,
 				}}
 			>
+				<Header
+					headerTitle={data?.headerTitle}
+					headerSubtitle={data?.headerSubtitle}
+					headerImage={data?.headerImage}
+					isVideoExist={!!data?.landingVideo}
+				/>
 				{data?.landingVideo && (
 					<Box
 						sx={{

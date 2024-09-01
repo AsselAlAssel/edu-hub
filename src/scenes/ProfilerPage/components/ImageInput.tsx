@@ -1,6 +1,7 @@
 import React from "react";
 import {
 	Box,
+	Button,
 	CircularProgress,
 	IconButton,
 	InputLabel,
@@ -12,9 +13,10 @@ import { getSignedURL } from "@/actions/upload";
 import toast from "react-hot-toast";
 import axios from "axios";
 import Image from "next/image";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 type ImageInputProps = {
-	onChangeImage: (url: string) => void;
+	onChangeImage: (url: string | null) => void;
 	imageSrc: string | null;
 	inputLabel?: string;
 };
@@ -135,6 +137,20 @@ export default function ImageInput(props: ImageInputProps) {
 					</IconButton>
 				)}
 			</Box>
+			{imageSrc && (
+				<Button
+					startIcon={<DeleteIcon />}
+					size='small'
+					sx={{
+						mt: 1,
+					}}
+					onClick={() => {
+						onChangeImage("");
+					}}
+				>
+					حذف الصورة
+				</Button>
+			)}
 		</Box>
 	);
 }
