@@ -82,6 +82,7 @@ export default function Header(props: HeaderProps) {
 								xs: "none",
 								sm: "block",
 								maxWidth: "500px",
+								width: "100%",
 							},
 						}}
 					>
