@@ -67,12 +67,16 @@ export default function ContactUs(props: {
 					justifyContent={"space-between"}
 				>
 					<Box
-						sx={{
+						sx={(theme) => ({
 							flex: 1,
 							display: "flex",
 							justifyContent: "flex-start",
 							marginRight: "auto",
-						}}
+							[theme.breakpoints.down("sm")]: {
+								marginRight: "0",
+								justifyContent: "center",
+							},
+						})}
 					>
 						<Stack
 							justifyContent={"center"}
@@ -106,12 +110,16 @@ export default function ContactUs(props: {
 						<StyledContactUsText>{address}</StyledContactUsText>
 					</Stack>
 					<Box
-						sx={{
+						sx={(theme) => ({
 							flex: 1,
 							display: "flex",
 							justifyContent: "flex-end",
 							marginLeft: "auto",
-						}}
+							[theme.breakpoints.down("sm")]: {
+								marginLeft: "0",
+								justifyContent: "center",
+							},
+						})}
 					>
 						<Stack
 							spacing={2.5}
