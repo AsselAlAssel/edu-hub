@@ -40,7 +40,6 @@ export default function AttachmentsForm({
 	const { getRootProps, getInputProps } = useDropzone({
 		multiple: false,
 		onDrop: (acceptedFiles) => {
-			console.log(acceptedFiles[0]);
 			if (acceptedFiles.length > 0) {
 				setFile(acceptedFiles[0]);
 			}

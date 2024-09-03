@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 
 export const POST = async (req: Request) => {
 	const { sessionId } = await req.json();
-	console.log("sessionId11222:", sessionId);
 
 	if (!sessionId) {
 		return NextResponse.json({ error: "Session ID is required" });

@@ -6,13 +6,13 @@ import Link from "next/link";
 
 export default function Footer() {
 	return (
-		<Box bgcolor={"#161B26"} pt={8} pb={6}>
+		<Box bgcolor={"#161B26"} pt={7.5} pb={3}>
 			<Box
 				maxWidth={1280}
 				margin={"auto"}
 				px={{
 					xs: 4,
-					md: 0,
+					md: 8,
 				}}
 			>
 				<Stack

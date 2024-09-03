@@ -1,15 +1,12 @@
 "use client";
 import { Direction, createTheme } from "@mui/material";
-import { IBM_Plex_Sans_Arabic, Inter } from "next/font/google";
+import { Tajawal } from "next/font/google";
 
-const font = Inter({
-	weight: ["100", "200", "300", "400", "500", "600", "700"],
-	subsets: ["cyrillic"],
-});
-const notoSansFont = IBM_Plex_Sans_Arabic({
-	weight: ["100", "200", "300", "400", "500", "600", "700"],
+const font = Tajawal({
+	weight: ["200", "300", "400", "500", "700", "800", "900"],
 	subsets: ["arabic"],
 });
+
 export const createEduTheme = (direction: Direction) => {
 	const theme = createTheme({
 		direction,
@@ -44,10 +41,7 @@ export const createEduTheme = (direction: Direction) => {
 			borderRadius: 8,
 		},
 		typography: {
-			fontFamily:
-				direction === "rtl"
-					? notoSansFont.style.fontFamily
-					: font.style.fontFamily,
+			fontFamily: font.style.fontFamily,
 		},
 		components: {
 			MuiButton: {
@@ -152,10 +146,7 @@ export const createEduTheme = (direction: Direction) => {
 			MuiTypography: {
 				styleOverrides: {
 					root: ({ theme }) => ({
-						fontFamily:
-							direction === "rtl"
-								? notoSansFont.style.fontFamily
-								: font.style.fontFamily,
+						fontFamily: font.style.fontFamily,
 						color: theme.palette.text.primary,
 						letterSpacing: direction === "rtl" ? ".1px" : undefined,
 					}),

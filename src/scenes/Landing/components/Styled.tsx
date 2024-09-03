@@ -20,9 +20,9 @@ export const StyledStack = styled(Stack)(({ theme }) => ({
 }));
 
 export const StyledTitle = styled(Typography)(({ theme }) => ({
-	fontSize: theme.typography.pxToRem(60),
-	fontWeight: 500,
-	lineHeight: theme.typography.pxToRem(76),
+	fontSize: theme.typography.pxToRem(50),
+	fontWeight: 800,
+	lineHeight: theme.typography.pxToRem(60),
 	letterSpacing: theme.typography.pxToRem(-0.2),
 	[theme.breakpoints.down("sm")]: {
 		fontSize: theme.typography.pxToRem(48),
@@ -43,21 +43,27 @@ export const StyledSubTitle = styled(Typography)(({ theme }) => ({
 }));
 
 export const StyledSectionTitle = styled(Typography)(({ theme }) => ({
-	fontSize: theme.typography.pxToRem(28),
-	fontWeight: 500,
-	lineHeight: theme.typography.pxToRem(36),
-	letterSpacing: theme.typography.pxToRem(-0.2),
+	fontSize: theme.typography.pxToRem(40),
+	fontWeight: 800,
+	lineHeight: theme.typography.pxToRem(48),
+	textAlign: "center",
+	color: "white",
+	marginBottom: 6,
 
 	[theme.breakpoints.down("sm")]: {
 		fontSize: theme.typography.pxToRem(20),
 		lineHeight: theme.typography.pxToRem(28),
-		textAlign: "center",
+		marginBottom: 4,
 	},
 }));
 
 export const StyledSectionSubTitle = styled(Typography)(({ theme }) => ({
-	fontSize: theme.typography.pxToRem(18),
-	lineHeight: theme.typography.pxToRem(30),
+	fontSize: theme.typography.pxToRem(24),
+	lineHeight: theme.typography.pxToRem(28),
+	fontWeight: 500,
+	color: "white",
+	textAlign: "center",
+	maxWidth: 750,
 
 	[theme.breakpoints.down("sm")]: {
 		fontSize: theme.typography.pxToRem(14),
@@ -99,10 +105,12 @@ export const StyledContactUsIconButton = styled(StyledIconButton)(
 ) as typeof IconButton;
 
 export const StyledContactUsText = styled(Typography)({
-	color: "#fff",
-	fontWeight: 600,
+	color: "primary.main",
+	fontWeight: 700,
 	textAlign: "center",
 	display: "block",
+	fontSize: "24px",
+	lineHeight: "28px",
 }) as typeof Typography;
 
 export const StyledBoxSection = styled(Box)(({ theme }) => ({

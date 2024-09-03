@@ -95,7 +95,6 @@ export const authOptions: NextAuthOptions = {
 					},
 				});
 				token.sessionId = sessionId;
-				console.log("sessionId1111:", sessionId);
 				return {
 					...token,
 					uid: user.id,

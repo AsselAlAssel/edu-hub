@@ -41,7 +41,6 @@ export default function SigninWithPassword() {
 				toast.error(callback.error);
 				setLoading(false);
 			}
-			console.log("callback", callback);
 
 			if (callback?.ok && !callback?.error) {
 				toast.success("Logged in successfully");

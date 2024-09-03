@@ -144,7 +144,6 @@ export default function VideosSection({
 			<VideoPlayer
 				open={openPlayer && !!selectedVideo}
 				handleClose={() => {
-					console.log("close");
 					setOpenPlayer(false);
 				}}
 				url={selectedVideo?.url || ""}

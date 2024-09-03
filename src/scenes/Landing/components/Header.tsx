@@ -1,5 +1,4 @@
 "use client";
-import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import { Box, Button, Stack } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -13,118 +12,114 @@ type HeaderProps = {
 	isVideoExist: boolean;
 };
 export default function Header(props: HeaderProps) {
-	const { headerTitle, headerSubtitle, headerImage, isVideoExist } = props;
+	const { headerTitle, headerSubtitle, headerImage } = props;
 	const router = useRouter();
-	console.log("headerImage", !!headerImage);
 	return (
 		<StyledStack
-			flexDirection={{
-				xs: "column",
-				sm: "row",
-			}}
-			justifyContent={"center"}
-			alignItems={"center"}
 			sx={{
-				height: `calc(100vh - ${APP_BAR_HEIGHT}px - 40px)`,
+				height: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
 				position: "relative",
 				px: 2,
+				background:
+					"linear-gradient(68.51deg, #00A5FF 0%, rgba(5, 138, 210, 0.7) 46.8%, #005C94 100%)",
 			}}
 		>
-			<Stack direction={"row"} spacing={1.5}>
-				<Stack
-					direction={"column"}
-					spacing={3}
-					alignItems={
-						!headerImage
-							? { xs: "center", sm: "flex-start" }
-							: { xs: "center", sm: "center" }
-					}
-				>
-					<Box width={"100%"}>
-						<StyledTitle
-							sx={{
-								textAlign: headerImage ? "left" : "center",
-							}}
-						>
-							{headerTitle}
-						</StyledTitle>
-					</Box>
-					<Box width={"100%"}>
-						<StyledSubTitle
-							sx={{
-								color: "text.primary",
-								textAlign: headerImage ? "left" : "center",
-							}}
-						>
-							{headerSubtitle}
-						</StyledSubTitle>
-					</Box>
+			<Stack
+				flexDirection={{
+					xs: "column",
+					sm: "row",
+				}}
+				justifyContent={"center"}
+				alignItems={"center"}
+				height={"100%"}
+				maxWidth={"1220px"}
+				margin={"auto"}
+			>
+				<Stack direction={"row"} spacing={3} alignItems={"center"}>
+					<Stack
+						direction={"column"}
+						spacing={3}
+						alignItems={
+							!headerImage
+								? { xs: "center", sm: "flex-start" }
+								: { xs: "center", sm: "center" }
+						}
+					>
+						<Box width={"100%"}>
+							<StyledTitle
+								sx={{
+									textAlign: headerImage ? "left" : "center",
+									color: "primary.contrastText",
+								}}
+							>
+								{headerTitle}
+							</StyledTitle>
+						</Box>
+						<Box width={"100%"}>
+							<StyledSubTitle
+								sx={{
+									color: "primary.contrastText",
+									textAlign: headerImage ? "left" : "center",
+									fontWeight: 600,
+									lineHeight: "22px",
+									fontSize: { xs: "16px", sm: "18px" },
+								}}
+							>
+								{headerSubtitle}
+							</StyledSubTitle>
+						</Box>
 
-					<Button
-						onClick={() => {
-							if (isVideoExist) {
-								router.push("/#video");
-								return;
-							}
-							router.push("/classes");
-						}}
-						sx={{
-							alignSelf: headerImage ? "flex-start" : "center",
-						}}
-					>
-						{isVideoExist ? "شاهد الفيديو التعريفي" : "تعرف على الصفوف"}
-					</Button>
-				</Stack>
-				{headerImage && (
-					<Box
-						sx={{
-							display: {
-								xs: "none",
-								sm: "block",
-								maxWidth: "500px",
-								width: "100%",
-							},
-						}}
-					>
-						<Image
-							src={headerImage}
-							alt='landing-header'
-							layout='responsive'
-							width={500}
-							height={500}
-							style={{
-								width: "100%",
-								height: "100%",
-								transition: "all 0.5s",
-								position: "relative",
-								animation: "landingImgUpAndDown 5s linear infinite",
+						<Button
+							onClick={() => {
+								router.push("/classes");
 							}}
-						/>
-					</Box>
-				)}
+							sx={(theme) => ({
+								alignSelf: headerImage ? "flex-start" : "center",
+								backgroundColor: "primary.contrastText",
+								color: "rgba(0, 130, 210, 1)",
+								borderRadius: 1.5,
+								"&:hover": {
+									backgroundColor: "rgba(0, 130, 210, 0.8)",
+									color: "primary.contrastText",
+								},
+								[theme.breakpoints.down("sm")]: {
+									width: "100%",
+								},
+							})}
+						>
+							تعرف على الصفوف
+						</Button>
+					</Stack>
+					{headerImage && (
+						<Box
+							sx={{
+								display: {
+									xs: "none",
+									sm: "block",
+									maxWidth: "600px",
+									width: "100%",
+								},
+							}}
+						>
+							<Image
+								src={headerImage}
+								alt='landing-header'
+								layout='responsive'
+								width={600}
+								height={320}
+								style={{
+									width: "100%",
+									height: "100%",
+									maxHeight: "320px",
+									maxWidth: "600px",
+									transition: "all 0.5s",
+									position: "relative",
+								}}
+							/>
+						</Box>
+					)}
+				</Stack>
 			</Stack>
-			{isVideoExist && (
-				<Box
-					sx={{
-						position: "absolute",
-						bottom: 0,
-						width: "100%",
-						display: "flex",
-						justifyContent: "center",
-					}}
-				>
-					<KeyboardDoubleArrowDownIcon
-						style={{
-							fontSize: "50px",
-							animation: "landingRowUpAndDown 1.5s linear infinite",
-							cursor: "pointer",
-						}}
-						onClick={() => {
-							router.push("/#video");
-						}}
-					/>
-				</Box>
-			)}
 		</StyledStack>
 	);
 }

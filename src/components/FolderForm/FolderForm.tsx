@@ -42,7 +42,6 @@ export default function FolderForm({
 	folderName,
 	parentFolderId,
 }: FolderFormProps) {
-	console.log(folderName);
 	const { control, handleSubmit, reset } = useForm<FolderFormValues>({
 		defaultValues: {
 			name: folderName || "",

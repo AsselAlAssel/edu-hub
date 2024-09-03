@@ -52,10 +52,8 @@ export const deleteObjectFromR2 = async (key: string) => {
 
 	try {
 		const data = await s3Client.send(new DeleteObjectCommand(deleteParams));
-		console.log("Success", data);
 		return data;
 	} catch (err) {
-		console.log("Error", err);
 		throw new Error("Failed to delete object");
 	}
 };
