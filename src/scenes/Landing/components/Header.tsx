@@ -20,7 +20,7 @@ export default function Header(props: HeaderProps) {
 				height: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
 				position: "relative",
 				px: 2,
-				background:
+				backgroundImage:
 					"linear-gradient(68.51deg, #00A5FF 0%, rgba(5, 138, 210, 0.7) 46.8%, #005C94 100%)",
 			}}
 		>
