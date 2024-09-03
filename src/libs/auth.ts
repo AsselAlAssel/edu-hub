@@ -8,7 +8,6 @@ import {
 	getServerSession,
 } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { signOut } from "next-auth/react";
 import { v4 as uuid } from "uuid";
 
 declare module "next-auth" {
@@ -95,6 +94,7 @@ export const authOptions: NextAuthOptions = {
 					},
 				});
 				token.sessionId = sessionId;
+				console.log("sessionId1111:", sessionId);
 				return {
 					...token,
 					uid: user.id,
@@ -102,14 +102,6 @@ export const authOptions: NextAuthOptions = {
 					picture: user.image,
 					image: user.image,
 				};
-			}
-			const tempSession = await prisma.session.findUnique({
-				where: {
-					sessionId: token.sessionId,
-				},
-			});
-			if (!tempSession) {
-				signOut({ callbackUrl: "/auth/signin" });
 			}
 
 			return token;
