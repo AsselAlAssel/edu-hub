@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 		url: process.env.NEXT_PUBLIC_DOMAIN,
 		images: [
 			{
-				url: `${process.env.NEXT_PUBLIC_DOMAIN}/images/cover.png`,
+				url: `${process.env.NEXT_PUBLIC_DOMAIN}images/cover.png`,
 				width: 1200,
 				height: 630,
 				alt: "الصفحة الرئيسية",

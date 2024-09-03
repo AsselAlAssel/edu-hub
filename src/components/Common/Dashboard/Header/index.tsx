@@ -42,7 +42,7 @@ const LinkItem = ({
 		<Typography
 			sx={{
 				fontWeight: 600,
-				color: isSelected ? "text.secondaryLight" : "text.tertiary",
+				color: isSelected ? "text.secondaryLight" : "text.primary",
 				textAlign: "center",
 				height: "100%",
 			}}
