@@ -79,17 +79,32 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 								alignItems: "center",
 							}}
 						>
-							<Image
-								src='/images/logo/logo.svg'
-								alt='Logo'
-								width={70}
-								height={70}
-							/>
+							{classItem.image ? (
+								<Image
+									src={classItem.image}
+									alt='Class Image'
+									width={150}
+									height={150}
+									style={{
+										width: "100%",
+										height: "100%",
+										objectFit: "cover",
+									}}
+								/>
+							) : (
+								<Image
+									src='/images/logo/logo.svg'
+									alt='Logo'
+									width={70}
+									height={70}
+								/>
+							)}
 						</Box>
 						<Box
 							sx={{
 								px: 1.25,
 								pb: 1.25,
+								pt: 0.625,
 							}}
 						>
 							<Typography variant='h6'>{classItem.name}</Typography>
@@ -171,6 +186,7 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 				selectedClass={{
 					name: selectedClass?.name || "",
 					description: selectedClass?.description || "",
+					image: selectedClass?.image || "",
 				}}
 				classId={selectedClass?.id}
 			/>

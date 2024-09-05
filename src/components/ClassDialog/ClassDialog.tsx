@@ -15,10 +15,12 @@ import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { mutate } from "swr";
 import CustomTextField from "../CustomTextField";
+import ImageInput from "@/scenes/ProfilerPage/components/ImageInput";
 
 type CreateClassForm = {
 	name: string;
 	description?: string;
+	image?: string;
 };
 
 interface ClassDialogProps {
@@ -31,13 +33,15 @@ interface ClassDialogProps {
 const defaultValues = {
 	name: "",
 	description: "",
+	image: "",
 };
 
 export default function ClassDialog(props: ClassDialogProps) {
 	const { open, handleCloseDialog, selectedClass, classId } = props;
-	const { control, handleSubmit, reset } = useForm<CreateClassForm>({
-		defaultValues: selectedClass || defaultValues,
-	});
+	const { control, handleSubmit, reset, setValue, watch } =
+		useForm<CreateClassForm>({
+			defaultValues: selectedClass || defaultValues,
+		});
 	const { isMutating, trigger: createClass } = useCreateClass();
 	const { isUpdating, updateClass } = useUpdateClass();
 
@@ -93,6 +97,18 @@ export default function ClassDialog(props: ClassDialogProps) {
 			<DialogContent>
 				<form onSubmit={handleSubmit((date) => onSubmit(date))}>
 					<Stack spacing={2}>
+						<ImageInput
+							imageSrc={watch("image") ?? ""}
+							onChangeImage={(image: string | null) => {
+								console.log("image", image);
+								if (image) {
+									setValue("image", image);
+									return;
+								}
+								setValue("image", undefined);
+							}}
+						/>
+
 						<Controller
 							name='name'
 							control={control}
@@ -112,28 +128,6 @@ export default function ClassDialog(props: ClassDialogProps) {
 									error={!!error}
 									helperText={error?.message}
 									required
-								/>
-							)}
-						/>
-						<Controller
-							name='description'
-							control={control}
-							rules={{
-								maxLength: {
-									value: 100,
-									message: "الحد الأقصى للحروف هو 100",
-								},
-							}}
-							render={({ field, fieldState: { error } }) => (
-								<CustomTextField
-									{...field}
-									label='الوصف'
-									variant='outlined'
-									fullWidth
-									multiline
-									rows={4}
-									error={!!error}
-									helperText={error?.message}
 								/>
 							)}
 						/>

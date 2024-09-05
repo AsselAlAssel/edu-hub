@@ -11,6 +11,7 @@ const createClass = async (
 		arg: {
 			name: string;
 			description?: string;
+			image?: string;
 		};
 	}
 ) => {
@@ -35,6 +36,7 @@ const updateClass = async (
 			id: string;
 			name: string;
 			description?: string;
+			image?: string;
 		};
 	}
 ) => {

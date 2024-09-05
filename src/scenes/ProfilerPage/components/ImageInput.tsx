@@ -1,19 +1,18 @@
-import React from "react";
+import { getSignedURL } from "@/actions/upload";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import {
 	Box,
-	Button,
 	CircularProgress,
 	IconButton,
 	InputLabel,
 	Typography,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import { useDropzone } from "react-dropzone";
-import { getSignedURL } from "@/actions/upload";
-import toast from "react-hot-toast";
 import axios from "axios";
 import Image from "next/image";
-import DeleteIcon from "@mui/icons-material/Delete";
+import React from "react";
+import { useDropzone } from "react-dropzone";
+import toast from "react-hot-toast";
 
 type ImageInputProps = {
 	onChangeImage: (url: string | null) => void;
@@ -111,46 +110,49 @@ export default function ImageInput(props: ImageInputProps) {
 					</Typography>
 				)}
 				{imageSrc && (
-					<IconButton
-						sx={{
-							position: "absolute",
-							top: 10,
-							left: 10,
-							zIndex: 2,
-							bgcolor: "primary.main",
-							color: "white",
-						}}
-						onClick={() => {
-							openDropzone();
-						}}
-					>
-						{loading ? (
-							<CircularProgress
-								size={20}
-								sx={{
-									color: "text.primary",
-								}}
-							/>
-						) : (
-							<EditIcon />
-						)}
-					</IconButton>
+					<>
+						<IconButton
+							sx={{
+								position: "absolute",
+								top: 10,
+								left: 10,
+								zIndex: 2,
+								bgcolor: "primary.main",
+								color: "white",
+							}}
+							onClick={() => {
+								openDropzone();
+							}}
+						>
+							{loading ? (
+								<CircularProgress
+									size={20}
+									sx={{
+										color: "text.primary",
+									}}
+								/>
+							) : (
+								<EditIcon />
+							)}
+						</IconButton>
+						<IconButton
+							sx={{
+								position: "absolute",
+								top: 10,
+								right: 10,
+								zIndex: 2,
+								bgcolor: "error.main",
+								color: "white",
+							}}
+							onClick={() => {
+								onChangeImage("");
+							}}
+						>
+							<DeleteIcon />
+						</IconButton>
+					</>
 				)}
 			</Box>
-			{imageSrc && (
-				<Button
-					startIcon={<DeleteIcon />}
-					size='small'
-					sx={{
-						mt: 1,
-					}}
-					onClick={() => {
-						onChangeImage("");
-					}}
-				>
-					حذف الصورة
-				</Button>
-			)}
 		</Box>
 	);
 }

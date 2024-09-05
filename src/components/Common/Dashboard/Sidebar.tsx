@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { APP_BAR_HEIGHT } from "./Header";
+import { Role } from "@/types/enums";
 
 type SideBarProps = {
 	showSideBar: boolean;
@@ -47,6 +48,7 @@ export default function SideBar(props: SideBarProps) {
 	const { showSideBar, onClose } = props;
 	const { data } = useSession();
 	const user = data?.user;
+	const isAdmin = user?.role === Role.ADMIN;
 	const router = useRouter();
 	return (
 		<Drawer
@@ -91,6 +93,11 @@ export default function SideBar(props: SideBarProps) {
 								<LinkItem href='/#contact' onClick={onClose}>
 									اتصل بنا
 								</LinkItem>
+								{isAdmin ? (
+									<LinkItem href='/admin/profile' onClick={onClose}>
+										لوحة التحكم
+									</LinkItem>
+								) : null}
 							</Stack>
 							<Stack spacing={1.5}>
 								{

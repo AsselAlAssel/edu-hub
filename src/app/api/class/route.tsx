@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export const POST = async (req: NextRequest) => {
 	const body = await req.json();
-	const { name, description } = body;
+	const { name, description, image } = body;
 
 	if (!name) {
 		return new NextResponse("Missing Fields", { status: 400 });
@@ -20,6 +20,7 @@ export const POST = async (req: NextRequest) => {
 		data: {
 			name,
 			description: description || "",
+			image: image || "",
 		},
 	});
 
@@ -36,7 +37,7 @@ export const POST = async (req: NextRequest) => {
 
 export const PUT = async (req: NextRequest) => {
 	const body = await req.json();
-	const { id, name } = body;
+	const { id, name, image } = body;
 
 	if (!id || !name) {
 		return new NextResponse("Missing Fields", { status: 400 });
@@ -52,6 +53,7 @@ export const PUT = async (req: NextRequest) => {
 		},
 		data: {
 			name,
+			image,
 		},
 	});
 
