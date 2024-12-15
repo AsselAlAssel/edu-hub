@@ -4,7 +4,7 @@ import InputGroup from "@/components/Common/Dashboard/InputGroup";
 import toast from "react-hot-toast";
 import axios from "axios";
 import Loader from "../Common/Loader";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { signIn } from "next-auth/react";
 
 const SignupWithPassword = () => {

@@ -1,7 +1,7 @@
 import { Box, Button, Drawer, Stack, Typography } from "@mui/material";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import React from "react";
 import { APP_BAR_HEIGHT } from "./Header";
 import { Role } from "@/types/enums";

@@ -1,7 +1,7 @@
 "use client";
 import { signIn, signOut } from "next-auth/react";
 import { useQueryState } from "next-usequerystate";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import FormButton from "../Common/Dashboard/FormButton";

@@ -1,7 +1,7 @@
 "use client";
 import toast from "react-hot-toast";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { useState } from "react";
 import Loader from "@/components/Common/Loader";
 

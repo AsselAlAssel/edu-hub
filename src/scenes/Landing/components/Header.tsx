@@ -1,7 +1,7 @@
 "use client";
 import { Box, Button, Stack } from "@mui/material";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { StyledStack, StyledSubTitle, StyledTitle } from "./Styled";
 
 const APP_BAR_HEIGHT = 80;

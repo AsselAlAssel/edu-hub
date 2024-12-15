@@ -2,7 +2,7 @@
 import DeleteModal from "@/components/Common/Modals/DeleteModal";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { deleteUser, updateUser } from "@/actions/user";
 
 const arrowIcon = (

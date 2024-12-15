@@ -11,6 +11,12 @@ const layout = ({ children }: { children: React.ReactNode }) => {
 	return (
 		<html lang='ar' suppressHydrationWarning={true} dir='rtl'>
 			<ThemeRegistry direction='rtl'>
+				<head>
+					<meta
+						name='google-site-verification'
+						content='Z_CVlOktniTFxzGBAkRiR6BEv8fZKQt0ZnbgOt3e_3g'
+					/>
+				</head>
 				<body
 					className={`${font.className} flex min-h-screen flex-col dark:bg-[#151F34]`}
 				>
