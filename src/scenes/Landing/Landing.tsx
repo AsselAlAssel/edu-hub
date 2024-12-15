@@ -3,6 +3,7 @@ import { LandingPage } from "@prisma/client";
 import AboutSection from "./components/AboutSection";
 import ContactUs from "./components/ContactUs";
 import Header from "./components/Header";
+import Head from "next/head";
 
 export default async function Landing({ data }: { data: LandingPage | null }) {
 	return (

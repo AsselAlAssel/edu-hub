@@ -126,7 +126,7 @@ export default function Header() {
 						<Link href='/'>
 							<Image
 								src='/images/logo/logo.svg'
-								alt='Logo'
+								alt='شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh'
 								width={50}
 								height={50}
 							/>

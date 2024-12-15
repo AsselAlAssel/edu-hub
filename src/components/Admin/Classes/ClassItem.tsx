@@ -94,7 +94,7 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 							) : (
 								<Image
 									src='/images/logo/logo.svg'
-									alt='Logo'
+									alt='شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh'
 									width={70}
 									height={70}
 								/>
