@@ -5,27 +5,51 @@ import { Stack, CircularProgress } from "@mui/material";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import React, { Suspense } from "react";
-
 export const metadata: Metadata = {
-	title: "الموارد",
-	description: "الموارد",
+	title: "موارد الفيزياء - شروحات ومصادر تعليمية | محمد صبح",
+	description:
+		"اكتشف موارد الفيزياء لجميع المراحل الدراسية من إعداد الأستاذ محمد صبح. شروحات ومصادر تعليمية مجانية لتسهيل تعلم الفيزياء بأسلوب ممتع.",
 	openGraph: {
-		title: "الموارد",
-		description: "الموارد",
+		title: "موارد الفيزياء - شروحات ومصادر تعليمية | محمد صبح",
+		description:
+			"أفضل الموارد التعليمية في الفيزياء لجميع الطلاب. اكتشف شروحات ومصادر مميزة من إعداد الأستاذ محمد صبح لتعلم الفيزياء بسهولة.",
 		type: "website",
 		locale: "ar_AR",
-		url: process.env.NEXT_PUBLIC_DOMAIN,
+		url: process.env.NEXT_PUBLIC_DOMAIN || "https://www.mohammedsubuh.com",
 		images: [
 			{
-				url: `${process.env.NEXT_PUBLIC_DOMAIN}images/cover.png`,
+				url: `${
+					process.env.NEXT_PUBLIC_DOMAIN || "https://www.mohammedsubuh.com"
+				}/images/cover.png`,
 				width: 1200,
 				height: 630,
-				alt: "الصفحة الرئيسية",
+				alt: "موارد الفيزياء - محمد صبح",
 			},
 		],
 	},
+	twitter: {
+		card: "summary_large_image",
+		title: "موارد الفيزياء - شروحات ومصادر تعليمية | محمد صبح",
+		description:
+			"شروحات ومصادر تعليمية لتعلم الفيزياء لجميع المراحل الدراسية من إعداد الأستاذ محمد صبح.",
+		images: [
+			`${
+				process.env.NEXT_PUBLIC_DOMAIN || "https://www.mohammedsubuh.com"
+			}/images/cover.png`,
+		],
+		creator: "@mohammedsubuh", // ضع اسم حساب تويتر الخاص بك إن وجد
+	},
+	keywords: [
+		"موارد الفيزياء",
+		"شروحات الفيزياء",
+		"مصادر الفيزياء",
+		"تعليم الفيزياء",
+		"محمد صبح",
+		"Mohammed Subuh",
+		"فيزياء لجميع المراحل الدراسية",
+		"أفضل موارد الفيزياء",
+	],
 };
-
 export default async function Page({
 	params,
 }: {
@@ -42,20 +66,21 @@ export default async function Page({
 	}
 
 	try {
-		// Fetch the class and root folder ID
-		const classItem = await getClass(classId);
-		const rootFolderId = classItem?.folders[0]?.id;
+		// Fetch the class, root folder ID, resources, and breadcrumb concurrently
+		const [classItem, resources, breadcrumb] = await Promise.all([
+			getClass(classId), // Fetch the class
+			getResources(folderId), // Fetch resources for the specified folder
+			getBreadcrumbs(folderId), // Fetch breadcrumb
+		]);
 
 		// Handle cases where class or root folder ID is not found
-		if (!classItem || !rootFolderId) {
+		if (!classItem || !classItem.folders[0]?.id) {
 			return notFound();
 		}
 
-		// Fetch resources for the specified folder
-		const resources = await getResources(folderId);
+		// Check if the current folder is the root folder
+		const rootFolderId = classItem.folders[0].id;
 		const isRootFolder = rootFolderId === folderId;
-
-		const breadcrumb = await getBreadcrumbs(folderId);
 
 		return (
 			<Suspense
