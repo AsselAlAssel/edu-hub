@@ -1,4 +1,5 @@
 import ActionsIconButton from "@/components/ActionsIconButton";
+import CustomTooltip from "@/components/CustomTooltip";
 import usePopoverState from "@/hooks/usePopoverState";
 import useRole from "@/hooks/useRole";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -29,7 +30,6 @@ export default function FolderCard({
 	return (
 		<Stack
 			direction='row'
-			alignItems='center'
 			justifyContent={"space-between"}
 			sx={{
 				border: "1px solid #E0E0E0",
@@ -48,22 +48,27 @@ export default function FolderCard({
 					maxWidth: "80%",
 				}}
 			>
-				<Stack direction='row' gap={1} alignItems='center'>
-					<FolderIcon />
-					<Typography
-						variant='h6'
-						sx={{
-							//ellipsis
-							overflow: "hidden",
-							textOverflow: "ellipsis",
-							whiteSpace: "nowrap",
-							flex: 1,
-							maxWidth: "80%",
-						}}
-					>
-						{folder.name}
-					</Typography>
-				</Stack>
+				<CustomTooltip title={folder.name}>
+					<Stack direction='row' gap={1}>
+						<FolderIcon />
+						<Typography
+							variant='h6'
+							sx={{
+								flex: 1,
+								maxWidth: isAdmin ? "80%" : "100%",
+								overflow: "hidden",
+								textOverflow: "ellipsis",
+								display: "-webkit-box",
+								WebkitLineClamp: 2,
+								WebkitBoxOrient: "vertical",
+								lineHeight: "1.8rem",
+								height: "3.6rem",
+							}}
+						>
+							{folder.name}
+						</Typography>
+					</Stack>
+				</CustomTooltip>
 			</Link>
 			{isAdmin && (
 				<Box>

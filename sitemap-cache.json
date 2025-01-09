@@ -1,0 +1,41 @@
+{
+	"sitemap": [
+		{
+			"url": "http://localhost:3000/",
+			"lastModified": "2024-12-15T17:57:04.732Z"
+		},
+		{
+			"url": "http://localhost:3000//class/66d97dbd7ee2986ffd4a48ac/folder/675e6d2476286bc9de8675ac",
+			"lastModified": "2024-12-15T05:46:29.057Z"
+		},
+		{
+			"url": "http://localhost:3000//class/66d97dbd7ee2986ffd4a48ac/folder/675e77208cab3fe3c6a6965b",
+			"lastModified": "2024-12-15T06:28:48.473Z"
+		},
+		{
+			"url": "http://localhost:3000//class/66d97dbd7ee2986ffd4a48ac/folder/675e8dd240f98a2d5eb82904",
+			"lastModified": "2024-12-15T08:05:38.275Z"
+		},
+		{
+			"url": "http://localhost:3000//class/66d97dbd7ee2986ffd4a48ac/folder/675e911da34eb216a90b0465",
+			"lastModified": "2024-12-15T08:19:41.047Z"
+		},
+		{
+			"url": "http://localhost:3000//class/66d97dbd7ee2986ffd4a48ac/folder/675e919da34eb216a90b0469",
+			"lastModified": "2024-12-15T08:21:49.360Z"
+		},
+		{
+			"url": "http://localhost:3000//class/66d97dbd7ee2986ffd4a48ac/folder/675e9230a34eb216a90b046e",
+			"lastModified": "2024-12-15T08:24:16.576Z"
+		},
+		{
+			"url": "http://localhost:3000//class/66d97dbd7ee2986ffd4a48ac/folder/675e9280a34eb216a90b0470",
+			"lastModified": "2024-12-15T08:25:36.666Z"
+		},
+		{
+			"url": "http://localhost:3000//class/66d97dbd7ee2986ffd4a48ac/folder/675e9339a34eb216a90b0474",
+			"lastModified": "2024-12-15T08:28:41.975Z"
+		}
+	],
+	"timestamp": "2024-12-15T17:57:04.732Z"
+}
