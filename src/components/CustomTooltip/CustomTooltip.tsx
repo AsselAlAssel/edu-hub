@@ -3,7 +3,7 @@ import { Tooltip, TooltipProps, tooltipClasses } from "@mui/material";
 
 const CustomTooltip = styled(({ className, ...props }: TooltipProps) => (
 	<Tooltip arrow classes={{ popper: className }} placement='top' {...props} />
-))(({ theme }) => ({
+))(() => ({
 	[`& .${tooltipClasses.arrow}`]: {
 		color: "#0C111D",
 	},
