@@ -1,7 +1,7 @@
 import ThemeRegistry from "@/components/ThemeRegistry/ThemeRegistry";
 import "../styles/globals.css";
 import { IBM_Plex_Sans } from "next/font/google";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/react";
 
 import Head from "next/head";
@@ -27,6 +27,8 @@ const layout = ({ children }: { children: React.ReactNode }) => {
 					{children}
 				</body>
 				<GoogleAnalytics gaId={"GTM-TNVX8SCS"} />
+				<GoogleTagManager gtmId={"GTM-TNVX8SCS"} />
+
 				<Analytics />
 			</ThemeRegistry>
 		</html>
