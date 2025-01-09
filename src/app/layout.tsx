@@ -26,7 +26,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
 				>
 					{children}
 				</body>
-				<GoogleAnalytics gaId={"GTM-TNVX8SCS"} />
+				<GoogleAnalytics gaId={"G-DQH5D3ML0F"} />
 				<GoogleTagManager gtmId={"GTM-TNVX8SCS"} />
 
 				<Analytics />
