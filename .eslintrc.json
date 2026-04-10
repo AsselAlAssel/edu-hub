@@ -50,7 +50,7 @@
 			}
 		],
 		"semi": ["warn", "always"],
-		"linebreak-style": ["error", "unix"],
+		"linebreak-style": "off",
 		"@typescript-eslint/no-unused-vars": [
 			"error",
 			{

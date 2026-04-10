@@ -10,8 +10,8 @@ export default async function UsersListContainer({ filter, search }: any) {
 	let users: User[] = await getUsers(filter);
 
 	if (search) {
-		users = users?.filter(
-			(user) => user?.email?.toLowerCase().includes(search?.toLowerCase())
+		users = users?.filter((user) =>
+			user?.email?.toLowerCase().includes(search?.toLowerCase())
 		);
 	}
 
