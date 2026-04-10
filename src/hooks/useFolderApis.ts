@@ -47,7 +47,6 @@ export const useUpdateFolderName = () => {
 	);
 	return { data, isUpdatingFolder: isMutating, updateFolderName: trigger };
 };
-3;
 
 const deleteFolder = async (
 	key: string,

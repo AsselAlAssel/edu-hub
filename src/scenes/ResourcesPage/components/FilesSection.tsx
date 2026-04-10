@@ -10,6 +10,7 @@ import { useDeleteFile, useUpdateFileName } from "@/hooks/useResourceApi";
 import { mutate } from "swr";
 import ChangeNameForm from "@/components/ChangeNameForm";
 import { deleteObjectFromR2 } from "@/actions/upload";
+import SortableGrid from "@/components/SortableGrid";
 
 export default function FilesSection({
 	files,
@@ -34,49 +35,39 @@ export default function FilesSection({
 			<Typography variant='h5' mb={2}>
 				الملفات
 			</Typography>
-			<Grid container spacing={2}>
-				{files.map((file) => (
-					<Grid
-						item
-						key={file.id}
-						xs={12}
-						sm={6}
-						md={4}
-						lg={3}
-						sx={{
-							display: "flex",
-							width: "100%",
+			<SortableGrid
+				items={files}
+				type='file'
+				folderId={folderId}
+				isAdmin={isAdmin}
+				renderItem={(file) => (
+					<FileCard
+						file={file}
+						onEdit={() => {
+							setSelectedFile(file);
+							setOpenChangeName(true);
 						}}
-					>
-						<FileCard
-							file={file}
-							onEdit={() => {
-								setSelectedFile(file);
-								setOpenChangeName(true);
-							}}
-							onDelete={() => {
-								setSelectedFile(file);
-								setOpenDelete(true);
-							}}
-						/>
-					</Grid>
-				))}
-				{isAdmin && (
-					<Grid
-						item
-						xs={12}
-						sm={6}
-						md={4}
-						lg={3}
-						sx={{
-							display: "flex",
-							width: "100%",
+						onDelete={() => {
+							setSelectedFile(file);
+							setOpenDelete(true);
 						}}
-					>
-						<AddFileCard onClick={() => setOpen(true)} />
-					</Grid>
+					/>
 				)}
-			</Grid>
+				extraItems={
+					isAdmin ? (
+						<Grid
+							item
+							xs={12}
+							sm={6}
+							md={4}
+							lg={3}
+							sx={{ display: "flex", width: "100%" }}
+						>
+							<AddFileCard onClick={() => setOpen(true)} />
+						</Grid>
+					) : undefined
+				}
+			/>
 			<AttachmentsForm
 				open={open}
 				handleClose={() => setOpen(false)}

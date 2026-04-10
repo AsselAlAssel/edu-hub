@@ -49,7 +49,9 @@ export default function Footer() {
 						})}
 						alignItems={"flex-start"}
 					>
-						<Typography color={"#94969C"}>© 2024 جميع الحقوق محفوظة</Typography>
+						<Typography color={"#94969C"}>
+							© {new Date().getFullYear()} جميع الحقوق محفوظة
+						</Typography>
 						<Stack direction={"row"} spacing={3}>
 							<Link
 								href={

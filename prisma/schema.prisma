@@ -72,6 +72,7 @@ model Folder {
   files          File[]
   videos         Video[]
   isRoot         Boolean  @default(false)
+  rank           String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -85,6 +86,7 @@ model File {
   folderId    String   @db.ObjectId
   class       Class    @relation(fields: [classId], references: [id])
   classId     String   @db.ObjectId
+  rank        String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -99,6 +101,7 @@ model Video {
   folderId    String   @db.ObjectId
   class       Class    @relation(fields: [classId], references: [id])
   classId     String   @db.ObjectId
+  rank        String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

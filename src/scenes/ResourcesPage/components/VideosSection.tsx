@@ -10,6 +10,7 @@ import AddVideoCard from "./AddVideoCard";
 import VideoForm from "@/components/VideoForm";
 import ChangeNameForm from "@/components/ChangeNameForm";
 import VideoPlayer from "@/components/VideoPlayer";
+import SortableGrid from "@/components/SortableGrid";
 
 export default function VideosSection({
 	videos,
@@ -37,53 +38,43 @@ export default function VideosSection({
 			<Typography variant='h5' mb={2}>
 				الفيديوهات
 			</Typography>
-			<Grid container spacing={2}>
-				{videos.map((video) => (
-					<Grid
-						item
-						key={video.id}
-						xs={12}
-						sm={6}
-						md={4}
-						lg={3}
-						sx={{
-							display: "flex",
-							width: "100%",
+			<SortableGrid
+				items={videos}
+				type='video'
+				folderId={folderId}
+				isAdmin={isAdmin}
+				renderItem={(video) => (
+					<VideoCard
+						video={video}
+						onChangeName={() => {
+							setSelectedVideo(video);
+							setOpenChangeName(true);
 						}}
-					>
-						<VideoCard
-							video={video}
-							onChangeName={() => {
-								setSelectedVideo(video);
-								setOpenChangeName(true);
-							}}
-							onDelete={() => {
-								setSelectedVideo(video);
-								setOpenDelete(true);
-							}}
-							onPlay={() => {
-								setSelectedVideo(video);
-								setOpenPlayer(true);
-							}}
-						/>
-					</Grid>
-				))}
-				{isAdmin && (
-					<Grid
-						item
-						xs={12}
-						sm={6}
-						md={4}
-						lg={3}
-						sx={{
-							display: "flex",
-							width: "100%",
+						onDelete={() => {
+							setSelectedVideo(video);
+							setOpenDelete(true);
 						}}
-					>
-						<AddVideoCard onClick={() => setOpen(true)} />
-					</Grid>
+						onPlay={() => {
+							setSelectedVideo(video);
+							setOpenPlayer(true);
+						}}
+					/>
 				)}
-			</Grid>
+				extraItems={
+					isAdmin ? (
+						<Grid
+							item
+							xs={12}
+							sm={6}
+							md={4}
+							lg={3}
+							sx={{ display: "flex", width: "100%" }}
+						>
+							<AddVideoCard onClick={() => setOpen(true)} />
+						</Grid>
+					) : undefined
+				}
+			/>
 
 			<DeleteDialog
 				deleteDialogOpen={openDelete}
