@@ -40,8 +40,6 @@ export default function VideosSection({
 			</Typography>
 			<SortableGrid
 				items={videos}
-				type='video'
-				folderId={folderId}
 				isAdmin={isAdmin}
 				renderItem={(video) => (
 					<VideoCard

@@ -14,10 +14,14 @@ export default function FolderSection({
 	folders,
 	classId,
 	folderId,
+	isDraggingItem,
+	overFolderId,
 }: {
 	folders: Folder[];
 	classId: string;
 	folderId: string;
+	isDraggingItem?: boolean;
+	overFolderId?: string | null;
 }) {
 	const [openFolderForm, setOpenFolderForm] = useState(false);
 	const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -33,12 +37,12 @@ export default function FolderSection({
 			</Typography>
 			<SortableGrid
 				items={folders}
-				type='folder'
-				folderId={folderId}
 				isAdmin={isAdmin}
 				renderItem={(folder) => (
 					<FolderCard
 						folder={folder}
+						isDropTarget={!!isDraggingItem && overFolderId === folder.id}
+						isDraggingOver={!!isDraggingItem}
 						onEdit={() => {
 							setSelectedFolder(() => folder);
 							setOpenFolderForm(() => true);

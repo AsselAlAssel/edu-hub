@@ -30,6 +30,7 @@ export default function SortableItem({
 		transition,
 		opacity: isDragging ? 0.5 : 1,
 		width: "100%",
+		zIndex: isDragging ? 99999 : undefined,
 	};
 
 	return (

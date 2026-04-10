@@ -37,8 +37,6 @@ export default function FilesSection({
 			</Typography>
 			<SortableGrid
 				items={files}
-				type='file'
-				folderId={folderId}
 				isAdmin={isAdmin}
 				renderItem={(file) => (
 					<FileCard

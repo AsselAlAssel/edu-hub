@@ -20,10 +20,14 @@ export default function FolderCard({
 	folder,
 	onEdit,
 	onDelete,
+	isDropTarget,
+	isDraggingOver,
 }: {
 	folder: Folder;
 	onEdit: () => void;
 	onDelete: () => void;
+	isDropTarget?: boolean;
+	isDraggingOver?: boolean;
 }) {
 	const [open, anchorEl, handleOpen, handleClose] = usePopoverState();
 	const { isAdmin } = useRole();
@@ -32,12 +36,22 @@ export default function FolderCard({
 			direction='row'
 			justifyContent={"space-between"}
 			sx={{
-				border: "1px solid #E0E0E0",
+				border: isDropTarget
+					? "2px dashed #1976d2"
+					: isDraggingOver
+						? "2px dashed #90CAF9"
+						: "1px solid #E0E0E0",
 				borderRadius: 1,
 				padding: 1.5,
 				cursor: "pointer",
 				width: "100%",
-				backgroundColor: "#F0F4F9",
+				backgroundColor: isDropTarget
+					? "#E3F2FD"
+					: isDraggingOver
+						? "#F5F9FF"
+						: "#F0F4F9",
+				transition: "all 0.2s ease",
+				transform: isDropTarget ? "scale(1.02)" : "none",
 			}}
 			gap={1}
 		>
@@ -50,7 +64,11 @@ export default function FolderCard({
 			>
 				<CustomTooltip title={folder.name}>
 					<Stack direction='row' gap={1}>
-						<FolderIcon />
+						<FolderIcon
+							sx={{
+								color: isDropTarget ? "#1976d2" : undefined,
+							}}
+						/>
 						<Typography
 							variant='h6'
 							sx={{
@@ -63,9 +81,10 @@ export default function FolderCard({
 								WebkitBoxOrient: "vertical",
 								lineHeight: "1.8rem",
 								height: "3.6rem",
+								color: isDropTarget ? "#1976d2" : undefined,
 							}}
 						>
-							{folder.name}
+							{isDropTarget ? `نقل إلى: ${folder.name}` : folder.name}
 						</Typography>
 					</Stack>
 				</CustomTooltip>
