@@ -9,7 +9,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 	const cacheFile = path.join(process.cwd(), "sitemap-cache.json");
 
-	// التحقق من وجود الملف المؤقت وصلاحية البيانات (أسبوع واحد)
 	if (fs.existsSync(cacheFile)) {
 		const cacheData = JSON.parse(fs.readFileSync(cacheFile, "utf8"));
 		if (
@@ -20,49 +19,47 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		}
 	}
 
-	// استعلام قاعدة البيانات لجلب الصفوف
-	const classes = await prisma.class.findMany({
-		include: {
-			folders: {
-				where: {
-					isRoot: true,
+	try {
+		const classes = await prisma.class.findMany({
+			include: {
+				folders: {
+					where: {
+						isRoot: true,
+					},
 				},
-			},
-		},
-	});
-
-	// جلب المجلدات الجذرية لكل صف
-	const foldersPromises = classes.map(async (classItem) => {
-		// تحقق من وجود مجلد الجذر للصف
-		if (!classItem.folders[0]?.id) return [];
-
-		// استعلام لجلب المجلدات الجذرية
-		const folders = await prisma.folder.findMany({
-			where: {
-				parentFolderId: classItem.folders[0]?.id,
 			},
 		});
 
-		return folders.map((folder) => ({
-			url: `${baseUrl}/class/${classItem.id}/folder/${folder.id}`,
-			lastModified: folder.updatedAt || new Date(),
-		}));
-	});
+		const foldersPromises = classes.map(async (classItem) => {
+			if (!classItem.folders[0]?.id) return [];
 
-	// انتظار جميع استعلامات المجلدات
-	const foldersResults = await Promise.all(foldersPromises);
+			const folders = await prisma.folder.findMany({
+				where: {
+					parentFolderId: classItem.folders[0]?.id,
+				},
+			});
 
-	// بناء السايت ماب
-	const sitemap = [
-		{ url: baseUrl, lastModified: new Date() }, // الصفحة الرئيسية
-		...foldersResults.flat(), // إضافة روابط المجلدات
-	];
+			return folders.map((folder) => ({
+				url: `${baseUrl}/class/${classItem.id}/folder/${folder.id}`,
+				lastModified: folder.updatedAt || new Date(),
+			}));
+		});
 
-	// تخزين النتيجة في الملف المؤقت
-	fs.writeFileSync(
-		cacheFile,
-		JSON.stringify({ sitemap, timestamp: new Date() })
-	);
+		const foldersResults = await Promise.all(foldersPromises);
 
-	return sitemap;
+		const sitemap = [
+			{ url: baseUrl, lastModified: new Date() },
+			...foldersResults.flat(),
+		];
+
+		fs.writeFileSync(
+			cacheFile,
+			JSON.stringify({ sitemap, timestamp: new Date() })
+		);
+
+		return sitemap;
+	} catch (error) {
+		console.error("Sitemap generation error:", error);
+		return [{ url: baseUrl, lastModified: new Date() }];
+	}
 }
