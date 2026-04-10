@@ -121,16 +121,19 @@ export const getResources = async (folderId: string) => {
 		where: {
 			parentFolderId: folderId,
 		},
+		orderBy: [{ rank: "asc" }, { createdAt: "asc" }],
 	});
 	const videos = await prisma.video.findMany({
 		where: {
 			folderId: folderId,
 		},
+		orderBy: [{ rank: "asc" }, { createdAt: "asc" }],
 	});
 	const files = await prisma.file.findMany({
 		where: {
 			folderId: folderId,
 		},
+		orderBy: [{ rank: "asc" }, { createdAt: "asc" }],
 	});
 
 	const resourceData = {

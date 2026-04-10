@@ -52,6 +52,7 @@ export default function FileCard({
 				top: 0,
 				transition: "top 0.3s ease-in-out",
 				position: "relative",
+				height: "100%",
 				"& .absolute-button": {
 					display: "none",
 				},
@@ -69,7 +70,12 @@ export default function FileCard({
 				href={file.url ?? "#"}
 				download={true}
 				target='_blank'
-				style={{ width: "100%" }}
+				style={{
+					width: "100%",
+					display: "flex",
+					flexDirection: "column",
+					height: "100%",
+				}}
 			>
 				<Typography
 					variant='h6'
@@ -81,6 +87,8 @@ export default function FileCard({
 						overflow: "hidden",
 						textOverflow: "ellipsis",
 						cursor: "pointer",
+						minHeight: "3.6rem",
+						lineHeight: "1.8rem",
 					}}
 				>
 					{file.name}

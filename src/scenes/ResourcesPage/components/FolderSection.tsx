@@ -8,15 +8,20 @@ import FolderForm from "@/components/FolderForm";
 import { useDeleteFolder } from "@/hooks/useFolderApis";
 import { mutate } from "swr";
 import useRole from "@/hooks/useRole";
+import SortableGrid from "@/components/SortableGrid";
 
 export default function FolderSection({
 	folders,
 	classId,
 	folderId,
+	isDraggingItem,
+	overFolderId,
 }: {
 	folders: Folder[];
 	classId: string;
 	folderId: string;
+	isDraggingItem?: boolean;
+	overFolderId?: string | null;
 }) {
 	const [openFolderForm, setOpenFolderForm] = useState(false);
 	const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -30,53 +35,43 @@ export default function FolderSection({
 			<Typography variant='h5' mb={2}>
 				المجلدات
 			</Typography>
-			<Grid container spacing={2}>
-				{folders.map((folder) => (
-					<Grid
-						item
-						key={folder.id}
-						xs={12}
-						sm={6}
-						md={4}
-						lg={3}
-						sx={{
-							display: "flex",
-							width: "100%",
+			<SortableGrid
+				items={folders}
+				isAdmin={isAdmin}
+				renderItem={(folder) => (
+					<FolderCard
+						folder={folder}
+						isDropTarget={!!isDraggingItem && overFolderId === folder.id}
+						isDraggingOver={!!isDraggingItem}
+						onEdit={() => {
+							setSelectedFolder(() => folder);
+							setOpenFolderForm(() => true);
 						}}
-					>
-						<FolderCard
-							folder={folder}
-							onEdit={() => {
-								setSelectedFolder(() => folder);
-								setOpenFolderForm(() => true);
-							}}
-							onDelete={() => {
-								setSelectedFolder(folder);
-								setOpenDeleteDialog(true);
-							}}
-						/>
-					</Grid>
-				))}
-				{isAdmin && (
-					<Grid
-						item
-						xs={12}
-						sm={6}
-						md={4}
-						lg={3}
-						sx={{
-							display: "flex",
-							width: "100%",
+						onDelete={() => {
+							setSelectedFolder(folder);
+							setOpenDeleteDialog(true);
 						}}
-					>
-						<AddFolderCard
-							onClick={() => {
-								setOpenFolderForm(true);
-							}}
-						/>
-					</Grid>
+					/>
 				)}
-			</Grid>
+				extraItems={
+					isAdmin ? (
+						<Grid
+							item
+							xs={12}
+							sm={6}
+							md={4}
+							lg={3}
+							sx={{ display: "flex", width: "100%" }}
+						>
+							<AddFolderCard
+								onClick={() => {
+									setOpenFolderForm(true);
+								}}
+							/>
+						</Grid>
+					) : undefined
+				}
+			/>
 			<DeleteDialog
 				deleteDialogOpen={openDeleteDialog}
 				handleDeleteDialogClose={() => {

@@ -1,4 +1,5 @@
 import { prisma } from "@/libs/prismaDb";
+import { getRankAfterLast } from "@/libs/lexorank";
 import { isAdmin, recursiveDelete } from "@/libs/uitls";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -49,11 +50,18 @@ export const POST = async (req: NextRequest) => {
 		);
 	}
 
+	const lastFolder = await prisma.folder.findFirst({
+		where: { parentFolderId },
+		orderBy: { rank: "desc" },
+		select: { rank: true },
+	});
+
 	const folder = await prisma.folder.create({
 		data: {
 			name,
 			classId,
 			parentFolderId,
+			rank: getRankAfterLast(lastFolder?.rank),
 		},
 	});
 

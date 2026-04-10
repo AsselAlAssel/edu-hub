@@ -1,4 +1,5 @@
 import { prisma } from "@/libs/prismaDb";
+import { getRankAfterLast } from "@/libs/lexorank";
 import { isAdmin } from "@/libs/uitls";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -48,6 +49,12 @@ export const POST = async (req: NextRequest) => {
 			{ status: 404 }
 		);
 	}
+	const lastFile = await prisma.file.findFirst({
+		where: { folderId },
+		orderBy: { rank: "desc" },
+		select: { rank: true },
+	});
+
 	await prisma.file.create({
 		data: {
 			name,
@@ -55,6 +62,7 @@ export const POST = async (req: NextRequest) => {
 			type,
 			folderId,
 			classId,
+			rank: getRankAfterLast(lastFile?.rank),
 		},
 	});
 	return new NextResponse(null, { status: 201 });

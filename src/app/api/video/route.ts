@@ -1,4 +1,5 @@
 import { prisma } from "@/libs/prismaDb";
+import { getRankAfterLast } from "@/libs/lexorank";
 import { isAdmin } from "@/libs/uitls";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -49,6 +50,12 @@ export const POST = async (req: NextRequest) => {
 		);
 	}
 
+	const lastVideo = await prisma.video.findFirst({
+		where: { folderId },
+		orderBy: { rank: "desc" },
+		select: { rank: true },
+	});
+
 	await prisma.video.create({
 		data: {
 			name,
@@ -57,6 +64,7 @@ export const POST = async (req: NextRequest) => {
 			classId,
 			videoId,
 			thumbnailUrl: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+			rank: getRankAfterLast(lastVideo?.rank),
 		},
 	});
 	return new NextResponse(null, { status: 201 });
