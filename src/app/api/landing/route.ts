@@ -85,20 +85,29 @@ export const PUT = async (req: NextRequest) => {
 		);
 	}
 
-	const landing = await prisma.landingPage.findFirst();
-	if (!landing || !landing.id) {
-		return NextResponse.json(
-			{
-				message: "Not Found",
+	const existing = await prisma.landingPage.findFirst();
+
+	if (!existing) {
+		const created = await prisma.landingPage.create({
+			data: {
+				headerTitle,
+				headerSubtitle,
+				headerImage,
+				landingVideo,
+				landingVideoId,
+				aboutTitle,
+				aboutSubtitle,
+				aboutImage,
+				whatsAppNumber,
+				address,
+				email,
 			},
-			{ status: 404 }
-		);
+		});
+		return new NextResponse(JSON.stringify(created), { status: 201 });
 	}
 
-	await prisma.landingPage.update({
-		where: {
-			id: landing.id,
-		},
+	const updated = await prisma.landingPage.update({
+		where: { id: existing.id },
 		data: {
 			headerTitle,
 			headerSubtitle,
@@ -113,5 +122,5 @@ export const PUT = async (req: NextRequest) => {
 			email,
 		},
 	});
-	return new NextResponse(JSON.stringify(landing), { status: 200 });
+	return new NextResponse(JSON.stringify(updated), { status: 200 });
 };
