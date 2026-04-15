@@ -54,7 +54,7 @@ export default function VideoCard({
 				backgroundColor: "#F0F4F9",
 				flex: 1,
 				top: 0,
-				transition: "top 0.3s ease-in-out",
+				transition: "top 0.3s ease-in-out, box-shadow 0.3s ease",
 				position: "relative",
 				"& .absolute-button": {
 					display: "none",
@@ -62,8 +62,9 @@ export default function VideoCard({
 
 				"&:hover": {
 					backgroundColor: "#DCE6F1",
+					boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.08)",
 					...(!isAdmin && {
-						top: "-10px",
+						top: "-6px",
 					}),
 				},
 			}}
@@ -86,6 +87,7 @@ export default function VideoCard({
 						width: "100%",
 						height: "auto",
 						objectFit: "cover",
+						display: "block",
 					}}
 				/>
 				{isClosed ? (

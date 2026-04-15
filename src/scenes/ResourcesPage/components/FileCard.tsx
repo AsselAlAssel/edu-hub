@@ -50,7 +50,7 @@ export default function FileCard({
 				backgroundColor: "#F0F4F9",
 				flex: 1,
 				top: 0,
-				transition: "top 0.3s ease-in-out",
+				transition: "top 0.3s ease-in-out, box-shadow 0.3s ease",
 				position: "relative",
 				height: "100%",
 				"& .absolute-button": {
@@ -59,8 +59,9 @@ export default function FileCard({
 
 				"&:hover": {
 					backgroundColor: "#DCE6F1",
+					boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.08)",
 					...(!isAdmin && {
-						top: "-10px",
+						top: "-6px",
 					}),
 				},
 			}}
@@ -75,6 +76,8 @@ export default function FileCard({
 					display: "flex",
 					flexDirection: "column",
 					height: "100%",
+					textDecoration: "none",
+					color: "inherit",
 				}}
 			>
 				<Typography

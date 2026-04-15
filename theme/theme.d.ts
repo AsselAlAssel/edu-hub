@@ -19,6 +19,8 @@ declare module "@mui/material/styles" {
 			brand: string;
 			"brand-secondary": string;
 			"brand-section": string;
+			default: string;
+			paper: string;
 		};
 		tertiary: {
 			main: string;
@@ -43,6 +45,8 @@ declare module "@mui/material/styles" {
 			brand?: string;
 			"brand-secondary"?: string;
 			"brand-section"?: string;
+			default?: string;
+			paper?: string;
 		};
 		tertiary?: {
 			main?: string;

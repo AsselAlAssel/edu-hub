@@ -45,38 +45,50 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 			<Box
 				gap={2}
 				sx={{
-					borderRadius: 1.25,
-					boxShadow: "#ccc 0px 0px 8px 0px",
+					borderRadius: 3,
+					border: "1px solid",
+					borderColor: "border.secondary",
 					overflow: "hidden",
 					position: "relative",
-					transition: "top 0.3s ease-in-out",
 					display: "flex",
-					top: 0,
 					cursor: "pointer",
 					width: "100%",
+					backgroundColor: "#FFFFFF",
+					transition:
+						"box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease",
+					boxShadow:
+						"0px 1px 3px rgba(16, 24, 40, 0.1), 0px 1px 2px rgba(16, 24, 40, 0.06)",
 					"& .absolute-button": {
 						display: "none",
 					},
-					...(!isAdmin && {
-						"&:hover": {
-							top: "-10px",
-						},
-					}),
+					"&:hover": {
+						boxShadow:
+							"0px 8px 24px rgba(16, 24, 40, 0.08), 0px 4px 12px rgba(16, 24, 40, 0.04)",
+						borderColor: "border.main",
+						...(!isAdmin && {
+							transform: "translateY(-4px)",
+						}),
+					},
+					"&:focus-within": {
+						borderColor: "primary.main",
+						boxShadow: "0px 0px 0px 4px rgba(0, 136, 221, 0.12)",
+					},
 				}}
 			>
 				<Link
 					href={`/class/${classItem.id}/folder/${classItem?.folders[0]?.id}`}
-					style={{ width: "100%" }}
+					style={{ width: "100%", textDecoration: "none", color: "inherit" }}
 				>
-					<Stack direction='column' spacing={2}>
+					<Stack direction='column'>
 						<Box
 							sx={{
-								height: "150px",
+								height: "160px",
 								width: "100%",
-								backgroundColor: "#f2f2f2",
+								backgroundColor: "#F8FAFC",
 								display: "flex",
 								justifyContent: "center",
 								alignItems: "center",
+								overflow: "hidden",
 							}}
 						>
 							{classItem.image ? (
@@ -95,19 +107,30 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 								<Image
 									src='/images/logo/logo.svg'
 									alt='شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh'
-									width={70}
-									height={70}
+									width={64}
+									height={64}
+									style={{ opacity: 0.6 }}
 								/>
 							)}
 						</Box>
 						<Box
 							sx={{
-								px: 1.25,
-								pb: 1.25,
-								pt: 0.625,
+								px: 2,
+								py: 2,
 							}}
 						>
-							<Typography variant='h6'>{classItem.name}</Typography>
+							<Typography
+								variant='h6'
+								sx={{
+									overflow: "hidden",
+									textOverflow: "ellipsis",
+									display: "-webkit-box",
+									WebkitLineClamp: 2,
+									WebkitBoxOrient: "vertical",
+								}}
+							>
+								{classItem.name}
+							</Typography>
 						</Box>
 					</Stack>
 				</Link>

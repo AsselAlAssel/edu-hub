@@ -32,7 +32,7 @@ export default function FolderSection({
 	if (isEmpty && !isAdmin) return null;
 	return (
 		<Box>
-			<Typography variant='h5' mb={2}>
+			<Typography variant='h5' fontWeight={700} mb={2}>
 				المجلدات
 			</Typography>
 			<SortableGrid

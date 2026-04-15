@@ -10,64 +10,70 @@ import {
 } from "@mui/material";
 
 export const StyledStack = styled(Stack)(({ theme }) => ({
-	paddingTop: "155px",
-	paddingBottom: "163px",
+	paddingTop: "120px",
+	paddingBottom: "120px",
 	position: "relative",
 	[theme.breakpoints.down("sm")]: {
-		paddingTop: "70px",
-		paddingBottom: "100px",
+		paddingTop: "72px",
+		paddingBottom: "80px",
 	},
 }));
 
 export const StyledTitle = styled(Typography)(({ theme }) => ({
-	fontSize: theme.typography.pxToRem(50),
+	fontSize: theme.typography.pxToRem(48),
 	fontWeight: 800,
-	lineHeight: theme.typography.pxToRem(60),
-	letterSpacing: theme.typography.pxToRem(-0.2),
+	lineHeight: 1.2,
+	letterSpacing: "-0.02em",
+	[theme.breakpoints.down("md")]: {
+		fontSize: theme.typography.pxToRem(40),
+		lineHeight: 1.25,
+	},
 	[theme.breakpoints.down("sm")]: {
-		fontSize: theme.typography.pxToRem(48),
-		lineHeight: theme.typography.pxToRem(56),
+		fontSize: theme.typography.pxToRem(32),
+		lineHeight: 1.3,
 		textAlign: "center",
 	},
 }));
 
 export const StyledSubTitle = styled(Typography)(({ theme }) => ({
-	fontSize: theme.typography.pxToRem(20),
-	lineHeight: theme.typography.pxToRem(30),
+	fontSize: theme.typography.pxToRem(18),
+	lineHeight: 1.6,
 	color: "white",
+	opacity: 0.9,
 	[theme.breakpoints.down("sm")]: {
-		fontSize: theme.typography.pxToRem(18),
-		lineHeight: theme.typography.pxToRem(28),
+		fontSize: theme.typography.pxToRem(16),
+		lineHeight: 1.5,
 		textAlign: "center",
 	},
 }));
 
 export const StyledSectionTitle = styled(Typography)(({ theme }) => ({
-	fontSize: theme.typography.pxToRem(40),
+	fontSize: theme.typography.pxToRem(36),
 	fontWeight: 800,
-	lineHeight: theme.typography.pxToRem(48),
+	lineHeight: 1.25,
 	textAlign: "center",
 	color: "white",
-	marginBottom: 6,
+	marginBottom: 8,
 
 	[theme.breakpoints.down("sm")]: {
-		fontSize: theme.typography.pxToRem(20),
-		lineHeight: theme.typography.pxToRem(28),
+		fontSize: theme.typography.pxToRem(24),
+		lineHeight: 1.3,
 		marginBottom: 4,
 	},
 }));
 
 export const StyledSectionSubTitle = styled(Typography)(({ theme }) => ({
-	fontSize: theme.typography.pxToRem(24),
-	lineHeight: theme.typography.pxToRem(28),
+	fontSize: theme.typography.pxToRem(20),
+	lineHeight: 1.5,
 	fontWeight: 500,
 	color: "white",
 	textAlign: "center",
-	maxWidth: 750,
+	maxWidth: 700,
+	opacity: 0.9,
 
 	[theme.breakpoints.down("sm")]: {
-		fontSize: theme.typography.pxToRem(14),
-		lineHeight: theme.typography.pxToRem(22),
+		fontSize: theme.typography.pxToRem(15),
+		lineHeight: 1.5,
 	},
 }));
 
@@ -75,16 +81,18 @@ export const StyledIconButton: React.FC<IconButtonProps> = styled(IconButton)(
 	({ theme }) => ({
 		height: 48,
 		width: 48,
-		borderRadius: 10,
+		borderRadius: 12,
 		border: `1px solid #EAECF0`,
 		display: "flex",
 		justifyContent: "center",
 		alignItems: "center",
 		color: "#344054",
-		boxShadow: "0px 1px 2px 0px #1018280D",
+		boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
 		backgroundColor: theme.palette.background.brand,
+		transition: "all 0.2s ease",
 		"&:hover": {
 			backgroundColor: theme.palette.background.brand,
+			transform: "translateY(-2px)",
 		},
 		[theme.breakpoints.down("sm")]: {
 			height: 40,
@@ -109,16 +117,16 @@ export const StyledContactUsText = styled(Typography)({
 	fontWeight: 700,
 	textAlign: "center",
 	display: "block",
-	fontSize: "24px",
+	fontSize: "20px",
 	lineHeight: "28px",
 }) as typeof Typography;
 
 export const StyledBoxSection = styled(Box)(({ theme }) => ({
-	padding: "96px 112px",
+	padding: "80px 112px",
 	[theme.breakpoints.down("lg")]: {
-		padding: "72px 50px",
+		padding: "64px 48px",
 	},
 	[theme.breakpoints.down("sm")]: {
-		padding: "64px 0px",
+		padding: "56px 16px",
 	},
 }));
