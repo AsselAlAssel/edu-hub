@@ -8,27 +8,25 @@ export default function UserInformation() {
 	const user = data?.user;
 	return (
 		<Stack
-			spacing={2.5}
+			spacing={3}
 			sx={{
 				marginTop: 4,
-				bgcolor: "#FAFBFC",
+				bgcolor: "#FFFFFF",
 				maxWidth: "260px",
 				width: "100%",
-				borderRadius: 3,
+				borderRadius: "16px",
 				padding: 3,
-				border: "1px solid",
-				borderColor: "border.secondary",
-				boxShadow:
-					"0px 1px 3px rgba(16, 24, 40, 0.1), 0px 1px 2px rgba(16, 24, 40, 0.06)",
+				border: "1px solid #EAECF0",
+				boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
 				height: "fit-content",
 			}}
 		>
 			<Avatar
 				sx={(theme) => ({
-					width: 48,
-					height: 48,
+					width: 52,
+					height: 52,
 					border: "2px solid",
-					borderColor: alpha(theme.palette.primary.main, 0.2),
+					borderColor: alpha(theme.palette.primary.main, 0.15),
 					backgroundColor: theme.palette.primary.main,
 					fontSize: 22,
 					fontWeight: 700,
@@ -39,7 +37,7 @@ export default function UserInformation() {
 			<Box>
 				<Typography
 					sx={{
-						fontWeight: 600,
+						fontWeight: 700,
 						fontSize: "1.0625rem",
 						mb: 0.5,
 					}}

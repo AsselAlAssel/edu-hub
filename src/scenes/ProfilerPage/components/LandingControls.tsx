@@ -101,8 +101,18 @@ export default function LandingControls(props: LandingControlsProps) {
 	};
 
 	return (
-		<Stack spacing={2} flex={1}>
-			<Typography variant='h6' textAlign='center'>
+		<Stack
+			spacing={3}
+			flex={1}
+			sx={{
+				backgroundColor: "#FFFFFF",
+				borderRadius: "16px",
+				border: "1px solid #EAECF0",
+				boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
+				p: { xs: 3, md: 4 },
+			}}
+		>
+			<Typography variant='h5' textAlign='center' fontWeight={700}>
 				لوحة التحكم في الصفحة الرئيسية
 			</Typography>
 			<Tabs
@@ -110,6 +120,9 @@ export default function LandingControls(props: LandingControlsProps) {
 				onChange={(e, newValue) => setSelectedTab(newValue)}
 				sx={{
 					alignSelf: "center",
+					"& .MuiTabs-flexContainer": {
+						gap: 1,
+					},
 				}}
 			>
 				<Tab label='معاينة' value={TabValue.preview} />
@@ -119,9 +132,19 @@ export default function LandingControls(props: LandingControlsProps) {
 				<PreviewLandingPage data={getValues()} />
 			) : (
 				<form>
-					<Stack spacing={4}>
-						<Stack spacing={2}>
-							<Typography variant='h6'>القسم العلوي</Typography>
+					<Stack spacing={5}>
+						<Stack
+							spacing={2.5}
+							sx={{
+								p: 3,
+								borderRadius: "12px",
+								border: "1px solid #EAECF0",
+								backgroundColor: "#FAFBFC",
+							}}
+						>
+							<Typography variant='h6' fontWeight={700}>
+								القسم العلوي
+							</Typography>
 							<Controller
 								name='headerTitle'
 								control={control}
@@ -160,8 +183,18 @@ export default function LandingControls(props: LandingControlsProps) {
 								/>
 							</Box>
 						</Stack>
-						<Stack spacing={2}>
-							<Typography variant='h6'>قسم الفيديو التعريفي</Typography>
+						<Stack
+							spacing={2.5}
+							sx={{
+								p: 3,
+								borderRadius: "12px",
+								border: "1px solid #EAECF0",
+								backgroundColor: "#FAFBFC",
+							}}
+						>
+							<Typography variant='h6' fontWeight={700}>
+								قسم الفيديو التعريفي
+							</Typography>
 							<Controller
 								name='landingVideo'
 								control={control}
@@ -199,8 +232,18 @@ export default function LandingControls(props: LandingControlsProps) {
 							/>
 						</Stack>
 
-						<Stack spacing={2}>
-							<Typography variant='h6'>قسم عن المنصة</Typography>
+						<Stack
+							spacing={2.5}
+							sx={{
+								p: 3,
+								borderRadius: "12px",
+								border: "1px solid #EAECF0",
+								backgroundColor: "#FAFBFC",
+							}}
+						>
+							<Typography variant='h6' fontWeight={700}>
+								قسم عن المنصة
+							</Typography>
 							<Controller
 								name='aboutTitle'
 								control={control}
@@ -242,8 +285,18 @@ export default function LandingControls(props: LandingControlsProps) {
 								/>
 							</Box>
 						</Stack>
-						<Stack spacing={2}>
-							<Typography variant='h6'>بيانات التواصل</Typography>
+						<Stack
+							spacing={2.5}
+							sx={{
+								p: 3,
+								borderRadius: "12px",
+								border: "1px solid #EAECF0",
+								backgroundColor: "#FAFBFC",
+							}}
+						>
+							<Typography variant='h6' fontWeight={700}>
+								بيانات التواصل
+							</Typography>
 							<Controller
 								name='whatsAppNumber'
 								control={control}
@@ -292,9 +345,10 @@ export default function LandingControls(props: LandingControlsProps) {
 							<LoadingButton
 								variant='contained'
 								color='primary'
-								fullWidth
 								sx={{
 									width: "auto",
+									px: 5,
+									borderRadius: "10px",
 								}}
 								onClick={submitForm}
 								loading={isUpdating}

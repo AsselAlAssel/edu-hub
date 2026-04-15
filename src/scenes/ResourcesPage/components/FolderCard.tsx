@@ -75,7 +75,7 @@ export default function FolderCard({
 					<Stack direction='row' gap={1} alignItems='center'>
 						<FolderIcon
 							sx={{
-								color: isDropTarget ? "#1976d2" : "red",
+								color: isDropTarget ? "#1976d2" : undefined,
 								flexShrink: 0,
 							}}
 						/>

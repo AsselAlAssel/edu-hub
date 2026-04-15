@@ -13,7 +13,7 @@ export const createEduTheme = (direction: Direction) => {
 		palette: {
 			primary: {
 				main: "#0088DD",
-				dark: "#005991",
+				dark: "#006BB3",
 				contrastText: "#FFFFFF",
 			},
 			success: {
@@ -22,6 +22,7 @@ export const createEduTheme = (direction: Direction) => {
 			background: {
 				brand: "#0071B8",
 				["brand-secondary"]: "#99D8FF",
+				["brand-section"]: "#F0F7FF",
 				default: "#FAFBFC",
 				paper: "#FFFFFF",
 			},
@@ -100,8 +101,8 @@ export const createEduTheme = (direction: Direction) => {
 				styleOverrides: {
 					root: ({ theme }) => ({
 						textTransform: "none",
-						boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
-						borderRadius: 8,
+						boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
+						borderRadius: 10,
 						fontWeight: 600,
 						fontSize: 16,
 						border: "1px solid",
@@ -110,16 +111,14 @@ export const createEduTheme = (direction: Direction) => {
 						padding: "12px 20px",
 						backgroundColor: theme.palette.primary.main,
 						color: theme.palette.primary.contrastText,
-						transition:
-							"background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease",
+						transition: "all 0.2s ease",
 						[theme.breakpoints.down("sm")]: {
 							padding: "12px 16px",
 							fontSize: 14,
 						},
 						"&:hover": {
 							backgroundColor: `${theme.palette.primary.dark} !important`,
-							boxShadow:
-								"0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06)",
+							boxShadow: "0 4px 12px rgba(0, 136, 221, 0.25)",
 						},
 						"&:active": {
 							transform: "scale(0.98)",
@@ -130,13 +129,15 @@ export const createEduTheme = (direction: Direction) => {
 						},
 					}),
 					sizeLarge: {
-						height: 60,
+						height: 56,
+						borderRadius: 12,
 					},
 					sizeMedium: {
 						height: 48,
 					},
 					sizeSmall: {
 						height: 40,
+						borderRadius: 8,
 					},
 				},
 				variants: [
@@ -220,6 +221,7 @@ export const createEduTheme = (direction: Direction) => {
 						borderRadius: 10,
 						"& .MuiInputBase-root": {
 							backgroundColor: "white",
+							borderRadius: 10,
 							transition: "border-color 0.2s ease, box-shadow 0.2s ease",
 							"& fieldset": {
 								borderColor: "#D0D5DD",
@@ -230,12 +232,11 @@ export const createEduTheme = (direction: Direction) => {
 							},
 							"&.Mui-focused fieldset": {
 								borderColor: "#0088DD",
-								boxShadow: "0px 0px 0px 4px rgba(0, 136, 221, 0.12)",
+								boxShadow: "0 0 0 3px rgba(0, 136, 221, 0.12)",
 							},
 						},
 					},
 				},
-
 				variants: [
 					{
 						props: { error: true },
@@ -245,7 +246,7 @@ export const createEduTheme = (direction: Direction) => {
 									borderColor: "#FDA29B !important",
 								},
 								"&.Mui-focused fieldset": {
-									boxShadow: "0px 0px 0px 4px rgba(253, 162, 155, 0.2)",
+									boxShadow: "0 0 0 3px rgba(253, 162, 155, 0.2)",
 								},
 							},
 						},
@@ -299,15 +300,12 @@ export const createEduTheme = (direction: Direction) => {
 			MuiCard: {
 				styleOverrides: {
 					root: {
-						borderRadius: 12,
+						borderRadius: 16,
 						border: "1px solid #EAECF0",
-						boxShadow:
-							"0px 1px 3px rgba(16, 24, 40, 0.1), 0px 1px 2px rgba(16, 24, 40, 0.06)",
-						transition:
-							"box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease",
+						boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
+						transition: "all 0.25s ease",
 						"&:hover": {
-							boxShadow:
-								"0px 4px 12px rgba(16, 24, 40, 0.08), 0px 2px 6px rgba(16, 24, 40, 0.04)",
+							boxShadow: "0 4px 16px rgba(16, 24, 40, 0.08)",
 							borderColor: "#D0D5DD",
 						},
 					},
@@ -326,7 +324,6 @@ export const createEduTheme = (direction: Direction) => {
 						height: 28,
 					},
 				},
-
 				variants: [
 					{
 						props: { color: "primary" },
@@ -411,7 +408,7 @@ export const createEduTheme = (direction: Direction) => {
 						border: "1px solid #EAECF0",
 						borderRadius: "12px !important",
 						boxShadow:
-							"0px 12px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 16px -4px rgba(16, 24, 40, 0.03) !important",
+							"0 12px 24px -4px rgba(16, 24, 40, 0.08), 0 8px 16px -4px rgba(16, 24, 40, 0.03) !important",
 					},
 					list: {
 						padding: "0px",
@@ -484,7 +481,7 @@ export const createEduTheme = (direction: Direction) => {
 				styleOverrides: {
 					paper: {
 						borderRadius: 16,
-						boxShadow: "0px 24px 48px -12px rgba(16, 24, 40, 0.18)",
+						boxShadow: "0 24px 48px -12px rgba(16, 24, 40, 0.18)",
 					},
 				},
 			},

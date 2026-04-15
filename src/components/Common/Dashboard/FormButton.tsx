@@ -2,7 +2,7 @@ export default function FormButton({ height, children }: any) {
 	return (
 		<button
 			type='submit'
-			className='flex w-full items-center justify-center gap-2 rounded-lg bg-dark px-10 py-3.5 font-satoshi text-base font-medium tracking-[-.2px] text-white duration-300 hover:bg-dark/90 dark:bg-white dark:text-dark dark:hover:bg-white/90'
+			className='flex w-full items-center justify-center gap-2 rounded-[10px] bg-[#0088DD] px-10 py-3.5 text-base font-semibold text-white duration-200 hover:bg-[#006BB3] active:scale-[0.98]'
 			style={{ height: height }}
 		>
 			{children}

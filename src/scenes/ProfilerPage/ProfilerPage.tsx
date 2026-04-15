@@ -15,17 +15,14 @@ export default function ProfilerPage(props: {
 	landingData: LandingPage | null;
 }) {
 	return (
-		<PageContainer
-			sx={{
-				mb: 10,
-			}}
-		>
+		<PageContainer sx={{ mb: 10 }}>
 			<Typography
 				variant='h4'
 				sx={{
-					fontWeight: 700,
-					mb: 4,
+					fontWeight: 800,
+					mb: 5,
 					mt: 2,
+					letterSpacing: "-0.01em",
 				}}
 			>
 				لوحة التحكم

@@ -1,4 +1,4 @@
-import { Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -9,20 +9,32 @@ const NotFound = () => {
 			justifyContent='center'
 			alignItems='center'
 			height='100vh'
-			spacing={2}
+			spacing={3}
+			sx={{ px: 3 }}
 		>
-			<Image src='/images/404.jpg' alt='404' width={300} height={300} />
-			<Link href='/'>
-				<Typography
-					variant='h6'
-					sx={{
-						cursor: "pointer",
-						textDecoration: "none",
-						color: "text.primary",
-					}}
-				>
+			<Image src='/images/404.jpg' alt='404' width={280} height={280} />
+			<Typography
+				variant='h4'
+				sx={{
+					fontWeight: 700,
+					textAlign: "center",
+				}}
+			>
+				الصفحة غير موجودة
+			</Typography>
+			<Typography
+				sx={{
+					color: "text.tertiary",
+					textAlign: "center",
+					maxWidth: 400,
+				}}
+			>
+				يبدو أن الصفحة التي تبحث عنها غير موجودة أو تم نقلها
+			</Typography>
+			<Link href='/' style={{ textDecoration: "none" }}>
+				<Button size='medium' sx={{ px: 4 }}>
 					الرجوع للصفحة الرئيسية
-				</Typography>
+				</Button>
 			</Link>
 		</Stack>
 	);
