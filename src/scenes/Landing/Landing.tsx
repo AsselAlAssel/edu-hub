@@ -8,7 +8,7 @@ export default async function Landing({ data }: { data: LandingPage | null }) {
 		<Box
 			id='home'
 			sx={{
-				mt: -5,
+				mt: -4,
 			}}
 		>
 			<Header
@@ -24,12 +24,13 @@ export default async function Landing({ data }: { data: LandingPage | null }) {
 						width: "100%",
 						margin: "auto",
 						height: {
-							xs: "400px",
-							sm: "500px",
-							md: "600px",
-							lg: "700px",
+							xs: "360px",
+							sm: "480px",
+							md: "560px",
+							lg: "640px",
 						},
-						py: 10,
+						py: { xs: 6, md: 10 },
+						px: 2,
 						alignSelf: "center",
 					}}
 					id='video'
@@ -39,7 +40,10 @@ export default async function Landing({ data }: { data: LandingPage | null }) {
 							objectFit: "cover",
 							width: "100%",
 							height: "100%",
-							borderRadius: "10px",
+							borderRadius: "16px",
+							border: "none",
+							boxShadow:
+								"0px 8px 32px rgba(0, 0, 0, 0.12), 0px 2px 8px rgba(0, 0, 0, 0.06)",
 						}}
 						src={`https://www.youtube.com/embed/${data.landingVideoId}`}
 						title='YouTube video player'

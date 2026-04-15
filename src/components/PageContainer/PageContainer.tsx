@@ -8,8 +8,11 @@ const PageContainer = styled(Container)(({ theme }) => ({
 	[theme.breakpoints.up("xs")]: {
 		padding: "0 16px !important",
 	},
+	[theme.breakpoints.up("sm")]: {
+		padding: "0 24px !important",
+	},
 	[theme.breakpoints.up("lg")]: {
-		padding: "0px  !important",
+		padding: "0px !important",
 	},
 	minHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
 })) as typeof Container;

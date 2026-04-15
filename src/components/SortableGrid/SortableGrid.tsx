@@ -19,7 +19,7 @@ export default function SortableGrid<T extends { id: string }>({
 }: SortableGridProps<T>) {
 	if (!isAdmin) {
 		return (
-			<Grid container spacing={2}>
+			<Grid container spacing={3}>
 				{items.map((item) => (
 					<Grid
 						item
@@ -42,7 +42,7 @@ export default function SortableGrid<T extends { id: string }>({
 			items={items.map((i) => i.id)}
 			strategy={rectSortingStrategy}
 		>
-			<Grid container spacing={2}>
+			<Grid container spacing={3}>
 				{items.map((item) => (
 					<Grid
 						item

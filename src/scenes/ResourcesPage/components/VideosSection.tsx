@@ -35,7 +35,7 @@ export default function VideosSection({
 
 	return (
 		<Box>
-			<Typography variant='h5' mb={2}>
+			<Typography variant='h5' fontWeight={700} mb={2}>
 				الفيديوهات
 			</Typography>
 			<SortableGrid

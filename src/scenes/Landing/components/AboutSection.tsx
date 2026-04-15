@@ -17,13 +17,15 @@ export default function AboutSection(props: {
 			id='about'
 			sx={{
 				position: "relative",
-				px: 2,
-				background: "rgba(0, 130, 210, 1)",
+				px: 3,
+				background:
+					"linear-gradient(135deg, #0082D2 0%, #0094E8 50%, #005C94 100%)",
+				overflow: "hidden",
 			}}
 		>
 			<Image
 				src={"/images/landing/half-circle1.svg"}
-				alt='Half Circle'
+				alt=''
 				width={129}
 				height={235}
 				style={{
@@ -31,11 +33,12 @@ export default function AboutSection(props: {
 					top: "0",
 					right: "0",
 					zIndex: 0,
+					opacity: 0.4,
 				}}
 			/>
 			<Image
 				src={"/images/landing/half-circle2.svg"}
-				alt='Half Circle'
+				alt=''
 				width={129}
 				height={235}
 				style={{
@@ -43,6 +46,7 @@ export default function AboutSection(props: {
 					bottom: "0",
 					left: "0",
 					zIndex: 0,
+					opacity: 0.4,
 				}}
 			/>
 			<Stack
@@ -50,30 +54,34 @@ export default function AboutSection(props: {
 				justifyContent={"center"}
 				alignItems={"center"}
 				height={"100%"}
-				maxWidth={"1200px"}
+				maxWidth={"1100px"}
 				margin={"auto"}
-				spacing={3}
+				spacing={4}
+				sx={{ position: "relative", zIndex: 1 }}
 			>
 				<Box>
-					<StyledSectionTitle> {aboutTitle} </StyledSectionTitle>
+					<StyledSectionTitle>{aboutTitle}</StyledSectionTitle>
 					<StyledSectionSubTitle>{aboutSubtitle}</StyledSectionSubTitle>
 				</Box>
 				{aboutImage && (
 					<Box
 						sx={{
-							maxWidth: "400px",
-							maxHeight: "300px",
+							maxWidth: "420px",
+							maxHeight: "320px",
+							borderRadius: 3,
+							overflow: "hidden",
+							boxShadow: "0 12px 40px rgba(0,0,0,0.2)",
 						}}
 					>
 						<Image
 							src={aboutImage}
 							alt='About'
 							layout='responsive'
-							width={400}
-							height={300}
+							width={420}
+							height={320}
 							style={{
-								maxWidth: "400",
-								maxHeight: "300",
+								maxWidth: "420px",
+								maxHeight: "320px",
 								objectFit: "cover",
 								width: "100%",
 								height: "100%",

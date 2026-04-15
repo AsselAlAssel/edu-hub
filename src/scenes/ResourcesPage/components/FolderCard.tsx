@@ -35,13 +35,14 @@ export default function FolderCard({
 		<Stack
 			direction='row'
 			justifyContent={"space-between"}
+			alignItems={"center"}
 			sx={{
 				border: isDropTarget
 					? "2px dashed #1976d2"
 					: isDraggingOver
 						? "2px dashed #90CAF9"
-						: "1px solid #E0E0E0",
-				borderRadius: 1,
+						: "1px solid #D0D5DD",
+				borderRadius: "10px",
 				padding: 1.5,
 				cursor: "pointer",
 				width: "100%",
@@ -49,9 +50,15 @@ export default function FolderCard({
 					? "#E3F2FD"
 					: isDraggingOver
 						? "#F5F9FF"
-						: "#F0F4F9",
+						: "#F9FAFB",
 				transition: "all 0.2s ease",
 				transform: isDropTarget ? "scale(1.02)" : "none",
+				boxShadow: "0px 1px 2px rgba(16, 24, 40, 0.05)",
+				"&:hover": {
+					backgroundColor: isDropTarget ? "#E3F2FD" : "#F0F4F8",
+					borderColor: isDropTarget ? "#1976d2" : "#98A2B3",
+					boxShadow: "0px 2px 6px rgba(16, 24, 40, 0.08)",
+				},
 			}}
 			gap={1}
 		>
@@ -60,13 +67,16 @@ export default function FolderCard({
 				style={{
 					flex: 1,
 					maxWidth: "80%",
+					textDecoration: "none",
+					color: "inherit",
 				}}
 			>
 				<CustomTooltip title={folder.name}>
-					<Stack direction='row' gap={1}>
+					<Stack direction='row' gap={1} alignItems='center'>
 						<FolderIcon
 							sx={{
-								color: isDropTarget ? "#1976d2" : undefined,
+								color: isDropTarget ? "#1976d2" : "red",
+								flexShrink: 0,
 							}}
 						/>
 						<Typography
@@ -80,7 +90,6 @@ export default function FolderCard({
 								WebkitLineClamp: 2,
 								WebkitBoxOrient: "vertical",
 								lineHeight: "1.8rem",
-								height: "3.6rem",
 								color: isDropTarget ? "#1976d2" : undefined,
 							}}
 						>

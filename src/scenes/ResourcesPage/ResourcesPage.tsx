@@ -260,42 +260,50 @@ export default function ResourcesPage({
 	return (
 		<PageContainer
 			sx={{
-				mb: 20,
+				mb: 10,
 			}}
 		>
-			<Typography variant='h4' textAlign={"center"} mb={4}>
-				مرحباً بك في {className}
-			</Typography>
-			<Breadcrumb
-				breadcrumb={breadcrumb}
-				classId={classId}
-				folderId={folderId}
-			/>
-
-			{isDataEmpty && !isAdmin ? (
-				<EmptyState
-					title='لا توجد موارد لعرضها حتى الآن'
-					description='سيتم إضافة الموارد قريباً'
+			<Stack spacing={4}>
+				<Typography
+					variant='h4'
+					textAlign={"center"}
+					sx={{
+						fontWeight: 700,
+					}}
+				>
+					مرحباً بك في {className}
+				</Typography>
+				<Breadcrumb
+					breadcrumb={breadcrumb}
+					classId={classId}
+					folderId={folderId}
 				/>
-			) : (
-				<Stack spacing={3}>
-					{isDataEmpty && isAdmin ? (
-						<EmptyAddResources folderId={folderId} classId={classId} />
-					) : isAdmin ? (
-						<DndContext
-							sensors={sensors}
-							collisionDetection={customCollisionDetection}
-							onDragStart={handleDragStart}
-							onDragOver={handleDragOver}
-							onDragEnd={handleDragEnd}
-						>
-							<Stack spacing={3}>{sections}</Stack>
-						</DndContext>
-					) : (
-						sections
-					)}
-				</Stack>
-			)}
+
+				{isDataEmpty && !isAdmin ? (
+					<EmptyState
+						title='لا توجد موارد لعرضها حتى الآن'
+						description='سيتم إضافة الموارد قريباً'
+					/>
+				) : (
+					<Stack spacing={4}>
+						{isDataEmpty && isAdmin ? (
+							<EmptyAddResources folderId={folderId} classId={classId} />
+						) : isAdmin ? (
+							<DndContext
+								sensors={sensors}
+								collisionDetection={customCollisionDetection}
+								onDragStart={handleDragStart}
+								onDragOver={handleDragOver}
+								onDragEnd={handleDragEnd}
+							>
+								<Stack spacing={4}>{sections}</Stack>
+							</DndContext>
+						) : (
+							sections
+						)}
+					</Stack>
+				)}
+			</Stack>
 		</PageContainer>
 	);
 }

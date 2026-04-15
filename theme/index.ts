@@ -22,6 +22,8 @@ export const createEduTheme = (direction: Direction) => {
 			background: {
 				brand: "#0071B8",
 				["brand-secondary"]: "#99D8FF",
+				default: "#FAFBFC",
+				paper: "#FFFFFF",
 			},
 			text: {
 				primary: "#101828",
@@ -42,14 +44,63 @@ export const createEduTheme = (direction: Direction) => {
 		},
 		typography: {
 			fontFamily: font.style.fontFamily,
+			h1: {
+				fontSize: "3rem",
+				fontWeight: 800,
+				lineHeight: 1.2,
+				letterSpacing: "-0.02em",
+			},
+			h2: {
+				fontSize: "2.25rem",
+				fontWeight: 700,
+				lineHeight: 1.25,
+				letterSpacing: "-0.01em",
+			},
+			h3: {
+				fontSize: "1.75rem",
+				fontWeight: 700,
+				lineHeight: 1.3,
+			},
+			h4: {
+				fontSize: "1.5rem",
+				fontWeight: 700,
+				lineHeight: 1.35,
+			},
+			h5: {
+				fontSize: "1.25rem",
+				fontWeight: 600,
+				lineHeight: 1.4,
+			},
+			h6: {
+				fontSize: "1rem",
+				fontWeight: 600,
+				lineHeight: 1.5,
+			},
+			body1: {
+				fontSize: "1rem",
+				lineHeight: 1.6,
+			},
+			body2: {
+				fontSize: "0.875rem",
+				lineHeight: 1.5,
+			},
 		},
 		components: {
+			MuiCssBaseline: {
+				styleOverrides: {
+					"*:focus-visible": {
+						outline: "2px solid #0088DD",
+						outlineOffset: "2px",
+						borderRadius: "4px",
+					},
+				},
+			},
 			MuiButton: {
 				defaultProps: { variant: "contained", disableRipple: true },
 				styleOverrides: {
 					root: ({ theme }) => ({
 						textTransform: "none",
-						boxShadow: "0px 1px 2px 0px #1018280D",
+						boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
 						borderRadius: 8,
 						fontWeight: 600,
 						fontSize: 16,
@@ -59,12 +110,23 @@ export const createEduTheme = (direction: Direction) => {
 						padding: "12px 20px",
 						backgroundColor: theme.palette.primary.main,
 						color: theme.palette.primary.contrastText,
+						transition:
+							"background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease",
 						[theme.breakpoints.down("sm")]: {
 							padding: "12px 16px",
 							fontSize: 14,
 						},
 						"&:hover": {
 							backgroundColor: `${theme.palette.primary.dark} !important`,
+							boxShadow:
+								"0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06)",
+						},
+						"&:active": {
+							transform: "scale(0.98)",
+						},
+						"&:focus-visible": {
+							outline: `2px solid ${theme.palette.primary.main}`,
+							outlineOffset: "2px",
 						},
 					}),
 					sizeLarge: {
@@ -158,8 +220,17 @@ export const createEduTheme = (direction: Direction) => {
 						borderRadius: 10,
 						"& .MuiInputBase-root": {
 							backgroundColor: "white",
+							transition: "border-color 0.2s ease, box-shadow 0.2s ease",
 							"& fieldset": {
 								borderColor: "#D0D5DD",
+								transition: "border-color 0.2s ease",
+							},
+							"&:hover fieldset": {
+								borderColor: "#98A2B3",
+							},
+							"&.Mui-focused fieldset": {
+								borderColor: "#0088DD",
+								boxShadow: "0px 0px 0px 4px rgba(0, 136, 221, 0.12)",
 							},
 						},
 					},
@@ -172,6 +243,9 @@ export const createEduTheme = (direction: Direction) => {
 							"& .MuiInputBase-root": {
 								"& fieldset": {
 									borderColor: "#FDA29B !important",
+								},
+								"&.Mui-focused fieldset": {
+									boxShadow: "0px 0px 0px 4px rgba(253, 162, 155, 0.2)",
 								},
 							},
 						},
@@ -221,6 +295,23 @@ export const createEduTheme = (direction: Direction) => {
 						}),
 					},
 				],
+			},
+			MuiCard: {
+				styleOverrides: {
+					root: {
+						borderRadius: 12,
+						border: "1px solid #EAECF0",
+						boxShadow:
+							"0px 1px 3px rgba(16, 24, 40, 0.1), 0px 1px 2px rgba(16, 24, 40, 0.06)",
+						transition:
+							"box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease",
+						"&:hover": {
+							boxShadow:
+								"0px 4px 12px rgba(16, 24, 40, 0.08), 0px 2px 6px rgba(16, 24, 40, 0.04)",
+							borderColor: "#D0D5DD",
+						},
+					},
+				},
 			},
 			MuiChip: {
 				defaultProps: {
@@ -318,6 +409,9 @@ export const createEduTheme = (direction: Direction) => {
 						padding: "5px",
 						paddingTop: "5px",
 						border: "1px solid #EAECF0",
+						borderRadius: "12px !important",
+						boxShadow:
+							"0px 12px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 16px -4px rgba(16, 24, 40, 0.03) !important",
 					},
 					list: {
 						padding: "0px",
@@ -327,7 +421,8 @@ export const createEduTheme = (direction: Direction) => {
 			MuiMenuItem: {
 				styleOverrides: {
 					root: {
-						borderRadius: "5px",
+						borderRadius: "8px",
+						transition: "background-color 0.15s ease",
 					},
 					selected: {},
 				},
@@ -382,6 +477,39 @@ export const createEduTheme = (direction: Direction) => {
 				styleOverrides: {
 					root: {
 						padding: "16px 24px",
+					},
+				},
+			},
+			MuiDialog: {
+				styleOverrides: {
+					paper: {
+						borderRadius: 16,
+						boxShadow: "0px 24px 48px -12px rgba(16, 24, 40, 0.18)",
+					},
+				},
+			},
+			MuiDrawer: {
+				styleOverrides: {
+					paper: {
+						borderRadius: 0,
+					},
+				},
+			},
+			MuiTabs: {
+				styleOverrides: {
+					indicator: {
+						borderRadius: 2,
+						height: 3,
+					},
+				},
+			},
+			MuiTab: {
+				styleOverrides: {
+					root: {
+						textTransform: "none",
+						fontWeight: 600,
+						fontSize: "0.9375rem",
+						transition: "color 0.2s ease",
 					},
 				},
 			},

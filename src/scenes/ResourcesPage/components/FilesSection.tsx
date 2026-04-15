@@ -32,7 +32,7 @@ export default function FilesSection({
 	if (isDataEmpty && !isAdmin) return null;
 	return (
 		<Box>
-			<Typography variant='h5' mb={2}>
+			<Typography variant='h5' fontWeight={700} mb={2}>
 				الملفات
 			</Typography>
 			<SortableGrid

@@ -1,5 +1,5 @@
 import PageContainer from "@/components/PageContainer";
-import { Stack } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { LandingPage } from "@prisma/client";
 import { Metadata } from "next";
 import React from "react";
@@ -17,18 +17,27 @@ export default function ProfilerPage(props: {
 	return (
 		<PageContainer
 			sx={{
-				marginBottom: 20,
+				mb: 10,
 			}}
 		>
+			<Typography
+				variant='h4'
+				sx={{
+					fontWeight: 700,
+					mb: 4,
+					mt: 2,
+				}}
+			>
+				لوحة التحكم
+			</Typography>
 			<Stack
-				spacing={5}
+				spacing={4}
 				direction={{
 					xs: "column",
 					md: "row",
 				}}
 			>
 				<UserInformation />
-
 				<LandingControls landingData={props.landingData} />
 			</Stack>
 		</PageContainer>

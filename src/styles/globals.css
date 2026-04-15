@@ -19,6 +19,48 @@ html {
 
 	body {
 		@apply font-IBM relative z-1 text-base font-normal -tracking-[0.16px] text-body;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+
+	*:focus-visible {
+		outline: 2px solid #0088dd;
+		outline-offset: 2px;
+		border-radius: 4px;
+	}
+
+	::selection {
+		background-color: rgba(0, 136, 221, 0.15);
+		color: #005991;
+	}
+}
+
+@layer utilities {
+	.section-padding {
+		@apply px-4 py-16 sm:px-8 md:px-16 lg:px-28 lg:py-24;
+	}
+
+	.card-surface {
+		@apply rounded-xl border border-gray-3 bg-white shadow-1;
+		transition:
+			box-shadow 0.25s ease,
+			transform 0.25s ease,
+			border-color 0.25s ease;
+	}
+
+	.card-surface:hover {
+		box-shadow:
+			0px 4px 12px rgba(16, 24, 40, 0.08),
+			0px 2px 6px rgba(16, 24, 40, 0.04);
+		border-color: #d0d5dd;
+	}
+
+	.card-surface-interactive {
+		@apply card-surface cursor-pointer;
+	}
+
+	.card-surface-interactive:hover {
+		transform: translateY(-2px);
 	}
 }
 
@@ -45,5 +87,16 @@ html {
 	50%,
 	70% {
 		transform: translateY(-15px);
+	}
+}
+
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(16px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
 	}
 }

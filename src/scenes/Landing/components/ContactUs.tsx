@@ -12,17 +12,29 @@ import {
 } from "./Styled";
 
 const StyledBox = styled(Box)(({ theme }) => ({
-	padding: "24px",
-	border: `2px solid ${theme.palette.primary.main}`,
+	padding: "28px 24px",
+	border: `1px solid ${theme.palette.border?.secondary || "#EAECF0"}`,
 	borderRadius: "16px",
 	display: "flex",
 	flexDirection: "column",
 	justifyContent: "center",
 	alignItems: "center",
 	gap: "16px",
-	width: "230px",
+	width: "240px",
+	backgroundColor: "#FFFFFF",
+	boxShadow:
+		"0px 1px 3px rgba(16, 24, 40, 0.1), 0px 1px 2px rgba(16, 24, 40, 0.06)",
+	transition: "all 0.25s ease",
+	"&:hover": {
+		boxShadow:
+			"0px 8px 24px rgba(16, 24, 40, 0.08), 0px 4px 12px rgba(16, 24, 40, 0.04)",
+		transform: "translateY(-4px)",
+		borderColor: theme.palette.primary?.main || "#0088DD",
+	},
 	[theme.breakpoints.down("sm")]: {
-		padding: "16px",
+		padding: "20px 16px",
+		width: "100%",
+		maxWidth: "280px",
 	},
 }));
 
@@ -42,10 +54,10 @@ export default function ContactUs(props: {
 			<Stack
 				justifyContent={"center"}
 				alignItems={"center"}
-				py={8}
+				py={{ xs: 8, md: 10 }}
 				spacing={{
-					xs: 3,
-					sm: 5,
+					xs: 4,
+					sm: 6,
 				}}
 			>
 				<Box>
@@ -61,15 +73,14 @@ export default function ContactUs(props: {
 					</StyledSectionTitle>
 					<StyledSubTitle
 						sx={(theme) => ({
-							color: "text.primary",
-							mt: 2,
+							color: "text.tertiary",
+							mt: 1.5,
 							textAlign: "center",
-							fontWeight: 600,
-							fontSize: theme.typography.pxToRem(24),
-							lineHeight: theme.typography.pxToRem(28),
+							fontWeight: 500,
+							fontSize: theme.typography.pxToRem(18),
+							lineHeight: 1.5,
 							[theme.breakpoints.down("sm")]: {
-								fontSize: theme.typography.pxToRem(18),
-								lineHeight: theme.typography.pxToRem(22),
+								fontSize: theme.typography.pxToRem(16),
 							},
 						})}
 					>
@@ -78,25 +89,35 @@ export default function ContactUs(props: {
 				</Box>
 				<Stack
 					direction={{ xs: "column", sm: "row" }}
-					spacing={{
-						xs: 3,
-						sm: 5,
-					}}
+					spacing={3}
 					flexWrap={"wrap"}
 					justifyContent={"center"}
 					alignItems={"center"}
-					gap={3}
 				>
 					<StyledBox>
-						<EmailOutlinedIcon
+						<Box
 							sx={{
-								color: "primary.main",
+								width: 48,
+								height: 48,
+								borderRadius: "12px",
+								backgroundColor: "rgba(0, 136, 221, 0.08)",
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
 							}}
-						/>
+						>
+							<EmailOutlinedIcon
+								sx={{
+									color: "primary.main",
+									fontSize: 24,
+								}}
+							/>
+						</Box>
 						<StyledSubTitle
 							sx={{
-								color: "primary.main",
+								color: "text.primary",
 								fontWeight: 600,
+								fontSize: "1rem",
 							}}
 						>
 							البريد الإلكتروني
@@ -107,8 +128,9 @@ export default function ContactUs(props: {
 								href={`mailto:${email}`}
 								target='_blank'
 								sx={{
-									fontSize: "15px",
-									lineHeight: "18px",
+									fontSize: "14px",
+									lineHeight: "20px",
+									color: "primary.main",
 								}}
 							>
 								{email}
@@ -116,31 +138,66 @@ export default function ContactUs(props: {
 						</Box>
 					</StyledBox>
 					<StyledBox>
-						<PlaceOutlinedIcon
+						<Box
 							sx={{
-								color: "primary.main",
+								width: 48,
+								height: 48,
+								borderRadius: "12px",
+								backgroundColor: "rgba(0, 136, 221, 0.08)",
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
 							}}
-						/>
+						>
+							<PlaceOutlinedIcon
+								sx={{
+									color: "primary.main",
+									fontSize: 24,
+								}}
+							/>
+						</Box>
 						<StyledSubTitle
 							sx={{
-								color: "primary.main",
+								color: "text.primary",
 								fontWeight: 600,
+								fontSize: "1rem",
 							}}
 						>
 							العنوان
 						</StyledSubTitle>
-						<StyledContactUsText>{address}</StyledContactUsText>
+						<StyledContactUsText
+							sx={{
+								color: "text.primary",
+								fontSize: "14px",
+							}}
+						>
+							{address}
+						</StyledContactUsText>
 					</StyledBox>
 					<StyledBox>
-						<WhatsAppIcon
+						<Box
 							sx={{
-								color: "primary.main",
+								width: 48,
+								height: 48,
+								borderRadius: "12px",
+								backgroundColor: "rgba(37, 211, 102, 0.08)",
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
 							}}
-						/>
+						>
+							<WhatsAppIcon
+								sx={{
+									color: "#25D366",
+									fontSize: 24,
+								}}
+							/>
+						</Box>
 						<StyledSubTitle
 							sx={{
-								color: "primary.main",
+								color: "text.primary",
 								fontWeight: 600,
+								fontSize: "1rem",
 							}}
 						>
 							الواتساب
@@ -150,6 +207,10 @@ export default function ContactUs(props: {
 							href={`https://wa.me/${whatsappNumber}`}
 							target='_blank'
 							rel='noopener noreferrer'
+							sx={{
+								color: "primary.main",
+								fontSize: "14px",
+							}}
 						>
 							<span dir='ltr'>+{whatsappNumber}</span>
 						</StyledContactUsText>

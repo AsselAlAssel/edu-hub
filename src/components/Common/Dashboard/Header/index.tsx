@@ -11,6 +11,7 @@ import {
 	Avatar,
 	Box,
 	Button,
+	IconButton,
 	ListItemIcon,
 	ListItemText,
 	Menu,
@@ -26,7 +27,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { useEffect, useState } from "react";
 import SideBar from "../Sidebar";
 
-export const APP_BAR_HEIGHT = 80;
+export const APP_BAR_HEIGHT = 72;
 
 const LinkItem = ({
 	children,
@@ -39,13 +40,34 @@ const LinkItem = ({
 	onClick?: () => void;
 	isSelected?: boolean;
 }) => {
+	const selectedAfterStyle = {
+		"&::after": {
+			content: '""',
+			position: "absolute",
+			bottom: -4,
+			right: 0,
+			left: 0,
+			height: 2,
+			borderRadius: 1,
+			backgroundColor: "primary.main",
+		},
+	};
+
 	return (
 		<Typography
+			component='span'
 			sx={{
 				fontWeight: 600,
-				color: isSelected ? "text.secondaryLight" : "text.primary",
+				fontSize: "0.9375rem",
+				color: isSelected ? "text.secondaryLight" : "text.tertiary",
 				textAlign: "center",
 				height: "100%",
+				position: "relative",
+				transition: "color 0.2s ease",
+				"&:hover": {
+					color: "primary.main",
+				},
+				...(isSelected ? selectedAfterStyle : {}),
 			}}
 			onClick={onClick}
 		>
@@ -72,16 +94,12 @@ export default function Header() {
 	const { isTabletOrLess } = useMuiMediaQuery();
 	const pathName = usePathname();
 
-	const [, setIsScrolled] = useState(false);
+	const [isScrolled, setIsScrolled] = useState(false);
 	useEffect(() => {
 		const handleScroll = () => {
-			if (window.scrollY > 0) {
-				setIsScrolled(true);
-			} else {
-				setIsScrolled(false);
-			}
+			setIsScrolled(window.scrollY > 10);
 		};
-		window.addEventListener("scroll", handleScroll);
+		window.addEventListener("scroll", handleScroll, { passive: true });
 		return () => {
 			window.removeEventListener("scroll", handleScroll);
 		};
@@ -89,6 +107,8 @@ export default function Header() {
 
 	return (
 		<Box
+			component='header'
+			role='banner'
 			sx={(theme) => ({
 				height: APP_BAR_HEIGHT,
 				zIndex: 999,
@@ -96,14 +116,21 @@ export default function Header() {
 				width: "100%",
 				top: 0,
 				p: 0,
-				borderBottom: `1px solid #939393`,
-				backgroundColor: theme.palette.background.paper,
+				borderBottom: `1px solid`,
+				borderColor: isScrolled ? alpha("#D0D5DD", 0.6) : alpha("#D0D5DD", 0.3),
+				backgroundColor: isScrolled
+					? alpha(theme.palette.background.paper, 0.85)
+					: theme.palette.background.paper,
+				backdropFilter: isScrolled ? "blur(12px)" : "none",
+				WebkitBackdropFilter: isScrolled ? "blur(12px)" : "none",
+				transition:
+					"background-color 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease",
 			})}
 		>
 			<PageContainer
 				sx={(theme) => ({
 					[theme.breakpoints.down("sm")]: {
-						px: "32px !important",
+						px: "20px !important",
 					},
 					minHeight: APP_BAR_HEIGHT,
 					maxHeight: APP_BAR_HEIGHT,
@@ -123,22 +150,24 @@ export default function Header() {
 							marginRight: "auto",
 						}}
 					>
-						<Link href='/'>
+						<Link href='/' aria-label='الصفحة الرئيسية'>
 							<Image
 								src='/images/logo/logo.svg'
 								alt='شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh'
-								width={50}
-								height={50}
+								width={44}
+								height={44}
 							/>
 						</Link>
 					</Box>
 					<Stack
+						component='nav'
+						aria-label='القائمة الرئيسية'
 						direction='row'
 						justifyContent='center'
 						alignItems='center'
 						display={{ xs: "none", md: "flex" }}
 					>
-						<Stack direction='row' spacing={2.5} alignItems='center'>
+						<Stack direction='row' spacing={3} alignItems='center'>
 							<LinkItem href='/#home'>الرئيسية</LinkItem>
 							<LinkItem href='/classes' isSelected={pathName === "/classes"}>
 								الصفوف
@@ -160,11 +189,17 @@ export default function Header() {
 								sx={(theme) => ({
 									width: 40,
 									height: 40,
-									border: "1px solid",
-									borderColor: alpha("#000", 0.08),
+									border: "2px solid",
+									borderColor: alpha(theme.palette.primary.main, 0.2),
 									backgroundColor: theme.palette.primary.main,
-									fontSize: 20,
+									fontSize: 18,
+									fontWeight: 700,
 									cursor: "pointer",
+									transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+									"&:hover": {
+										borderColor: theme.palette.primary.main,
+										boxShadow: `0 0 0 4px ${alpha(theme.palette.primary.main, 0.12)}`,
+									},
 								})}
 								onClick={(e) => {
 									if (isTabletOrLess) {
@@ -179,11 +214,10 @@ export default function Header() {
 						) : (
 							<Button
 								onClick={() => router.push("/classes")}
+								size='small'
 								sx={{
-									backgroundColor: "rgba(0, 130, 210, 1)",
-									color: "primary.contrastText",
-									borderRadius: 1.5,
-									height: 45,
+									height: 42,
+									px: 3,
 								}}
 							>
 								إبدأ الآن
@@ -195,32 +229,26 @@ export default function Header() {
 							display: { xs: "flex", md: "none" },
 						}}
 					>
-						{openSidebar ? (
-							<CloseIcon
-								onClick={() => setOpenSidebar(!openSidebar)}
-								sx={{
-									cursor: "pointer",
-								}}
-							/>
-						) : (
-							<MenuIcon
-								onClick={() => setOpenSidebar(!openSidebar)}
-								sx={{
-									cursor: "pointer",
-								}}
-							/>
-						)}
+						<IconButton
+							onClick={() => setOpenSidebar(!openSidebar)}
+							aria-label={openSidebar ? "إغلاق القائمة" : "فتح القائمة"}
+							sx={{
+								color: "text.primary",
+							}}
+						>
+							{openSidebar ? <CloseIcon /> : <MenuIcon />}
+						</IconButton>
 					</Box>
 				</Stack>
 			</PageContainer>
 			<Menu
 				sx={{
-					mt: "50px",
+					mt: "8px",
 				}}
 				id='menu-appbar'
 				anchorEl={anchorEl}
 				anchorOrigin={{
-					vertical: "top",
+					vertical: "bottom",
 					horizontal: "right",
 				}}
 				keepMounted
@@ -233,8 +261,7 @@ export default function Header() {
 				slotProps={{
 					paper: {
 						sx: {
-							minWidth: 240,
-							boxShadow: "0px 4px 9px rgba(48, 60, 88, 0.07)",
+							minWidth: 260,
 							p: 0,
 						},
 					},
@@ -256,10 +283,11 @@ export default function Header() {
 								sx={(theme) => ({
 									width: 40,
 									height: 40,
-									border: "1px solid",
-									borderColor: alpha("#000", 0.08),
+									border: "2px solid",
+									borderColor: alpha(theme.palette.primary.main, 0.2),
 									backgroundColor: theme.palette.primary.main,
-									fontSize: 20,
+									fontSize: 18,
+									fontWeight: 700,
 								})}
 							>
 								{user?.name?.[0]?.toUpperCase()}
@@ -298,7 +326,7 @@ export default function Header() {
 						signOut();
 					}}
 					sx={{
-						borderTop: "1px solid #D0D5DD",
+						borderTop: "1px solid #EAECF0",
 						borderRadius: "0px",
 						py: 1.75,
 						px: 2,

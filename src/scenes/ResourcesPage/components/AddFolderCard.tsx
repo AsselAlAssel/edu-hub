@@ -8,12 +8,17 @@ export default function AddFolderCard({ onClick }: { onClick: () => void }) {
 			direction='row'
 			alignItems='center'
 			sx={{
-				border: "1px solid #E0E0E0",
-				borderRadius: 1,
+				border: "1px dashed #D0D5DD",
+				borderRadius: "10px",
 				padding: 1.5,
 				cursor: "pointer",
 				width: "100%",
-				backgroundColor: "#F0F4F9",
+				backgroundColor: "transparent",
+				transition: "all 0.2s ease",
+				"&:hover": {
+					borderColor: "#0088DD",
+					backgroundColor: "rgba(0, 136, 221, 0.04)",
+				},
 			}}
 			gap={1}
 			onClick={onClick}

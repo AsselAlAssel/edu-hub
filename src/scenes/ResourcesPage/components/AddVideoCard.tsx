@@ -14,6 +14,10 @@ export default function AddVideoCard({ onClick }: { onClick: () => void }) {
 				width: "100%",
 				backgroundColor: "#F0F4F9",
 				flex: 1,
+				transition: "all 0.2s ease",
+				"&:hover": {
+					backgroundColor: "#DCE6F1",
+				},
 			}}
 			gap={0.5}
 			onClick={onClick}

@@ -2,7 +2,7 @@
 import ClassItem from "@/components/Admin/Classes/ClassItem";
 import PageContainer from "@/components/PageContainer";
 import { Class } from "@prisma/client";
-import { Grid, Box } from "@mui/material";
+import { Grid, Box, Stack, Typography } from "@mui/material";
 import React from "react";
 import CreateClass from "./component/CreateClass";
 import { useAllClass } from "@/hooks/useClassApi";
@@ -15,36 +15,64 @@ export default function ClassesPage({ classes }: { classes: Class[] }) {
 	return (
 		<PageContainer
 			sx={{
-				mb: 15,
+				mb: 10,
 			}}
 		>
-			{isAdmin && <CreateClass />}
-			<Grid container spacing={4}>
-				{data?.map((c) => (
-					<Grid
-						item
-						key={c.id}
-						xs={12}
-						md={6}
-						lg={4}
-						xl={3}
+			<Stack spacing={4}>
+				<Box
+					sx={{
+						textAlign: "center",
+						mb: { xs: 1, md: 2 },
+					}}
+				>
+					<Typography
+						variant='h3'
 						sx={{
-							display: "flex",
-							width: "100%",
+							fontWeight: 800,
+							mb: 1,
 						}}
 					>
-						<Box
+						الصفوف الدراسية
+					</Typography>
+					<Typography
+						variant='body1'
+						sx={{
+							color: "text.tertiary",
+							maxWidth: 500,
+							mx: "auto",
+						}}
+					>
+						اختر الصف الذي تريد البدء به واستكشف المحتوى التعليمي
+					</Typography>
+				</Box>
+				{isAdmin && <CreateClass />}
+				<Grid container spacing={3}>
+					{data?.map((c) => (
+						<Grid
+							item
+							key={c.id}
+							xs={12}
+							sm={6}
+							md={4}
+							lg={3}
 							sx={{
-								flexGrow: 1,
 								display: "flex",
 								width: "100%",
 							}}
 						>
-							<ClassItem classItem={c} />
-						</Box>
-					</Grid>
-				))}
-			</Grid>
+							<Box
+								sx={{
+									flexGrow: 1,
+									display: "flex",
+									width: "100%",
+								}}
+							>
+								<ClassItem classItem={c} />
+							</Box>
+						</Grid>
+					))}
+				</Grid>
+			</Stack>
 		</PageContainer>
 	);
 }

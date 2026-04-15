@@ -28,13 +28,13 @@ export default async function RootLayout({
 					/>
 					<Header />
 
-					<div
+					<main
 						style={{
-							paddingTop: `120px`,
+							paddingTop: `104px`,
 						}}
 					>
 						{children}
-					</div>
+					</main>
 					<FooterWrapper />
 				</Providers>
 			</>
