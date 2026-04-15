@@ -9,37 +9,95 @@ export default function Footer() {
 		<Box
 			component='footer'
 			role='contentinfo'
-			bgcolor={"#161B26"}
-			pt={8}
-			pb={4}
+			sx={{
+				bgcolor: "#0F1724",
+				pt: 8,
+				pb: 4,
+			}}
 		>
 			<Box
-				maxWidth={1216}
+				maxWidth={1200}
 				margin={"auto"}
 				px={{
 					xs: 3,
 					sm: 4,
-					md: 8,
+					md: 6,
 				}}
 			>
 				<Stack spacing={5} alignItems={"flex-start"}>
-					<Stack spacing={3} alignItems={"flex-start"}>
-						<Link href={"/"} aria-label='الصفحة الرئيسية'>
-							<Image
-								src='/images/logo/logo.svg'
-								alt='شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh'
-								width={48}
-								height={48}
-							/>
-						</Link>
-						<Typography
-							color={"#D0D5DD"}
-							sx={{
-								fontSize: "0.9375rem",
-							}}
-						>
-							الفيزياء في مكانٍ واحد
-						</Typography>
+					<Stack
+						direction={{ xs: "column", sm: "row" }}
+						justifyContent='space-between'
+						alignItems={{ xs: "flex-start", sm: "center" }}
+						width='100%'
+						spacing={3}
+					>
+						<Stack spacing={2.5} alignItems={"flex-start"}>
+							<Link href={"/"} aria-label='الصفحة الرئيسية'>
+								<Image
+									src='/images/logo/logo.svg'
+									alt='شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh'
+									width={44}
+									height={44}
+								/>
+							</Link>
+							<Typography
+								sx={{
+									color: "#94A3B8",
+									fontSize: "0.9375rem",
+									lineHeight: 1.6,
+								}}
+							>
+								الفيزياء في مكانٍ واحد
+							</Typography>
+						</Stack>
+						<Stack direction='row' spacing={3} alignItems='center'>
+							<Link
+								href='/#home'
+								style={{
+									textDecoration: "none",
+									color: "#94A3B8",
+									fontSize: "0.875rem",
+									fontWeight: 500,
+									transition: "color 0.2s ease",
+								}}
+							>
+								الرئيسية
+							</Link>
+							<Link
+								href='/classes'
+								style={{
+									textDecoration: "none",
+									color: "#94A3B8",
+									fontSize: "0.875rem",
+									fontWeight: 500,
+								}}
+							>
+								الصفوف
+							</Link>
+							<Link
+								href='/#about'
+								style={{
+									textDecoration: "none",
+									color: "#94A3B8",
+									fontSize: "0.875rem",
+									fontWeight: 500,
+								}}
+							>
+								عن المنصة
+							</Link>
+							<Link
+								href='/#contact'
+								style={{
+									textDecoration: "none",
+									color: "#94A3B8",
+									fontSize: "0.875rem",
+									fontWeight: 500,
+								}}
+							>
+								اتصل بنا
+							</Link>
+						</Stack>
 					</Stack>
 					<Stack
 						direction={{
@@ -48,17 +106,14 @@ export default function Footer() {
 						}}
 						spacing={3}
 						justifyContent={"space-between"}
-						sx={(theme) => ({
+						sx={{
 							pt: 4,
-							borderTop: "1px solid #293040",
+							borderTop: "1px solid #1E293B",
 							width: "100%",
-							[theme.breakpoints.down("sm")]: {
-								margin: "auto",
-							},
-						})}
+						}}
 						alignItems={{ xs: "flex-start", md: "center" }}
 					>
-						<Typography color={"#98A2B3"} sx={{ fontSize: "0.875rem" }}>
+						<Typography sx={{ color: "#64748B", fontSize: "0.875rem" }}>
 							© {new Date().getFullYear()} جميع الحقوق محفوظة
 						</Typography>
 						<Stack direction={"row"} spacing={2}>
@@ -70,11 +125,11 @@ export default function Footer() {
 							>
 								<FacebookRoundedIcon
 									sx={{
-										color: "#98A2B3",
+										color: "#64748B",
 										fontSize: 22,
 										transition: "color 0.2s ease",
 										"&:hover": {
-											color: "#D0D5DD",
+											color: "#CBD5E1",
 										},
 									}}
 								/>
@@ -85,11 +140,11 @@ export default function Footer() {
 							>
 								<YouTubeIcon
 									sx={{
-										color: "#98A2B3",
+										color: "#64748B",
 										fontSize: 22,
 										transition: "color 0.2s ease",
 										"&:hover": {
-											color: "#D0D5DD",
+											color: "#CBD5E1",
 										},
 									}}
 								/>

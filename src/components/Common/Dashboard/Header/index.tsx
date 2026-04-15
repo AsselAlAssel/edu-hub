@@ -29,6 +29,19 @@ import SideBar from "../Sidebar";
 
 export const APP_BAR_HEIGHT = 72;
 
+const selectedAfterStyle = {
+	"&::after": {
+		content: '""',
+		position: "absolute",
+		bottom: -4,
+		right: 0,
+		left: 0,
+		height: 2,
+		borderRadius: 1,
+		backgroundColor: "primary.main",
+	},
+};
+
 const LinkItem = ({
 	children,
 	href,
@@ -40,30 +53,17 @@ const LinkItem = ({
 	onClick?: () => void;
 	isSelected?: boolean;
 }) => {
-	const selectedAfterStyle = {
-		"&::after": {
-			content: '""',
-			position: "absolute",
-			bottom: -4,
-			right: 0,
-			left: 0,
-			height: 2,
-			borderRadius: 1,
-			backgroundColor: "primary.main",
-		},
-	};
-
 	return (
 		<Typography
 			component='span'
 			sx={{
 				fontWeight: 600,
 				fontSize: "0.9375rem",
-				color: isSelected ? "text.secondaryLight" : "text.tertiary",
+				color: isSelected ? "primary.main" : "text.tertiary",
 				textAlign: "center",
-				height: "100%",
 				position: "relative",
 				transition: "color 0.2s ease",
+				px: 0.5,
 				"&:hover": {
 					color: "primary.main",
 				},
@@ -116,15 +116,14 @@ export default function Header() {
 				width: "100%",
 				top: 0,
 				p: 0,
-				borderBottom: `1px solid`,
-				borderColor: isScrolled ? alpha("#D0D5DD", 0.6) : alpha("#D0D5DD", 0.3),
+				borderBottom: "1px solid",
+				borderColor: isScrolled ? alpha("#D0D5DD", 0.5) : "transparent",
 				backgroundColor: isScrolled
-					? alpha(theme.palette.background.paper, 0.85)
+					? alpha(theme.palette.background.paper, 0.88)
 					: theme.palette.background.paper,
-				backdropFilter: isScrolled ? "blur(12px)" : "none",
-				WebkitBackdropFilter: isScrolled ? "blur(12px)" : "none",
-				transition:
-					"background-color 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease",
+				backdropFilter: isScrolled ? "blur(16px)" : "none",
+				WebkitBackdropFilter: isScrolled ? "blur(16px)" : "none",
+				transition: "all 0.3s ease",
 			})}
 		>
 			<PageContainer
@@ -190,15 +189,15 @@ export default function Header() {
 									width: 40,
 									height: 40,
 									border: "2px solid",
-									borderColor: alpha(theme.palette.primary.main, 0.2),
+									borderColor: alpha(theme.palette.primary.main, 0.15),
 									backgroundColor: theme.palette.primary.main,
 									fontSize: 18,
 									fontWeight: 700,
 									cursor: "pointer",
-									transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+									transition: "all 0.2s ease",
 									"&:hover": {
 										borderColor: theme.palette.primary.main,
-										boxShadow: `0 0 0 4px ${alpha(theme.palette.primary.main, 0.12)}`,
+										boxShadow: `0 0 0 4px ${alpha(theme.palette.primary.main, 0.1)}`,
 									},
 								})}
 								onClick={(e) => {
@@ -284,7 +283,7 @@ export default function Header() {
 									width: 40,
 									height: 40,
 									border: "2px solid",
-									borderColor: alpha(theme.palette.primary.main, 0.2),
+									borderColor: alpha(theme.palette.primary.main, 0.15),
 									backgroundColor: theme.palette.primary.main,
 									fontSize: 18,
 									fontWeight: 700,

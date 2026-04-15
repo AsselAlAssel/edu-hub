@@ -9,41 +9,99 @@ import {
 	Typography,
 } from "@mui/material";
 
-export const StyledStack = styled(Stack)(({ theme }) => ({
-	paddingTop: "120px",
-	paddingBottom: "120px",
+export const SectionContainer = styled(Box)({
+	maxWidth: 1200,
+	margin: "0 auto",
+	width: "100%",
+});
+
+export const SectionStack = styled(Stack)(({ theme }) => ({
+	paddingTop: 120,
+	paddingBottom: 120,
 	position: "relative",
+	[theme.breakpoints.down("md")]: {
+		paddingTop: 80,
+		paddingBottom: 80,
+	},
 	[theme.breakpoints.down("sm")]: {
-		paddingTop: "72px",
-		paddingBottom: "80px",
+		paddingTop: 64,
+		paddingBottom: 64,
+	},
+}));
+
+export const SectionLabel = styled(Typography)(({ theme }) => ({
+	fontSize: theme.typography.pxToRem(14),
+	fontWeight: 700,
+	letterSpacing: "0.06em",
+	textTransform: "uppercase",
+	color: theme.palette.primary.main,
+	textAlign: "center",
+	marginBottom: 12,
+}));
+
+export const SectionTitle = styled(Typography)(({ theme }) => ({
+	fontSize: theme.typography.pxToRem(40),
+	fontWeight: 800,
+	lineHeight: 1.2,
+	letterSpacing: "-0.02em",
+	color: theme.palette.text.primary,
+	textAlign: "center",
+	[theme.breakpoints.down("md")]: {
+		fontSize: theme.typography.pxToRem(32),
+	},
+	[theme.breakpoints.down("sm")]: {
+		fontSize: theme.typography.pxToRem(26),
+	},
+}));
+
+export const SectionSubtitle = styled(Typography)(({ theme }) => ({
+	fontSize: theme.typography.pxToRem(18),
+	lineHeight: 1.7,
+	fontWeight: 400,
+	color: theme.palette.text.tertiary,
+	textAlign: "center",
+	maxWidth: 640,
+	margin: "0 auto",
+	marginTop: 16,
+	[theme.breakpoints.down("sm")]: {
+		fontSize: theme.typography.pxToRem(16),
 	},
 }));
 
 export const StyledTitle = styled(Typography)(({ theme }) => ({
-	fontSize: theme.typography.pxToRem(48),
+	fontSize: theme.typography.pxToRem(52),
 	fontWeight: 800,
-	lineHeight: 1.2,
-	letterSpacing: "-0.02em",
+	lineHeight: 1.15,
+	letterSpacing: "-0.03em",
 	[theme.breakpoints.down("md")]: {
 		fontSize: theme.typography.pxToRem(40),
-		lineHeight: 1.25,
+		lineHeight: 1.2,
 	},
 	[theme.breakpoints.down("sm")]: {
 		fontSize: theme.typography.pxToRem(32),
-		lineHeight: 1.3,
+		lineHeight: 1.25,
 		textAlign: "center",
 	},
 }));
 
 export const StyledSubTitle = styled(Typography)(({ theme }) => ({
-	fontSize: theme.typography.pxToRem(18),
-	lineHeight: 1.6,
-	color: "white",
-	opacity: 0.9,
+	fontSize: theme.typography.pxToRem(19),
+	lineHeight: 1.7,
+	opacity: 0.85,
 	[theme.breakpoints.down("sm")]: {
 		fontSize: theme.typography.pxToRem(16),
-		lineHeight: 1.5,
+		lineHeight: 1.6,
 		textAlign: "center",
+	},
+}));
+
+export const StyledStack = styled(Stack)(({ theme }) => ({
+	paddingTop: 120,
+	paddingBottom: 120,
+	position: "relative",
+	[theme.breakpoints.down("sm")]: {
+		paddingTop: 72,
+		paddingBottom: 80,
 	},
 }));
 
@@ -54,7 +112,6 @@ export const StyledSectionTitle = styled(Typography)(({ theme }) => ({
 	textAlign: "center",
 	color: "white",
 	marginBottom: 8,
-
 	[theme.breakpoints.down("sm")]: {
 		fontSize: theme.typography.pxToRem(24),
 		lineHeight: 1.3,
@@ -70,7 +127,6 @@ export const StyledSectionSubTitle = styled(Typography)(({ theme }) => ({
 	textAlign: "center",
 	maxWidth: 700,
 	opacity: 0.9,
-
 	[theme.breakpoints.down("sm")]: {
 		fontSize: theme.typography.pxToRem(15),
 		lineHeight: 1.5,

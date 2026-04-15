@@ -1,10 +1,33 @@
-import { Box, Stack } from "@mui/material";
+"use client";
+import AutoStoriesOutlinedIcon from "@mui/icons-material/AutoStoriesOutlined";
+import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
+import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
+import { alpha, Box, Stack, Typography } from "@mui/material";
 import Image from "next/image";
 import {
-	StyledSectionSubTitle,
-	StyledSectionTitle,
-	StyledStack,
+	SectionContainer,
+	SectionLabel,
+	SectionStack,
+	SectionTitle,
 } from "./Styled";
+
+const features = [
+	{
+		icon: AutoStoriesOutlinedIcon,
+		title: "محتوى شامل",
+		description: "دروس مرتبة ومنظمة تغطي جميع المواضيع المطلوبة",
+	},
+	{
+		icon: GroupsOutlinedIcon,
+		title: "دعم مستمر",
+		description: "تواصل مباشر مع الأستاذ للإجابة على أسئلتك",
+	},
+	{
+		icon: VerifiedOutlinedIcon,
+		title: "جودة عالية",
+		description: "فيديوهات عالية الجودة مع شرح مبسط وواضح",
+	},
+];
 
 export default function AboutSection(props: {
 	aboutTitle?: string;
@@ -12,86 +35,160 @@ export default function AboutSection(props: {
 	aboutImage?: string | null;
 }) {
 	const { aboutTitle, aboutSubtitle, aboutImage } = props;
+
 	return (
-		<StyledStack
+		<Box
 			id='about'
 			sx={{
+				backgroundColor: "#F8FAFC",
 				position: "relative",
-				px: 3,
-				background:
-					"linear-gradient(135deg, #0082D2 0%, #0094E8 50%, #005C94 100%)",
 				overflow: "hidden",
+				"&::before": {
+					content: '""',
+					position: "absolute",
+					top: 0,
+					left: 0,
+					right: 0,
+					height: 1,
+					backgroundColor: "#EAECF0",
+				},
 			}}
 		>
-			<Image
-				src={"/images/landing/half-circle1.svg"}
-				alt=''
-				width={129}
-				height={235}
-				style={{
-					position: "absolute",
-					top: "0",
-					right: "0",
-					zIndex: 0,
-					opacity: 0.4,
-				}}
-			/>
-			<Image
-				src={"/images/landing/half-circle2.svg"}
-				alt=''
-				width={129}
-				height={235}
-				style={{
-					position: "absolute",
-					bottom: "0",
-					left: "0",
-					zIndex: 0,
-					opacity: 0.4,
-				}}
-			/>
-			<Stack
-				flexDirection={"column"}
-				justifyContent={"center"}
-				alignItems={"center"}
-				height={"100%"}
-				maxWidth={"1100px"}
-				margin={"auto"}
-				spacing={4}
-				sx={{ position: "relative", zIndex: 1 }}
-			>
-				<Box>
-					<StyledSectionTitle>{aboutTitle}</StyledSectionTitle>
-					<StyledSectionSubTitle>{aboutSubtitle}</StyledSectionSubTitle>
-				</Box>
-				{aboutImage && (
-					<Box
-						sx={{
-							maxWidth: "420px",
-							maxHeight: "320px",
-							borderRadius: 3,
-							overflow: "hidden",
-							boxShadow: "0 12px 40px rgba(0,0,0,0.2)",
-						}}
-					>
-						<Image
-							src={aboutImage}
-							alt='About'
-							layout='responsive'
-							width={420}
-							height={320}
-							style={{
-								maxWidth: "420px",
-								maxHeight: "320px",
-								objectFit: "cover",
-								width: "100%",
-								height: "100%",
-								position: "relative",
-								zIndex: 1,
-							}}
-						/>
+			<SectionContainer sx={{ px: { xs: 3, sm: 4, md: 6 } }}>
+				<SectionStack>
+					<Box sx={{ textAlign: "center", mb: { xs: 6, md: 8 } }}>
+						<SectionLabel>عن المنصة</SectionLabel>
+						<SectionTitle>{aboutTitle}</SectionTitle>
+						{aboutSubtitle && (
+							<Typography
+								sx={{
+									fontSize: { xs: "1rem", sm: "1.125rem" },
+									lineHeight: 1.75,
+									color: "text.tertiary",
+									maxWidth: 640,
+									mx: "auto",
+									mt: 2,
+								}}
+							>
+								{aboutSubtitle}
+							</Typography>
+						)}
 					</Box>
-				)}
-			</Stack>
-		</StyledStack>
+
+					<Stack
+						direction={{ xs: "column", md: "row" }}
+						spacing={{ xs: 6, md: 8 }}
+						alignItems='center'
+					>
+						{aboutImage && (
+							<Box
+								sx={{
+									flex: 1,
+									maxWidth: { xs: "100%", md: "45%" },
+									display: "flex",
+									justifyContent: "center",
+								}}
+							>
+								<Box
+									sx={{
+										position: "relative",
+										borderRadius: "20px",
+										overflow: "hidden",
+										boxShadow:
+											"0 20px 60px rgba(0,0,0,0.08), 0 8px 20px rgba(0,0,0,0.04)",
+										border: "1px solid",
+										borderColor: alpha("#000", 0.06),
+										maxWidth: 440,
+										width: "100%",
+									}}
+								>
+									<Image
+										src={aboutImage}
+										alt='About'
+										layout='responsive'
+										width={440}
+										height={340}
+										style={{
+											objectFit: "cover",
+											width: "100%",
+											height: "auto",
+										}}
+									/>
+								</Box>
+							</Box>
+						)}
+
+						<Stack
+							sx={{
+								flex: 1,
+								maxWidth: { xs: "100%", md: aboutImage ? "55%" : "100%" },
+							}}
+							spacing={3}
+						>
+							{features.map((feature) => (
+								<Stack
+									key={feature.title}
+									direction='row'
+									spacing={2.5}
+									sx={{
+										p: 3,
+										borderRadius: "16px",
+										backgroundColor: "#FFFFFF",
+										border: "1px solid",
+										borderColor: "#EAECF0",
+										boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
+										transition: "all 0.25s ease",
+										"&:hover": {
+											borderColor: alpha("#0088DD", 0.3),
+											boxShadow: "0 4px 16px rgba(0, 136, 221, 0.08)",
+											transform: "translateY(-2px)",
+										},
+									}}
+									alignItems='flex-start'
+								>
+									<Box
+										sx={{
+											width: 48,
+											height: 48,
+											borderRadius: "12px",
+											backgroundColor: alpha("#0088DD", 0.08),
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "center",
+											flexShrink: 0,
+										}}
+									>
+										<feature.icon
+											sx={{ color: "primary.main", fontSize: 24 }}
+										/>
+									</Box>
+									<Box>
+										<Typography
+											sx={{
+												fontWeight: 700,
+												fontSize: "1rem",
+												color: "text.primary",
+												mb: 0.5,
+											}}
+										>
+											{feature.title}
+										</Typography>
+										<Typography
+											sx={{
+												fontSize: "0.9375rem",
+												lineHeight: 1.65,
+												color: "text.tertiary",
+											}}
+										>
+											{feature.description}
+										</Typography>
+									</Box>
+								</Stack>
+							))}
+						</Stack>
+					</Stack>
+				</SectionStack>
+			</SectionContainer>
+		</Box>
 	);
 }

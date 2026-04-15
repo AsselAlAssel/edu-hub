@@ -43,35 +43,27 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 	return (
 		<>
 			<Box
-				gap={2}
 				sx={{
-					borderRadius: 3,
-					border: "1px solid",
-					borderColor: "border.secondary",
+					borderRadius: "16px",
+					border: "1px solid #EAECF0",
 					overflow: "hidden",
 					position: "relative",
 					display: "flex",
 					cursor: "pointer",
 					width: "100%",
 					backgroundColor: "#FFFFFF",
-					transition:
-						"box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease",
-					boxShadow:
-						"0px 1px 3px rgba(16, 24, 40, 0.1), 0px 1px 2px rgba(16, 24, 40, 0.06)",
-					"& .absolute-button": {
-						display: "none",
-					},
+					transition: "all 0.25s ease",
+					boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
 					"&:hover": {
-						boxShadow:
-							"0px 8px 24px rgba(16, 24, 40, 0.08), 0px 4px 12px rgba(16, 24, 40, 0.04)",
-						borderColor: "border.main",
+						boxShadow: "0 8px 24px rgba(16, 24, 40, 0.08)",
+						borderColor: "#D0D5DD",
 						...(!isAdmin && {
-							transform: "translateY(-4px)",
+							transform: "translateY(-3px)",
 						}),
 					},
 					"&:focus-within": {
 						borderColor: "primary.main",
-						boxShadow: "0px 0px 0px 4px rgba(0, 136, 221, 0.12)",
+						boxShadow: "0 0 0 3px rgba(0, 136, 221, 0.12)",
 					},
 				}}
 			>
@@ -109,16 +101,11 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 									alt='شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh'
 									width={64}
 									height={64}
-									style={{ opacity: 0.6 }}
+									style={{ opacity: 0.5 }}
 								/>
 							)}
 						</Box>
-						<Box
-							sx={{
-								px: 2,
-								py: 2,
-							}}
-						>
+						<Box sx={{ px: 2.5, py: 2 }}>
 							<Typography
 								variant='h6'
 								sx={{

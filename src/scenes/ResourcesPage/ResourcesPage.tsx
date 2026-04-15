@@ -258,18 +258,12 @@ export default function ResourcesPage({
 	);
 
 	return (
-		<PageContainer
-			sx={{
-				mb: 10,
-			}}
-		>
+		<PageContainer sx={{ mb: 10 }}>
 			<Stack spacing={4}>
 				<Typography
 					variant='h4'
 					textAlign={"center"}
-					sx={{
-						fontWeight: 700,
-					}}
+					sx={{ fontWeight: 700, pt: 1 }}
 				>
 					مرحباً بك في {className}
 				</Typography>
@@ -285,7 +279,7 @@ export default function ResourcesPage({
 						description='سيتم إضافة الموارد قريباً'
 					/>
 				) : (
-					<Stack spacing={4}>
+					<Stack spacing={5}>
 						{isDataEmpty && isAdmin ? (
 							<EmptyAddResources folderId={folderId} classId={classId} />
 						) : isAdmin ? (
@@ -296,7 +290,7 @@ export default function ResourcesPage({
 								onDragOver={handleDragOver}
 								onDragEnd={handleDragEnd}
 							>
-								<Stack spacing={4}>{sections}</Stack>
+								<Stack spacing={5}>{sections}</Stack>
 							</DndContext>
 						) : (
 							sections

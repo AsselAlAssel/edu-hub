@@ -13,23 +13,27 @@ export default function ClassesPage({ classes }: { classes: Class[] }) {
 	const { isAdmin } = useRole();
 
 	return (
-		<PageContainer
-			sx={{
-				mb: 10,
-			}}
-		>
-			<Stack spacing={4}>
-				<Box
-					sx={{
-						textAlign: "center",
-						mb: { xs: 1, md: 2 },
-					}}
-				>
+		<PageContainer sx={{ mb: 10 }}>
+			<Stack spacing={5}>
+				<Box sx={{ textAlign: "center", pt: 2 }}>
+					<Typography
+						sx={{
+							fontSize: "0.875rem",
+							fontWeight: 700,
+							letterSpacing: "0.06em",
+							textTransform: "uppercase",
+							color: "primary.main",
+							mb: 1.5,
+						}}
+					>
+						الصفوف
+					</Typography>
 					<Typography
 						variant='h3'
 						sx={{
 							fontWeight: 800,
-							mb: 1,
+							mb: 1.5,
+							letterSpacing: "-0.01em",
 						}}
 					>
 						الصفوف الدراسية
@@ -40,6 +44,7 @@ export default function ClassesPage({ classes }: { classes: Class[] }) {
 							color: "text.tertiary",
 							maxWidth: 500,
 							mx: "auto",
+							lineHeight: 1.7,
 						}}
 					>
 						اختر الصف الذي تريد البدء به واستكشف المحتوى التعليمي

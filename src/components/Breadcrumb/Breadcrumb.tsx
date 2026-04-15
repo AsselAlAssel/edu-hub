@@ -1,5 +1,5 @@
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import { Breadcrumbs } from "@mui/material";
+import { Breadcrumbs, Typography } from "@mui/material";
 import Link from "next/link";
 
 export default function Breadcrumb({
@@ -22,6 +22,9 @@ export default function Breadcrumb({
 			aria-label='breadcrumb'
 			sx={{
 				mb: 2,
+				"& .MuiBreadcrumbs-separator": {
+					color: "#98A2B3",
+				},
 			}}
 			maxItems={2}
 		>
@@ -30,30 +33,43 @@ export default function Breadcrumb({
 				style={{
 					cursor: "pointer",
 					textDecoration: "none",
-					color: "black",
+					color: "#667085",
+					display: "flex",
+					alignItems: "center",
 				}}
 			>
-				<HomeOutlinedIcon />
+				<HomeOutlinedIcon sx={{ fontSize: 20 }} />
 			</Link>
 
 			{breadcrumb.slice(1).map((item) => {
+				const isActive = item.id === folderId;
 				return (
-					<span key={item.id}>
-						<Link
-							href={`/class/${classId}/folder/${item.id}`}
-							style={{
-								cursor: "pointer",
-								textDecoration: "none",
-								color: "black",
-								backgroundColor: item.id === folderId ? "#f0f0f0" : "white",
-								padding: "5px",
-								borderRadius: "5px",
-								fontWeight: item.id === folderId ? "bold" : "normal",
+					<Link
+						key={item.id}
+						href={`/class/${classId}/folder/${item.id}`}
+						style={{
+							cursor: "pointer",
+							textDecoration: "none",
+							color: isActive ? "#101828" : "#667085",
+						}}
+					>
+						<Typography
+							sx={{
+								fontSize: "0.875rem",
+								fontWeight: isActive ? 600 : 400,
+								backgroundColor: isActive ? "#F2F4F7" : "transparent",
+								px: 1.5,
+								py: 0.5,
+								borderRadius: "6px",
+								transition: "all 0.15s ease",
+								"&:hover": {
+									backgroundColor: "#F2F4F7",
+								},
 							}}
 						>
 							{item.name}
-						</Link>
-					</span>
+						</Typography>
+					</Link>
 				);
 			})}
 		</Breadcrumbs>

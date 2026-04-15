@@ -19,7 +19,7 @@ export default function InputGroup(props: any) {
 		<>
 			<label
 				htmlFor={name}
-				className='mb-2.5 block font-satoshi text-base font-medium text-dark dark:text-white'
+				className='mb-2 block text-sm font-semibold text-[#101828]'
 			>
 				{label} {required && <span className='text-red-500'>*</span>}
 			</label>
@@ -31,14 +31,14 @@ export default function InputGroup(props: any) {
 					value={value}
 					onChange={handleChange ? (e) => handleChange(e) : undefined}
 					name={name}
-					className={`w-full rounded-lg border border-gray-3 px-5.5 py-3 text-dark outline-none ring-offset-1 duration-300 focus:shadow-input focus:ring-primary/20 dark:border-stroke-dark dark:bg-transparent dark:text-white dark:focus:border-transparent`}
+					className='w-full rounded-[10px] border border-[#D0D5DD] bg-white px-4 py-3 text-[#101828] outline-none transition-all duration-200 placeholder:text-[#667085] hover:border-[#98A2B3] focus:border-[#0088DD] focus:shadow-[0_0_0_3px_rgba(0,136,221,0.12)]'
 					style={{ height: height }}
 					required={required}
 					maxLength={maxlength}
 					dir='ltr'
 				/>
 				{type === "password" && (
-					<span className='absolute right-5 top-1/2 -translate-y-1/2 text-body dark:text-gray-6'>
+					<span className='absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-[#667085] transition-colors hover:text-[#344054]'>
 						{inputType === "password" ? (
 							<svg
 								width='25'
