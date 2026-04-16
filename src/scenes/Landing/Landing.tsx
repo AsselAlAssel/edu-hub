@@ -51,7 +51,7 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 							py: { xs: 8, md: 12 },
 						}}
 					>
-					<AnimatedSection variants={scaleIn}>
+						<AnimatedSection variants={scaleIn}>
 							<MotionBox
 								whileHover={{ scale: 1.015 }}
 								transition={{ type: "spring", stiffness: 300, damping: 20 }}

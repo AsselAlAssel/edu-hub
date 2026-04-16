@@ -146,7 +146,11 @@ export default function ContactUs(props: {
 		>
 			<SectionContainer sx={{ px: { xs: 3, sm: 4, md: 6 } }}>
 				<SectionStack>
-					<AnimatedSection viewportAmount={0.3} viewportMargin="0px" sx={{ textAlign: "center", mb: { xs: 5, md: 7 } }}>
+					<AnimatedSection
+						viewportAmount={0.3}
+						viewportMargin='0px'
+						sx={{ textAlign: "center", mb: { xs: 5, md: 7 } }}
+					>
 						<SectionLabel>تواصل معنا</SectionLabel>
 						<SectionTitle>إبق على تواصل معنا</SectionTitle>
 						<SectionSubtitle>
@@ -156,7 +160,7 @@ export default function ContactUs(props: {
 
 					<StaggerGroup
 						viewportAmount={0.15}
-						viewportMargin="0px"
+						viewportMargin='0px'
 						sx={{
 							display: "flex",
 							flexDirection: { xs: "column", sm: "row" },
@@ -169,7 +173,10 @@ export default function ContactUs(props: {
 						}}
 					>
 						<StaggerItem
-							sx={{ flex: { xs: "1 1 100%", sm: "1 1 0" }, maxWidth: { sm: 300 } }}
+							sx={{
+								flex: { xs: "1 1 100%", sm: "1 1 0" },
+								maxWidth: { sm: 300 },
+							}}
 						>
 							<ContactCard
 								icon={
@@ -182,7 +189,10 @@ export default function ContactUs(props: {
 							/>
 						</StaggerItem>
 						<StaggerItem
-							sx={{ flex: { xs: "1 1 100%", sm: "1 1 0" }, maxWidth: { sm: 300 } }}
+							sx={{
+								flex: { xs: "1 1 100%", sm: "1 1 0" },
+								maxWidth: { sm: 300 },
+							}}
 						>
 							<ContactCard
 								icon={
@@ -194,7 +204,10 @@ export default function ContactUs(props: {
 							/>
 						</StaggerItem>
 						<StaggerItem
-							sx={{ flex: { xs: "1 1 100%", sm: "1 1 0" }, maxWidth: { sm: 300 } }}
+							sx={{
+								flex: { xs: "1 1 100%", sm: "1 1 0" },
+								maxWidth: { sm: 300 },
+							}}
 						>
 							<ContactCard
 								icon={<WhatsAppIcon sx={{ color: "#25D366", fontSize: 26 }} />}

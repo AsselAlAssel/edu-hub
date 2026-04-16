@@ -126,15 +126,12 @@ export default function Header(props: HeaderProps) {
 					spacing={{ xs: 6, md: 8 }}
 				>
 					<MotionBox
-						initial="hidden"
-						animate="visible"
+						initial='hidden'
+						animate='visible'
 						variants={stagger}
 						sx={{ flex: 1, maxWidth: { md: "55%" } }}
 					>
-						<Stack
-							spacing={4}
-							alignItems={{ xs: "center", md: "flex-start" }}
-						>
+						<Stack spacing={4} alignItems={{ xs: "center", md: "flex-start" }}>
 							<MotionBox variants={fadeUp}>
 								<Box
 									sx={{
@@ -203,7 +200,9 @@ export default function Header(props: HeaderProps) {
 									<MotionButton
 										onClick={() => router.push("/classes")}
 										size='large'
-										endIcon={<ArrowBackIcon sx={{ fontSize: "20px !important" }} />}
+										endIcon={
+											<ArrowBackIcon sx={{ fontSize: "20px !important" }} />
+										}
 										whileHover={{ scale: 1.04, y: -2 }}
 										whileTap={{ scale: 0.97 }}
 										transition={{ type: "spring", stiffness: 400, damping: 17 }}

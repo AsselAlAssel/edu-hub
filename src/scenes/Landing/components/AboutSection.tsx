@@ -62,7 +62,11 @@ export default function AboutSection(props: {
 		>
 			<SectionContainer sx={{ px: { xs: 3, sm: 4, md: 6 } }}>
 				<SectionStack>
-					<AnimatedSection viewportAmount={0.3} viewportMargin="0px" sx={{ textAlign: "center", mb: { xs: 6, md: 8 } }}>
+					<AnimatedSection
+						viewportAmount={0.3}
+						viewportMargin='0px'
+						sx={{ textAlign: "center", mb: { xs: 6, md: 8 } }}
+					>
 						<SectionLabel>عن المنصة</SectionLabel>
 						<SectionTitle>{aboutTitle}</SectionTitle>
 						{aboutSubtitle && (
@@ -90,7 +94,7 @@ export default function AboutSection(props: {
 							<AnimatedSection
 								delay={0.1}
 								viewportAmount={0.2}
-								viewportMargin="0px"
+								viewportMargin='0px'
 								sx={{
 									flex: 1,
 									maxWidth: { xs: "100%", md: "45%" },
@@ -129,7 +133,7 @@ export default function AboutSection(props: {
 
 						<StaggerGroup
 							viewportAmount={0.15}
-							viewportMargin="0px"
+							viewportMargin='0px'
 							sx={{
 								flex: 1,
 								maxWidth: { xs: "100%", md: aboutImage ? "55%" : "100%" },
@@ -154,7 +158,8 @@ export default function AboutSection(props: {
 												border: "1px solid",
 												borderColor: "#EAECF0",
 												boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
-												transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+												transition:
+													"border-color 0.3s ease, box-shadow 0.3s ease",
 												"&:hover": {
 													borderColor: alpha("#0088DD", 0.3),
 													boxShadow: "0 8px 30px rgba(0, 136, 221, 0.12)",

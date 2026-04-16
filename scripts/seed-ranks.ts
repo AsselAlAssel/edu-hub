@@ -29,9 +29,7 @@ async function seedRanks() {
 			rank = rank.genNext();
 			folderCount++;
 		}
-		console.log(
-			`  Folders under parent ${parentId}: ${group.length} ranked`
-		);
+		console.log(`  Folders under parent ${parentId}: ${group.length} ranked`);
 	}
 
 	const files = await prisma.file.findMany({

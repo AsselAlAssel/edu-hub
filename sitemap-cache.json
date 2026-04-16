@@ -1,1 +1,9 @@
-{"sitemap":[{"url":"http://localhost:3000/","lastModified":"2026-04-10T16:27:09.567Z"}],"timestamp":"2026-04-10T16:27:09.567Z"}
+{
+	"sitemap": [
+		{
+			"url": "http://localhost:3000/",
+			"lastModified": "2026-04-10T16:27:09.567Z"
+		}
+	],
+	"timestamp": "2026-04-10T16:27:09.567Z"
+}

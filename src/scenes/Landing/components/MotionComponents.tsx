@@ -61,21 +61,33 @@ interface AnimatedSectionProps extends Omit<BoxProps, "component"> {
 
 export const AnimatedSection = forwardRef<HTMLDivElement, AnimatedSectionProps>(
 	function AnimatedSection(
-		{ children, variants = fadeSlideUp, delay = 0, viewportMargin = "-80px", viewportAmount, ...props },
-		ref,
+		{
+			children,
+			variants = fadeSlideUp,
+			delay = 0,
+			viewportMargin = "-80px",
+			viewportAmount,
+			...props
+		},
+		ref
 	) {
 		return (
 			<MotionBox
 				ref={ref}
-				initial="hidden"
-				whileInView="visible"
-				viewport={{ once: true, margin: viewportMargin, amount: viewportAmount }}
+				initial='hidden'
+				whileInView='visible'
+				viewport={{
+					once: true,
+					margin: viewportMargin,
+					amount: viewportAmount,
+				}}
 				variants={{
 					hidden: variants.hidden,
 					visible: {
 						...((variants.visible as object) || {}),
 						transition: {
-							...((variants.visible as Record<string, unknown>)?.transition as object || {}),
+							...(((variants.visible as Record<string, unknown>)
+								?.transition as object) || {}),
 							delay,
 						},
 					},
@@ -96,13 +108,26 @@ interface StaggerGroupProps extends Omit<BoxProps, "component"> {
 }
 
 export const StaggerGroup = forwardRef<HTMLDivElement, StaggerGroupProps>(
-	function StaggerGroup({ children, fast = false, viewportMargin = "-60px", viewportAmount, ...props }, ref) {
+	function StaggerGroup(
+		{
+			children,
+			fast = false,
+			viewportMargin = "-60px",
+			viewportAmount,
+			...props
+		},
+		ref
+	) {
 		return (
 			<MotionBox
 				ref={ref}
-				initial="hidden"
-				whileInView="visible"
-				viewport={{ once: true, margin: viewportMargin, amount: viewportAmount }}
+				initial='hidden'
+				whileInView='visible'
+				viewport={{
+					once: true,
+					margin: viewportMargin,
+					amount: viewportAmount,
+				}}
 				variants={fast ? staggerContainerFast : staggerContainer}
 				{...props}
 			>
@@ -127,29 +152,30 @@ export const StaggerItem = forwardRef<HTMLDivElement, StaggerItemProps>(
 	}
 );
 
-export const FloatingImage = forwardRef<HTMLDivElement, Omit<BoxProps, "component"> & { children: ReactNode }>(
-	function FloatingImage({ children, ...props }, ref) {
-		return (
+export const FloatingImage = forwardRef<
+	HTMLDivElement,
+	Omit<BoxProps, "component"> & { children: ReactNode }
+>(function FloatingImage({ children, ...props }, ref) {
+	return (
+		<MotionBox
+			ref={ref}
+			initial={{ opacity: 0, scale: 0.92 }}
+			animate={{ opacity: 1, scale: 1 }}
+			transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.3 }}
+			{...props}
+		>
 			<MotionBox
-				ref={ref}
-				initial={{ opacity: 0, scale: 0.92 }}
-				animate={{ opacity: 1, scale: 1 }}
-				transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.3 }}
-				{...props}
+				animate={{ y: [0, -8, 0] }}
+				transition={{
+					duration: 4,
+					repeat: Infinity,
+					ease: "easeInOut",
+				}}
 			>
-				<MotionBox
-					animate={{ y: [0, -8, 0] }}
-					transition={{
-						duration: 4,
-						repeat: Infinity,
-						ease: "easeInOut",
-					}}
-				>
-					{children}
-				</MotionBox>
+				{children}
 			</MotionBox>
-		);
-	}
-);
+		</MotionBox>
+	);
+});
 
 export { MotionBox };
