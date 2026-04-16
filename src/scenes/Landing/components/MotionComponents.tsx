@@ -2,9 +2,24 @@
 
 import { motion, type Variants } from "framer-motion";
 import { Box, type BoxProps } from "@mui/material";
-import { forwardRef, type ReactNode, useMemo } from "react";
+import {
+	forwardRef,
+	type ReactNode,
+	type ComponentProps,
+	useMemo,
+} from "react";
 
-const MotionBox = motion.create(Box);
+const RawMotionBox = motion.create(Box);
+
+type MotionBoxProps = ComponentProps<typeof RawMotionBox>;
+
+const MotionBox = forwardRef<HTMLDivElement, MotionBoxProps>(
+	function MotionBox(props, ref) {
+		return (
+			<RawMotionBox ref={ref} {...({ ignoreStrict: true } as any)} {...props} />
+		);
+	}
+);
 
 type SafeBoxProps = Omit<
 	BoxProps,
@@ -221,17 +236,7 @@ export function GlowOrb({
 	delay?: number;
 }) {
 	return (
-		<MotionBox
-			animate={{
-				scale: [1, 1.2, 1],
-				opacity: [0.3, 0.5, 0.3],
-			}}
-			transition={{
-				duration: 8,
-				repeat: Infinity,
-				ease: "easeInOut",
-				delay,
-			}}
+		<Box
 			sx={{
 				position: "absolute",
 				top,
@@ -245,6 +250,12 @@ export function GlowOrb({
 				filter: "blur(80px)",
 				pointerEvents: "none",
 				zIndex: 0,
+				animation: `glowPulse 8s ease-in-out ${delay}s infinite`,
+				"@keyframes glowPulse": {
+					"0%, 100%": { transform: "scale(1)", opacity: 0.3 },
+					"50%": { transform: "scale(1.2)", opacity: 0.5 },
+				},
+				willChange: "transform, opacity",
 			}}
 		/>
 	);
@@ -268,9 +279,7 @@ export function OrbitRing({
 	bottom?: string | number;
 }) {
 	return (
-		<MotionBox
-			animate={{ rotate: 360 }}
-			transition={{ duration, repeat: Infinity, ease: "linear" }}
+		<Box
 			sx={{
 				position: "absolute",
 				top,
@@ -283,6 +292,12 @@ export function OrbitRing({
 				border: `1px solid ${color}`,
 				pointerEvents: "none",
 				zIndex: 0,
+				animation: `orbitSpin ${duration}s linear infinite`,
+				"@keyframes orbitSpin": {
+					"0%": { transform: "rotate(0deg)" },
+					"100%": { transform: "rotate(360deg)" },
+				},
+				willChange: "transform",
 			}}
 		/>
 	);
@@ -314,7 +329,7 @@ interface FloatingParticleProps {
 	count?: number;
 }
 
-export function FloatingParticles({ count = 20 }: FloatingParticleProps) {
+export function FloatingParticles({ count = 12 }: FloatingParticleProps) {
 	const particles = useMemo(
 		() =>
 			Array.from({ length: count }, (_, i) => ({
@@ -336,21 +351,15 @@ export function FloatingParticles({ count = 20 }: FloatingParticleProps) {
 				overflow: "hidden",
 				pointerEvents: "none",
 				zIndex: 0,
+				"@keyframes particleFloat": {
+					"0%, 100%": { opacity: 0, transform: "translateY(0)" },
+					"50%": { opacity: 0.6, transform: "translateY(-30px)" },
+				},
 			}}
 		>
 			{particles.map((p) => (
-				<MotionBox
+				<Box
 					key={p.id}
-					animate={{
-						opacity: [0, 0.6, 0],
-						y: [0, -30, 0],
-					}}
-					transition={{
-						duration: p.duration,
-						repeat: Infinity,
-						delay: p.delay,
-						ease: "easeInOut",
-					}}
 					sx={{
 						position: "absolute",
 						left: p.x,
@@ -359,6 +368,8 @@ export function FloatingParticles({ count = 20 }: FloatingParticleProps) {
 						height: p.size,
 						borderRadius: "50%",
 						backgroundColor: "rgba(0,180,216,0.5)",
+						animation: `particleFloat ${p.duration}s ease-in-out ${p.delay}s infinite`,
+						willChange: "transform, opacity",
 					}}
 				/>
 			))}

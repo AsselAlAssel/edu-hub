@@ -3,8 +3,9 @@ import { Direction, createTheme } from "@mui/material";
 import { Tajawal } from "next/font/google";
 
 const font = Tajawal({
-	weight: ["200", "300", "400", "500", "700", "800", "900"],
+	weight: ["400", "500", "700", "800"],
 	subsets: ["arabic"],
+	display: "swap",
 });
 
 export const shadows = {

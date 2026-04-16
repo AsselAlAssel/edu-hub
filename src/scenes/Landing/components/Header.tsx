@@ -32,7 +32,21 @@ const fadeUp = {
 	},
 } as const;
 
-const MotionButton = motion.create(Button);
+import { forwardRef, type ComponentProps } from "react";
+
+const RawMotionButton = motion.create(Button);
+type MotionButtonProps = ComponentProps<typeof RawMotionButton>;
+const MotionButton = forwardRef<HTMLButtonElement, MotionButtonProps>(
+	function MotionButton(props, ref) {
+		return (
+			<RawMotionButton
+				ref={ref}
+				{...({ ignoreStrict: true } as any)}
+				{...props}
+			/>
+		);
+	}
+);
 
 type HeaderProps = {
 	headerTitle?: string;
@@ -59,7 +73,7 @@ export default function Header(props: HeaderProps) {
 			}}
 		>
 			<GridPattern />
-			<FloatingParticles count={25} />
+			<FloatingParticles count={12} />
 
 			<GlowOrb
 				color='rgba(0,180,216,0.25)'
@@ -305,9 +319,10 @@ export default function Header(props: HeaderProps) {
 								<Image
 									src={headerImage}
 									alt='landing-header'
-									layout='responsive'
 									width={460}
 									height={370}
+									priority
+									sizes='(max-width: 768px) 340px, 460px'
 									style={{
 										width: "100%",
 										height: "auto",

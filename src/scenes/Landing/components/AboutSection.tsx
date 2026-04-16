@@ -139,9 +139,9 @@ export default function AboutSection(props: {
 									<Image
 										src={aboutImage}
 										alt='About'
-										layout='responsive'
 										width={440}
 										height={340}
+										sizes='(max-width: 768px) 100vw, 440px'
 										style={{
 											objectFit: "cover",
 											width: "100%",

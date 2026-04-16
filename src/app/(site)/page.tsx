@@ -2,9 +2,7 @@ import { getLandingData } from "@/actions/landing";
 import Landing from "@/scenes/Landing";
 import { Metadata } from "next";
 
-// can we stop cash here and go to the next one
-
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata: Metadata = {
 	title: "شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh",
