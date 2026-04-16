@@ -10,6 +10,12 @@ import {
 	SectionStack,
 	SectionTitle,
 } from "./Styled";
+import {
+	AnimatedSection,
+	MotionBox,
+	StaggerGroup,
+	StaggerItem,
+} from "./MotionComponents";
 
 const features = [
 	{
@@ -56,7 +62,7 @@ export default function AboutSection(props: {
 		>
 			<SectionContainer sx={{ px: { xs: 3, sm: 4, md: 6 } }}>
 				<SectionStack>
-					<Box sx={{ textAlign: "center", mb: { xs: 6, md: 8 } }}>
+					<AnimatedSection viewportAmount={0.3} viewportMargin="0px" sx={{ textAlign: "center", mb: { xs: 6, md: 8 } }}>
 						<SectionLabel>عن المنصة</SectionLabel>
 						<SectionTitle>{aboutTitle}</SectionTitle>
 						{aboutSubtitle && (
@@ -73,7 +79,7 @@ export default function AboutSection(props: {
 								{aboutSubtitle}
 							</Typography>
 						)}
-					</Box>
+					</AnimatedSection>
 
 					<Stack
 						direction={{ xs: "column", md: "row" }}
@@ -81,7 +87,10 @@ export default function AboutSection(props: {
 						alignItems='center'
 					>
 						{aboutImage && (
-							<Box
+							<AnimatedSection
+								delay={0.1}
+								viewportAmount={0.2}
+								viewportMargin="0px"
 								sx={{
 									flex: 1,
 									maxWidth: { xs: "100%", md: "45%" },
@@ -115,77 +124,86 @@ export default function AboutSection(props: {
 										}}
 									/>
 								</Box>
-							</Box>
+							</AnimatedSection>
 						)}
 
-						<Stack
+						<StaggerGroup
+							viewportAmount={0.15}
+							viewportMargin="0px"
 							sx={{
 								flex: 1,
 								maxWidth: { xs: "100%", md: aboutImage ? "55%" : "100%" },
+								display: "flex",
+								flexDirection: "column",
+								gap: 3,
 							}}
-							spacing={3}
 						>
 							{features.map((feature) => (
-								<Stack
-									key={feature.title}
-									direction='row'
-									spacing={2.5}
-									sx={{
-										p: 3,
-										borderRadius: "16px",
-										backgroundColor: "#FFFFFF",
-										border: "1px solid",
-										borderColor: "#EAECF0",
-										boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
-										transition: "all 0.25s ease",
-										"&:hover": {
-											borderColor: alpha("#0088DD", 0.3),
-											boxShadow: "0 4px 16px rgba(0, 136, 221, 0.08)",
-											transform: "translateY(-2px)",
-										},
-									}}
-									alignItems='flex-start'
-								>
-									<Box
-										sx={{
-											width: 48,
-											height: 48,
-											borderRadius: "12px",
-											backgroundColor: alpha("#0088DD", 0.08),
-											display: "flex",
-											alignItems: "center",
-											justifyContent: "center",
-											flexShrink: 0,
-										}}
+								<StaggerItem key={feature.title}>
+									<MotionBox
+										whileHover={{ scale: 1.03, y: -3 }}
+										transition={{ type: "spring", stiffness: 300, damping: 20 }}
 									>
-										<feature.icon
-											sx={{ color: "primary.main", fontSize: 24 }}
-										/>
-									</Box>
-									<Box>
-										<Typography
+										<Stack
+											direction='row'
+											spacing={2.5}
 											sx={{
-												fontWeight: 700,
-												fontSize: "1rem",
-												color: "text.primary",
-												mb: 0.5,
+												p: 3,
+												borderRadius: "16px",
+												backgroundColor: "#FFFFFF",
+												border: "1px solid",
+												borderColor: "#EAECF0",
+												boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
+												transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+												"&:hover": {
+													borderColor: alpha("#0088DD", 0.3),
+													boxShadow: "0 8px 30px rgba(0, 136, 221, 0.12)",
+												},
 											}}
+											alignItems='flex-start'
 										>
-											{feature.title}
-										</Typography>
-										<Typography
-											sx={{
-												fontSize: "0.9375rem",
-												lineHeight: 1.65,
-												color: "text.tertiary",
-											}}
-										>
-											{feature.description}
-										</Typography>
-									</Box>
-								</Stack>
+											<Box
+												sx={{
+													width: 48,
+													height: 48,
+													borderRadius: "12px",
+													backgroundColor: alpha("#0088DD", 0.08),
+													display: "flex",
+													alignItems: "center",
+													justifyContent: "center",
+													flexShrink: 0,
+												}}
+											>
+												<feature.icon
+													sx={{ color: "primary.main", fontSize: 24 }}
+												/>
+											</Box>
+											<Box>
+												<Typography
+													sx={{
+														fontWeight: 700,
+														fontSize: "1rem",
+														color: "text.primary",
+														mb: 0.5,
+													}}
+												>
+													{feature.title}
+												</Typography>
+												<Typography
+													sx={{
+														fontSize: "0.9375rem",
+														lineHeight: 1.65,
+														color: "text.tertiary",
+													}}
+												>
+													{feature.description}
+												</Typography>
+											</Box>
+										</Stack>
+									</MotionBox>
+								</StaggerItem>
 							))}
-						</Stack>
+						</StaggerGroup>
 					</Stack>
 				</SectionStack>
 			</SectionContainer>

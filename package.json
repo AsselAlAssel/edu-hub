@@ -39,6 +39,7 @@
 		"bcryptjs": "^2.4.3",
 		"cookies-next": "^4.3.0",
 		"crypto": "^1.0.1",
+		"framer-motion": "^12.38.0",
 		"lexorank": "^1.0.5",
 		"next": "14.2.35",
 		"next-auth": "^4.24.13",

@@ -1,10 +1,30 @@
 "use client";
 import { alpha, Box, Button, Stack, Typography } from "@mui/material";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { FloatingImage, MotionBox } from "./MotionComponents";
 
 const APP_BAR_HEIGHT = 72;
+
+const stagger = {
+	hidden: {},
+	visible: {
+		transition: { staggerChildren: 0.15, delayChildren: 0.2 },
+	},
+};
+
+const fadeUp = {
+	hidden: { opacity: 0, y: 24 },
+	visible: {
+		opacity: 1,
+		y: 0,
+		transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] },
+	},
+};
+
+const MotionButton = motion.create(Button);
 
 type HeaderProps = {
 	headerTitle?: string;
@@ -50,6 +70,31 @@ export default function Header(props: HeaderProps) {
 				},
 			}}
 		>
+			{/* Animated background orb */}
+			<MotionBox
+				animate={{
+					scale: [1, 1.15, 1],
+					opacity: [0.15, 0.25, 0.15],
+				}}
+				transition={{
+					duration: 8,
+					repeat: Infinity,
+					ease: "easeInOut",
+				}}
+				sx={{
+					position: "absolute",
+					top: "10%",
+					left: "60%",
+					width: { xs: 300, md: 500 },
+					height: { xs: 300, md: 500 },
+					borderRadius: "50%",
+					background:
+						"radial-gradient(circle, rgba(0,148,232,0.4) 0%, transparent 70%)",
+					filter: "blur(60px)",
+					pointerEvents: "none",
+				}}
+			/>
+
 			<Box
 				sx={{
 					position: "absolute",
@@ -80,124 +125,141 @@ export default function Header(props: HeaderProps) {
 					justifyContent='space-between'
 					spacing={{ xs: 6, md: 8 }}
 				>
-					<Stack
+					<MotionBox
+						initial="hidden"
+						animate="visible"
+						variants={stagger}
 						sx={{ flex: 1, maxWidth: { md: "55%" } }}
-						spacing={4}
-						alignItems={{ xs: "center", md: "flex-start" }}
 					>
-						<Box
-							sx={{
-								display: "inline-flex",
-								px: 2,
-								py: 0.75,
-								borderRadius: "100px",
-								border: "1px solid",
-								borderColor: alpha("#fff", 0.15),
-								backgroundColor: alpha("#fff", 0.06),
-								backdropFilter: "blur(8px)",
-							}}
-						>
-							<Typography
-								sx={{
-									fontSize: "0.8125rem",
-									fontWeight: 600,
-									color: alpha("#fff", 0.8),
-									letterSpacing: "0.02em",
-								}}
-							>
-								منصة تعليمية متكاملة
-							</Typography>
-						</Box>
-
-						<Box>
-							<Typography
-								sx={{
-									fontSize: { xs: "2.25rem", sm: "2.75rem", md: "3.25rem" },
-									fontWeight: 800,
-									lineHeight: 1.12,
-									letterSpacing: "-0.03em",
-									color: "#FFFFFF",
-									textAlign: { xs: "center", md: "start" },
-								}}
-							>
-								{headerTitle}
-							</Typography>
-						</Box>
-
-						{headerSubtitle && (
-							<Typography
-								sx={{
-									fontSize: { xs: "1rem", sm: "1.125rem" },
-									lineHeight: 1.75,
-									color: alpha("#fff", 0.75),
-									textAlign: { xs: "center", md: "start" },
-									maxWidth: 520,
-									fontWeight: 400,
-								}}
-							>
-								{headerSubtitle}
-							</Typography>
-						)}
-
 						<Stack
-							direction={{ xs: "column", sm: "row" }}
-							spacing={2}
-							sx={{ width: { xs: "100%", sm: "auto" }, pt: 1 }}
-							alignItems={{ xs: "stretch", md: "flex-start" }}
+							spacing={4}
+							alignItems={{ xs: "center", md: "flex-start" }}
 						>
-							<Button
-								onClick={() => router.push("/classes")}
-								size='large'
-								endIcon={<ArrowBackIcon sx={{ fontSize: "20px !important" }} />}
-								sx={{
-									backgroundColor: "#FFFFFF",
-									color: "#003A66",
-									borderColor: "transparent",
-									borderRadius: "12px",
-									fontWeight: 700,
-									fontSize: "1rem",
-									px: 4,
-									height: 52,
-									boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
-									"&:hover": {
-										backgroundColor: "rgba(255,255,255,0.95) !important",
-										boxShadow: "0 8px 28px rgba(0,0,0,0.2) !important",
-										transform: "translateY(-1px)",
-									},
-								}}
-							>
-								تعرف على الصفوف
-							</Button>
-							<Button
-								onClick={() => {
-									document
-										.getElementById("about")
-										?.scrollIntoView({ behavior: "smooth" });
-								}}
-								variant='outlined'
-								size='large'
-								sx={{
-									borderColor: alpha("#fff", 0.25),
-									color: "#FFFFFF",
-									borderRadius: "12px",
-									fontWeight: 600,
-									fontSize: "1rem",
-									px: 4,
-									height: 52,
-									backgroundColor: alpha("#fff", 0.06),
-									"&:hover": {
-										borderColor: alpha("#fff", 0.5),
-										backgroundColor: "rgba(255,255,255,0.1) !important",
-									},
-								}}
-							>
-								تعرف علينا
-							</Button>
+							<MotionBox variants={fadeUp}>
+								<Box
+									sx={{
+										display: "inline-flex",
+										px: 2,
+										py: 0.75,
+										borderRadius: "100px",
+										border: "1px solid",
+										borderColor: alpha("#fff", 0.15),
+										backgroundColor: alpha("#fff", 0.06),
+										backdropFilter: "blur(8px)",
+									}}
+								>
+									<Typography
+										sx={{
+											fontSize: "0.8125rem",
+											fontWeight: 600,
+											color: alpha("#fff", 0.8),
+											letterSpacing: "0.02em",
+										}}
+									>
+										منصة تعليمية متكاملة
+									</Typography>
+								</Box>
+							</MotionBox>
+
+							<MotionBox variants={fadeUp}>
+								<Typography
+									sx={{
+										fontSize: { xs: "2.25rem", sm: "2.75rem", md: "3.25rem" },
+										fontWeight: 800,
+										lineHeight: 1.12,
+										letterSpacing: "-0.03em",
+										color: "#FFFFFF",
+										textAlign: { xs: "center", md: "start" },
+									}}
+								>
+									{headerTitle}
+								</Typography>
+							</MotionBox>
+
+							{headerSubtitle && (
+								<MotionBox variants={fadeUp}>
+									<Typography
+										sx={{
+											fontSize: { xs: "1rem", sm: "1.125rem" },
+											lineHeight: 1.75,
+											color: alpha("#fff", 0.75),
+											textAlign: { xs: "center", md: "start" },
+											maxWidth: 520,
+											fontWeight: 400,
+										}}
+									>
+										{headerSubtitle}
+									</Typography>
+								</MotionBox>
+							)}
+
+							<MotionBox variants={fadeUp}>
+								<Stack
+									direction={{ xs: "column", sm: "row" }}
+									spacing={2}
+									sx={{ width: { xs: "100%", sm: "auto" }, pt: 1 }}
+									alignItems={{ xs: "stretch", md: "flex-start" }}
+								>
+									<MotionButton
+										onClick={() => router.push("/classes")}
+										size='large'
+										endIcon={<ArrowBackIcon sx={{ fontSize: "20px !important" }} />}
+										whileHover={{ scale: 1.04, y: -2 }}
+										whileTap={{ scale: 0.97 }}
+										transition={{ type: "spring", stiffness: 400, damping: 17 }}
+										sx={{
+											backgroundColor: "#FFFFFF",
+											color: "#003A66",
+											borderColor: "transparent",
+											borderRadius: "12px",
+											fontWeight: 700,
+											fontSize: "1rem",
+											px: 4,
+											height: 52,
+											boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+											"&:hover": {
+												backgroundColor: "rgba(255,255,255,0.95) !important",
+												boxShadow: "0 8px 28px rgba(0,0,0,0.2) !important",
+											},
+										}}
+									>
+										تعرف على الصفوف
+									</MotionButton>
+									<MotionButton
+										onClick={() => {
+											document
+												.getElementById("about")
+												?.scrollIntoView({ behavior: "smooth" });
+										}}
+										variant='outlined'
+										size='large'
+										whileHover={{ scale: 1.04, y: -2 }}
+										whileTap={{ scale: 0.97 }}
+										transition={{ type: "spring", stiffness: 400, damping: 17 }}
+										sx={{
+											borderColor: alpha("#fff", 0.25),
+											color: "#FFFFFF",
+											borderRadius: "12px",
+											fontWeight: 600,
+											fontSize: "1rem",
+											px: 4,
+											height: 52,
+											backgroundColor: alpha("#fff", 0.06),
+											"&:hover": {
+												borderColor: alpha("#fff", 0.5),
+												backgroundColor: "rgba(255,255,255,0.1) !important",
+											},
+										}}
+									>
+										تعرف علينا
+									</MotionButton>
+								</Stack>
+							</MotionBox>
 						</Stack>
-					</Stack>
+					</MotionBox>
 
 					{headerImage && (
-						<Box
+						<FloatingImage
 							sx={{
 								flex: 1,
 								maxWidth: { xs: 360, md: 480 },
@@ -228,7 +290,7 @@ export default function Header(props: HeaderProps) {
 									}}
 								/>
 							</Box>
-						</Box>
+						</FloatingImage>
 					)}
 				</Stack>
 			</Box>
