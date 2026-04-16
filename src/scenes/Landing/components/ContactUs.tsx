@@ -10,6 +10,12 @@ import {
 	SectionSubtitle,
 	SectionTitle,
 } from "./Styled";
+import {
+	AnimatedSection,
+	MotionBox,
+	StaggerGroup,
+	StaggerItem,
+} from "./MotionComponents";
 
 interface ContactCardProps {
 	icon: React.ReactNode;
@@ -27,61 +33,65 @@ function ContactCard({
 	accentColor,
 }: ContactCardProps) {
 	const content = (
-		<Stack
-			alignItems='center'
-			spacing={2.5}
-			sx={{
-				p: { xs: 3, sm: 4 },
-				borderRadius: "20px",
-				backgroundColor: "#FFFFFF",
-				border: "1px solid #EAECF0",
-				boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
-				transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-				cursor: href ? "pointer" : "default",
-				textDecoration: "none",
-				color: "inherit",
-				height: "100%",
-				"&:hover": {
-					borderColor: alpha(accentColor, 0.35),
-					boxShadow: `0 8px 30px ${alpha(accentColor, 0.12)}`,
-					transform: "translateY(-4px)",
-				},
-			}}
+		<MotionBox
+			whileHover={{ scale: 1.03, y: -4 }}
+			transition={{ type: "spring", stiffness: 300, damping: 20 }}
 		>
-			<Box
+			<Stack
+				alignItems='center'
+				spacing={2.5}
 				sx={{
-					width: 56,
-					height: 56,
-					borderRadius: "16px",
-					backgroundColor: alpha(accentColor, 0.08),
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "center",
+					p: { xs: 3, sm: 4 },
+					borderRadius: "20px",
+					backgroundColor: "#FFFFFF",
+					border: "1px solid #EAECF0",
+					boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
+					transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+					cursor: href ? "pointer" : "default",
+					textDecoration: "none",
+					color: "inherit",
+					height: "100%",
+					"&:hover": {
+						borderColor: alpha(accentColor, 0.35),
+						boxShadow: `0 12px 40px ${alpha(accentColor, 0.15)}`,
+					},
 				}}
 			>
-				{icon}
-			</Box>
-			<Typography
-				sx={{
-					fontWeight: 700,
-					fontSize: "1rem",
-					color: "text.primary",
-				}}
-			>
-				{label}
-			</Typography>
-			<Typography
-				sx={{
-					fontSize: "0.9375rem",
-					color: "text.tertiary",
-					textAlign: "center",
-					lineHeight: 1.6,
-					direction: "ltr",
-				}}
-			>
-				{value}
-			</Typography>
-		</Stack>
+				<Box
+					sx={{
+						width: 56,
+						height: 56,
+						borderRadius: "16px",
+						backgroundColor: alpha(accentColor, 0.08),
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+					}}
+				>
+					{icon}
+				</Box>
+				<Typography
+					sx={{
+						fontWeight: 700,
+						fontSize: "1rem",
+						color: "text.primary",
+					}}
+				>
+					{label}
+				</Typography>
+				<Typography
+					sx={{
+						fontSize: "0.9375rem",
+						color: "text.tertiary",
+						textAlign: "center",
+						lineHeight: 1.6,
+						direction: "ltr",
+					}}
+				>
+					{value}
+				</Typography>
+			</Stack>
+		</MotionBox>
 	);
 
 	if (href) {
@@ -136,46 +146,65 @@ export default function ContactUs(props: {
 		>
 			<SectionContainer sx={{ px: { xs: 3, sm: 4, md: 6 } }}>
 				<SectionStack>
-					<Box sx={{ textAlign: "center", mb: { xs: 5, md: 7 } }}>
+					<AnimatedSection viewportAmount={0.3} viewportMargin="0px" sx={{ textAlign: "center", mb: { xs: 5, md: 7 } }}>
 						<SectionLabel>تواصل معنا</SectionLabel>
 						<SectionTitle>إبق على تواصل معنا</SectionTitle>
 						<SectionSubtitle>
 							لا تتردد في التواصل معنا لأي استفسار أو مساعدة
 						</SectionSubtitle>
-					</Box>
+					</AnimatedSection>
 
-					<Stack
-						direction={{ xs: "column", sm: "row" }}
-						spacing={3}
-						justifyContent='center'
-						alignItems={{ xs: "stretch", sm: "stretch" }}
-						sx={{ maxWidth: 960, mx: "auto", width: "100%" }}
+					<StaggerGroup
+						viewportAmount={0.15}
+						viewportMargin="0px"
+						sx={{
+							display: "flex",
+							flexDirection: { xs: "column", sm: "row" },
+							gap: 3,
+							justifyContent: "center",
+							alignItems: { xs: "stretch", sm: "stretch" },
+							maxWidth: 960,
+							mx: "auto",
+							width: "100%",
+						}}
 					>
-						<ContactCard
-							icon={
-								<EmailOutlinedIcon sx={{ color: "#0088DD", fontSize: 26 }} />
-							}
-							label='البريد الإلكتروني'
-							value={email}
-							href={`mailto:${email}`}
-							accentColor='#0088DD'
-						/>
-						<ContactCard
-							icon={
-								<PlaceOutlinedIcon sx={{ color: "#0088DD", fontSize: 26 }} />
-							}
-							label='العنوان'
-							value={address}
-							accentColor='#0088DD'
-						/>
-						<ContactCard
-							icon={<WhatsAppIcon sx={{ color: "#25D366", fontSize: 26 }} />}
-							label='واتساب'
-							value={<span dir='ltr'>+{whatsappNumber}</span>}
-							href={`https://wa.me/${whatsappNumber}`}
-							accentColor='#25D366'
-						/>
-					</Stack>
+						<StaggerItem
+							sx={{ flex: { xs: "1 1 100%", sm: "1 1 0" }, maxWidth: { sm: 300 } }}
+						>
+							<ContactCard
+								icon={
+									<EmailOutlinedIcon sx={{ color: "#0088DD", fontSize: 26 }} />
+								}
+								label='البريد الإلكتروني'
+								value={email}
+								href={`mailto:${email}`}
+								accentColor='#0088DD'
+							/>
+						</StaggerItem>
+						<StaggerItem
+							sx={{ flex: { xs: "1 1 100%", sm: "1 1 0" }, maxWidth: { sm: 300 } }}
+						>
+							<ContactCard
+								icon={
+									<PlaceOutlinedIcon sx={{ color: "#0088DD", fontSize: 26 }} />
+								}
+								label='العنوان'
+								value={address}
+								accentColor='#0088DD'
+							/>
+						</StaggerItem>
+						<StaggerItem
+							sx={{ flex: { xs: "1 1 100%", sm: "1 1 0" }, maxWidth: { sm: 300 } }}
+						>
+							<ContactCard
+								icon={<WhatsAppIcon sx={{ color: "#25D366", fontSize: 26 }} />}
+								label='واتساب'
+								value={<span dir='ltr'>+{whatsappNumber}</span>}
+								href={`https://wa.me/${whatsappNumber}`}
+								accentColor='#25D366'
+							/>
+						</StaggerItem>
+					</StaggerGroup>
 				</SectionStack>
 			</SectionContainer>
 		</Box>
