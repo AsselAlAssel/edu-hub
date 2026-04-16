@@ -1,8 +1,9 @@
 "use client";
 import ClassItem from "@/components/Admin/Classes/ClassItem";
 import PageContainer from "@/components/PageContainer";
+import { SectionHeader } from "@/components/DesignSystem";
 import { Class } from "@prisma/client";
-import { Grid, Box, Stack, Typography } from "@mui/material";
+import { Grid, Box, Stack } from "@mui/material";
 import React from "react";
 import CreateClass from "./component/CreateClass";
 import { useAllClass } from "@/hooks/useClassApi";
@@ -15,40 +16,13 @@ export default function ClassesPage({ classes }: { classes: Class[] }) {
 	return (
 		<PageContainer sx={{ mb: 10 }}>
 			<Stack spacing={5}>
-				<Box sx={{ textAlign: "center", pt: 2 }}>
-					<Typography
-						sx={{
-							fontSize: "0.875rem",
-							fontWeight: 700,
-							letterSpacing: "0.06em",
-							textTransform: "uppercase",
-							color: "primary.main",
-							mb: 1.5,
-						}}
-					>
-						الصفوف
-					</Typography>
-					<Typography
-						variant='h3'
-						sx={{
-							fontWeight: 800,
-							mb: 1.5,
-							letterSpacing: "-0.01em",
-						}}
-					>
-						الصفوف الدراسية
-					</Typography>
-					<Typography
-						variant='body1'
-						sx={{
-							color: "text.tertiary",
-							maxWidth: 500,
-							mx: "auto",
-							lineHeight: 1.7,
-						}}
-					>
-						اختر الصف الذي تريد البدء به واستكشف المحتوى التعليمي
-					</Typography>
+				<Box sx={{ pt: 2 }}>
+					<SectionHeader
+						label='الصفوف'
+						title='الصفوف الدراسية'
+						subtitle='اختر الصف الذي تريد البدء به واستكشف المحتوى التعليمي'
+						align='center'
+					/>
 				</Box>
 				{isAdmin && <CreateClass />}
 				<Grid container spacing={3}>

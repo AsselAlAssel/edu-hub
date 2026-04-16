@@ -17,12 +17,20 @@ export default function EmptyState(props: EmptyStateProps) {
 					py: { xs: 10, md: 14 },
 					textAlign: "center",
 				}}
-				spacing={2}
+				spacing={2.5}
 			>
-				<Box sx={{ mb: 1 }}>
+				<Box
+					sx={{
+						mb: 1,
+						p: 3,
+						borderRadius: "24px",
+						backgroundColor: "#F8FAFC",
+						border: "1px solid #EAECF0",
+					}}
+				>
 					<svg
-						width='160'
-						height='160'
+						width='120'
+						height='120'
 						viewBox='0 0 176 195'
 						fill='none'
 						xmlns='http://www.w3.org/2000/svg'
@@ -52,7 +60,7 @@ export default function EmptyState(props: EmptyStateProps) {
 								d='M83.8081 155.295C120.374 155.295 150.017 125.479 150.017 88.7008C150.017 51.9221 120.374 22.1071 83.8081 22.1071C47.2422 22.1071 17.5996 51.9221 17.5996 88.7008C17.5996 125.479 47.2422 155.295 83.8081 155.295Z'
 								fill='#EAEFF5'
 							/>
-							<g filter='url(#filter0_d_2172_12882)'>
+							<g filter='url(#filter0_2172)'>
 								<path
 									d='M134.964 140.689C134.964 143.503 132.699 145.781 129.901 145.781H48.9059C46.1083 145.781 43.8438 143.503 43.8438 140.689V32.9604C43.8438 30.1466 46.1083 27.8688 48.9059 27.8688H107.654L134.031 56.9449L134.564 105.718L134.964 140.689Z'
 									fill='white'
@@ -67,22 +75,6 @@ export default function EmptyState(props: EmptyStateProps) {
 								fill='#0088DD'
 							/>
 							<path
-								d='M119.91 101.698H98.1958C97.3965 101.698 96.7305 101.028 96.7305 100.224C96.7305 99.42 97.3965 98.7501 98.1958 98.7501H119.91C120.709 98.7501 121.375 99.42 121.375 100.224C121.242 101.162 120.709 101.698 119.91 101.698Z'
-								fill='#EAEFF5'
-							/>
-							<path
-								d='M89.0048 101.698H57.2994C56.5001 101.698 55.834 101.028 55.834 100.224C55.834 99.42 56.5001 98.7501 57.2994 98.7501H89.0048C89.8041 98.7501 90.4702 99.42 90.4702 100.224C90.4702 101.162 89.8041 101.698 89.0048 101.698Z'
-								fill='#EAEFF5'
-							/>
-							<path
-								d='M120.311 88.567H111.919C111.119 88.567 110.453 87.897 110.453 87.0931C110.453 86.2891 111.119 85.6192 111.919 85.6192H120.311C121.11 85.6192 121.777 86.2891 121.777 87.0931C121.777 87.897 121.11 88.567 120.311 88.567Z'
-								fill='#0088DD'
-							/>
-							<path
-								d='M104.057 88.567H57.6978C56.8985 88.567 56.2324 87.897 56.2324 87.0931C56.2324 86.2891 56.8985 85.6192 57.6978 85.6192H104.057C104.856 85.6192 105.522 86.2891 105.522 87.0931C105.522 87.897 104.856 88.567 104.057 88.567Z'
-								fill='#EAEFF5'
-							/>
-							<path
 								d='M97.5298 45.6896H58.6307C57.5649 45.6896 56.7656 44.8857 56.7656 43.8137C56.7656 42.7418 57.5649 41.9379 58.6307 41.9379H97.5298C98.5955 41.9379 99.3948 42.7418 99.3948 43.8137C99.3948 44.7517 98.4623 45.6896 97.5298 45.6896Z'
 								fill='#0088DD'
 							/>
@@ -94,85 +86,35 @@ export default function EmptyState(props: EmptyStateProps) {
 								d='M107.654 27.8688V50.9153C107.654 54.1311 110.452 56.811 113.649 56.811H134.031'
 								fill='#EAEFF5'
 							/>
-							<g filter='url(#filter1_d_2172_12882)'>
-								<path
-									d='M152.625 138.183C152.318 139.513 151.908 140.742 151.396 141.971C151.294 142.278 151.191 142.482 150.986 142.789C149.245 146.168 146.479 148.932 143.099 150.57C142.689 150.775 142.28 150.979 141.972 151.082C138.695 152.413 135.007 152.925 131.32 152.106C121.589 150.058 115.34 140.537 117.389 130.811C119.438 121.086 128.964 114.841 138.695 116.889C142.177 117.605 145.25 119.346 147.811 121.803C152.011 126.102 153.854 132.245 152.625 138.183Z'
-									fill='#0088DD'
-								/>
-								<path
-									fillRule='evenodd'
-									clipRule='evenodd'
-									d='M135 142.833C139.602 142.833 143.333 139.103 143.333 134.5C143.333 129.898 139.602 126.167 135 126.167C130.398 126.167 126.667 129.898 126.667 134.5C126.667 139.103 130.398 142.833 135 142.833ZM137.5 134.5C137.96 134.5 138.333 133.94 138.333 133.25C138.333 132.56 137.96 132 137.5 132C137.04 132 136.667 132.56 136.667 133.25C136.667 133.94 137.04 134.5 137.5 134.5ZM133.333 133.25C133.333 133.94 132.96 134.5 132.5 134.5C132.04 134.5 131.667 133.94 131.667 133.25C131.667 132.56 132.04 132 132.5 132C132.96 132 133.333 132.56 133.333 133.25ZM131.998 139.039C132.203 139.316 132.595 139.374 132.872 139.169C133.479 138.719 134.212 138.458 135 138.458C135.788 138.458 136.521 138.719 137.128 139.169C137.405 139.374 137.797 139.316 138.002 139.039C138.208 138.762 138.149 138.37 137.872 138.165C137.062 137.564 136.071 137.208 135 137.208C133.929 137.208 132.938 137.564 132.128 138.165C131.85 138.37 131.792 138.762 131.998 139.039Z'
-									fill='white'
-								/>
-							</g>
 						</g>
 						<defs>
 							<filter
-								id='filter0_d_2172_12882'
-								x='11.5771'
-								y='11.7355'
-								width='155.653'
-								height='182.445'
+								id='filter0_2172'
+								x='11.5'
+								y='11.7'
+								width='156'
+								height='183'
 								filterUnits='userSpaceOnUse'
 								colorInterpolationFilters='sRGB'
 							>
-								<feFlood floodOpacity='0' result='BackgroundImageFix' />
+								<feFlood floodOpacity='0' result='bg' />
 								<feColorMatrix
 									in='SourceAlpha'
 									type='matrix'
 									values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'
-									result='hardAlpha'
+									result='a'
 								/>
-								<feOffset dy='16.1333' />
-								<feGaussianBlur stdDeviation='16.1333' />
+								<feOffset dy='16' />
+								<feGaussianBlur stdDeviation='16' />
 								<feColorMatrix
 									type='matrix'
-									values='0 0 0 0 0.397708 0 0 0 0 0.47749 0 0 0 0 0.575 0 0 0 0.18 0'
+									values='0 0 0 0 0.4 0 0 0 0 0.48 0 0 0 0 0.58 0 0 0 0.18 0'
 								/>
-								<feBlend
-									mode='normal'
-									in2='BackgroundImageFix'
-									result='effect1_dropShadow_2172_12882'
-								/>
+								<feBlend mode='normal' in2='bg' result='s' />
 								<feBlend
 									mode='normal'
 									in='SourceGraphic'
-									in2='effect1_dropShadow_2172_12882'
-									result='shape'
-								/>
-							</filter>
-							<filter
-								id='filter1_d_2172_12882'
-								x='109'
-								y='113.5'
-								width='51.9998'
-								height='52.0003'
-								filterUnits='userSpaceOnUse'
-								colorInterpolationFilters='sRGB'
-							>
-								<feFlood floodOpacity='0' result='BackgroundImageFix' />
-								<feColorMatrix
-									in='SourceAlpha'
-									type='matrix'
-									values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'
-									result='hardAlpha'
-								/>
-								<feOffset dy='5' />
-								<feGaussianBlur stdDeviation='4' />
-								<feColorMatrix
-									type='matrix'
-									values='0 0 0 0 0.1125 0 0 0 0 0.295916 0 0 0 0 1 0 0 0 0.22 0'
-								/>
-								<feBlend
-									mode='normal'
-									in2='BackgroundImageFix'
-									result='effect1_dropShadow_2172_12882'
-								/>
-								<feBlend
-									mode='normal'
-									in='SourceGraphic'
-									in2='effect1_dropShadow_2172_12882'
+									in2='s'
 									result='shape'
 								/>
 							</filter>
@@ -190,16 +132,18 @@ export default function EmptyState(props: EmptyStateProps) {
 				<Typography
 					variant='h4'
 					sx={{
-						fontWeight: 700,
-						lineHeight: 1.4,
+						fontWeight: 800,
+						lineHeight: 1.3,
+						letterSpacing: "-0.01em",
 					}}
 				>
 					{title}
 				</Typography>
 				<Typography
-					variant='body1'
 					sx={{
 						color: "text.tertiary",
+						fontSize: "1rem",
+						lineHeight: 1.7,
 					}}
 				>
 					{description}

@@ -1,28 +1,36 @@
 "use client";
-import { alpha, Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { FloatingImage, MotionBox } from "./MotionComponents";
+import {
+	FloatingImage,
+	GlowOrb,
+	GridPattern,
+	MotionBox,
+	OrbitRing,
+	FloatingParticles,
+} from "./MotionComponents";
+import { DARK } from "./Styled";
 
 const APP_BAR_HEIGHT = 72;
 
 const stagger = {
 	hidden: {},
 	visible: {
-		transition: { staggerChildren: 0.15, delayChildren: 0.2 },
+		transition: { staggerChildren: 0.15, delayChildren: 0.3 },
 	},
 };
 
 const fadeUp = {
-	hidden: { opacity: 0, y: 24 },
+	hidden: { opacity: 0, y: 28 },
 	visible: {
 		opacity: 1,
 		y: 0,
-		transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] },
+		transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const },
 	},
-};
+} as const;
 
 const MotionButton = motion.create(Button);
 
@@ -43,68 +51,57 @@ export default function Header(props: HeaderProps) {
 			sx={{
 				position: "relative",
 				minHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
-				maxHeight: 960,
+				maxHeight: 1000,
 				display: "flex",
 				alignItems: "center",
 				overflow: "hidden",
-				background:
-					"linear-gradient(160deg, #001D33 0%, #003A66 30%, #005C94 55%, #0082D2 80%, #0094E8 100%)",
-				"&::before": {
-					content: '""',
-					position: "absolute",
-					inset: 0,
-					background:
-						"radial-gradient(ellipse 80% 50% at 70% 40%, rgba(0,148,232,0.3) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 20% 80%, rgba(0,113,184,0.2) 0%, transparent 60%)",
-					pointerEvents: "none",
-				},
-				"&::after": {
-					content: '""',
-					position: "absolute",
-					top: "-50%",
-					right: "-20%",
-					width: "80%",
-					height: "150%",
-					background:
-						"radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 60%)",
-					pointerEvents: "none",
-				},
+				background: `linear-gradient(160deg, ${DARK.bg} 0%, #070D1F 30%, #0A1128 55%, #0C1633 80%, ${DARK.surface} 100%)`,
 			}}
 		>
-			{/* Animated background orb */}
-			<MotionBox
-				animate={{
-					scale: [1, 1.15, 1],
-					opacity: [0.15, 0.25, 0.15],
-				}}
-				transition={{
-					duration: 8,
-					repeat: Infinity,
-					ease: "easeInOut",
-				}}
-				sx={{
-					position: "absolute",
-					top: "10%",
-					left: "60%",
-					width: { xs: 300, md: 500 },
-					height: { xs: 300, md: 500 },
-					borderRadius: "50%",
-					background:
-						"radial-gradient(circle, rgba(0,148,232,0.4) 0%, transparent 70%)",
-					filter: "blur(60px)",
-					pointerEvents: "none",
-				}}
+			<GridPattern />
+			<FloatingParticles count={25} />
+
+			<GlowOrb
+				color='rgba(0,180,216,0.25)'
+				size={600}
+				top='-10%'
+				right='-10%'
+			/>
+			<GlowOrb
+				color='rgba(124,58,237,0.2)'
+				size={500}
+				bottom='-15%'
+				left='-10%'
+				delay={3}
+			/>
+			<GlowOrb
+				color='rgba(0,180,216,0.12)'
+				size={300}
+				top='60%'
+				left='50%'
+				delay={5}
 			/>
 
+			<OrbitRing size={700} top='-20%' right='-15%' duration={25} />
+			<OrbitRing
+				size={500}
+				bottom='-10%'
+				left='-5%'
+				duration={30}
+				color='rgba(124,58,237,0.06)'
+			/>
+
+			{/* Bottom fade */}
 			<Box
 				sx={{
 					position: "absolute",
 					bottom: 0,
 					left: 0,
 					right: 0,
-					height: 120,
-					background:
-						"linear-gradient(to top, rgba(0,29,51,0.4) 0%, transparent 100%)",
+					height: 200,
+					background: `linear-gradient(to top, ${DARK.bg} 0%, transparent 100%)`,
 					pointerEvents: "none",
+					zIndex: 1,
 				}}
 			/>
 
@@ -132,25 +129,36 @@ export default function Header(props: HeaderProps) {
 						sx={{ flex: 1, maxWidth: { md: "55%" } }}
 					>
 						<Stack spacing={4} alignItems={{ xs: "center", md: "flex-start" }}>
+							{/* Badge */}
 							<MotionBox variants={fadeUp}>
 								<Box
 									sx={{
 										display: "inline-flex",
-										px: 2,
+										alignItems: "center",
+										gap: 1,
+										px: 2.5,
 										py: 0.75,
 										borderRadius: "100px",
-										border: "1px solid",
-										borderColor: alpha("#fff", 0.15),
-										backgroundColor: alpha("#fff", 0.06),
-										backdropFilter: "blur(8px)",
+										border: `1px solid ${DARK.border}`,
+										backgroundColor: "rgba(0,180,216,0.06)",
+										backdropFilter: "blur(12px)",
 									}}
 								>
+									<Box
+										sx={{
+											width: 6,
+											height: 6,
+											borderRadius: "50%",
+											backgroundColor: DARK.accent,
+											boxShadow: `0 0 8px ${DARK.accent}`,
+										}}
+									/>
 									<Typography
 										sx={{
 											fontSize: "0.8125rem",
 											fontWeight: 600,
-											color: alpha("#fff", 0.8),
-											letterSpacing: "0.02em",
+											color: DARK.accent,
+											letterSpacing: "0.04em",
 										}}
 									>
 										منصة تعليمية متكاملة
@@ -158,30 +166,44 @@ export default function Header(props: HeaderProps) {
 								</Box>
 							</MotionBox>
 
+							{/* Title */}
 							<MotionBox variants={fadeUp}>
 								<Typography
 									sx={{
-										fontSize: { xs: "2.25rem", sm: "2.75rem", md: "3.25rem" },
+										fontSize: { xs: "2.25rem", sm: "2.75rem", md: "3.5rem" },
 										fontWeight: 800,
-										lineHeight: 1.12,
+										lineHeight: 1.1,
 										letterSpacing: "-0.03em",
-										color: "#FFFFFF",
+										color: DARK.text,
 										textAlign: { xs: "center", md: "start" },
+										"& span": {
+											background: `linear-gradient(135deg, ${DARK.accent} 0%, #38BDF8 50%, ${DARK.purple} 100%)`,
+											WebkitBackgroundClip: "text",
+											WebkitTextFillColor: "transparent",
+											backgroundClip: "text",
+										},
 									}}
 								>
-									{headerTitle}
+									{headerTitle || (
+										<>
+											اكتشف عالم <span>الفيزياء</span>
+											<br />
+											بطريقة جديدة
+										</>
+									)}
 								</Typography>
 							</MotionBox>
 
+							{/* Subtitle */}
 							{headerSubtitle && (
 								<MotionBox variants={fadeUp}>
 									<Typography
 										sx={{
 											fontSize: { xs: "1rem", sm: "1.125rem" },
-											lineHeight: 1.75,
-											color: alpha("#fff", 0.75),
+											lineHeight: 1.8,
+											color: DARK.textSecondary,
 											textAlign: { xs: "center", md: "start" },
-											maxWidth: 520,
+											maxWidth: 500,
 											fontWeight: 400,
 										}}
 									>
@@ -190,6 +212,7 @@ export default function Header(props: HeaderProps) {
 								</MotionBox>
 							)}
 
+							{/* CTA Buttons */}
 							<MotionBox variants={fadeUp}>
 								<Stack
 									direction={{ xs: "column", sm: "row" }}
@@ -207,18 +230,18 @@ export default function Header(props: HeaderProps) {
 										whileTap={{ scale: 0.97 }}
 										transition={{ type: "spring", stiffness: 400, damping: 17 }}
 										sx={{
-											backgroundColor: "#FFFFFF",
-											color: "#003A66",
-											borderColor: "transparent",
-											borderRadius: "12px",
+											background: `linear-gradient(135deg, ${DARK.accent} 0%, #0096C7 100%)`,
+											color: "#FFFFFF",
+											borderRadius: "14px",
 											fontWeight: 700,
 											fontSize: "1rem",
 											px: 4,
-											height: 52,
-											boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+											height: 54,
+											boxShadow: `0 4px 20px rgba(0,180,216,0.3), 0 0 40px rgba(0,180,216,0.1)`,
+											border: "1px solid rgba(0,180,216,0.3)",
 											"&:hover": {
-												backgroundColor: "rgba(255,255,255,0.95) !important",
-												boxShadow: "0 8px 28px rgba(0,0,0,0.2) !important",
+												background: `linear-gradient(135deg, #00C4E8 0%, ${DARK.accent} 100%) !important`,
+												boxShadow: `0 8px 32px rgba(0,180,216,0.4), 0 0 60px rgba(0,180,216,0.15) !important`,
 											},
 										}}
 									>
@@ -236,17 +259,18 @@ export default function Header(props: HeaderProps) {
 										whileTap={{ scale: 0.97 }}
 										transition={{ type: "spring", stiffness: 400, damping: 17 }}
 										sx={{
-											borderColor: alpha("#fff", 0.25),
-											color: "#FFFFFF",
-											borderRadius: "12px",
+											borderColor: DARK.border,
+											color: DARK.text,
+											borderRadius: "14px",
 											fontWeight: 600,
 											fontSize: "1rem",
 											px: 4,
-											height: 52,
-											backgroundColor: alpha("#fff", 0.06),
+											height: 54,
+											backgroundColor: "rgba(255,255,255,0.03)",
+											backdropFilter: "blur(8px)",
 											"&:hover": {
-												borderColor: alpha("#fff", 0.5),
-												backgroundColor: "rgba(255,255,255,0.1) !important",
+												borderColor: DARK.borderHover,
+												backgroundColor: "rgba(0,180,216,0.06) !important",
 											},
 										}}
 									>
@@ -257,11 +281,12 @@ export default function Header(props: HeaderProps) {
 						</Stack>
 					</MotionBox>
 
+					{/* Hero Image */}
 					{headerImage && (
 						<FloatingImage
 							sx={{
 								flex: 1,
-								maxWidth: { xs: 360, md: 480 },
+								maxWidth: { xs: 340, md: 460 },
 								width: "100%",
 								display: "flex",
 								justifyContent: "center",
@@ -271,21 +296,32 @@ export default function Header(props: HeaderProps) {
 								sx={{
 									position: "relative",
 									width: "100%",
-									borderRadius: "20px",
+									borderRadius: "24px",
 									overflow: "hidden",
+									border: `1px solid ${DARK.border}`,
+									boxShadow: `0 20px 60px rgba(0,0,0,0.5), ${DARK.glow}`,
 								}}
 							>
 								<Image
 									src={headerImage}
 									alt='landing-header'
 									layout='responsive'
-									width={480}
-									height={380}
+									width={460}
+									height={370}
 									style={{
 										width: "100%",
 										height: "auto",
 										objectFit: "cover",
-										borderRadius: "20px",
+										borderRadius: "24px",
+									}}
+								/>
+								{/* Glow overlay */}
+								<Box
+									sx={{
+										position: "absolute",
+										inset: 0,
+										background: `linear-gradient(180deg, transparent 60%, rgba(0,180,216,0.08) 100%)`,
+										pointerEvents: "none",
 									}}
 								/>
 							</Box>

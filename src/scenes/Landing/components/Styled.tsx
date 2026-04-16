@@ -9,6 +9,33 @@ import {
 	Typography,
 } from "@mui/material";
 
+// ─── Dark Theme Palette ─────────────────────────────────────────────
+// Base:    #060B18
+// Surface: #0A1128
+// Border:  rgba(0,180,216,0.1)
+// Accent:  #00B4D8 (cyan), #7C3AED (purple)
+// Text:    #FFFFFF, #94A3B8, #64748B
+
+export const DARK = {
+	bg: "#060B18",
+	surface: "#0A1128",
+	surfaceLight: "#0F1B35",
+	border: "rgba(0,180,216,0.1)",
+	borderHover: "rgba(0,180,216,0.25)",
+	accent: "#00B4D8",
+	accentDim: "rgba(0,180,216,0.15)",
+	purple: "#7C3AED",
+	purpleDim: "rgba(124,58,237,0.15)",
+	text: "#FFFFFF",
+	textSecondary: "#94A3B8",
+	textMuted: "#64748B",
+	glow: "0 0 60px rgba(0,180,216,0.15)",
+	glowStrong: "0 0 80px rgba(0,180,216,0.25)",
+	cardShadow: "0 8px 32px rgba(0,0,0,0.4)",
+	cardShadowHover:
+		"0 16px 48px rgba(0,180,216,0.12), 0 8px 24px rgba(0,0,0,0.3)",
+} as const;
+
 export const SectionContainer = styled(Box)({
 	maxWidth: 1200,
 	margin: "0 auto",
@@ -29,25 +56,25 @@ export const SectionStack = styled(Stack)(({ theme }) => ({
 	},
 }));
 
-export const SectionLabel = styled(Typography)(({ theme }) => ({
-	fontSize: theme.typography.pxToRem(14),
+export const SectionLabel = styled(Typography)({
+	fontSize: "0.8125rem",
 	fontWeight: 700,
-	letterSpacing: "0.06em",
+	letterSpacing: "0.12em",
 	textTransform: "uppercase",
-	color: theme.palette.primary.main,
+	color: DARK.accent,
 	textAlign: "center",
 	marginBottom: 12,
-}));
+});
 
 export const SectionTitle = styled(Typography)(({ theme }) => ({
-	fontSize: theme.typography.pxToRem(40),
+	fontSize: theme.typography.pxToRem(42),
 	fontWeight: 800,
-	lineHeight: 1.2,
+	lineHeight: 1.15,
 	letterSpacing: "-0.02em",
-	color: theme.palette.text.primary,
+	color: DARK.text,
 	textAlign: "center",
 	[theme.breakpoints.down("md")]: {
-		fontSize: theme.typography.pxToRem(32),
+		fontSize: theme.typography.pxToRem(34),
 	},
 	[theme.breakpoints.down("sm")]: {
 		fontSize: theme.typography.pxToRem(26),
@@ -58,15 +85,33 @@ export const SectionSubtitle = styled(Typography)(({ theme }) => ({
 	fontSize: theme.typography.pxToRem(18),
 	lineHeight: 1.7,
 	fontWeight: 400,
-	color: theme.palette.text.tertiary,
+	color: DARK.textSecondary,
 	textAlign: "center",
-	maxWidth: 640,
+	maxWidth: 600,
 	margin: "0 auto",
 	marginTop: 16,
 	[theme.breakpoints.down("sm")]: {
 		fontSize: theme.typography.pxToRem(16),
 	},
 }));
+
+export const GlassCard = styled(Box)({
+	padding: 28,
+	borderRadius: 20,
+	backgroundColor: "rgba(10,17,40,0.6)",
+	backdropFilter: "blur(20px)",
+	WebkitBackdropFilter: "blur(20px)",
+	border: `1px solid ${DARK.border}`,
+	boxShadow: DARK.cardShadow,
+	transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+	"&:hover": {
+		borderColor: DARK.borderHover,
+		boxShadow: DARK.cardShadowHover,
+		transform: "translateY(-4px)",
+	},
+});
+
+// ─── Legacy Styled (kept for backward compatibility) ────────────────
 
 export const StyledTitle = styled(Typography)(({ theme }) => ({
 	fontSize: theme.typography.pxToRem(52),
@@ -138,16 +183,16 @@ export const StyledIconButton: React.FC<IconButtonProps> = styled(IconButton)(
 		height: 48,
 		width: 48,
 		borderRadius: 12,
-		border: `1px solid #EAECF0`,
+		border: `1px solid ${DARK.border}`,
 		display: "flex",
 		justifyContent: "center",
 		alignItems: "center",
-		color: "#344054",
-		boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
-		backgroundColor: theme.palette.background.brand,
+		color: DARK.textSecondary,
+		boxShadow: "0px 1px 2px 0px rgba(0, 0, 0, 0.2)",
+		backgroundColor: DARK.surface,
 		transition: "all 0.2s ease",
 		"&:hover": {
-			backgroundColor: theme.palette.background.brand,
+			backgroundColor: DARK.surfaceLight,
 			transform: "translateY(-2px)",
 		},
 		[theme.breakpoints.down("sm")]: {
@@ -157,19 +202,18 @@ export const StyledIconButton: React.FC<IconButtonProps> = styled(IconButton)(
 	})
 ) as typeof IconButton;
 
-export const StyledContactUsIconButton = styled(StyledIconButton)(
-	({ theme }) => ({
-		backgroundColor: theme.palette.text["brand-secondary"],
-		color: "#FFFFFF",
-		border: "none",
-		"&:hover": {
-			backgroundColor: theme.palette.background["brand-secondary"],
-		},
-	})
-) as typeof IconButton;
+export const StyledContactUsIconButton = styled(StyledIconButton)(() => ({
+	backgroundColor: DARK.accent,
+	color: "#FFFFFF",
+	border: "none",
+	"&:hover": {
+		backgroundColor: DARK.accent,
+		opacity: 0.9,
+	},
+})) as typeof IconButton;
 
 export const StyledContactUsText = styled(Typography)({
-	color: "primary.main",
+	color: DARK.accent,
 	fontWeight: 700,
 	textAlign: "center",
 	display: "block",

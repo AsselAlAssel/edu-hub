@@ -7,6 +7,26 @@ const font = Tajawal({
 	subsets: ["arabic"],
 });
 
+export const shadows = {
+	xs: "0 1px 2px rgba(16, 24, 40, 0.05)",
+	sm: "0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04)",
+	md: "0 4px 12px rgba(16, 24, 40, 0.06), 0 1px 4px rgba(16, 24, 40, 0.04)",
+	lg: "0 8px 24px rgba(16, 24, 40, 0.08), 0 4px 8px rgba(16, 24, 40, 0.03)",
+	xl: "0 16px 48px rgba(16, 24, 40, 0.1), 0 8px 16px rgba(16, 24, 40, 0.04)",
+	focus: "0 0 0 3px rgba(0, 136, 221, 0.12)",
+	card: "0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04)",
+	cardHover:
+		"0 8px 24px rgba(16, 24, 40, 0.08), 0 4px 8px rgba(16, 24, 40, 0.03)",
+} as const;
+
+export const radii = {
+	sm: 8,
+	md: 12,
+	lg: 16,
+	xl: 20,
+	full: 9999,
+} as const;
+
 export const createEduTheme = (direction: Direction) => {
 	const theme = createTheme({
 		direction,
@@ -41,31 +61,32 @@ export const createEduTheme = (direction: Direction) => {
 			},
 		},
 		shape: {
-			borderRadius: 8,
+			borderRadius: radii.md,
 		},
 		typography: {
 			fontFamily: font.style.fontFamily,
 			h1: {
 				fontSize: "3rem",
 				fontWeight: 800,
-				lineHeight: 1.2,
+				lineHeight: 1.15,
 				letterSpacing: "-0.02em",
 			},
 			h2: {
 				fontSize: "2.25rem",
-				fontWeight: 700,
-				lineHeight: 1.25,
-				letterSpacing: "-0.01em",
+				fontWeight: 800,
+				lineHeight: 1.2,
+				letterSpacing: "-0.015em",
 			},
 			h3: {
 				fontSize: "1.75rem",
 				fontWeight: 700,
-				lineHeight: 1.3,
+				lineHeight: 1.25,
+				letterSpacing: "-0.01em",
 			},
 			h4: {
 				fontSize: "1.5rem",
 				fontWeight: 700,
-				lineHeight: 1.35,
+				lineHeight: 1.3,
 			},
 			h5: {
 				fontSize: "1.25rem",
@@ -79,11 +100,11 @@ export const createEduTheme = (direction: Direction) => {
 			},
 			body1: {
 				fontSize: "1rem",
-				lineHeight: 1.6,
+				lineHeight: 1.65,
 			},
 			body2: {
 				fontSize: "0.875rem",
-				lineHeight: 1.5,
+				lineHeight: 1.6,
 			},
 		},
 		components: {
@@ -101,8 +122,8 @@ export const createEduTheme = (direction: Direction) => {
 				styleOverrides: {
 					root: ({ theme }) => ({
 						textTransform: "none",
-						boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-						borderRadius: 10,
+						boxShadow: shadows.xs,
+						borderRadius: radii.md,
 						fontWeight: 600,
 						fontSize: 16,
 						border: "1px solid",
@@ -111,17 +132,18 @@ export const createEduTheme = (direction: Direction) => {
 						padding: "12px 20px",
 						backgroundColor: theme.palette.primary.main,
 						color: theme.palette.primary.contrastText,
-						transition: "all 0.2s ease",
+						transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
 						[theme.breakpoints.down("sm")]: {
 							padding: "12px 16px",
 							fontSize: 14,
 						},
 						"&:hover": {
 							backgroundColor: `${theme.palette.primary.dark} !important`,
-							boxShadow: "0 4px 12px rgba(0, 136, 221, 0.25)",
+							boxShadow: `${shadows.md}, 0 0 0 3px rgba(0, 136, 221, 0.08)`,
+							transform: "translateY(-1px)",
 						},
 						"&:active": {
-							transform: "scale(0.98)",
+							transform: "scale(0.98) translateY(0)",
 						},
 						"&:focus-visible": {
 							outline: `2px solid ${theme.palette.primary.main}`,
@@ -130,14 +152,17 @@ export const createEduTheme = (direction: Direction) => {
 					}),
 					sizeLarge: {
 						height: 56,
-						borderRadius: 12,
+						borderRadius: radii.lg,
+						fontSize: 16,
+						padding: "14px 28px",
 					},
 					sizeMedium: {
 						height: 48,
 					},
 					sizeSmall: {
 						height: 40,
-						borderRadius: 8,
+						borderRadius: radii.sm,
+						fontSize: 14,
 					},
 				},
 				variants: [
@@ -147,6 +172,8 @@ export const createEduTheme = (direction: Direction) => {
 							color: "#98A2B3",
 							borderColor: "#EAECF0 !important",
 							backgroundColor: "#F2F4F7",
+							transform: "none",
+							boxShadow: "none",
 						},
 					},
 					{
@@ -155,8 +182,9 @@ export const createEduTheme = (direction: Direction) => {
 							border: "none",
 							boxShadow: "none",
 							"&:hover": {
-								backgroundColor: "transparent",
+								backgroundColor: "rgba(0, 136, 221, 0.06)",
 								boxShadow: "none",
+								transform: "none",
 							},
 						},
 					},
@@ -167,8 +195,9 @@ export const createEduTheme = (direction: Direction) => {
 							color: "#344054",
 							borderColor: "#D0D5DD",
 							"&:hover": {
-								backgroundColor: "#F2F4F7",
-								boxShadow: "none",
+								backgroundColor: "#F8FAFC",
+								borderColor: "#98A2B3",
+								boxShadow: shadows.sm,
 							},
 						},
 					},
@@ -199,7 +228,7 @@ export const createEduTheme = (direction: Direction) => {
 							color: theme.palette.text.secondary,
 							borderColor: theme.palette.primary.main,
 							"&:hover": {
-								backgroundColor: "#E6F0FF",
+								backgroundColor: "#F0F7FF",
 								boxShadow: "none",
 							},
 						}),
@@ -218,10 +247,10 @@ export const createEduTheme = (direction: Direction) => {
 			MuiTextField: {
 				styleOverrides: {
 					root: {
-						borderRadius: 10,
+						borderRadius: radii.md,
 						"& .MuiInputBase-root": {
 							backgroundColor: "white",
-							borderRadius: 10,
+							borderRadius: radii.md,
 							transition: "border-color 0.2s ease, box-shadow 0.2s ease",
 							"& fieldset": {
 								borderColor: "#D0D5DD",
@@ -232,7 +261,7 @@ export const createEduTheme = (direction: Direction) => {
 							},
 							"&.Mui-focused fieldset": {
 								borderColor: "#0088DD",
-								boxShadow: "0 0 0 3px rgba(0, 136, 221, 0.12)",
+								boxShadow: shadows.focus,
 							},
 						},
 					},
@@ -300,13 +329,14 @@ export const createEduTheme = (direction: Direction) => {
 			MuiCard: {
 				styleOverrides: {
 					root: {
-						borderRadius: 16,
+						borderRadius: radii.lg,
 						border: "1px solid #EAECF0",
-						boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
-						transition: "all 0.25s ease",
+						boxShadow: shadows.card,
+						transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
 						"&:hover": {
-							boxShadow: "0 4px 16px rgba(16, 24, 40, 0.08)",
+							boxShadow: shadows.cardHover,
 							borderColor: "#D0D5DD",
+							transform: "translateY(-2px)",
 						},
 					},
 				},
@@ -319,6 +349,7 @@ export const createEduTheme = (direction: Direction) => {
 				styleOverrides: {
 					root: {
 						fontWeight: 500,
+						borderRadius: radii.sm,
 					},
 					sizeMedium: {
 						height: 28,
@@ -406,9 +437,8 @@ export const createEduTheme = (direction: Direction) => {
 						padding: "5px",
 						paddingTop: "5px",
 						border: "1px solid #EAECF0",
-						borderRadius: "12px !important",
-						boxShadow:
-							"0 12px 24px -4px rgba(16, 24, 40, 0.08), 0 8px 16px -4px rgba(16, 24, 40, 0.03) !important",
+						borderRadius: `${radii.lg}px !important`,
+						boxShadow: `${shadows.xl} !important`,
 					},
 					list: {
 						padding: "0px",
@@ -418,7 +448,7 @@ export const createEduTheme = (direction: Direction) => {
 			MuiMenuItem: {
 				styleOverrides: {
 					root: {
-						borderRadius: "8px",
+						borderRadius: radii.sm,
 						transition: "background-color 0.15s ease",
 					},
 					selected: {},
@@ -480,8 +510,8 @@ export const createEduTheme = (direction: Direction) => {
 			MuiDialog: {
 				styleOverrides: {
 					paper: {
-						borderRadius: 16,
-						boxShadow: "0 24px 48px -12px rgba(16, 24, 40, 0.18)",
+						borderRadius: radii.xl,
+						boxShadow: shadows.xl,
 					},
 				},
 			},

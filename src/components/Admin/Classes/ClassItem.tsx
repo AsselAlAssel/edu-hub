@@ -52,10 +52,12 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 					cursor: "pointer",
 					width: "100%",
 					backgroundColor: "#FFFFFF",
-					transition: "all 0.25s ease",
-					boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
+					transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+					boxShadow:
+						"0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04)",
 					"&:hover": {
-						boxShadow: "0 8px 24px rgba(16, 24, 40, 0.08)",
+						boxShadow:
+							"0 8px 24px rgba(16, 24, 40, 0.08), 0 4px 8px rgba(16, 24, 40, 0.03)",
 						borderColor: "#D0D5DD",
 						...(!isAdmin && {
 							transform: "translateY(-3px)",
@@ -74,13 +76,14 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 					<Stack direction='column'>
 						<Box
 							sx={{
-								height: "160px",
+								height: "168px",
 								width: "100%",
 								backgroundColor: "#F8FAFC",
 								display: "flex",
 								justifyContent: "center",
 								alignItems: "center",
 								overflow: "hidden",
+								position: "relative",
 							}}
 						>
 							{classItem.image ? (
@@ -96,16 +99,28 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 									}}
 								/>
 							) : (
-								<Image
-									src='/images/logo/logo.svg'
-									alt='شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh'
-									width={64}
-									height={64}
-									style={{ opacity: 0.5 }}
-								/>
+								<Box
+									sx={{
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										width: "100%",
+										height: "100%",
+										background:
+											"linear-gradient(135deg, #F0F7FF 0%, #F8FAFC 100%)",
+									}}
+								>
+									<Image
+										src='/images/logo/logo.svg'
+										alt='شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh'
+										width={56}
+										height={56}
+										style={{ opacity: 0.4 }}
+									/>
+								</Box>
 							)}
 						</Box>
-						<Box sx={{ px: 2.5, py: 2 }}>
+						<Box sx={{ px: 2.5, py: 2.5 }}>
 							<Typography
 								variant='h6'
 								sx={{
@@ -114,6 +129,8 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 									display: "-webkit-box",
 									WebkitLineClamp: 2,
 									WebkitBoxOrient: "vertical",
+									fontWeight: 700,
+									lineHeight: 1.5,
 								}}
 							>
 								{classItem.name}
@@ -152,9 +169,7 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 				}}
 			>
 				<ListItem
-					sx={{
-						cursor: "pointer",
-					}}
+					sx={{ cursor: "pointer" }}
 					onClick={(e) => {
 						e.stopPropagation();
 						if (selectedClass) {
@@ -169,9 +184,7 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 					<ListItemText>تعديل</ListItemText>
 				</ListItem>
 				<ListItem
-					sx={{
-						cursor: "pointer",
-					}}
+					sx={{ cursor: "pointer" }}
 					onClick={(e) => {
 						e.stopPropagation();
 						if (selectedClass) {
@@ -181,11 +194,7 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 					}}
 				>
 					<ListItemIcon>
-						<DeleteIcon
-							sx={{
-								color: "error.main",
-							}}
-						/>
+						<DeleteIcon sx={{ color: "error.main" }} />
 					</ListItemIcon>
 					<Typography color='error.main'>حذف</Typography>
 				</ListItem>

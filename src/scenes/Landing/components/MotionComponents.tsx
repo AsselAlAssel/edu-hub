@@ -2,16 +2,23 @@
 
 import { motion, type Variants } from "framer-motion";
 import { Box, type BoxProps } from "@mui/material";
-import { forwardRef, type ReactNode } from "react";
+import { forwardRef, type ReactNode, useMemo } from "react";
 
 const MotionBox = motion.create(Box);
 
+type SafeBoxProps = Omit<
+	BoxProps,
+	"component" | "onAnimationStart" | "onDragStart" | "onDragEnd" | "onDrag"
+>;
+
+// ─── Variant Presets ────────────────────────────────────────────────
+
 export const fadeSlideUp: Variants = {
-	hidden: { opacity: 0, y: 30 },
+	hidden: { opacity: 0, y: 32 },
 	visible: {
 		opacity: 1,
 		y: 0,
-		transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] },
+		transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
 	},
 };
 
@@ -19,16 +26,34 @@ export const fadeIn: Variants = {
 	hidden: { opacity: 0 },
 	visible: {
 		opacity: 1,
-		transition: { duration: 0.6, ease: "easeOut" },
+		transition: { duration: 0.7, ease: "easeOut" },
 	},
 };
 
 export const scaleIn: Variants = {
-	hidden: { opacity: 0, scale: 0.95 },
+	hidden: { opacity: 0, scale: 0.92 },
 	visible: {
 		opacity: 1,
 		scale: 1,
-		transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] },
+		transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+	},
+};
+
+export const fadeSlideRight: Variants = {
+	hidden: { opacity: 0, x: -40 },
+	visible: {
+		opacity: 1,
+		x: 0,
+		transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+	},
+};
+
+export const fadeSlideLeft: Variants = {
+	hidden: { opacity: 0, x: 40 },
+	visible: {
+		opacity: 1,
+		x: 0,
+		transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
 	},
 };
 
@@ -37,7 +62,7 @@ export const staggerContainer: Variants = {
 	visible: {
 		transition: {
 			staggerChildren: 0.12,
-			delayChildren: 0.1,
+			delayChildren: 0.15,
 		},
 	},
 };
@@ -51,7 +76,9 @@ export const staggerContainerFast: Variants = {
 	},
 };
 
-interface AnimatedSectionProps extends Omit<BoxProps, "component"> {
+// ─── Animated Wrappers ──────────────────────────────────────────────
+
+interface AnimatedSectionProps extends SafeBoxProps {
 	children: ReactNode;
 	variants?: Variants;
 	delay?: number;
@@ -65,7 +92,7 @@ export const AnimatedSection = forwardRef<HTMLDivElement, AnimatedSectionProps>(
 			children,
 			variants = fadeSlideUp,
 			delay = 0,
-			viewportMargin = "-80px",
+			viewportMargin = "-60px",
 			viewportAmount,
 			...props
 		},
@@ -100,7 +127,7 @@ export const AnimatedSection = forwardRef<HTMLDivElement, AnimatedSectionProps>(
 	}
 );
 
-interface StaggerGroupProps extends Omit<BoxProps, "component"> {
+interface StaggerGroupProps extends SafeBoxProps {
 	children: ReactNode;
 	fast?: boolean;
 	viewportMargin?: string;
@@ -112,7 +139,7 @@ export const StaggerGroup = forwardRef<HTMLDivElement, StaggerGroupProps>(
 		{
 			children,
 			fast = false,
-			viewportMargin = "-60px",
+			viewportMargin = "-40px",
 			viewportAmount,
 			...props
 		},
@@ -137,7 +164,7 @@ export const StaggerGroup = forwardRef<HTMLDivElement, StaggerGroupProps>(
 	}
 );
 
-interface StaggerItemProps extends Omit<BoxProps, "component"> {
+interface StaggerItemProps extends SafeBoxProps {
 	children: ReactNode;
 	variants?: Variants;
 }
@@ -154,28 +181,189 @@ export const StaggerItem = forwardRef<HTMLDivElement, StaggerItemProps>(
 
 export const FloatingImage = forwardRef<
 	HTMLDivElement,
-	Omit<BoxProps, "component"> & { children: ReactNode }
+	SafeBoxProps & { children: ReactNode }
 >(function FloatingImage({ children, ...props }, ref) {
 	return (
 		<MotionBox
 			ref={ref}
-			initial={{ opacity: 0, scale: 0.92 }}
-			animate={{ opacity: 1, scale: 1 }}
-			transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.3 }}
+			initial={{ opacity: 0, scale: 0.88, y: 20 }}
+			animate={{ opacity: 1, scale: 1, y: 0 }}
+			transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
 			{...props}
 		>
 			<MotionBox
-				animate={{ y: [0, -8, 0] }}
-				transition={{
-					duration: 4,
-					repeat: Infinity,
-					ease: "easeInOut",
-				}}
+				animate={{ y: [0, -10, 0] }}
+				transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
 			>
 				{children}
 			</MotionBox>
 		</MotionBox>
 	);
 });
+
+// ─── Decorative Elements ────────────────────────────────────────────
+
+export function GlowOrb({
+	color = "rgba(0,180,216,0.35)",
+	size = 400,
+	top,
+	left,
+	right,
+	bottom,
+	delay = 0,
+}: {
+	color?: string;
+	size?: number;
+	top?: string | number;
+	left?: string | number;
+	right?: string | number;
+	bottom?: string | number;
+	delay?: number;
+}) {
+	return (
+		<MotionBox
+			animate={{
+				scale: [1, 1.2, 1],
+				opacity: [0.3, 0.5, 0.3],
+			}}
+			transition={{
+				duration: 8,
+				repeat: Infinity,
+				ease: "easeInOut",
+				delay,
+			}}
+			sx={{
+				position: "absolute",
+				top,
+				left,
+				right,
+				bottom,
+				width: size,
+				height: size,
+				borderRadius: "50%",
+				background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
+				filter: "blur(80px)",
+				pointerEvents: "none",
+				zIndex: 0,
+			}}
+		/>
+	);
+}
+
+export function OrbitRing({
+	size = 500,
+	duration = 20,
+	color = "rgba(0,180,216,0.08)",
+	top,
+	left,
+	right,
+	bottom,
+}: {
+	size?: number;
+	duration?: number;
+	color?: string;
+	top?: string | number;
+	left?: string | number;
+	right?: string | number;
+	bottom?: string | number;
+}) {
+	return (
+		<MotionBox
+			animate={{ rotate: 360 }}
+			transition={{ duration, repeat: Infinity, ease: "linear" }}
+			sx={{
+				position: "absolute",
+				top,
+				left,
+				right,
+				bottom,
+				width: size,
+				height: size,
+				borderRadius: "50%",
+				border: `1px solid ${color}`,
+				pointerEvents: "none",
+				zIndex: 0,
+			}}
+		/>
+	);
+}
+
+export function GridPattern() {
+	return (
+		<Box
+			sx={{
+				position: "absolute",
+				inset: 0,
+				backgroundImage: `
+					linear-gradient(rgba(0,180,216,0.03) 1px, transparent 1px),
+					linear-gradient(90deg, rgba(0,180,216,0.03) 1px, transparent 1px)
+				`,
+				backgroundSize: "60px 60px",
+				pointerEvents: "none",
+				zIndex: 0,
+				maskImage:
+					"radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 70%)",
+				WebkitMaskImage:
+					"radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 70%)",
+			}}
+		/>
+	);
+}
+
+interface FloatingParticleProps {
+	count?: number;
+}
+
+export function FloatingParticles({ count = 20 }: FloatingParticleProps) {
+	const particles = useMemo(
+		() =>
+			Array.from({ length: count }, (_, i) => ({
+				id: i,
+				x: `${(i * 37 + 13) % 100}%`,
+				y: `${(i * 53 + 7) % 100}%`,
+				size: 1.5 + (i % 3),
+				delay: (i * 0.6) % 5,
+				duration: 4 + (i % 4),
+			})),
+		[count]
+	);
+
+	return (
+		<Box
+			sx={{
+				position: "absolute",
+				inset: 0,
+				overflow: "hidden",
+				pointerEvents: "none",
+				zIndex: 0,
+			}}
+		>
+			{particles.map((p) => (
+				<MotionBox
+					key={p.id}
+					animate={{
+						opacity: [0, 0.6, 0],
+						y: [0, -30, 0],
+					}}
+					transition={{
+						duration: p.duration,
+						repeat: Infinity,
+						delay: p.delay,
+						ease: "easeInOut",
+					}}
+					sx={{
+						position: "absolute",
+						left: p.x,
+						top: p.y,
+						width: p.size,
+						height: p.size,
+						borderRadius: "50%",
+						backgroundColor: "rgba(0,180,216,0.5)",
+					}}
+				/>
+			))}
+		</Box>
+	);
+}
 
 export { MotionBox };

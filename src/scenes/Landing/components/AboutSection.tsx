@@ -2,9 +2,10 @@
 import AutoStoriesOutlinedIcon from "@mui/icons-material/AutoStoriesOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
-import { alpha, Box, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import Image from "next/image";
 import {
+	DARK,
 	SectionContainer,
 	SectionLabel,
 	SectionStack,
@@ -12,9 +13,12 @@ import {
 } from "./Styled";
 import {
 	AnimatedSection,
+	GlowOrb,
 	MotionBox,
 	StaggerGroup,
 	StaggerItem,
+	fadeSlideRight,
+	fadeSlideLeft,
 } from "./MotionComponents";
 
 const features = [
@@ -22,16 +26,19 @@ const features = [
 		icon: AutoStoriesOutlinedIcon,
 		title: "محتوى شامل",
 		description: "دروس مرتبة ومنظمة تغطي جميع المواضيع المطلوبة",
+		color: DARK.accent,
 	},
 	{
 		icon: GroupsOutlinedIcon,
 		title: "دعم مستمر",
 		description: "تواصل مباشر مع الأستاذ للإجابة على أسئلتك",
+		color: DARK.purple,
 	},
 	{
 		icon: VerifiedOutlinedIcon,
 		title: "جودة عالية",
 		description: "فيديوهات عالية الجودة مع شرح مبسط وواضح",
+		color: "#10B981",
 	},
 ];
 
@@ -46,7 +53,7 @@ export default function AboutSection(props: {
 		<Box
 			id='about'
 			sx={{
-				backgroundColor: "#F8FAFC",
+				backgroundColor: DARK.bg,
 				position: "relative",
 				overflow: "hidden",
 				"&::before": {
@@ -56,14 +63,29 @@ export default function AboutSection(props: {
 					left: 0,
 					right: 0,
 					height: 1,
-					backgroundColor: "#EAECF0",
+					background: `linear-gradient(90deg, transparent 0%, ${DARK.border} 50%, transparent 100%)`,
 				},
 			}}
 		>
+			<GlowOrb
+				color='rgba(124,58,237,0.1)'
+				size={400}
+				top='10%'
+				left='-5%'
+				delay={1}
+			/>
+			<GlowOrb
+				color='rgba(0,180,216,0.08)'
+				size={350}
+				bottom='10%'
+				right='-5%'
+				delay={4}
+			/>
+
 			<SectionContainer sx={{ px: { xs: 3, sm: 4, md: 6 } }}>
 				<SectionStack>
 					<AnimatedSection
-						viewportAmount={0.3}
+						viewportAmount={0.2}
 						viewportMargin='0px'
 						sx={{ textAlign: "center", mb: { xs: 6, md: 8 } }}
 					>
@@ -74,8 +96,8 @@ export default function AboutSection(props: {
 								sx={{
 									fontSize: { xs: "1rem", sm: "1.125rem" },
 									lineHeight: 1.75,
-									color: "text.tertiary",
-									maxWidth: 640,
+									color: DARK.textSecondary,
+									maxWidth: 600,
 									mx: "auto",
 									mt: 2,
 								}}
@@ -93,7 +115,8 @@ export default function AboutSection(props: {
 						{aboutImage && (
 							<AnimatedSection
 								delay={0.1}
-								viewportAmount={0.2}
+								variants={fadeSlideRight}
+								viewportAmount={0.15}
 								viewportMargin='0px'
 								sx={{
 									flex: 1,
@@ -105,12 +128,10 @@ export default function AboutSection(props: {
 								<Box
 									sx={{
 										position: "relative",
-										borderRadius: "20px",
+										borderRadius: "24px",
 										overflow: "hidden",
-										boxShadow:
-											"0 20px 60px rgba(0,0,0,0.08), 0 8px 20px rgba(0,0,0,0.04)",
-										border: "1px solid",
-										borderColor: alpha("#000", 0.06),
+										border: `1px solid ${DARK.border}`,
+										boxShadow: `0 20px 60px rgba(0,0,0,0.4), ${DARK.glow}`,
 										maxWidth: 440,
 										width: "100%",
 									}}
@@ -127,12 +148,20 @@ export default function AboutSection(props: {
 											height: "auto",
 										}}
 									/>
+									<Box
+										sx={{
+											position: "absolute",
+											inset: 0,
+											background: `linear-gradient(180deg, transparent 50%, rgba(0,180,216,0.06) 100%)`,
+											pointerEvents: "none",
+										}}
+									/>
 								</Box>
 							</AnimatedSection>
 						)}
 
 						<StaggerGroup
-							viewportAmount={0.15}
+							viewportAmount={0.1}
 							viewportMargin='0px'
 							sx={{
 								flex: 1,
@@ -143,9 +172,9 @@ export default function AboutSection(props: {
 							}}
 						>
 							{features.map((feature) => (
-								<StaggerItem key={feature.title}>
+								<StaggerItem key={feature.title} variants={fadeSlideLeft}>
 									<MotionBox
-										whileHover={{ scale: 1.03, y: -3 }}
+										whileHover={{ scale: 1.02, x: -4 }}
 										transition={{ type: "spring", stiffness: 300, damping: 20 }}
 									>
 										<Stack
@@ -153,16 +182,16 @@ export default function AboutSection(props: {
 											spacing={2.5}
 											sx={{
 												p: 3,
-												borderRadius: "16px",
-												backgroundColor: "#FFFFFF",
-												border: "1px solid",
-												borderColor: "#EAECF0",
-												boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
+												borderRadius: "18px",
+												backgroundColor: "rgba(10,17,40,0.6)",
+												backdropFilter: "blur(16px)",
+												border: `1px solid ${DARK.border}`,
+												boxShadow: DARK.cardShadow,
 												transition:
-													"border-color 0.3s ease, box-shadow 0.3s ease",
+													"border-color 0.4s ease, box-shadow 0.4s ease",
 												"&:hover": {
-													borderColor: alpha("#0088DD", 0.3),
-													boxShadow: "0 8px 30px rgba(0, 136, 221, 0.12)",
+													borderColor: DARK.borderHover,
+													boxShadow: DARK.cardShadowHover,
 												},
 											}}
 											alignItems='flex-start'
@@ -171,8 +200,9 @@ export default function AboutSection(props: {
 												sx={{
 													width: 48,
 													height: 48,
-													borderRadius: "12px",
-													backgroundColor: alpha("#0088DD", 0.08),
+													borderRadius: "14px",
+													backgroundColor: `${feature.color}15`,
+													border: `1px solid ${feature.color}25`,
 													display: "flex",
 													alignItems: "center",
 													justifyContent: "center",
@@ -180,7 +210,7 @@ export default function AboutSection(props: {
 												}}
 											>
 												<feature.icon
-													sx={{ color: "primary.main", fontSize: 24 }}
+													sx={{ color: feature.color, fontSize: 24 }}
 												/>
 											</Box>
 											<Box>
@@ -188,7 +218,7 @@ export default function AboutSection(props: {
 													sx={{
 														fontWeight: 700,
 														fontSize: "1rem",
-														color: "text.primary",
+														color: DARK.text,
 														mb: 0.5,
 													}}
 												>
@@ -197,8 +227,8 @@ export default function AboutSection(props: {
 												<Typography
 													sx={{
 														fontSize: "0.9375rem",
-														lineHeight: 1.65,
-														color: "text.tertiary",
+														lineHeight: 1.7,
+														color: DARK.textSecondary,
 													}}
 												>
 													{feature.description}
