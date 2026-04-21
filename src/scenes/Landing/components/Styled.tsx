@@ -1,6 +1,7 @@
 "use client";
 
 import {
+	alpha,
 	Box,
 	IconButton,
 	IconButtonProps,
@@ -8,33 +9,7 @@ import {
 	styled,
 	Typography,
 } from "@mui/material";
-
-// ─── Dark Theme Palette ─────────────────────────────────────────────
-// Base:    #060B18
-// Surface: #0A1128
-// Border:  rgba(0,180,216,0.1)
-// Accent:  #00B4D8 (cyan), #7C3AED (purple)
-// Text:    #FFFFFF, #94A3B8, #64748B
-
-export const DARK = {
-	bg: "#060B18",
-	surface: "#0A1128",
-	surfaceLight: "#0F1B35",
-	border: "rgba(0,180,216,0.1)",
-	borderHover: "rgba(0,180,216,0.25)",
-	accent: "#00B4D8",
-	accentDim: "rgba(0,180,216,0.15)",
-	purple: "#7C3AED",
-	purpleDim: "rgba(124,58,237,0.15)",
-	text: "#FFFFFF",
-	textSecondary: "#94A3B8",
-	textMuted: "#64748B",
-	glow: "0 0 60px rgba(0,180,216,0.15)",
-	glowStrong: "0 0 80px rgba(0,180,216,0.25)",
-	cardShadow: "0 8px 32px rgba(0,0,0,0.4)",
-	cardShadowHover:
-		"0 16px 48px rgba(0,180,216,0.12), 0 8px 24px rgba(0,0,0,0.3)",
-} as const;
+import type { FC } from "react";
 
 export const SectionContainer = styled(Box)({
 	maxWidth: 1200,
@@ -56,22 +31,22 @@ export const SectionStack = styled(Stack)(({ theme }) => ({
 	},
 }));
 
-export const SectionLabel = styled(Typography)({
+export const SectionLabel = styled(Typography)(({ theme }) => ({
 	fontSize: "0.8125rem",
 	fontWeight: 700,
 	letterSpacing: "0.12em",
 	textTransform: "uppercase",
-	color: DARK.accent,
+	color: theme.palette.primary.main,
 	textAlign: "center",
 	marginBottom: 12,
-});
+}));
 
 export const SectionTitle = styled(Typography)(({ theme }) => ({
 	fontSize: theme.typography.pxToRem(42),
 	fontWeight: 800,
 	lineHeight: 1.15,
 	letterSpacing: "-0.02em",
-	color: DARK.text,
+	color: theme.palette.text.primary,
 	textAlign: "center",
 	[theme.breakpoints.down("md")]: {
 		fontSize: theme.typography.pxToRem(34),
@@ -85,7 +60,7 @@ export const SectionSubtitle = styled(Typography)(({ theme }) => ({
 	fontSize: theme.typography.pxToRem(18),
 	lineHeight: 1.7,
 	fontWeight: 400,
-	color: DARK.textSecondary,
+	color: theme.palette.text.tertiary,
 	textAlign: "center",
 	maxWidth: 600,
 	margin: "0 auto",
@@ -95,29 +70,37 @@ export const SectionSubtitle = styled(Typography)(({ theme }) => ({
 	},
 }));
 
-export const GlassCard = styled(Box)({
+export const GlassCard = styled(Box)(({ theme }) => ({
 	padding: 28,
 	borderRadius: 20,
-	backgroundColor: "rgba(10,17,40,0.6)",
+	backgroundColor:
+		theme.palette.mode === "dark"
+			? alpha(theme.palette.background.paper, 0.55)
+			: alpha(theme.palette.background.paper, 0.92),
 	backdropFilter: "blur(20px)",
 	WebkitBackdropFilter: "blur(20px)",
-	border: `1px solid ${DARK.border}`,
-	boxShadow: DARK.cardShadow,
+	border: `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.22 : 0.14)}`,
+	boxShadow:
+		theme.palette.mode === "dark"
+			? "0 8px 32px rgba(0,0,0,0.45)"
+			: "0 8px 32px rgba(16,24,40,0.08)",
 	transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
 	"&:hover": {
-		borderColor: DARK.borderHover,
-		boxShadow: DARK.cardShadowHover,
+		borderColor: alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.42 : 0.32),
+		boxShadow:
+			theme.palette.mode === "dark"
+				? `0 16px 48px ${alpha(theme.palette.primary.main, 0.14)}, 0 8px 24px rgba(0,0,0,0.35)`
+				: "0 16px 48px rgba(16,24,40,0.1), 0 8px 24px rgba(16,24,40,0.05)",
 		transform: "translateY(-4px)",
 	},
-});
-
-// ─── Legacy Styled (kept for backward compatibility) ────────────────
+}));
 
 export const StyledTitle = styled(Typography)(({ theme }) => ({
 	fontSize: theme.typography.pxToRem(52),
 	fontWeight: 800,
 	lineHeight: 1.15,
 	letterSpacing: "-0.03em",
+	color: theme.palette.text.primary,
 	[theme.breakpoints.down("md")]: {
 		fontSize: theme.typography.pxToRem(40),
 		lineHeight: 1.2,
@@ -132,7 +115,8 @@ export const StyledTitle = styled(Typography)(({ theme }) => ({
 export const StyledSubTitle = styled(Typography)(({ theme }) => ({
 	fontSize: theme.typography.pxToRem(19),
 	lineHeight: 1.7,
-	opacity: 0.85,
+	color: theme.palette.text.secondary,
+	opacity: 0.95,
 	[theme.breakpoints.down("sm")]: {
 		fontSize: theme.typography.pxToRem(16),
 		lineHeight: 1.6,
@@ -155,7 +139,7 @@ export const StyledSectionTitle = styled(Typography)(({ theme }) => ({
 	fontWeight: 800,
 	lineHeight: 1.25,
 	textAlign: "center",
-	color: "white",
+	color: theme.palette.text.primary,
 	marginBottom: 8,
 	[theme.breakpoints.down("sm")]: {
 		fontSize: theme.typography.pxToRem(24),
@@ -168,58 +152,58 @@ export const StyledSectionSubTitle = styled(Typography)(({ theme }) => ({
 	fontSize: theme.typography.pxToRem(20),
 	lineHeight: 1.5,
 	fontWeight: 500,
-	color: "white",
+	color: theme.palette.text.secondary,
 	textAlign: "center",
 	maxWidth: 700,
-	opacity: 0.9,
+	opacity: 0.95,
 	[theme.breakpoints.down("sm")]: {
 		fontSize: theme.typography.pxToRem(15),
 		lineHeight: 1.5,
 	},
 }));
 
-export const StyledIconButton: React.FC<IconButtonProps> = styled(IconButton)(
+export const StyledIconButton: FC<IconButtonProps> = styled(IconButton)(
 	({ theme }) => ({
 		height: 48,
 		width: 48,
 		borderRadius: 12,
-		border: `1px solid ${DARK.border}`,
+		border: `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.22 : 0.14)}`,
 		display: "flex",
 		justifyContent: "center",
 		alignItems: "center",
-		color: DARK.textSecondary,
-		boxShadow: "0px 1px 2px 0px rgba(0, 0, 0, 0.2)",
-		backgroundColor: DARK.surface,
+		color: theme.palette.text.tertiary,
+		boxShadow: "0px 1px 2px 0px rgba(0, 0, 0, 0.12)",
+		backgroundColor: theme.palette.background.paper,
 		transition: "all 0.2s ease",
 		"&:hover": {
-			backgroundColor: DARK.surfaceLight,
+			backgroundColor: theme.palette.action.hover,
 			transform: "translateY(-2px)",
 		},
 		[theme.breakpoints.down("sm")]: {
 			height: 40,
 			width: 40,
 		},
-	})
+	}),
 ) as typeof IconButton;
 
-export const StyledContactUsIconButton = styled(StyledIconButton)(() => ({
-	backgroundColor: DARK.accent,
-	color: "#FFFFFF",
+export const StyledContactUsIconButton = styled(StyledIconButton)(({ theme }) => ({
+	backgroundColor: theme.palette.primary.main,
+	color: theme.palette.primary.contrastText,
 	border: "none",
 	"&:hover": {
-		backgroundColor: DARK.accent,
-		opacity: 0.9,
+		backgroundColor: theme.palette.primary.dark,
+		opacity: 1,
 	},
 })) as typeof IconButton;
 
-export const StyledContactUsText = styled(Typography)({
-	color: DARK.accent,
+export const StyledContactUsText = styled(Typography)(({ theme }) => ({
+	color: theme.palette.primary.main,
 	fontWeight: 700,
 	textAlign: "center",
 	display: "block",
 	fontSize: "20px",
 	lineHeight: "28px",
-}) as typeof Typography;
+})) as typeof Typography;
 
 export const StyledBoxSection = styled(Box)(({ theme }) => ({
 	padding: "80px 112px",

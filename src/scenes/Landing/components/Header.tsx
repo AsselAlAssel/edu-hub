@@ -1,5 +1,5 @@
 "use client";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography, alpha } from "@mui/material";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
@@ -12,7 +12,7 @@ import {
 	OrbitRing,
 	FloatingParticles,
 } from "./MotionComponents";
-import { DARK } from "./Styled";
+import { landingChrome } from "../landingChrome";
 
 const APP_BAR_HEIGHT = 72;
 
@@ -62,14 +62,21 @@ export default function Header(props: HeaderProps) {
 	return (
 		<Box
 			component='section'
-			sx={{
-				position: "relative",
-				minHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
-				maxHeight: 1000,
-				display: "flex",
-				alignItems: "center",
-				overflow: "hidden",
-				background: `linear-gradient(160deg, ${DARK.bg} 0%, #070D1F 30%, #0A1128 55%, #0C1633 80%, ${DARK.surface} 100%)`,
+			sx={(theme) => {
+				const c = landingChrome(theme);
+				const deep =
+					theme.palette.mode === "dark"
+						? alpha("#020617", 0.96)
+						: alpha(theme.palette.primary.main, 0.05);
+				return {
+					position: "relative",
+					minHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
+					maxHeight: 1000,
+					display: "flex",
+					alignItems: "center",
+					overflow: "hidden",
+					background: `linear-gradient(160deg, ${c.bg} 0%, ${deep} 35%, ${alpha(c.surface, 0.98)} 72%, ${c.surface} 100%)`,
+				};
 			}}
 		>
 			<GridPattern />
@@ -107,15 +114,18 @@ export default function Header(props: HeaderProps) {
 
 			{/* Bottom fade */}
 			<Box
-				sx={{
-					position: "absolute",
-					bottom: 0,
-					left: 0,
-					right: 0,
-					height: 200,
-					background: `linear-gradient(to top, ${DARK.bg} 0%, transparent 100%)`,
-					pointerEvents: "none",
-					zIndex: 1,
+				sx={(theme) => {
+					const c = landingChrome(theme);
+					return {
+						position: "absolute",
+						bottom: 0,
+						left: 0,
+						right: 0,
+						height: 200,
+						background: `linear-gradient(to top, ${c.bg} 0%, transparent 100%)`,
+						pointerEvents: "none",
+						zIndex: 1,
+					};
 				}}
 			/>
 
@@ -146,34 +156,40 @@ export default function Header(props: HeaderProps) {
 							{/* Badge */}
 							<MotionBox variants={fadeUp}>
 								<Box
-									sx={{
-										display: "inline-flex",
-										alignItems: "center",
-										gap: 1,
-										px: 2.5,
-										py: 0.75,
-										borderRadius: "100px",
-										border: `1px solid ${DARK.border}`,
-										backgroundColor: "rgba(0,180,216,0.06)",
-										backdropFilter: "blur(12px)",
+									sx={(theme) => {
+										const c = landingChrome(theme);
+										return {
+											display: "inline-flex",
+											alignItems: "center",
+											gap: 1,
+											px: 2.5,
+											py: 0.75,
+											borderRadius: "100px",
+											border: `1px solid ${c.border}`,
+											backgroundColor: alpha(c.accent, 0.08),
+											backdropFilter: "blur(12px)",
+										};
 									}}
 								>
 									<Box
-										sx={{
-											width: 6,
-											height: 6,
-											borderRadius: "50%",
-											backgroundColor: DARK.accent,
-											boxShadow: `0 0 8px ${DARK.accent}`,
+										sx={(theme) => {
+											const c = landingChrome(theme);
+											return {
+												width: 6,
+												height: 6,
+												borderRadius: "50%",
+												backgroundColor: c.accent,
+												boxShadow: `0 0 8px ${c.accent}`,
+											};
 										}}
 									/>
 									<Typography
-										sx={{
+										sx={(theme) => ({
 											fontSize: "0.8125rem",
 											fontWeight: 600,
-											color: DARK.accent,
+											color: theme.palette.primary.main,
 											letterSpacing: "0.04em",
-										}}
+										})}
 									>
 										منصة تعليمية متكاملة
 									</Typography>
@@ -183,19 +199,22 @@ export default function Header(props: HeaderProps) {
 							{/* Title */}
 							<MotionBox variants={fadeUp}>
 								<Typography
-									sx={{
-										fontSize: { xs: "2.25rem", sm: "2.75rem", md: "3.5rem" },
-										fontWeight: 800,
-										lineHeight: 1.1,
-										letterSpacing: "-0.03em",
-										color: DARK.text,
-										textAlign: { xs: "center", md: "start" },
-										"& span": {
-											background: `linear-gradient(135deg, ${DARK.accent} 0%, #38BDF8 50%, ${DARK.purple} 100%)`,
-											WebkitBackgroundClip: "text",
-											WebkitTextFillColor: "transparent",
-											backgroundClip: "text",
-										},
+									sx={(theme) => {
+										const c = landingChrome(theme);
+										return {
+											fontSize: { xs: "2.25rem", sm: "2.75rem", md: "3.5rem" },
+											fontWeight: 800,
+											lineHeight: 1.1,
+											letterSpacing: "-0.03em",
+											color: c.text,
+											textAlign: { xs: "center", md: "start" },
+											"& span": {
+												background: `linear-gradient(135deg, ${c.accent} 0%, ${alpha(c.accent, 0.85)} 50%, ${c.purple} 100%)`,
+												WebkitBackgroundClip: "text",
+												WebkitTextFillColor: "transparent",
+												backgroundClip: "text",
+											},
+										};
 									}}
 								>
 									{headerTitle || (
@@ -212,13 +231,16 @@ export default function Header(props: HeaderProps) {
 							{headerSubtitle && (
 								<MotionBox variants={fadeUp}>
 									<Typography
-										sx={{
-											fontSize: { xs: "1rem", sm: "1.125rem" },
-											lineHeight: 1.8,
-											color: DARK.textSecondary,
-											textAlign: { xs: "center", md: "start" },
-											maxWidth: 500,
-											fontWeight: 400,
+										sx={(theme) => {
+											const c = landingChrome(theme);
+											return {
+												fontSize: { xs: "1rem", sm: "1.125rem" },
+												lineHeight: 1.8,
+												color: c.textSecondary,
+												textAlign: { xs: "center", md: "start" },
+												maxWidth: 500,
+												fontWeight: 400,
+											};
 										}}
 									>
 										{headerSubtitle}
@@ -243,20 +265,23 @@ export default function Header(props: HeaderProps) {
 										whileHover={{ scale: 1.04, y: -2 }}
 										whileTap={{ scale: 0.97 }}
 										transition={{ type: "spring", stiffness: 400, damping: 17 }}
-										sx={{
-											background: `linear-gradient(135deg, ${DARK.accent} 0%, #0096C7 100%)`,
-											color: "#FFFFFF",
-											borderRadius: "14px",
-											fontWeight: 700,
-											fontSize: "1rem",
-											px: 4,
-											height: 54,
-											boxShadow: `0 4px 20px rgba(0,180,216,0.3), 0 0 40px rgba(0,180,216,0.1)`,
-											border: "1px solid rgba(0,180,216,0.3)",
-											"&:hover": {
-												background: `linear-gradient(135deg, #00C4E8 0%, ${DARK.accent} 100%) !important`,
-												boxShadow: `0 8px 32px rgba(0,180,216,0.4), 0 0 60px rgba(0,180,216,0.15) !important`,
-											},
+										sx={(theme) => {
+											const c = landingChrome(theme);
+											return {
+												background: `linear-gradient(135deg, ${c.accent} 0%, ${theme.palette.primary.dark} 100%)`,
+												color: theme.palette.primary.contrastText,
+												borderRadius: "14px",
+												fontWeight: 700,
+												fontSize: "1rem",
+												px: 4,
+												height: 54,
+												boxShadow: `0 4px 20px ${alpha(c.accent, 0.35)}, 0 0 40px ${alpha(c.accent, 0.12)}`,
+												border: `1px solid ${alpha(c.accent, 0.35)}`,
+												"&:hover": {
+													background: `linear-gradient(135deg, ${alpha(c.accent, 0.95)} 0%, ${c.accent} 100%) !important`,
+													boxShadow: `0 8px 32px ${alpha(c.accent, 0.45)}, 0 0 60px ${alpha(c.accent, 0.18)} !important`,
+												},
+											};
 										}}
 									>
 										تعرف على الصفوف
@@ -272,20 +297,23 @@ export default function Header(props: HeaderProps) {
 										whileHover={{ scale: 1.04, y: -2 }}
 										whileTap={{ scale: 0.97 }}
 										transition={{ type: "spring", stiffness: 400, damping: 17 }}
-										sx={{
-											borderColor: DARK.border,
-											color: DARK.text,
-											borderRadius: "14px",
-											fontWeight: 600,
-											fontSize: "1rem",
-											px: 4,
-											height: 54,
-											backgroundColor: "rgba(255,255,255,0.03)",
-											backdropFilter: "blur(8px)",
-											"&:hover": {
-												borderColor: DARK.borderHover,
-												backgroundColor: "rgba(0,180,216,0.06) !important",
-											},
+										sx={(theme) => {
+											const c = landingChrome(theme);
+											return {
+												borderColor: c.border,
+												color: c.text,
+												borderRadius: "14px",
+												fontWeight: 600,
+												fontSize: "1rem",
+												px: 4,
+												height: 54,
+												backgroundColor: alpha(theme.palette.background.paper, 0.06),
+												backdropFilter: "blur(8px)",
+												"&:hover": {
+													borderColor: c.borderHover,
+													backgroundColor: `${alpha(c.accent, 0.08)} !important`,
+												},
+											};
 										}}
 									>
 										تعرف علينا
@@ -307,13 +335,16 @@ export default function Header(props: HeaderProps) {
 							}}
 						>
 							<Box
-								sx={{
-									position: "relative",
-									width: "100%",
-									borderRadius: "24px",
-									overflow: "hidden",
-									border: `1px solid ${DARK.border}`,
-									boxShadow: `0 20px 60px rgba(0,0,0,0.5), ${DARK.glow}`,
+								sx={(theme) => {
+									const c = landingChrome(theme);
+									return {
+										position: "relative",
+										width: "100%",
+										borderRadius: "24px",
+										overflow: "hidden",
+										border: `1px solid ${c.border}`,
+										boxShadow: `0 20px 60px rgba(0,0,0,0.45), ${c.glow}`,
+									};
 								}}
 							>
 								<Image
@@ -332,11 +363,14 @@ export default function Header(props: HeaderProps) {
 								/>
 								{/* Glow overlay */}
 								<Box
-									sx={{
-										position: "absolute",
-										inset: 0,
-										background: `linear-gradient(180deg, transparent 60%, rgba(0,180,216,0.08) 100%)`,
-										pointerEvents: "none",
+									sx={(theme) => {
+										const c = landingChrome(theme);
+										return {
+											position: "absolute",
+											inset: 0,
+											background: `linear-gradient(180deg, transparent 60%, ${alpha(c.accent, 0.1)} 100%)`,
+											pointerEvents: "none",
+										};
 									}}
 								/>
 							</Box>

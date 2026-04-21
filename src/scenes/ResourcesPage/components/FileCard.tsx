@@ -3,6 +3,7 @@ import usePopoverState from "@/hooks/usePopoverState";
 import useRole from "@/hooks/useRole";
 import { ICONS_FORMAT_FILE } from "@/libs/constant";
 import {
+	alpha,
 	Stack,
 	Typography,
 	Menu,
@@ -42,29 +43,37 @@ export default function FileCard({
 		<Stack
 			direction='row'
 			alignItems='center'
-			sx={{
+			sx={(theme) => ({
 				borderRadius: 1,
 				padding: 1.5,
 				cursor: "pointer",
 				width: "100%",
-				backgroundColor: "#F0F4F9",
+				color: theme.palette.text.primary,
+				backgroundColor:
+					theme.palette.mode === "dark"
+						? alpha(theme.palette.background.paper, 0.9)
+						: alpha(theme.palette.primary.main, 0.04),
 				flex: 1,
 				top: 0,
-				transition: "top 0.3s ease-in-out, box-shadow 0.3s ease",
+				transition: "top 0.3s ease-in-out, box-shadow 0.3s ease, background-color 0.2s ease",
 				position: "relative",
 				height: "100%",
+				border: `1px solid ${theme.palette.border.secondary}`,
 				"& .absolute-button": {
 					display: "none",
 				},
 
 				"&:hover": {
-					backgroundColor: "#DCE6F1",
+					backgroundColor:
+						theme.palette.mode === "dark"
+							? theme.palette.background.paper
+							: alpha(theme.palette.primary.main, 0.08),
 					boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.08)",
 					...(!isAdmin && {
 						top: "-6px",
 					}),
 				},
-			}}
+			})}
 			gap={1}
 		>
 			<WarperComponent
@@ -82,7 +91,7 @@ export default function FileCard({
 			>
 				<Typography
 					variant='h6'
-					sx={{
+					sx={(theme) => ({
 						maxWidth: "80%",
 						display: "-webkit-box",
 						WebkitLineClamp: 2,
@@ -92,7 +101,8 @@ export default function FileCard({
 						cursor: "pointer",
 						minHeight: "3.6rem",
 						lineHeight: "1.8rem",
-					}}
+						color: theme.palette.text.primary,
+					})}
 				>
 					{file.name}
 				</Typography>
@@ -101,12 +111,13 @@ export default function FileCard({
 					justifyContent='center'
 					alignItems='center'
 					p={3}
-					sx={{
+					sx={(theme) => ({
 						borderRadius: 1,
-						backgroundColor: "#FFFFFF",
+						backgroundColor: theme.palette.background.paper,
 						mt: 2,
 						position: "relative",
-					}}
+						border: `1px solid ${theme.palette.border.secondary}`,
+					})}
 				>
 					{isFormatKnown ? (
 						<Image
@@ -141,7 +152,7 @@ export default function FileCard({
 						>
 							<LockIcon
 								sx={{
-									color: "white",
+									color: "common.white",
 								}}
 							/>
 						</Box>

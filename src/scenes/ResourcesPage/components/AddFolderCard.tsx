@@ -1,5 +1,5 @@
 import React from "react";
-import { Stack, Typography } from "@mui/material";
+import { alpha, Stack, Typography } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 export default function AddFolderCard({ onClick }: { onClick: () => void }) {
@@ -7,24 +7,25 @@ export default function AddFolderCard({ onClick }: { onClick: () => void }) {
 		<Stack
 			direction='row'
 			alignItems='center'
-			sx={{
-				border: "1px dashed #D0D5DD",
+			sx={(theme) => ({
+				border: `1px dashed ${theme.palette.border.main}`,
 				borderRadius: "10px",
 				padding: 1.5,
 				cursor: "pointer",
 				width: "100%",
+				color: theme.palette.text.primary,
 				backgroundColor: "transparent",
 				transition: "all 0.2s ease",
 				"&:hover": {
-					borderColor: "#0088DD",
-					backgroundColor: "rgba(0, 136, 221, 0.04)",
+					borderColor: theme.palette.primary.main,
+					backgroundColor: alpha(theme.palette.primary.main, 0.06),
 				},
-			}}
+			})}
 			gap={1}
 			onClick={onClick}
 		>
 			<Stack direction='row' gap={1} alignItems='center'>
-				<AddCircleOutlineIcon />
+				<AddCircleOutlineIcon color='primary' />
 				<Typography variant='h6'>إضافة مجلد جديد</Typography>
 			</Stack>
 		</Stack>

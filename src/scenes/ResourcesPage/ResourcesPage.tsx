@@ -263,7 +263,7 @@ export default function ResourcesPage({
 				<Typography
 					variant='h4'
 					textAlign={"center"}
-					sx={{ fontWeight: 700, pt: 1 }}
+					sx={{ fontWeight: 700, pt: 1, color: "text.primary" }}
 				>
 					مرحباً بك في {className}
 				</Typography>

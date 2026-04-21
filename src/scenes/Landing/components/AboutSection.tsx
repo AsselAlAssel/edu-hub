@@ -2,10 +2,11 @@
 import AutoStoriesOutlinedIcon from "@mui/icons-material/AutoStoriesOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
-import { Box, Stack, Typography } from "@mui/material";
+import { alpha, Box, Stack, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
+import { useMemo } from "react";
+import { landingChrome } from "../landingChrome";
 import {
-	DARK,
 	SectionContainer,
 	SectionLabel,
 	SectionStack,
@@ -21,50 +22,56 @@ import {
 	fadeSlideLeft,
 } from "./MotionComponents";
 
-const features = [
-	{
-		icon: AutoStoriesOutlinedIcon,
-		title: "محتوى شامل",
-		description: "دروس مرتبة ومنظمة تغطي جميع المواضيع المطلوبة",
-		color: DARK.accent,
-	},
-	{
-		icon: GroupsOutlinedIcon,
-		title: "دعم مستمر",
-		description: "تواصل مباشر مع الأستاذ للإجابة على أسئلتك",
-		color: DARK.purple,
-	},
-	{
-		icon: VerifiedOutlinedIcon,
-		title: "جودة عالية",
-		description: "فيديوهات عالية الجودة مع شرح مبسط وواضح",
-		color: "#10B981",
-	},
-];
-
 export default function AboutSection(props: {
 	aboutTitle?: string;
 	aboutSubtitle?: string | null;
 	aboutImage?: string | null;
 }) {
 	const { aboutTitle, aboutSubtitle, aboutImage } = props;
+	const theme = useTheme();
+	const features = useMemo(
+		() => [
+			{
+				icon: AutoStoriesOutlinedIcon,
+				title: "محتوى شامل",
+				description: "دروس مرتبة ومنظمة تغطي جميع المواضيع المطلوبة",
+				color: theme.palette.primary.main,
+			},
+			{
+				icon: GroupsOutlinedIcon,
+				title: "دعم مستمر",
+				description: "تواصل مباشر مع الأستاذ للإجابة على أسئلتك",
+				color: theme.palette.secondary.main,
+			},
+			{
+				icon: VerifiedOutlinedIcon,
+				title: "جودة عالية",
+				description: "فيديوهات عالية الجودة مع شرح مبسط وواضح",
+				color: theme.palette.success.main,
+			},
+		],
+		[theme],
+	);
 
 	return (
 		<Box
 			id='about'
-			sx={{
-				backgroundColor: DARK.bg,
-				position: "relative",
-				overflow: "hidden",
-				"&::before": {
-					content: '""',
-					position: "absolute",
-					top: 0,
-					left: 0,
-					right: 0,
-					height: 1,
-					background: `linear-gradient(90deg, transparent 0%, ${DARK.border} 50%, transparent 100%)`,
-				},
+			sx={(t) => {
+				const c = landingChrome(t);
+				return {
+					backgroundColor: c.bg,
+					position: "relative",
+					overflow: "hidden",
+					"&::before": {
+						content: '""',
+						position: "absolute",
+						top: 0,
+						left: 0,
+						right: 0,
+						height: 1,
+						background: `linear-gradient(90deg, transparent 0%, ${c.border} 50%, transparent 100%)`,
+					},
+				};
 			}}
 		>
 			<GlowOrb
@@ -93,14 +100,14 @@ export default function AboutSection(props: {
 						<SectionTitle>{aboutTitle}</SectionTitle>
 						{aboutSubtitle && (
 							<Typography
-								sx={{
+								sx={(t) => ({
 									fontSize: { xs: "1rem", sm: "1.125rem" },
 									lineHeight: 1.75,
-									color: DARK.textSecondary,
+									color: landingChrome(t).textSecondary,
 									maxWidth: 600,
 									mx: "auto",
 									mt: 2,
-								}}
+								})}
 							>
 								{aboutSubtitle}
 							</Typography>
@@ -126,14 +133,17 @@ export default function AboutSection(props: {
 								}}
 							>
 								<Box
-									sx={{
-										position: "relative",
-										borderRadius: "24px",
-										overflow: "hidden",
-										border: `1px solid ${DARK.border}`,
-										boxShadow: `0 20px 60px rgba(0,0,0,0.4), ${DARK.glow}`,
-										maxWidth: 440,
-										width: "100%",
+									sx={(t) => {
+										const c = landingChrome(t);
+										return {
+											position: "relative",
+											borderRadius: "24px",
+											overflow: "hidden",
+											border: `1px solid ${c.border}`,
+											boxShadow: `0 20px 60px rgba(0,0,0,0.4), ${c.glow}`,
+											maxWidth: 440,
+											width: "100%",
+										};
 									}}
 								>
 									<Image
@@ -149,12 +159,12 @@ export default function AboutSection(props: {
 										}}
 									/>
 									<Box
-										sx={{
+										sx={(t) => ({
 											position: "absolute",
 											inset: 0,
-											background: `linear-gradient(180deg, transparent 50%, rgba(0,180,216,0.06) 100%)`,
+											background: `linear-gradient(180deg, transparent 50%, ${alpha(t.palette.primary.main, 0.08)} 100%)`,
 											pointerEvents: "none",
-										}}
+										})}
 									/>
 								</Box>
 							</AnimatedSection>
@@ -180,19 +190,22 @@ export default function AboutSection(props: {
 										<Stack
 											direction='row'
 											spacing={2.5}
-											sx={{
-												p: 3,
-												borderRadius: "18px",
-												backgroundColor: "rgba(10,17,40,0.6)",
-												backdropFilter: "blur(16px)",
-												border: `1px solid ${DARK.border}`,
-												boxShadow: DARK.cardShadow,
-												transition:
-													"border-color 0.4s ease, box-shadow 0.4s ease",
-												"&:hover": {
-													borderColor: DARK.borderHover,
-													boxShadow: DARK.cardShadowHover,
-												},
+											sx={(t) => {
+												const c = landingChrome(t);
+												return {
+													p: 3,
+													borderRadius: "18px",
+													backgroundColor: alpha(t.palette.background.paper, 0.55),
+													backdropFilter: "blur(16px)",
+													border: `1px solid ${c.border}`,
+													boxShadow: c.cardShadow,
+													transition:
+														"border-color 0.4s ease, box-shadow 0.4s ease, background-color 0.35s ease",
+													"&:hover": {
+														borderColor: c.borderHover,
+														boxShadow: c.cardShadowHover,
+													},
+												};
 											}}
 											alignItems='flex-start'
 										>
@@ -215,21 +228,21 @@ export default function AboutSection(props: {
 											</Box>
 											<Box>
 												<Typography
-													sx={{
+													sx={(t) => ({
 														fontWeight: 700,
 														fontSize: "1rem",
-														color: DARK.text,
+														color: t.palette.text.primary,
 														mb: 0.5,
-													}}
+													})}
 												>
 													{feature.title}
 												</Typography>
 												<Typography
-													sx={{
+													sx={(t) => ({
 														fontSize: "0.9375rem",
 														lineHeight: 1.7,
-														color: DARK.textSecondary,
-													}}
+														color: landingChrome(t).textSecondary,
+													})}
 												>
 													{feature.description}
 												</Typography>

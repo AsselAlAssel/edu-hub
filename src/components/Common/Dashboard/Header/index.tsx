@@ -2,6 +2,7 @@
 import PageContainer from "@/components/PageContainer";
 import useMuiMediaQuery from "@/hooks/useMuiMediaQuery";
 import usePopoverState from "@/hooks/usePopoverState";
+import ThemeToggle from "@/components/ThemeToggle/ThemeToggle";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import CloseIcon from "@mui/icons-material/Close";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -10,7 +11,6 @@ import {
 	alpha,
 	Avatar,
 	Box,
-	Button,
 	IconButton,
 	ListItemIcon,
 	ListItemText,
@@ -117,13 +117,18 @@ export default function Header() {
 				top: 0,
 				p: 0,
 				borderBottom: "1px solid",
-				borderColor: isScrolled ? alpha("#D0D5DD", 0.5) : "transparent",
+				borderColor: isScrolled
+					? alpha(theme.palette.border.main, 0.45)
+					: "transparent",
 				backgroundColor: isScrolled
-					? alpha(theme.palette.background.paper, 0.88)
+					? alpha(theme.palette.background.paper, 0.92)
 					: theme.palette.background.paper,
-				backdropFilter: isScrolled ? "blur(16px)" : "none",
-				WebkitBackdropFilter: isScrolled ? "blur(16px)" : "none",
-				transition: "all 0.3s ease",
+				backdropFilter: isScrolled ? "blur(14px)" : "none",
+				WebkitBackdropFilter: isScrolled ? "blur(14px)" : "none",
+				transition: theme.transitions.create(
+					["background-color", "border-color", "box-shadow"],
+					{ duration: 220 },
+				),
 			})}
 		>
 			<PageContainer
@@ -140,13 +145,14 @@ export default function Header() {
 					justifyContent='space-between'
 					alignItems='center'
 					height={APP_BAR_HEIGHT}
+					spacing={2}
 				>
 					<Box
 						sx={{
-							flex: 1,
+							flex: "1 1 0",
 							display: "flex",
 							justifyContent: "flex-start",
-							marginRight: "auto",
+							minWidth: 0,
 						}}
 					>
 						<Link href='/' aria-label='الصفحة الرئيسية'>
@@ -165,8 +171,9 @@ export default function Header() {
 						justifyContent='center'
 						alignItems='center'
 						display={{ xs: "none", md: "flex" }}
+						sx={{ flexShrink: 0 }}
 					>
-						<Stack direction='row' spacing={3} alignItems='center'>
+						<Stack direction='row' spacing={2.75} alignItems='center'>
 							<LinkItem href='/#home'>الرئيسية</LinkItem>
 							<LinkItem href='/classes' isSelected={pathName === "/classes"}>
 								الصفوف
@@ -175,69 +182,70 @@ export default function Header() {
 							<LinkItem href='/#contact'>اتصل بنا</LinkItem>
 						</Stack>
 					</Stack>
-					<Box
-						sx={{
-							marginLeft: "auto",
-							flex: 1,
-							justifyContent: "flex-end",
-							display: { xs: "none", md: "flex" },
-						}}
+					<Stack
+						direction='row'
+						alignItems='center'
+						justifyContent='flex-end'
+						spacing={1}
+						sx={{ flex: "1 1 0", minWidth: 0 }}
 					>
+						<ThemeToggle />
 						{session ? (
-							<Avatar
-								sx={(theme) => ({
-									width: 40,
-									height: 40,
-									border: "2px solid",
-									borderColor: alpha(theme.palette.primary.main, 0.15),
-									backgroundColor: theme.palette.primary.main,
-									fontSize: 18,
-									fontWeight: 700,
-									cursor: "pointer",
-									transition: "all 0.2s ease",
-									"&:hover": {
-										borderColor: theme.palette.primary.main,
-										boxShadow: `0 0 0 4px ${alpha(theme.palette.primary.main, 0.1)}`,
-									},
-								})}
-								onClick={(e) => {
-									if (isTabletOrLess) {
-										setOpenSidebar(true);
-										return;
-									}
-									handleOpen(e);
-								}}
-							>
-								{user?.name?.charAt(0)?.toUpperCase() || "A"}
-							</Avatar>
+							<>
+								<Avatar
+									sx={(theme) => ({
+										display: { xs: "none", md: "flex" },
+										width: 40,
+										height: 40,
+										border: "2px solid",
+										borderColor: alpha(theme.palette.primary.main, 0.12),
+										backgroundColor: theme.palette.primary.main,
+										fontSize: 18,
+										fontWeight: 700,
+										cursor: "pointer",
+										transition: theme.transitions.create(
+											["border-color", "box-shadow", "transform"],
+											{ duration: 180 },
+										),
+										"&:hover": {
+											borderColor: theme.palette.primary.main,
+											boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.12)}`,
+										},
+									})}
+									onClick={(e) => {
+										if (isTabletOrLess) {
+											setOpenSidebar(true);
+											return;
+										}
+										handleOpen(e);
+									}}
+								>
+									{user?.name?.charAt(0)?.toUpperCase() || "A"}
+								</Avatar>
+								<IconButton
+									onClick={() => setOpenSidebar(!openSidebar)}
+									aria-label={openSidebar ? "إغلاق القائمة" : "فتح القائمة"}
+									sx={{
+										display: { xs: "inline-flex", md: "none" },
+										color: "text.primary",
+									}}
+								>
+									{openSidebar ? <CloseIcon /> : <MenuIcon />}
+								</IconButton>
+							</>
 						) : (
-							<Button
-								onClick={() => router.push("/classes")}
-								size='small'
+							<IconButton
+								onClick={() => setOpenSidebar(!openSidebar)}
+								aria-label={openSidebar ? "إغلاق القائمة" : "فتح القائمة"}
 								sx={{
-									height: 42,
-									px: 3,
+									display: { xs: "inline-flex", md: "none" },
+									color: "text.primary",
 								}}
 							>
-								إبدأ الآن
-							</Button>
+								{openSidebar ? <CloseIcon /> : <MenuIcon />}
+							</IconButton>
 						)}
-					</Box>
-					<Box
-						sx={{
-							display: { xs: "flex", md: "none" },
-						}}
-					>
-						<IconButton
-							onClick={() => setOpenSidebar(!openSidebar)}
-							aria-label={openSidebar ? "إغلاق القائمة" : "فتح القائمة"}
-							sx={{
-								color: "text.primary",
-							}}
-						>
-							{openSidebar ? <CloseIcon /> : <MenuIcon />}
-						</IconButton>
-					</Box>
+					</Stack>
 				</Stack>
 			</PageContainer>
 			<Menu
@@ -324,12 +332,12 @@ export default function Header() {
 						router.push("/");
 						signOut();
 					}}
-					sx={{
-						borderTop: "1px solid #EAECF0",
+					sx={(theme) => ({
+						borderTop: `1px solid ${theme.palette.divider}`,
 						borderRadius: "0px",
 						py: 1.75,
 						px: 2,
-					}}
+					})}
 				>
 					<ListItemIcon>
 						<LogoutIcon

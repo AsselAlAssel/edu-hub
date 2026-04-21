@@ -6,6 +6,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import FolderIcon from "@mui/icons-material/Folder";
 import {
+	alpha,
 	Box,
 	ListItem,
 	ListItemIcon,
@@ -36,30 +37,37 @@ export default function FolderCard({
 			direction='row'
 			justifyContent={"space-between"}
 			alignItems={"center"}
-			sx={{
+			sx={(theme) => ({
 				border: isDropTarget
-					? "2px dashed #1976d2"
+					? `2px dashed ${theme.palette.primary.main}`
 					: isDraggingOver
-						? "2px dashed #90CAF9"
-						: "1px solid #D0D5DD",
+						? `2px dashed ${alpha(theme.palette.primary.main, 0.45)}`
+						: `1px solid ${theme.palette.border.main}`,
 				borderRadius: "10px",
 				padding: 1.5,
 				cursor: "pointer",
 				width: "100%",
+				color: theme.palette.text.primary,
 				backgroundColor: isDropTarget
-					? "#E3F2FD"
+					? alpha(theme.palette.primary.main, 0.12)
 					: isDraggingOver
-						? "#F5F9FF"
-						: "#F9FAFB",
+						? alpha(theme.palette.primary.main, 0.06)
+						: theme.palette.mode === "dark"
+							? alpha(theme.palette.background.paper, 0.85)
+							: theme.palette.background.default,
 				transition: "all 0.2s ease",
 				transform: isDropTarget ? "scale(1.02)" : "none",
 				boxShadow: "0px 1px 2px rgba(16, 24, 40, 0.05)",
 				"&:hover": {
-					backgroundColor: isDropTarget ? "#E3F2FD" : "#F0F4F8",
-					borderColor: isDropTarget ? "#1976d2" : "#98A2B3",
+					backgroundColor: isDropTarget
+						? alpha(theme.palette.primary.main, 0.14)
+						: theme.palette.action.hover,
+					borderColor: isDropTarget
+						? theme.palette.primary.main
+						: theme.palette.text.disabled,
 					boxShadow: "0px 2px 6px rgba(16, 24, 40, 0.08)",
 				},
-			}}
+			})}
 			gap={1}
 		>
 			<Link
@@ -74,14 +82,14 @@ export default function FolderCard({
 				<CustomTooltip title={folder.name}>
 					<Stack direction='row' gap={1} alignItems='center'>
 						<FolderIcon
-							sx={{
-								color: isDropTarget ? "#1976d2" : undefined,
+							sx={(theme) => ({
+								color: isDropTarget ? theme.palette.primary.main : "text.secondary",
 								flexShrink: 0,
-							}}
+							})}
 						/>
 						<Typography
 							variant='h6'
-							sx={{
+							sx={(theme) => ({
 								flex: 1,
 								maxWidth: isAdmin ? "80%" : "100%",
 								overflow: "hidden",
@@ -90,8 +98,10 @@ export default function FolderCard({
 								WebkitLineClamp: 2,
 								WebkitBoxOrient: "vertical",
 								lineHeight: "1.8rem",
-								color: isDropTarget ? "#1976d2" : undefined,
-							}}
+								color: isDropTarget
+									? theme.palette.primary.main
+									: theme.palette.text.primary,
+							})}
 						>
 							{isDropTarget ? `نقل إلى: ${folder.name}` : folder.name}
 						</Typography>
