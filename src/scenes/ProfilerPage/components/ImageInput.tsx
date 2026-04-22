@@ -2,13 +2,14 @@ import { getSignedURL } from "@/actions/upload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import {
+	alpha,
 	Box,
 	CircularProgress,
 	IconButton,
 	InputLabel,
 	Typography,
 } from "@mui/material";
-import axios from "axios";
+import { putFileToPresignedUrl } from "@/services/upload.service";
 import Image from "next/image";
 import React from "react";
 import { useDropzone } from "react-dropzone";
@@ -33,11 +34,7 @@ export default function ImageInput(props: ImageInputProps) {
 		}
 
 		const url = signedUrl.success.url;
-		const response = await axios.put(url, file, {
-			headers: {
-				"Content-Type": file.type,
-			},
-		});
+		const response = await putFileToPresignedUrl(url, file);
 
 		if (response.status !== 200) {
 			return null;
@@ -69,24 +66,32 @@ export default function ImageInput(props: ImageInputProps) {
 	});
 	return (
 		<Box>
-			{inputLabel && <InputLabel>{inputLabel}</InputLabel>}
+			{inputLabel && (
+				<InputLabel sx={{ color: "text.secondary", mb: 0.5 }}>
+					{inputLabel}
+				</InputLabel>
+			)}
 
 			<Box
 				{...getRootProps()}
-				sx={{
+				sx={(theme) => ({
 					display: "flex",
 					flexDirection: "column",
 					alignItems: "center",
 					justifyContent: "center",
 					p: 3,
 					border: "1px dashed",
-					borderColor: "grey.300",
+					borderColor: theme.palette.divider,
 					borderRadius: 1,
 					cursor: "pointer",
 					height: 200,
 					position: "relative",
 					overflow: "hidden",
-				}}
+					backgroundColor:
+						theme.palette.mode === "dark"
+							? "rgba(255,255,255,0.03)"
+							: alpha(theme.palette.primary.main, 0.04),
+				})}
 				onClick={() => {
 					openDropzone();
 				}}
@@ -105,21 +110,21 @@ export default function ImageInput(props: ImageInputProps) {
 						}}
 					/>
 				) : (
-					<Typography variant='body1' mb={2} color='textSecondary'>
+					<Typography variant='body1' mb={2} color='text.secondary'>
 						{loading ? "تحميل..." : "اسحب الملف هنا أو انقر لتحميله"}
 					</Typography>
 				)}
 				{imageSrc && (
 					<>
 						<IconButton
-							sx={{
+							sx={(theme) => ({
 								position: "absolute",
 								top: 10,
 								left: 10,
 								zIndex: 2,
 								bgcolor: "primary.main",
-								color: "white",
-							}}
+								color: theme.palette.primary.contrastText,
+							})}
 							onClick={() => {
 								openDropzone();
 							}}
@@ -127,23 +132,23 @@ export default function ImageInput(props: ImageInputProps) {
 							{loading ? (
 								<CircularProgress
 									size={20}
-									sx={{
-										color: "text.primary",
-									}}
+									sx={(theme) => ({
+										color: theme.palette.primary.contrastText,
+									})}
 								/>
 							) : (
 								<EditIcon />
 							)}
 						</IconButton>
 						<IconButton
-							sx={{
+							sx={(theme) => ({
 								position: "absolute",
 								top: 10,
 								right: 10,
 								zIndex: 2,
 								bgcolor: "error.main",
-								color: "white",
-							}}
+								color: theme.palette.error.contrastText,
+							})}
 							onClick={() => {
 								onChangeImage("");
 							}}

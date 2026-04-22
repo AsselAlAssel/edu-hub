@@ -1,18 +1,19 @@
 "use client";
 
-import { Box, Stack, Typography } from "@mui/material";
+import { alpha, Box, Stack, Typography, useTheme } from "@mui/material";
 import { LandingPage } from "@prisma/client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import AutoStoriesOutlinedIcon from "@mui/icons-material/AutoStoriesOutlined";
 import OndemandVideoOutlinedIcon from "@mui/icons-material/OndemandVideoOutlined";
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
+import { APP_BAR_HEIGHT } from "@/constants/appShell";
 import AboutSection from "./components/AboutSection";
 import ContactUs from "./components/ContactUs";
 import Header from "./components/Header";
+import { landingChrome } from "./landingChrome";
 import {
-	DARK,
 	SectionContainer,
 	SectionLabel,
 	SectionStack,
@@ -28,60 +29,73 @@ import {
 	StaggerItem,
 } from "./components/MotionComponents";
 
-const features = [
-	{
-		icon: AutoStoriesOutlinedIcon,
-		title: "محتوى شامل ومنظم",
-		description: "دروس مرتبة تغطي كل المواضيع مع أمثلة عملية وتمارين تفاعلية",
-		gradient: `linear-gradient(135deg, ${DARK.accent}, #38BDF8)`,
-	},
-	{
-		icon: OndemandVideoOutlinedIcon,
-		title: "فيديوهات عالية الجودة",
-		description: "شروحات مصورة بجودة عالية مع رسومات توضيحية لتسهيل الفهم",
-		gradient: `linear-gradient(135deg, ${DARK.purple}, #A78BFA)`,
-	},
-	{
-		icon: SchoolOutlinedIcon,
-		title: "دعم مباشر من الأستاذ",
-		description: "تواصل مستمر للإجابة على أسئلتك وحل مشاكلك الدراسية",
-		gradient: `linear-gradient(135deg, #F59E0B, #FBBF24)`,
-	},
-	{
-		icon: TrendingUpOutlinedIcon,
-		title: "تتبع تقدمك",
-		description: "متابعة مستمرة لأدائك مع تقارير وإحصائيات تساعدك على التحسن",
-		gradient: `linear-gradient(135deg, #10B981, #34D399)`,
-	},
-];
-
 export default function Landing({ data }: { data: LandingPage | null }) {
 	const [videoLoaded, setVideoLoaded] = useState(false);
+	const theme = useTheme();
+	const features = useMemo(
+		() => [
+			{
+				icon: AutoStoriesOutlinedIcon,
+				title: "محتوى شامل ومنظم",
+				description:
+					"دروس مرتبة تغطي كل المواضيع مع أمثلة عملية وتمارين تفاعلية",
+				gradient: `linear-gradient(135deg, ${theme.palette.primary.main}, ${alpha(theme.palette.primary.main, 0.75)})`,
+			},
+			{
+				icon: OndemandVideoOutlinedIcon,
+				title: "فيديوهات عالية الجودة",
+				description: "شروحات مصورة بجودة عالية مع رسومات توضيحية لتسهيل الفهم",
+				gradient: `linear-gradient(135deg, ${theme.palette.secondary.main}, ${alpha(theme.palette.secondary.light, 0.95)})`,
+			},
+			{
+				icon: SchoolOutlinedIcon,
+				title: "دعم مباشر من الأستاذ",
+				description: "تواصل مستمر للإجابة على أسئلتك وحل مشاكلك الدراسية",
+				gradient: "linear-gradient(135deg, #F59E0B, #FBBF24)",
+			},
+			{
+				icon: TrendingUpOutlinedIcon,
+				title: "تتبع تقدمك",
+				description:
+					"متابعة مستمرة لأدائك مع تقارير وإحصائيات تساعدك على التحسن",
+				gradient: "linear-gradient(135deg, #10B981, #34D399)",
+			},
+		],
+		[theme]
+	);
 
 	return (
 		<>
 			<Box
-				id='home'
-				sx={{
+				sx={(t) => ({
 					mt: "calc(-104px + 72px)",
-					backgroundColor: DARK.bg,
-				}}
+					backgroundColor: landingChrome(t).bg,
+				})}
 			>
-				{/* ─── Hero ──────────────────────────────────────────── */}
-				<Header
-					headerTitle={data?.headerTitle}
-					headerSubtitle={data?.headerSubtitle}
-					headerImage={data?.headerImage}
-					isVideoExist={!!data?.landingVideo}
-				/>
+				{/* ─── Hero — `id="home"` هنا فقط حتى scroll spy و #home يقيّدان منطقة البطل وليس كل الصفحة */}
+				<Box
+					id='home'
+					component='section'
+					aria-label='المقدمة'
+					sx={{
+						scrollMarginTop: `calc(${APP_BAR_HEIGHT}px + 32px)`,
+					}}
+				>
+					<Header
+						headerTitle={data?.headerTitle}
+						headerSubtitle={data?.headerSubtitle}
+						headerImage={data?.headerImage}
+						isVideoExist={!!data?.landingVideo}
+					/>
+				</Box>
 
 				{/* ─── Features ──────────────────────────────────────── */}
 				<Box
-					sx={{
-						backgroundColor: DARK.bg,
+					sx={(t) => ({
+						backgroundColor: landingChrome(t).bg,
 						position: "relative",
 						overflow: "hidden",
-					}}
+					})}
 				>
 					<GlowOrb
 						color='rgba(124,58,237,0.12)'
@@ -130,24 +144,30 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 										>
 											<Stack
 												spacing={2.5}
-												sx={{
-													p: 3.5,
-													borderRadius: "20px",
-													backgroundColor: "rgba(10,17,40,0.6)",
-													backdropFilter: "blur(16px)",
-													border: `1px solid ${DARK.border}`,
-													boxShadow: DARK.cardShadow,
-													height: "100%",
-													transition:
-														"border-color 0.4s ease, box-shadow 0.4s ease",
-													"&:hover": {
-														borderColor: DARK.borderHover,
-														boxShadow: DARK.cardShadowHover,
-													},
+												sx={(t) => {
+													const c = landingChrome(t);
+													return {
+														p: 3.5,
+														borderRadius: "20px",
+														backgroundColor: alpha(
+															t.palette.background.paper,
+															0.55
+														),
+														backdropFilter: "blur(16px)",
+														border: `1px solid ${c.border}`,
+														boxShadow: c.cardShadow,
+														height: "100%",
+														transition:
+															"border-color 0.4s ease, box-shadow 0.4s ease, background-color 0.35s ease",
+														"&:hover": {
+															borderColor: c.borderHover,
+															boxShadow: c.cardShadowHover,
+														},
+													};
 												}}
 											>
 												<Box
-													sx={{
+													sx={(t) => ({
 														width: 52,
 														height: 52,
 														borderRadius: "14px",
@@ -155,26 +175,34 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 														display: "flex",
 														alignItems: "center",
 														justifyContent: "center",
-														boxShadow: `0 4px 16px rgba(0,0,0,0.3)`,
-													}}
+														boxShadow:
+															t.palette.mode === "dark"
+																? "0 3px 12px rgba(0,0,0,0.16)"
+																: "0 2px 6px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)",
+													})}
 												>
-													<feature.icon sx={{ color: "#fff", fontSize: 26 }} />
+													<feature.icon
+														sx={(t) => ({
+															color: t.palette.primary.contrastText,
+															fontSize: 26,
+														})}
+													/>
 												</Box>
 												<Typography
-													sx={{
+													sx={(t) => ({
 														fontWeight: 700,
 														fontSize: "1.0625rem",
-														color: DARK.text,
-													}}
+														color: t.palette.text.primary,
+													})}
 												>
 													{feature.title}
 												</Typography>
 												<Typography
-													sx={{
+													sx={(t) => ({
 														fontSize: "0.9375rem",
 														lineHeight: 1.7,
-														color: DARK.textSecondary,
-													}}
+														color: landingChrome(t).textSecondary,
+													})}
 												>
 													{feature.description}
 												</Typography>
@@ -191,19 +219,22 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 				{data?.landingVideo && (
 					<Box
 						id='video'
-						sx={{
-							backgroundColor: DARK.surface,
-							position: "relative",
-							overflow: "hidden",
-							"&::before": {
-								content: '""',
-								position: "absolute",
-								top: 0,
-								left: 0,
-								right: 0,
-								height: 1,
-								background: `linear-gradient(90deg, transparent 0%, ${DARK.border} 50%, transparent 100%)`,
-							},
+						sx={(t) => {
+							const c = landingChrome(t);
+							return {
+								backgroundColor: c.surface,
+								position: "relative",
+								overflow: "hidden",
+								"&::before": {
+									content: '""',
+									position: "absolute",
+									top: 0,
+									left: 0,
+									right: 0,
+									height: 1,
+									background: `linear-gradient(90deg, transparent 0%, ${c.border} 50%, transparent 100%)`,
+								},
+							};
 						}}
 					>
 						<GlowOrb
@@ -229,20 +260,29 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 								<MotionBox
 									whileHover={{ scale: 1.01 }}
 									transition={{ type: "spring", stiffness: 300, damping: 25 }}
-									sx={{
-										position: "relative",
-										maxWidth: 920,
-										mx: "auto",
-										borderRadius: "24px",
-										overflow: "hidden",
-										border: `1px solid ${DARK.border}`,
-										boxShadow: `0 24px 80px rgba(0,0,0,0.5), ${DARK.glow}`,
-										aspectRatio: "16 / 9",
-										"&:hover": {
-											boxShadow: `0 32px 100px rgba(0,0,0,0.6), ${DARK.glowStrong}`,
-											borderColor: DARK.borderHover,
-										},
-										transition: "box-shadow 0.4s ease, border-color 0.4s ease",
+									sx={(t) => {
+										const c = landingChrome(t);
+										const isDark = t.palette.mode === "dark";
+										return {
+											position: "relative",
+											maxWidth: 920,
+											mx: "auto",
+											borderRadius: "24px",
+											overflow: "hidden",
+											border: `1px solid ${c.border}`,
+											boxShadow: isDark
+												? `0 14px 44px rgba(0,0,0,0.28), ${c.glow}`
+												: `0 6px 20px rgba(15,23,42,0.06), 0 2px 8px rgba(15,23,42,0.04), ${c.glow}`,
+											aspectRatio: "16 / 9",
+											"&:hover": {
+												boxShadow: isDark
+													? `0 18px 52px rgba(0,0,0,0.34), ${c.glowStrong}`
+													: `0 8px 24px rgba(15,23,42,0.08), 0 3px 10px rgba(15,23,42,0.05), ${c.glowStrong}`,
+												borderColor: c.borderHover,
+											},
+											transition:
+												"box-shadow 0.4s ease, border-color 0.4s ease",
+										};
 									}}
 								>
 									{videoLoaded ? (
@@ -265,7 +305,7 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 									) : (
 										<Box
 											onClick={() => setVideoLoaded(true)}
-											sx={{
+											sx={(t) => ({
 												position: "absolute",
 												inset: 0,
 												cursor: "pointer",
@@ -277,13 +317,16 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 												backgroundPosition: "center",
 												"&:hover .play-btn": {
 													transform: "scale(1.1)",
-													boxShadow: "0 0 40px rgba(0,180,216,0.4)",
+													boxShadow:
+														t.palette.mode === "dark"
+															? "0 0 28px rgba(0,180,216,0.22)"
+															: "0 0 16px rgba(2,132,199,0.12)",
 												},
-											}}
+											})}
 										>
 											<Box
 												className='play-btn'
-												sx={{
+												sx={(t) => ({
 													width: 72,
 													height: 72,
 													borderRadius: "50%",
@@ -293,8 +336,11 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 													alignItems: "center",
 													justifyContent: "center",
 													transition: "all 0.3s ease",
-													boxShadow: "0 0 24px rgba(0,0,0,0.4)",
-												}}
+													boxShadow:
+														t.palette.mode === "dark"
+															? "0 0 18px rgba(0,0,0,0.22)"
+															: "0 0 12px rgba(0,0,0,0.12)",
+												})}
 											>
 												<Box
 													sx={{

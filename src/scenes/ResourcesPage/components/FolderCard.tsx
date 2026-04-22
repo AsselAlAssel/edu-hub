@@ -1,20 +1,12 @@
 import ActionsIconButton from "@/components/ActionsIconButton";
 import CustomTooltip from "@/components/CustomTooltip";
-import usePopoverState from "@/hooks/usePopoverState";
 import useRole from "@/hooks/useRole";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 import FolderIcon from "@mui/icons-material/Folder";
-import {
-	Box,
-	ListItem,
-	ListItemIcon,
-	Menu,
-	Stack,
-	Typography,
-} from "@mui/material";
+import { alpha, Box, Stack, Typography } from "@mui/material";
 import { Folder } from "@prisma/client";
 import Link from "next/link";
+import ResourceCardActionsMenu from "./ResourceCardActionsMenu";
+import { useFolderCard } from "./useFolderCard";
 
 export default function FolderCard({
 	folder,
@@ -29,37 +21,44 @@ export default function FolderCard({
 	isDropTarget?: boolean;
 	isDraggingOver?: boolean;
 }) {
-	const [open, anchorEl, handleOpen, handleClose] = usePopoverState();
+	const [open, anchorEl, handleOpen, handleClose] = useFolderCard();
 	const { isAdmin } = useRole();
 	return (
 		<Stack
 			direction='row'
 			justifyContent={"space-between"}
 			alignItems={"center"}
-			sx={{
+			sx={(theme) => ({
 				border: isDropTarget
-					? "2px dashed #1976d2"
+					? `2px dashed ${theme.palette.primary.main}`
 					: isDraggingOver
-						? "2px dashed #90CAF9"
-						: "1px solid #D0D5DD",
+						? `2px dashed ${alpha(theme.palette.primary.main, 0.45)}`
+						: `1px solid ${theme.palette.border.main}`,
 				borderRadius: "10px",
 				padding: 1.5,
 				cursor: "pointer",
 				width: "100%",
+				color: theme.palette.text.primary,
 				backgroundColor: isDropTarget
-					? "#E3F2FD"
+					? alpha(theme.palette.primary.main, 0.12)
 					: isDraggingOver
-						? "#F5F9FF"
-						: "#F9FAFB",
+						? alpha(theme.palette.primary.main, 0.06)
+						: theme.palette.mode === "dark"
+							? alpha(theme.palette.background.paper, 0.85)
+							: theme.palette.background.default,
 				transition: "all 0.2s ease",
 				transform: isDropTarget ? "scale(1.02)" : "none",
 				boxShadow: "0px 1px 2px rgba(16, 24, 40, 0.05)",
 				"&:hover": {
-					backgroundColor: isDropTarget ? "#E3F2FD" : "#F0F4F8",
-					borderColor: isDropTarget ? "#1976d2" : "#98A2B3",
+					backgroundColor: isDropTarget
+						? alpha(theme.palette.primary.main, 0.14)
+						: theme.palette.action.hover,
+					borderColor: isDropTarget
+						? theme.palette.primary.main
+						: theme.palette.text.disabled,
 					boxShadow: "0px 2px 6px rgba(16, 24, 40, 0.08)",
 				},
-			}}
+			})}
 			gap={1}
 		>
 			<Link
@@ -74,14 +73,16 @@ export default function FolderCard({
 				<CustomTooltip title={folder.name}>
 					<Stack direction='row' gap={1} alignItems='center'>
 						<FolderIcon
-							sx={{
-								color: isDropTarget ? "#1976d2" : undefined,
+							sx={(theme) => ({
+								color: isDropTarget
+									? theme.palette.primary.main
+									: "text.secondary",
 								flexShrink: 0,
-							}}
+							})}
 						/>
 						<Typography
 							variant='h6'
-							sx={{
+							sx={(theme) => ({
 								flex: 1,
 								maxWidth: isAdmin ? "80%" : "100%",
 								overflow: "hidden",
@@ -90,8 +91,10 @@ export default function FolderCard({
 								WebkitLineClamp: 2,
 								WebkitBoxOrient: "vertical",
 								lineHeight: "1.8rem",
-								color: isDropTarget ? "#1976d2" : undefined,
-							}}
+								color: isDropTarget
+									? theme.palette.primary.main
+									: theme.palette.text.primary,
+							})}
 						>
 							{isDropTarget ? `نقل إلى: ${folder.name}` : folder.name}
 						</Typography>
@@ -111,54 +114,14 @@ export default function FolderCard({
 					/>
 				</Box>
 			)}
-			<Menu
+			<ResourceCardActionsMenu
 				anchorEl={anchorEl}
 				open={open}
 				onClose={handleClose}
-				anchorOrigin={{
-					vertical: "bottom",
-					horizontal: "right",
-				}}
-				transformOrigin={{
-					vertical: "top",
-					horizontal: "right",
-				}}
-			>
-				<ListItem
-					sx={{
-						cursor: "pointer",
-					}}
-					onClick={(e) => {
-						e.stopPropagation();
-						onEdit();
-						handleClose();
-					}}
-				>
-					<ListItemIcon>
-						<EditIcon />
-					</ListItemIcon>
-					<Typography>تعديل</Typography>
-				</ListItem>
-				<ListItem
-					sx={{
-						cursor: "pointer",
-					}}
-					onClick={(e) => {
-						e.stopPropagation();
-						onDelete();
-						handleClose();
-					}}
-				>
-					<ListItemIcon>
-						<DeleteIcon
-							sx={{
-								color: "error.main",
-							}}
-						/>
-					</ListItemIcon>
-					<Typography color='error.main'>حذف</Typography>
-				</ListItem>
-			</Menu>
+				editLabel='تعديل'
+				onEdit={onEdit}
+				onDelete={onDelete}
+			/>
 		</Stack>
 	);
 }

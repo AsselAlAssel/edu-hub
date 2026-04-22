@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "@mui/system";
+import { Box } from "@mui/material";
 import Header from "@/scenes/Landing/components/Header";
 import PageContainer from "@/components/PageContainer";
 import AboutSection from "@/scenes/Landing/components/AboutSection";
@@ -8,9 +8,10 @@ import ContactUs from "@/scenes/Landing/components/ContactUs";
 export default function PreviewLandingPage({ data }: { data: any }) {
 	return (
 		<Box
-			sx={{
-				backgroundColor: "white",
-			}}
+			sx={(theme) => ({
+				backgroundColor: theme.palette.background.default,
+				color: theme.palette.text.primary,
+			})}
 		>
 			<Header
 				headerTitle={data?.headerTitle}

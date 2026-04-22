@@ -1,6 +1,7 @@
 "use client";
 
 import {
+	alpha,
 	Box,
 	Button,
 	ButtonProps,
@@ -9,6 +10,7 @@ import {
 	TypographyProps,
 	styled,
 } from "@mui/material";
+import type { Theme } from "@mui/material/styles";
 import { shadows, radii } from "../../../theme";
 import { forwardRef, type ReactNode } from "react";
 
@@ -29,20 +31,21 @@ export function SectionWrapper({
 	maxWidth = 1200,
 	noPadding = false,
 }: SectionWrapperProps) {
-	const bgMap = {
-		default: "#FFFFFF",
-		muted: "#F8FAFC",
-		brand: "#F0F7FF",
-	};
+	const bgFor = (theme: Theme) =>
+		background === "default"
+			? theme.palette.background.paper
+			: background === "muted"
+				? theme.palette.background.default
+				: theme.palette.background["brand-section"];
 
 	return (
 		<Box
 			id={id}
 			component='section'
-			sx={{
-				backgroundColor: bgMap[background],
+			sx={(theme) => ({
+				backgroundColor: bgFor(theme),
 				position: "relative",
-			}}
+			})}
 		>
 			<Box
 				sx={{
@@ -83,6 +86,7 @@ export function SectionHeader({
 				textAlign: align,
 				mb: { xs: 5, md: 7 },
 				alignItems: align === "center" ? "center" : "flex-start",
+				color: "text.primary",
 			}}
 		>
 			{label && (
@@ -127,54 +131,57 @@ export function SectionHeader({
 
 // ─── Card Wrapper ───────────────────────────────────────────────────
 
-export const CardWrapper = styled(Box)({
+export const CardWrapper = styled(Box)(({ theme }) => ({
 	borderRadius: radii.lg,
-	border: "1px solid #EAECF0",
-	backgroundColor: "#FFFFFF",
+	border: `1px solid ${theme.palette.border.secondary}`,
+	backgroundColor: theme.palette.background.paper,
 	boxShadow: shadows.card,
 	overflow: "hidden",
 	transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
 	"&:hover": {
 		boxShadow: shadows.cardHover,
-		borderColor: "#D0D5DD",
+		borderColor: theme.palette.border.main,
 		transform: "translateY(-3px)",
 	},
-});
+}));
 
 // ─── Glass Card ─────────────────────────────────────────────────────
 
-export const GlassCard = styled(Box)({
+export const GlassCard = styled(Box)(({ theme }) => ({
 	borderRadius: radii.xl,
-	border: "1px solid #EAECF0",
-	backgroundColor: "#FFFFFF",
+	border: `1px solid ${theme.palette.border.secondary}`,
+	backgroundColor: theme.palette.background.paper,
 	boxShadow: `${shadows.sm}, 0 0 0 1px rgba(0,0,0,0.02)`,
 	padding: 28,
 	transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
 	"&:hover": {
 		boxShadow: shadows.lg,
-		borderColor: "#D0D5DD",
+		borderColor: theme.palette.border.main,
 		transform: "translateY(-2px)",
 	},
-});
+}));
 
 // ─── Custom Buttons ─────────────────────────────────────────────────
 
 export const PrimaryButton = forwardRef<HTMLButtonElement, ButtonProps>(
 	function PrimaryButton(props, ref) {
+		const { sx, ...rest } = props;
 		return (
 			<Button
 				ref={ref}
 				variant='contained'
-				{...props}
-				sx={{
-					borderRadius: `${radii.md}px`,
-					fontWeight: 600,
-					boxShadow: `${shadows.xs}, 0 0 0 1px rgba(0,136,221,0.1)`,
-					"&:hover": {
-						boxShadow: `${shadows.md}, 0 0 0 3px rgba(0,136,221,0.08)`,
-					},
-					...props.sx,
-				}}
+				{...rest}
+				sx={[
+					(theme) => ({
+						borderRadius: `${radii.md}px`,
+						fontWeight: 600,
+						boxShadow: `${shadows.xs}, 0 0 0 1px ${alpha(theme.palette.primary.main, 0.12)}`,
+						"&:hover": {
+							boxShadow: `${shadows.md}, 0 0 0 3px ${alpha(theme.palette.primary.main, 0.1)}`,
+						},
+					}),
+					...(sx ? (Array.isArray(sx) ? sx : [sx]) : []),
+				]}
 			/>
 		);
 	}
@@ -203,11 +210,10 @@ export const SecondaryButton = forwardRef<HTMLButtonElement, ButtonProps>(
 export function SectionSeparator() {
 	return (
 		<Box
-			sx={{
+			sx={(theme) => ({
 				height: 1,
-				background:
-					"linear-gradient(90deg, transparent 0%, #EAECF0 50%, transparent 100%)",
-			}}
+				background: `linear-gradient(90deg, transparent 0%, ${theme.palette.divider} 50%, transparent 100%)`,
+			})}
 		/>
 	);
 }

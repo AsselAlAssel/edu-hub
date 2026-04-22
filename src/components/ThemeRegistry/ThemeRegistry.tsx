@@ -1,13 +1,16 @@
 "use client";
 import createCache from "@emotion/cache";
-import { CacheProvider, ThemeProvider } from "@emotion/react";
+import { CacheProvider } from "@emotion/react";
 import React, { useMemo } from "react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { prefixer } from "stylis";
 import rtlPlugin from "stylis-plugin-rtl";
-import { createEduTheme } from "../../../theme";
+import MuiThemeSync from "./MuiThemeSync";
 
-// This implementation is from emotion-js
-// https://github.com/emotion-js/emotion/issues/2928#issuecomment-1319747902
+/** Persisted key for `next-themes` (localStorage). */
+export const THEME_STORAGE_KEY = "edu-hub-theme";
+
+// Emotion cache + RTL: https://github.com/emotion-js/emotion/issues/2928#issuecomment-1319747902
 export default function ThemeRegistry(props: {
 	direction: "ltr" | "rtl";
 	children: React.ReactNode;
@@ -24,10 +27,16 @@ export default function ThemeRegistry(props: {
 	}, [isRtl]);
 
 	return (
-		<CacheProvider value={cache}>
-			<ThemeProvider theme={createEduTheme(direction)}>
-				{children}
-			</ThemeProvider>
-		</CacheProvider>
+		<NextThemesProvider
+			attribute='class'
+			defaultTheme='dark'
+			enableSystem={false}
+			storageKey={THEME_STORAGE_KEY}
+			disableTransitionOnChange={false}
+		>
+			<CacheProvider value={cache}>
+				<MuiThemeSync direction={direction}>{children}</MuiThemeSync>
+			</CacheProvider>
+		</NextThemesProvider>
 	);
 }

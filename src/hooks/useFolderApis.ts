@@ -1,21 +1,20 @@
-import axios from "axios";
+import {
+	createFolderRequest,
+	deleteFolderRequest,
+	updateFolderRequest,
+	type CreateFolderInput,
+	type DeleteFolderInput,
+	type UpdateFolderInput,
+} from "@/services/folder.service";
 import useSWRMutation from "swr/mutation";
 
 const createFolder = async (
-	key: string,
-	{
-		arg,
-	}: {
-		arg: {
-			name: string;
-			parentFolderId: string;
-			classId: string;
-		};
-	}
+	_key: string,
+	{ arg }: { arg: CreateFolderInput }
 ) => {
-	const response = await axios.post("/api/folder", arg);
-	return response.data;
+	return createFolderRequest(arg);
 };
+
 export const useCreateFolder = () => {
 	const { data, isMutating, trigger } = useSWRMutation(
 		"/api/folder",
@@ -24,22 +23,13 @@ export const useCreateFolder = () => {
 	return { data, isCreatingFolder: isMutating, createFolder: trigger };
 };
 
-// update folder name
 const updateFolderName = async (
-	key: string,
-	{
-		arg,
-	}: {
-		arg: {
-			name: string;
-			parentFolderId: string;
-			classId: string;
-		};
-	}
+	_key: string,
+	{ arg }: { arg: UpdateFolderInput }
 ) => {
-	const response = await axios.put("/api/folder", arg);
-	return response.data;
+	return updateFolderRequest(arg);
 };
+
 export const useUpdateFolderName = () => {
 	const { data, isMutating, trigger } = useSWRMutation(
 		"/api/folder",
@@ -49,17 +39,10 @@ export const useUpdateFolderName = () => {
 };
 
 const deleteFolder = async (
-	key: string,
-	{
-		arg,
-	}: {
-		arg: {
-			folderId: string;
-		};
-	}
+	_key: string,
+	{ arg }: { arg: DeleteFolderInput }
 ) => {
-	const response = await axios.delete("/api/folder", { data: arg });
-	return response.data;
+	return deleteFolderRequest(arg);
 };
 
 export const useDeleteFolder = () => {

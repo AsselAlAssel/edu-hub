@@ -26,8 +26,8 @@ import {
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { reorderItem } from "@/hooks/useReorder";
+import { moveResourceItem } from "@/services/move.service";
 import { mutate } from "swr";
-import axios from "axios";
 
 export default function ResourcesPage({
 	resources,
@@ -182,7 +182,7 @@ export default function ResourcesPage({
 					{ revalidate: false }
 				);
 
-				await axios.post("/api/move", {
+				await moveResourceItem({
 					type: activeType,
 					id: activeId,
 					targetFolderId: overId,
@@ -263,7 +263,7 @@ export default function ResourcesPage({
 				<Typography
 					variant='h4'
 					textAlign={"center"}
-					sx={{ fontWeight: 700, pt: 1 }}
+					sx={{ fontWeight: 700, pt: 1, color: "text.primary" }}
 				>
 					مرحباً بك في {className}
 				</Typography>

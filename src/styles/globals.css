@@ -2,8 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+	--edu-page-bg: #f8fafc;
+	--edu-body-text: #64748b;
+	--edu-focus: #0284c7;
+	--edu-selection-fg: #0e7490;
+	--edu-surface: #ffffff;
+}
+
+.dark {
+	--edu-page-bg: #0c111d;
+	--edu-body-text: #94a3b8;
+	--edu-focus: #38bdf8;
+	--edu-selection-fg: #e2e8f0;
+}
+
 html {
 	scroll-behavior: smooth;
+	color-scheme: light;
+	transition:
+		background-color 0.28s ease,
+		color 0.28s ease;
+}
+
+html.dark {
+	color-scheme: dark;
 }
 
 @layer base {
@@ -16,20 +39,25 @@ html {
 	}
 
 	body {
-		@apply font-IBM relative z-1 text-base font-normal -tracking-[0.16px] text-body;
+		@apply relative z-1 text-base font-normal -tracking-[0.16px];
+		background-color: var(--edu-page-bg);
+		color: var(--edu-body-text);
+		transition:
+			background-color 0.28s ease,
+			color 0.28s ease;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
 	}
 
 	*:focus-visible {
-		outline: 2px solid #0088dd;
+		outline: 2px solid var(--edu-focus);
 		outline-offset: 2px;
 		border-radius: 4px;
 	}
 
 	::selection {
-		background-color: rgba(0, 136, 221, 0.15);
-		color: #005991;
+		background-color: color-mix(in srgb, var(--edu-focus) 18%, transparent);
+		color: var(--edu-selection-fg);
 	}
 }
 
@@ -39,18 +67,25 @@ html {
 	}
 
 	.card-surface {
-		@apply rounded-xl border border-gray-3 bg-white shadow-1;
+		@apply rounded-xl border border-gray-3 shadow-1;
+		background-color: var(--edu-surface, #ffffff);
 		transition:
 			box-shadow 0.25s ease,
 			transform 0.25s ease,
-			border-color 0.25s ease;
+			border-color 0.28s ease,
+			background-color 0.28s ease;
+	}
+
+	.dark .card-surface {
+		--edu-surface: #151c28;
+		@apply border-stroke-dark;
 	}
 
 	.card-surface:hover {
 		box-shadow:
 			0px 4px 12px rgba(16, 24, 40, 0.08),
 			0px 2px 6px rgba(16, 24, 40, 0.04);
-		border-color: #d0d5dd;
+		border-color: var(--edu-focus);
 	}
 
 	.card-surface-interactive {

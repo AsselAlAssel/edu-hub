@@ -1,3 +1,5 @@
+"use client";
+
 import {
 	alpha,
 	Box,
@@ -12,13 +14,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import React from "react";
-import { APP_BAR_HEIGHT } from "./Header";
+import { APP_BAR_HEIGHT } from "@/constants/appShell";
+import type { LandingSectionId } from "@/types/landingNav";
 import { Role } from "@/types/enums";
 
 type SideBarProps = {
 	showSideBar: boolean;
 	onClose: () => void;
 	login: () => void;
+	landingActiveSection?: LandingSectionId;
 };
 
 const LinkItem = ({
@@ -69,7 +73,7 @@ const LinkItem = ({
 };
 
 export default function SideBar(props: SideBarProps) {
-	const { showSideBar, onClose } = props;
+	const { showSideBar, onClose, landingActiveSection } = props;
 	const { data } = useSession();
 	const user = data?.user;
 	const isAdmin = user?.role === Role.ADMIN;
@@ -108,7 +112,7 @@ export default function SideBar(props: SideBarProps) {
 						<LinkItem
 							href='/#home'
 							onClick={onClose}
-							isActive={pathname === "/"}
+							isActive={pathname === "/" && landingActiveSection === "home"}
 						>
 							الرئيسية
 						</LinkItem>
@@ -119,10 +123,18 @@ export default function SideBar(props: SideBarProps) {
 						>
 							الصفوف
 						</LinkItem>
-						<LinkItem href='/#about' onClick={onClose}>
+						<LinkItem
+							href='/#about'
+							onClick={onClose}
+							isActive={pathname === "/" && landingActiveSection === "about"}
+						>
 							عن هذه المنصة
 						</LinkItem>
-						<LinkItem href='/#contact' onClick={onClose}>
+						<LinkItem
+							href='/#contact'
+							onClick={onClose}
+							isActive={pathname === "/" && landingActiveSection === "contact"}
+						>
 							اتصل بنا
 						</LinkItem>
 						{isAdmin ? (

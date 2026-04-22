@@ -1,14 +1,8 @@
 import ThemeRegistry from "@/components/ThemeRegistry/ThemeRegistry";
 import "../styles/globals.css";
-import { IBM_Plex_Sans } from "next/font/google";
+import { appBodyFontClassName } from "../../theme/fonts";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/react";
-
-const font = IBM_Plex_Sans({
-	weight: ["400", "500", "600", "700"],
-	subsets: ["cyrillic"],
-	display: "swap",
-});
 
 export const metadata = {
 	verification: {
@@ -19,17 +13,17 @@ export const metadata = {
 const layout = ({ children }: { children: React.ReactNode }) => {
 	return (
 		<html lang='ar' suppressHydrationWarning={true} dir='rtl'>
-			<ThemeRegistry direction='rtl'>
-				<body
-					className={`${font.className} flex min-h-screen flex-col dark:bg-[#151F34]`}
-				>
+			<body
+				className={`${appBodyFontClassName} edu-theme-body flex min-h-screen flex-col`}
+			>
+				{/* يجب أن تبقى كل الـ scripts داخل <body> — وضعها كأشقاء لـ body تحت <html> يسبب hydration error */}
+				<ThemeRegistry direction='rtl'>
 					{children}
-				</body>
-				<GoogleAnalytics gaId={"G-DQH5D3ML0F"} />
-				<GoogleTagManager gtmId={"GTM-TNVX8SCS"} />
-
-				<Analytics />
-			</ThemeRegistry>
+					<GoogleAnalytics gaId={"G-DQH5D3ML0F"} />
+					<GoogleTagManager gtmId={"GTM-TNVX8SCS"} />
+					<Analytics />
+				</ThemeRegistry>
+			</body>
 		</html>
 	);
 };

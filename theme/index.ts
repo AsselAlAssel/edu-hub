@@ -1,12 +1,7 @@
-"use client";
-import { Direction, createTheme } from "@mui/material";
-import { Tajawal } from "next/font/google";
-
-const font = Tajawal({
-	weight: ["400", "500", "700", "800"],
-	subsets: ["arabic"],
-	display: "swap",
-});
+import { alpha, Direction, createTheme } from "@mui/material";
+import type { Theme } from "@mui/material/styles";
+import { appFontStack } from "./fonts";
+import { type EduColorMode, getEduPalette } from "./palettes";
 
 export const shadows = {
 	xs: "0 1px 2px rgba(16, 24, 40, 0.05)",
@@ -28,94 +23,89 @@ export const radii = {
 	full: 9999,
 } as const;
 
-export const createEduTheme = (direction: Direction) => {
-	const theme = createTheme({
+export const createEduTheme = (
+	direction: Direction,
+	colorMode: EduColorMode = "light"
+) => {
+	const eduTheme = createTheme({
 		direction,
-		palette: {
-			primary: {
-				main: "#0088DD",
-				dark: "#006BB3",
-				contrastText: "#FFFFFF",
-			},
-			success: {
-				main: "#079455",
-			},
-			background: {
-				brand: "#0071B8",
-				["brand-secondary"]: "#99D8FF",
-				["brand-section"]: "#F0F7FF",
-				default: "#FAFBFC",
-				paper: "#FFFFFF",
-			},
-			text: {
-				primary: "#101828",
-				secondary: "#005991",
-				secondaryLight: "#0088DD",
-				tertiary: "#475467",
-				placeholder: "#667085",
-				["brand-tertiary"]: "#0071B8",
-				["brand-secondary"]: "#005991",
-			},
-			border: {
-				main: "#D0D5DD",
-				secondary: "#EAECF0",
-			},
-		},
+		palette: getEduPalette(colorMode),
 		shape: {
 			borderRadius: radii.md,
 		},
 		typography: {
-			fontFamily: font.style.fontFamily,
+			fontFamily: appFontStack,
 			h1: {
-				fontSize: "3rem",
-				fontWeight: 800,
-				lineHeight: 1.15,
-				letterSpacing: "-0.02em",
+				fontSize: "2.5rem",
+				fontWeight: 700,
+				lineHeight: 1.2,
+				letterSpacing: "-0.025em",
 			},
 			h2: {
-				fontSize: "2.25rem",
-				fontWeight: 800,
-				lineHeight: 1.2,
-				letterSpacing: "-0.015em",
-			},
-			h3: {
-				fontSize: "1.75rem",
+				fontSize: "2rem",
 				fontWeight: 700,
 				lineHeight: 1.25,
-				letterSpacing: "-0.01em",
+				letterSpacing: "-0.02em",
+			},
+			h3: {
+				fontSize: "1.5rem",
+				fontWeight: 600,
+				lineHeight: 1.3,
+				letterSpacing: "-0.015em",
 			},
 			h4: {
-				fontSize: "1.5rem",
-				fontWeight: 700,
-				lineHeight: 1.3,
-			},
-			h5: {
 				fontSize: "1.25rem",
 				fontWeight: 600,
-				lineHeight: 1.4,
+				lineHeight: 1.35,
+			},
+			h5: {
+				fontSize: "1.0625rem",
+				fontWeight: 600,
+				lineHeight: 1.45,
 			},
 			h6: {
-				fontSize: "1rem",
+				fontSize: "0.9375rem",
 				fontWeight: 600,
 				lineHeight: 1.5,
+				letterSpacing: "0.01em",
 			},
 			body1: {
 				fontSize: "1rem",
-				lineHeight: 1.65,
+				lineHeight: 1.625,
+				fontWeight: 400,
 			},
 			body2: {
 				fontSize: "0.875rem",
 				lineHeight: 1.6,
+				fontWeight: 400,
+			},
+			caption: {
+				fontSize: "0.75rem",
+				lineHeight: 1.5,
+				fontWeight: 500,
+				letterSpacing: "0.02em",
+			},
+			overline: {
+				fontSize: "0.6875rem",
+				lineHeight: 1.5,
+				fontWeight: 600,
+				letterSpacing: "0.08em",
 			},
 		},
 		components: {
 			MuiCssBaseline: {
 				styleOverrides: {
-					"*:focus-visible": {
-						outline: "2px solid #0088DD",
+					body: ({ theme }: { theme: Theme }) => ({
+						backgroundColor: theme.palette.background.default,
+						color: theme.palette.text.primary,
+						transition:
+							"background-color 0.28s ease, color 0.28s ease, border-color 0.28s ease",
+					}),
+					"*:focus-visible": ({ theme }: { theme: Theme }) => ({
+						outline: `2px solid ${theme.palette.primary.main}`,
 						outlineOffset: "2px",
 						borderRadius: "4px",
-					},
+					}),
 				},
 			},
 			MuiButton: {
@@ -128,7 +118,7 @@ export const createEduTheme = (direction: Direction) => {
 						fontWeight: 600,
 						fontSize: 16,
 						border: "1px solid",
-						borderColor: "#0088DD",
+						borderColor: theme.palette.primary.main,
 						flexShrink: 0,
 						padding: "12px 20px",
 						backgroundColor: theme.palette.primary.main,
@@ -140,7 +130,7 @@ export const createEduTheme = (direction: Direction) => {
 						},
 						"&:hover": {
 							backgroundColor: `${theme.palette.primary.dark} !important`,
-							boxShadow: `${shadows.md}, 0 0 0 3px rgba(0, 136, 221, 0.08)`,
+							boxShadow: `${shadows.md}, 0 0 0 3px ${alpha(theme.palette.primary.main, 0.12)}`,
 							transform: "translateY(-1px)",
 						},
 						"&:active": {
@@ -169,67 +159,67 @@ export const createEduTheme = (direction: Direction) => {
 				variants: [
 					{
 						props: { disabled: true },
-						style: {
-							color: "#98A2B3",
-							borderColor: "#EAECF0 !important",
-							backgroundColor: "#F2F4F7",
+						style: ({ theme }) => ({
+							color: theme.palette.text.disabled,
+							borderColor: `${theme.palette.border.secondary} !important`,
+							backgroundColor: theme.palette.action.hover,
 							transform: "none",
 							boxShadow: "none",
-						},
+						}),
 					},
 					{
 						props: { variant: "text" },
-						style: {
+						style: ({ theme }) => ({
 							border: "none",
 							boxShadow: "none",
 							"&:hover": {
-								backgroundColor: "rgba(0, 136, 221, 0.06)",
+								backgroundColor: alpha(theme.palette.primary.main, 0.08),
 								boxShadow: "none",
 								transform: "none",
 							},
-						},
+						}),
 					},
 					{
 						props: { color: "secondary" },
-						style: {
-							backgroundColor: "#fff",
-							color: "#344054",
-							borderColor: "#D0D5DD",
+						style: ({ theme }) => ({
+							backgroundColor: theme.palette.background.paper,
+							color: theme.palette.secondary.main,
+							borderColor: theme.palette.border.main,
 							"&:hover": {
-								backgroundColor: "#F8FAFC",
-								borderColor: "#98A2B3",
+								backgroundColor: theme.palette.action.hover,
+								borderColor: theme.palette.text.disabled,
 								boxShadow: shadows.sm,
 							},
-						},
+						}),
 					},
 					{
 						props: { variant: "outlined", color: "secondary" },
-						style: {
+						style: ({ theme }) => ({
 							"&:hover": {
-								borderColor: "#0088DD",
+								borderColor: theme.palette.primary.main,
 							},
-						},
+						}),
 					},
 					{
 						props: { variant: "outlined", color: "error" },
-						style: {
-							backgroundColor: "#fff",
-							color: "#B42318",
-							borderColor: "#FDA29B",
+						style: ({ theme }) => ({
+							backgroundColor: theme.palette.background.paper,
+							color: theme.palette.error.dark,
+							borderColor: alpha(theme.palette.error.main, 0.45),
 							"&:hover": {
-								backgroundColor: "#FDE8E4",
+								backgroundColor: alpha(theme.palette.error.main, 0.08),
 								boxShadow: "none",
 							},
-						},
+						}),
 					},
 					{
 						props: { variant: "outlined", color: "primary" },
 						style: ({ theme }) => ({
-							backgroundColor: "#fff",
+							backgroundColor: theme.palette.background.paper,
 							color: theme.palette.text.secondary,
 							borderColor: theme.palette.primary.main,
 							"&:hover": {
-								backgroundColor: "#F0F7FF",
+								backgroundColor: alpha(theme.palette.primary.main, 0.12),
 								boxShadow: "none",
 							},
 						}),
@@ -239,47 +229,48 @@ export const createEduTheme = (direction: Direction) => {
 			MuiTypography: {
 				styleOverrides: {
 					root: ({ theme }) => ({
-						fontFamily: font.style.fontFamily,
+						fontFamily: appFontStack,
 						color: theme.palette.text.primary,
-						letterSpacing: direction === "rtl" ? ".1px" : undefined,
+						letterSpacing: direction === "rtl" ? "0.01em" : undefined,
 					}),
 				},
 			},
 			MuiTextField: {
 				styleOverrides: {
-					root: {
+					root: ({ theme }) => ({
 						borderRadius: radii.md,
 						"& .MuiInputBase-root": {
-							backgroundColor: "white",
+							backgroundColor: theme.palette.background.paper,
 							borderRadius: radii.md,
-							transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+							transition:
+								"border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.35s ease",
 							"& fieldset": {
-								borderColor: "#D0D5DD",
+								borderColor: theme.palette.border.main,
 								transition: "border-color 0.2s ease",
 							},
 							"&:hover fieldset": {
-								borderColor: "#98A2B3",
+								borderColor: theme.palette.text.disabled,
 							},
 							"&.Mui-focused fieldset": {
-								borderColor: "#0088DD",
-								boxShadow: shadows.focus,
+								borderColor: theme.palette.primary.main,
+								boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.12)}`,
 							},
 						},
-					},
+					}),
 				},
 				variants: [
 					{
 						props: { error: true },
-						style: {
+						style: ({ theme }) => ({
 							"& .MuiInputBase-root": {
 								"& fieldset": {
-									borderColor: "#FDA29B !important",
+									borderColor: `${alpha(theme.palette.error.main, 0.55)} !important`,
 								},
 								"&.Mui-focused fieldset": {
-									boxShadow: "0 0 0 3px rgba(253, 162, 155, 0.2)",
+									boxShadow: `0 0 0 3px ${alpha(theme.palette.error.main, 0.2)}`,
 								},
 							},
-						},
+						}),
 					},
 				],
 			},
@@ -309,12 +300,12 @@ export const createEduTheme = (direction: Direction) => {
 			},
 			MuiTableCell: {
 				styleOverrides: {
-					root: {
-						color: "#475467",
+					root: ({ theme }) => ({
+						color: theme.palette.text.tertiary,
 						fontSize: 14,
 						lineHeight: "20px",
 						padding: "15px 24px",
-					},
+					}),
 				},
 				variants: [
 					{
@@ -329,17 +320,19 @@ export const createEduTheme = (direction: Direction) => {
 			},
 			MuiCard: {
 				styleOverrides: {
-					root: {
+					root: ({ theme }) => ({
 						borderRadius: radii.lg,
-						border: "1px solid #EAECF0",
+						border: `1px solid ${theme.palette.border.secondary}`,
 						boxShadow: shadows.card,
-						transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+						backgroundColor: theme.palette.background.paper,
+						transition:
+							"all 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.35s ease, border-color 0.35s ease",
 						"&:hover": {
 							boxShadow: shadows.cardHover,
-							borderColor: "#D0D5DD",
+							borderColor: theme.palette.border.main,
 							transform: "translateY(-2px)",
 						},
-					},
+					}),
 				},
 			},
 			MuiChip: {
@@ -360,63 +353,66 @@ export const createEduTheme = (direction: Direction) => {
 					{
 						props: { color: "primary" },
 						style: ({ theme }) => ({
-							color: theme.palette.text.secondary,
-							borderColor: "#73CAFF",
-							backgroundColor: "#BFE6FF",
+							color:
+								theme.palette.mode === "dark"
+									? theme.palette.primary.contrastText
+									: theme.palette.primary.dark,
+							borderColor: alpha(theme.palette.primary.main, 0.4),
+							backgroundColor: alpha(theme.palette.primary.main, 0.12),
 						}),
 					},
 					{
 						props: { color: "secondary" },
-						style: {
-							color: "#5925DC",
-							borderColor: "#D9D6FE",
-							backgroundColor: "#F4F3FF",
-						},
+						style: ({ theme }) => ({
+							color: theme.palette.text.secondary,
+							borderColor: alpha(theme.palette.secondary.main, 0.5),
+							backgroundColor: alpha(theme.palette.secondary.main, 0.1),
+						}),
 					},
 					{
 						props: { color: "error" },
-						style: {
-							color: "#C11574",
-							backgroundColor: "#FDF2FA",
-							borderColor: "#FCCEEE",
-						},
+						style: ({ theme }) => ({
+							color: theme.palette.error.dark,
+							backgroundColor: alpha(theme.palette.error.main, 0.1),
+							borderColor: alpha(theme.palette.error.main, 0.35),
+						}),
 					},
 					{
 						props: { color: "warning" },
-						style: {
-							color: "#B93815",
-							backgroundColor: "#FEF6EE",
-							borderColor: "#F9DBAF",
-						},
+						style: ({ theme }) => ({
+							color: theme.palette.warning.dark,
+							backgroundColor: alpha(theme.palette.warning.main, 0.12),
+							borderColor: alpha(theme.palette.warning.main, 0.35),
+						}),
 					},
 					{
 						props: { color: "info" },
-						style: {
-							color: "#363F72",
-							borderColor: "#D5D9EB",
-							backgroundColor: "#F8F9FC",
-						},
+						style: ({ theme }) => ({
+							color: theme.palette.info.dark,
+							backgroundColor: alpha(theme.palette.info.main, 0.1),
+							borderColor: alpha(theme.palette.info.main, 0.35),
+						}),
 					},
 					{
 						props: { color: "success" },
-						style: {
-							backgroundColor: "#ECFDF3",
-							color: "#067647",
+						style: ({ theme }) => ({
+							backgroundColor: alpha(theme.palette.success.main, 0.12),
+							color: theme.palette.success.dark,
 							border: "1px solid",
-							borderColor: "#ABEFC6",
+							borderColor: alpha(theme.palette.success.main, 0.4),
 							fontWeight: "500 !important",
 							"& .MuiChip-avatar": {
-								color: "#17B26A",
+								color: theme.palette.success.main,
 							},
-						},
+						}),
 					},
 				],
 			},
 			MuiDivider: {
 				styleOverrides: {
-					root: {
-						backgroundColor: "#EAECF0",
-					},
+					root: ({ theme }) => ({
+						backgroundColor: theme.palette.divider,
+					}),
 				},
 			},
 			MuiLinearProgress: {
@@ -434,13 +430,14 @@ export const createEduTheme = (direction: Direction) => {
 			},
 			MuiMenu: {
 				styleOverrides: {
-					paper: {
+					paper: ({ theme }) => ({
 						padding: "5px",
 						paddingTop: "5px",
-						border: "1px solid #EAECF0",
+						border: `1px solid ${theme.palette.border.secondary}`,
+						backgroundColor: theme.palette.background.paper,
 						borderRadius: `${radii.lg}px !important`,
 						boxShadow: `${shadows.xl} !important`,
-					},
+					}),
 					list: {
 						padding: "0px",
 					},
@@ -457,13 +454,13 @@ export const createEduTheme = (direction: Direction) => {
 			},
 			MuiListItemText: {
 				styleOverrides: {
-					root: {
+					root: ({ theme }) => ({
 						"& .MuiTypography-root": {
-							color: "#344054 !important",
+							color: `${theme.palette.text.primary} !important`,
 							fontWeight: "500 !important",
 							fontSize: "14px !important",
 						},
-					},
+					}),
 				},
 			},
 			MuiListItemIcon: {
@@ -483,21 +480,21 @@ export const createEduTheme = (direction: Direction) => {
 					},
 					{
 						props: { color: "secondary" },
-						style: {
-							color: "#344054",
-						},
+						style: ({ theme }) => ({
+							color: theme.palette.secondary.main,
+						}),
 					},
 					{
 						props: { color: "warning" },
-						style: {
-							color: "#F79009",
-						},
+						style: ({ theme }) => ({
+							color: theme.palette.warning.main,
+						}),
 					},
 					{
 						props: { color: "error" },
-						style: {
-							color: "#D92D20",
-						},
+						style: ({ theme }) => ({
+							color: theme.palette.error.main,
+						}),
 					},
 				],
 			},
@@ -533,15 +530,16 @@ export const createEduTheme = (direction: Direction) => {
 			},
 			MuiTab: {
 				styleOverrides: {
-					root: {
+					root: ({ theme }) => ({
 						textTransform: "none",
 						fontWeight: 600,
 						fontSize: "0.9375rem",
-						transition: "color 0.2s ease",
-					},
+						color: theme.palette.text.tertiary,
+						transition: theme.transitions.create("color", { duration: 180 }),
+					}),
 				},
 			},
 		},
 	});
-	return theme;
+	return eduTheme;
 };

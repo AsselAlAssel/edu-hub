@@ -1,19 +1,8 @@
-import axios from "axios";
+import { reorderItem, type ReorderParams } from "@/services/reorder.service";
 import { mutate } from "swr";
 
-export type ReorderType = "folder" | "file" | "video";
-
-interface ReorderParams {
-	type: ReorderType;
-	id: string;
-	beforeRank?: string | null;
-	afterRank?: string | null;
-}
-
-export async function reorderItem(params: ReorderParams) {
-	const response = await axios.post("/api/reorder", params);
-	return response.data;
-}
+export { reorderItem };
+export type { ReorderParams, ReorderType } from "@/services/reorder.service";
 
 export function useReorder(folderId: string) {
 	const handleReorder = async (params: ReorderParams) => {

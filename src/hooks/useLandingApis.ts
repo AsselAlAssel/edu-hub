@@ -1,28 +1,14 @@
-import axios from "axios";
+import {
+	updateLandingPageRequest,
+	type UpdateLandingPageInput,
+} from "@/services/landing.service";
 import useSWRMutation from "swr/mutation";
 
 const updateLandingPage = async (
 	key: string,
-	{
-		arg,
-	}: {
-		arg: {
-			headerTitle: string;
-			headerSubtitle?: string;
-			headerImage?: string;
-			landingVideo?: string;
-			landingVideoId?: string;
-			aboutTitle: string;
-			aboutSubtitle?: string;
-			aboutImage?: string;
-			whatsAppNumber: string;
-			address: string;
-			email: string;
-		};
-	}
+	{ arg }: { arg: UpdateLandingPageInput }
 ) => {
-	const response = await axios.put(key, arg);
-	return response.data;
+	return updateLandingPageRequest(key, arg);
 };
 
 export const useUpdateLandingPage = () => {

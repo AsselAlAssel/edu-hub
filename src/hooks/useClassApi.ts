@@ -1,22 +1,21 @@
-import { Class } from "@prisma/client";
-import axios from "axios";
+import type { Class } from "@prisma/client";
+import {
+	createClassRequest,
+	deleteClassRequest,
+	fetchAllClasses,
+	updateClassRequest,
+	type CreateClassInput,
+	type DeleteClassInput,
+	type UpdateClassInput,
+} from "@/services/class.service";
 import useSWRMutation from "swr/mutation";
 import useSwr from "swr";
 
 const createClass = async (
-	key: string,
-	{
-		arg,
-	}: {
-		arg: {
-			name: string;
-			description?: string;
-			image?: string;
-		};
-	}
+	_key: string,
+	{ arg }: { arg: CreateClassInput }
 ) => {
-	const response = await axios.post("/api/class", arg);
-	return response.data;
+	return createClassRequest(arg);
 };
 
 export const useCreateClass = () => {
@@ -28,21 +27,12 @@ export const useCreateClass = () => {
 };
 
 const updateClass = async (
-	key: string,
-	{
-		arg,
-	}: {
-		arg: {
-			id: string;
-			name: string;
-			description?: string;
-			image?: string;
-		};
-	}
+	_key: string,
+	{ arg }: { arg: UpdateClassInput }
 ) => {
-	const response = await axios.put("/api/class", arg);
-	return response.data;
+	return updateClassRequest(arg);
 };
+
 export const useUpdateClass = () => {
 	const { data, isMutating, trigger } = useSWRMutation(
 		"/api/class",
@@ -55,18 +45,11 @@ export const useUpdateClass = () => {
 	};
 };
 
-export const deleteClass = async (
-	key: string,
-	{
-		arg,
-	}: {
-		arg: {
-			id: string;
-		};
-	}
+const deleteClass = async (
+	_key: string,
+	{ arg }: { arg: DeleteClassInput }
 ) => {
-	const response = await axios.delete("/api/class", { data: arg });
-	return response.data;
+	return deleteClassRequest(arg);
 };
 
 export const useDeleteClass = () => {
@@ -82,9 +65,9 @@ export const useDeleteClass = () => {
 };
 
 export const getAllClass = async (key: string) => {
-	const response = await axios.get(key);
-	return response.data;
+	return fetchAllClasses(key);
 };
+
 export const useAllClass = (classes: Class[]) => {
 	const { data } = useSwr<Class[]>("/api/class", getAllClass, {
 		fallbackData: classes,

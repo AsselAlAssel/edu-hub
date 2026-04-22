@@ -1,9 +1,1 @@
-{
-	"sitemap": [
-		{
-			"url": "http://localhost:3000/",
-			"lastModified": "2026-04-10T16:27:09.567Z"
-		}
-	],
-	"timestamp": "2026-04-10T16:27:09.567Z"
-}
+{"sitemap":[{"url":"http://localhost:3000/","lastModified":"2026-04-22T08:26:14.960Z"},{"url":"http://localhost:3000//class/69d92a28576188748d8b040e/folder/69d92a3b576188748d8b0410","lastModified":"2026-04-10T16:50:03.115Z"},{"url":"http://localhost:3000//class/69d92a28576188748d8b040e/folder/69d92aac576188748d8b0414","lastModified":"2026-04-10T16:51:56.714Z"}],"timestamp":"2026-04-22T08:26:14.960Z"}
