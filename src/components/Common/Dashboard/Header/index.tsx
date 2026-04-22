@@ -25,9 +25,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { useEffect, useState } from "react";
+import { APP_BAR_HEIGHT } from "@/constants/appShell";
+import { useLandingScrollSpy } from "@/hooks/useLandingScrollSpy";
 import SideBar from "../Sidebar";
 
-export const APP_BAR_HEIGHT = 72;
+export { APP_BAR_HEIGHT };
 
 const selectedAfterStyle = {
 	"&::after": {
@@ -39,6 +41,7 @@ const selectedAfterStyle = {
 		height: 2,
 		borderRadius: 1,
 		backgroundColor: "primary.main",
+		textDecoration: "none",
 	},
 };
 
@@ -93,6 +96,7 @@ export default function Header() {
 	const [open, anchorEl, handleOpen, handleClose] = usePopoverState();
 	const { isTabletOrLess } = useMuiMediaQuery();
 	const pathName = usePathname();
+	const landingActiveSection = useLandingScrollSpy(pathName === "/");
 
 	const [isScrolled, setIsScrolled] = useState(false);
 	useEffect(() => {
@@ -174,12 +178,33 @@ export default function Header() {
 						sx={{ flexShrink: 0 }}
 					>
 						<Stack direction='row' spacing={2.75} alignItems='center'>
-							<LinkItem href='/#home'>الرئيسية</LinkItem>
+							<LinkItem
+								href='/#home'
+								isSelected={
+									pathName === "/" && landingActiveSection === "home"
+								}
+							>
+								الرئيسية
+							</LinkItem>
 							<LinkItem href='/classes' isSelected={pathName === "/classes"}>
 								الصفوف
 							</LinkItem>
-							<LinkItem href='/#about'>عن هذه المنصة</LinkItem>
-							<LinkItem href='/#contact'>اتصل بنا</LinkItem>
+							<LinkItem
+								href='/#about'
+								isSelected={
+									pathName === "/" && landingActiveSection === "about"
+								}
+							>
+								عن هذه المنصة
+							</LinkItem>
+							<LinkItem
+								href='/#contact'
+								isSelected={
+									pathName === "/" && landingActiveSection === "contact"
+								}
+							>
+								اتصل بنا
+							</LinkItem>
 						</Stack>
 					</Stack>
 					<Stack
@@ -355,6 +380,9 @@ export default function Header() {
 				}}
 				showSideBar={openSidebar}
 				onClose={() => setOpenSidebar(false)}
+				landingActiveSection={
+					pathName === "/" ? landingActiveSection : undefined
+				}
 			/>
 		</Box>
 	);

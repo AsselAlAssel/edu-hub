@@ -1,7 +1,7 @@
 "use client";
 import { styled } from "@mui/material";
 import Container from "@mui/material/Container";
-import { APP_BAR_HEIGHT } from "../Common/Dashboard/Header";
+import { APP_BAR_HEIGHT } from "@/constants/appShell";
 
 const PageContainer = styled(Container)(({ theme }) => ({
 	maxWidth: "1216px !important",

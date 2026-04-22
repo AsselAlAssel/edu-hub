@@ -8,6 +8,7 @@ import AutoStoriesOutlinedIcon from "@mui/icons-material/AutoStoriesOutlined";
 import OndemandVideoOutlinedIcon from "@mui/icons-material/OndemandVideoOutlined";
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
+import { APP_BAR_HEIGHT } from "@/constants/appShell";
 import AboutSection from "./components/AboutSection";
 import ContactUs from "./components/ContactUs";
 import Header from "./components/Header";
@@ -64,19 +65,27 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 	return (
 		<>
 			<Box
-				id='home'
 				sx={(t) => ({
 					mt: "calc(-104px + 72px)",
 					backgroundColor: landingChrome(t).bg,
 				})}
 			>
-				{/* ─── Hero ──────────────────────────────────────────── */}
-				<Header
-					headerTitle={data?.headerTitle}
-					headerSubtitle={data?.headerSubtitle}
-					headerImage={data?.headerImage}
-					isVideoExist={!!data?.landingVideo}
-				/>
+				{/* ─── Hero — `id="home"` هنا فقط حتى scroll spy و #home يقيّدان منطقة البطل وليس كل الصفحة */}
+				<Box
+					id='home'
+					component='section'
+					aria-label='المقدمة'
+					sx={{
+						scrollMarginTop: `calc(${APP_BAR_HEIGHT}px + 32px)`,
+					}}
+				>
+					<Header
+						headerTitle={data?.headerTitle}
+						headerSubtitle={data?.headerSubtitle}
+						headerImage={data?.headerImage}
+						isVideoExist={!!data?.landingVideo}
+					/>
+				</Box>
 
 				{/* ─── Features ──────────────────────────────────────── */}
 				<Box

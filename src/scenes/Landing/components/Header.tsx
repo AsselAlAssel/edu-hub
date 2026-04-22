@@ -12,9 +12,8 @@ import {
 	OrbitRing,
 	FloatingParticles,
 } from "./MotionComponents";
+import { APP_BAR_HEIGHT } from "@/constants/appShell";
 import { landingChrome } from "../landingChrome";
-
-const APP_BAR_HEIGHT = 72;
 
 const stagger = {
 	hidden: {},

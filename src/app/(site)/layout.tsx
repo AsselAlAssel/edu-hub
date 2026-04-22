@@ -1,3 +1,4 @@
+import BackToTopFab from "@/components/Common/BackToTopFab";
 import Header from "@/components/Common/Dashboard/Header";
 import Loader from "@/components/Common/PreLoader";
 import FooterWrapper from "@/components/Footer/FooterWrapper";
@@ -36,6 +37,7 @@ export default async function RootLayout({
 						{children}
 					</main>
 					<FooterWrapper />
+					<BackToTopFab />
 				</Providers>
 			</>
 		</>

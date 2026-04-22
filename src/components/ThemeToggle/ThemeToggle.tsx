@@ -2,7 +2,7 @@
 
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
-import { IconButton, Tooltip } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { useTheme as useNextTheme } from "next-themes";
 import { useCallback, useSyncExternalStore } from "react";
 
@@ -10,10 +10,7 @@ const emptySubscribe = () => () => {};
 const getClientSnapshot = () => true;
 const getServerSnapshot = () => false;
 
-/**
- * Single control: toggles light ↔ dark. Preference is stored by `next-themes`
- * (`ThemeRegistry` `storageKey`).
- */
+/** زر واحد يبدّل مباشرة بين الوضع الفاتح والداكن (بدون قائمة). */
 export default function ThemeToggle() {
 	const mounted = useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
 	const { resolvedTheme, setTheme } = useNextTheme();
@@ -24,36 +21,35 @@ export default function ThemeToggle() {
 	}, [isDark, setTheme]);
 
 	return (
-		<Tooltip title={isDark ? "وضع فاتح" : "وضع داكن"} enterDelay={400}>
-			<IconButton
-				size='small'
-				onClick={toggle}
-				aria-label={isDark ? "التبديل إلى الوضع الفاتح" : "التبديل إلى الوضع الداكن"}
-				sx={(t) => ({
-					color: "text.tertiary",
-					border: "1px solid",
-					borderColor: "divider",
-					borderRadius: 2,
-					transition: t.transitions.create(
-						["background-color", "border-color", "color", "transform"],
-						{ duration: t.transitions.duration.shorter },
-					),
-					"&:hover": {
-						backgroundColor: "action.hover",
-						borderColor: "primary.main",
-						color: "primary.main",
-					},
-					"&:active": {
-						transform: "scale(0.94)",
-					},
-				})}
-			>
-				{isDark ? (
-					<LightModeRoundedIcon sx={{ fontSize: 22 }} />
-				) : (
-					<DarkModeRoundedIcon sx={{ fontSize: 22 }} />
-				)}
-			</IconButton>
-		</Tooltip>
+		<IconButton
+			size='small'
+			onClick={toggle}
+			title={isDark ? "وضع فاتح" : "وضع داكن"}
+			aria-label={isDark ? "التبديل إلى الوضع الفاتح" : "التبديل إلى الوضع الداكن"}
+			sx={(t) => ({
+				color: "text.tertiary",
+				border: "1px solid",
+				borderColor: "divider",
+				borderRadius: 2,
+				transition: t.transitions.create(
+					["background-color", "border-color", "color", "transform"],
+					{ duration: t.transitions.duration.shorter },
+				),
+				"&:hover": {
+					backgroundColor: "action.hover",
+					borderColor: "primary.main",
+					color: "primary.main",
+				},
+				"&:active": {
+					transform: "scale(0.94)",
+				},
+			})}
+		>
+			{isDark ? (
+				<LightModeRoundedIcon sx={{ fontSize: 22 }} />
+			) : (
+				<DarkModeRoundedIcon sx={{ fontSize: 22 }} />
+			)}
+		</IconButton>
 	);
 }
