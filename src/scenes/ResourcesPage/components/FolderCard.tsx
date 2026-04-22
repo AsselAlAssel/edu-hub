@@ -4,7 +4,7 @@ import useRole from "@/hooks/useRole";
 import FolderIcon from "@mui/icons-material/Folder";
 import { alpha, Box, Stack, Typography } from "@mui/material";
 import { Folder } from "@prisma/client";
-import Link from "next/link";
+import { useRouter } from "nextjs-toploader/app";
 import ResourceCardActionsMenu from "./ResourceCardActionsMenu";
 import { useFolderCard } from "./useFolderCard";
 
@@ -23,11 +23,28 @@ export default function FolderCard({
 }) {
 	const [open, anchorEl, handleOpen, handleClose] = useFolderCard();
 	const { isAdmin } = useRole();
+	const router = useRouter();
+	const folderHref = `/class/${folder.classId}/folder/${folder.id}`;
+
+	const goToFolder = () => {
+		router.push(folderHref);
+	};
+
 	return (
 		<Stack
 			direction='row'
 			justifyContent={"space-between"}
 			alignItems={"center"}
+			role='link'
+			tabIndex={0}
+			aria-label={folder.name}
+			onClick={goToFolder}
+			onKeyDown={(e) => {
+				if (e.key === "Enter" || e.key === " ") {
+					e.preventDefault();
+					goToFolder();
+				}
+			}}
 			sx={(theme) => ({
 				border: isDropTarget
 					? `2px dashed ${theme.palette.primary.main}`
@@ -61,48 +78,43 @@ export default function FolderCard({
 			})}
 			gap={1}
 		>
-			<Link
-				href={`/class/${folder.classId}/folder/${folder.id}`}
-				style={{
-					flex: 1,
-					maxWidth: "80%",
-					textDecoration: "none",
-					color: "inherit",
-				}}
-			>
-				<CustomTooltip title={folder.name}>
-					<Stack direction='row' gap={1} alignItems='center'>
-						<FolderIcon
-							sx={(theme) => ({
-								color: isDropTarget
-									? theme.palette.primary.main
-									: "text.secondary",
-								flexShrink: 0,
-							})}
-						/>
-						<Typography
-							variant='h6'
-							sx={(theme) => ({
-								flex: 1,
-								maxWidth: isAdmin ? "80%" : "100%",
-								overflow: "hidden",
-								textOverflow: "ellipsis",
-								display: "-webkit-box",
-								WebkitLineClamp: 2,
-								WebkitBoxOrient: "vertical",
-								lineHeight: "1.8rem",
-								color: isDropTarget
-									? theme.palette.primary.main
-									: theme.palette.text.primary,
-							})}
-						>
-							{isDropTarget ? `نقل إلى: ${folder.name}` : folder.name}
-						</Typography>
-					</Stack>
-				</CustomTooltip>
-			</Link>
+			<CustomTooltip title={folder.name}>
+				<Stack
+					direction='row'
+					gap={1}
+					alignItems='center'
+					sx={{ flex: 1, minWidth: 0, color: "inherit" }}
+				>
+					<FolderIcon
+						sx={(theme) => ({
+							color: isDropTarget
+								? theme.palette.primary.main
+								: "text.secondary",
+							flexShrink: 0,
+						})}
+					/>
+					<Typography
+						variant='h6'
+						sx={(theme) => ({
+							flex: 1,
+							minWidth: 0,
+							overflow: "hidden",
+							textOverflow: "ellipsis",
+							display: "-webkit-box",
+							WebkitLineClamp: 2,
+							WebkitBoxOrient: "vertical",
+							lineHeight: "1.8rem",
+							color: isDropTarget
+								? theme.palette.primary.main
+								: theme.palette.text.primary,
+						})}
+					>
+						{isDropTarget ? `نقل إلى: ${folder.name}` : folder.name}
+					</Typography>
+				</Stack>
+			</CustomTooltip>
 			{isAdmin && (
-				<Box>
+				<Box onClick={(e) => e.stopPropagation()}>
 					<ActionsIconButton
 						onClick={(e) => {
 							e.stopPropagation();
