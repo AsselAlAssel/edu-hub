@@ -1,11 +1,24 @@
-import { File, Folder, Video } from "@prisma/client";
-import axios from "axios";
+import type { File, Folder, Video } from "@prisma/client";
+import {
+	deleteFileRequest,
+	deleteVideoRequest,
+	fetchResources,
+	postFile,
+	postVideo,
+	updateFileNameRequest,
+	updateVideoNameRequest,
+	type AddFileInput,
+	type AddVideoInput,
+	type DeleteFileInput,
+	type DeleteVideoInput,
+	type UpdateFileNameInput,
+	type UpdateVideoNameInput,
+} from "@/services/resource.service";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 
 const getResources = async (key: string) => {
-	const response = await axios.get(key);
-	return response.data;
+	return fetchResources(key);
 };
 
 export const useResource = ({
@@ -37,22 +50,8 @@ export const useResource = ({
 	};
 };
 
-const addFile = async (
-	key: string,
-	{
-		arg,
-	}: {
-		arg: {
-			name: string;
-			url: string;
-			folderId: string;
-			classId: string;
-			type: string;
-		};
-	}
-) => {
-	const response = await axios.post(key, arg);
-	return response.data;
+const addFile = async (_key: string, { arg }: { arg: AddFileInput }) => {
+	return postFile(_key, arg);
 };
 
 export const useAddFile = () => {
@@ -67,12 +66,8 @@ export const useAddFile = () => {
 	};
 };
 
-const deleteFile = async (
-	key: string,
-	{ arg }: { arg: { fileId: string } }
-) => {
-	const response = await axios.delete(key, { data: arg });
-	return response.data;
+const deleteFile = async (_key: string, { arg }: { arg: DeleteFileInput }) => {
+	return deleteFileRequest(_key, arg);
 };
 
 export const useDeleteFile = () => {
@@ -88,12 +83,12 @@ export const useDeleteFile = () => {
 };
 
 const updateFileName = async (
-	key: string,
-	{ arg }: { arg: { fileId: string; name: string } }
+	_key: string,
+	{ arg }: { arg: UpdateFileNameInput }
 ) => {
-	const response = await axios.put(key, arg);
-	return response.data;
+	return updateFileNameRequest(_key, arg);
 };
+
 export const useUpdateFileName = () => {
 	const { isMutating: isLoading, trigger: updateFileNameMutation } =
 		useSWRMutation("/api/file", updateFileName);
@@ -104,22 +99,8 @@ export const useUpdateFileName = () => {
 	};
 };
 
-const addVideo = async (
-	key: string,
-	{
-		arg,
-	}: {
-		arg: {
-			name: string;
-			url: string;
-			folderId: string;
-			classId: string;
-			videoId: string;
-		};
-	}
-) => {
-	const response = await axios.post(key, arg);
-	return response.data;
+const addVideo = async (_key: string, { arg }: { arg: AddVideoInput }) => {
+	return postVideo(_key, arg);
 };
 
 export const useAddVideo = () => {
@@ -135,12 +116,12 @@ export const useAddVideo = () => {
 };
 
 const updateVideoName = async (
-	key: string,
-	{ arg }: { arg: { videoId: string; name: string } }
+	_key: string,
+	{ arg }: { arg: UpdateVideoNameInput }
 ) => {
-	const response = await axios.put(key, arg);
-	return response.data;
+	return updateVideoNameRequest(_key, arg);
 };
+
 export const useUpdateVideoName = () => {
 	const { isMutating: isLoading, trigger: updateVideoNameMutation } =
 		useSWRMutation("/api/video", updateVideoName);
@@ -152,11 +133,10 @@ export const useUpdateVideoName = () => {
 };
 
 const deleteVideo = async (
-	key: string,
-	{ arg }: { arg: { videoId: string } }
+	_key: string,
+	{ arg }: { arg: DeleteVideoInput }
 ) => {
-	const response = await axios.delete(key, { data: arg });
-	return response.data;
+	return deleteVideoRequest(_key, arg);
 };
 
 export const useDeleteVideo = () => {

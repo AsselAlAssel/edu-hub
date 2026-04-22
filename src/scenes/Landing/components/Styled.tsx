@@ -82,15 +82,18 @@ export const GlassCard = styled(Box)(({ theme }) => ({
 	border: `1px solid ${alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.22 : 0.14)}`,
 	boxShadow:
 		theme.palette.mode === "dark"
-			? "0 8px 32px rgba(0,0,0,0.45)"
-			: "0 8px 32px rgba(16,24,40,0.08)",
+			? "0 6px 22px rgba(0,0,0,0.28)"
+			: "0 2px 8px rgba(15,23,42,0.04), 0 1px 3px rgba(15,23,42,0.02)",
 	transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
 	"&:hover": {
-		borderColor: alpha(theme.palette.primary.main, theme.palette.mode === "dark" ? 0.42 : 0.32),
+		borderColor: alpha(
+			theme.palette.primary.main,
+			theme.palette.mode === "dark" ? 0.42 : 0.32
+		),
 		boxShadow:
 			theme.palette.mode === "dark"
-				? `0 16px 48px ${alpha(theme.palette.primary.main, 0.14)}, 0 8px 24px rgba(0,0,0,0.35)`
-				: "0 16px 48px rgba(16,24,40,0.1), 0 8px 24px rgba(16,24,40,0.05)",
+				? `0 10px 32px ${alpha(theme.palette.primary.main, 0.09)}, 0 5px 18px rgba(0,0,0,0.22)`
+				: `0 6px 16px ${alpha(theme.palette.primary.main, 0.06)}, 0 2px 8px rgba(15,23,42,0.035)`,
 		transform: "translateY(-4px)",
 	},
 }));
@@ -172,7 +175,10 @@ export const StyledIconButton: FC<IconButtonProps> = styled(IconButton)(
 		justifyContent: "center",
 		alignItems: "center",
 		color: theme.palette.text.tertiary,
-		boxShadow: "0px 1px 2px 0px rgba(0, 0, 0, 0.12)",
+		boxShadow:
+			theme.palette.mode === "dark"
+				? "0px 1px 2px 0px rgba(0, 0, 0, 0.06)"
+				: "0px 1px 2px 0px rgba(15, 23, 42, 0.04)",
 		backgroundColor: theme.palette.background.paper,
 		transition: "all 0.2s ease",
 		"&:hover": {
@@ -183,18 +189,20 @@ export const StyledIconButton: FC<IconButtonProps> = styled(IconButton)(
 			height: 40,
 			width: 40,
 		},
-	}),
+	})
 ) as typeof IconButton;
 
-export const StyledContactUsIconButton = styled(StyledIconButton)(({ theme }) => ({
-	backgroundColor: theme.palette.primary.main,
-	color: theme.palette.primary.contrastText,
-	border: "none",
-	"&:hover": {
-		backgroundColor: theme.palette.primary.dark,
-		opacity: 1,
-	},
-})) as typeof IconButton;
+export const StyledContactUsIconButton = styled(StyledIconButton)(
+	({ theme }) => ({
+		backgroundColor: theme.palette.primary.main,
+		color: theme.palette.primary.contrastText,
+		border: "none",
+		"&:hover": {
+			backgroundColor: theme.palette.primary.dark,
+			opacity: 1,
+		},
+	})
+) as typeof IconButton;
 
 export const StyledContactUsText = styled(Typography)(({ theme }) => ({
 	color: theme.palette.primary.main,

@@ -1,15 +1,9 @@
 import PageContainer from "@/components/PageContainer";
 import { Stack, Typography } from "@mui/material";
 import { LandingPage } from "@prisma/client";
-import { Metadata } from "next";
 import React from "react";
 import UserInformation from "./components/UserInformation";
 import LandingControls from "./components/LandingControls";
-
-export const metadata: Metadata = {
-	title: "Profiler Page",
-	description: "Profiler Page",
-};
 
 export default function ProfilerPage(props: {
 	landingData: LandingPage | null;
@@ -23,6 +17,7 @@ export default function ProfilerPage(props: {
 					mb: 5,
 					mt: 2,
 					letterSpacing: "-0.01em",
+					color: "text.primary",
 				}}
 			>
 				لوحة التحكم

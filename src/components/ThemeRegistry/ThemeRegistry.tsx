@@ -29,7 +29,7 @@ export default function ThemeRegistry(props: {
 	return (
 		<NextThemesProvider
 			attribute='class'
-			defaultTheme='light'
+			defaultTheme='dark'
 			enableSystem={false}
 			storageKey={THEME_STORAGE_KEY}
 			disableTransitionOnChange={false}

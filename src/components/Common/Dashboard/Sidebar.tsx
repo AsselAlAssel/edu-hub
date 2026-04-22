@@ -112,9 +112,7 @@ export default function SideBar(props: SideBarProps) {
 						<LinkItem
 							href='/#home'
 							onClick={onClose}
-							isActive={
-								pathname === "/" && landingActiveSection === "home"
-							}
+							isActive={pathname === "/" && landingActiveSection === "home"}
 						>
 							الرئيسية
 						</LinkItem>
@@ -128,18 +126,14 @@ export default function SideBar(props: SideBarProps) {
 						<LinkItem
 							href='/#about'
 							onClick={onClose}
-							isActive={
-								pathname === "/" && landingActiveSection === "about"
-							}
+							isActive={pathname === "/" && landingActiveSection === "about"}
 						>
 							عن هذه المنصة
 						</LinkItem>
 						<LinkItem
 							href='/#contact'
 							onClick={onClose}
-							isActive={
-								pathname === "/" && landingActiveSection === "contact"
-							}
+							isActive={pathname === "/" && landingActiveSection === "contact"}
 						>
 							اتصل بنا
 						</LinkItem>

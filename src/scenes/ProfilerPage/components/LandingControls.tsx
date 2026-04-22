@@ -8,7 +8,8 @@ import {
 	youtubeRegex,
 } from "@/libs/constant";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Box, Stack, Tab, Tabs, Typography } from "@mui/material";
+import { alpha, Box, Stack, Tab, Tabs, Typography } from "@mui/material";
+import type { Theme } from "@mui/material/styles";
 import { LandingPage } from "@prisma/client";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -49,6 +50,21 @@ enum TabValue {
 	preview = "preview",
 	edit = "edit",
 }
+
+const formSectionSx = (theme: Theme) => ({
+	p: 3,
+	borderRadius: "12px",
+	border: "1px solid",
+	borderColor:
+		theme.palette.mode === "light"
+			? theme.palette.border.secondary
+			: theme.palette.divider,
+	/* فاتح: خلفية مميزة عن البطاقة البيضاء — دارك: طبقة شفافة */
+	backgroundColor:
+		theme.palette.mode === "dark"
+			? alpha(theme.palette.common.white, 0.05)
+			: theme.palette.background["brand-section"],
+});
 
 export default function LandingControls(props: LandingControlsProps) {
 	const { landingData } = props;
@@ -104,26 +120,47 @@ export default function LandingControls(props: LandingControlsProps) {
 		<Stack
 			spacing={3}
 			flex={1}
-			sx={{
-				backgroundColor: "#FFFFFF",
+			sx={(theme) => ({
+				backgroundColor: theme.palette.background.paper,
 				borderRadius: "16px",
-				border: "1px solid #EAECF0",
-				boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
+				border: "1px solid",
+				borderColor:
+					theme.palette.mode === "light"
+						? theme.palette.border.main
+						: theme.palette.divider,
+				boxShadow:
+					theme.palette.mode === "dark"
+						? `0 8px 28px ${alpha("#000", 0.35)}`
+						: `0 1px 2px ${alpha("#0F172A", 0.05)}, 0 8px 24px ${alpha("#0F172A", 0.06)}`,
 				p: { xs: 3, md: 4 },
-			}}
+			})}
 		>
-			<Typography variant='h5' textAlign='center' fontWeight={700}>
+			<Typography
+				variant='h5'
+				textAlign='center'
+				fontWeight={700}
+				sx={(theme) => ({ color: theme.palette.text.primary })}
+			>
 				لوحة التحكم في الصفحة الرئيسية
 			</Typography>
 			<Tabs
 				value={selectedTab}
 				onChange={(e, newValue) => setSelectedTab(newValue)}
-				sx={{
+				textColor='primary'
+				indicatorColor='primary'
+				sx={(theme) => ({
 					alignSelf: "center",
 					"& .MuiTabs-flexContainer": {
 						gap: 1,
 					},
-				}}
+					"& .MuiTab-root": {
+						color: theme.palette.text.secondary,
+						fontWeight: 600,
+					},
+					"& .Mui-selected": {
+						color: theme.palette.primary.main,
+					},
+				})}
 			>
 				<Tab label='معاينة' value={TabValue.preview} />
 				<Tab label='تعديل' value={TabValue.edit} />
@@ -133,16 +170,12 @@ export default function LandingControls(props: LandingControlsProps) {
 			) : (
 				<form>
 					<Stack spacing={5}>
-						<Stack
-							spacing={2.5}
-							sx={{
-								p: 3,
-								borderRadius: "12px",
-								border: "1px solid #EAECF0",
-								backgroundColor: "#FAFBFC",
-							}}
-						>
-							<Typography variant='h6' fontWeight={700}>
+						<Stack spacing={2.5} sx={(theme) => formSectionSx(theme)}>
+							<Typography
+								variant='h6'
+								fontWeight={700}
+								sx={(theme) => ({ color: theme.palette.text.primary })}
+							>
 								القسم العلوي
 							</Typography>
 							<Controller
@@ -183,16 +216,12 @@ export default function LandingControls(props: LandingControlsProps) {
 								/>
 							</Box>
 						</Stack>
-						<Stack
-							spacing={2.5}
-							sx={{
-								p: 3,
-								borderRadius: "12px",
-								border: "1px solid #EAECF0",
-								backgroundColor: "#FAFBFC",
-							}}
-						>
-							<Typography variant='h6' fontWeight={700}>
+						<Stack spacing={2.5} sx={(theme) => formSectionSx(theme)}>
+							<Typography
+								variant='h6'
+								fontWeight={700}
+								sx={(theme) => ({ color: theme.palette.text.primary })}
+							>
 								قسم الفيديو التعريفي
 							</Typography>
 							<Controller
@@ -232,16 +261,12 @@ export default function LandingControls(props: LandingControlsProps) {
 							/>
 						</Stack>
 
-						<Stack
-							spacing={2.5}
-							sx={{
-								p: 3,
-								borderRadius: "12px",
-								border: "1px solid #EAECF0",
-								backgroundColor: "#FAFBFC",
-							}}
-						>
-							<Typography variant='h6' fontWeight={700}>
+						<Stack spacing={2.5} sx={(theme) => formSectionSx(theme)}>
+							<Typography
+								variant='h6'
+								fontWeight={700}
+								sx={(theme) => ({ color: theme.palette.text.primary })}
+							>
 								قسم عن المنصة
 							</Typography>
 							<Controller
@@ -285,16 +310,12 @@ export default function LandingControls(props: LandingControlsProps) {
 								/>
 							</Box>
 						</Stack>
-						<Stack
-							spacing={2.5}
-							sx={{
-								p: 3,
-								borderRadius: "12px",
-								border: "1px solid #EAECF0",
-								backgroundColor: "#FAFBFC",
-							}}
-						>
-							<Typography variant='h6' fontWeight={700}>
+						<Stack spacing={2.5} sx={(theme) => formSectionSx(theme)}>
+							<Typography
+								variant='h6'
+								fontWeight={700}
+								sx={(theme) => ({ color: theme.palette.text.primary })}
+							>
 								بيانات التواصل
 							</Typography>
 							<Controller

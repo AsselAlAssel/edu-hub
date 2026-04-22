@@ -50,7 +50,7 @@ export default function AboutSection(props: {
 				color: theme.palette.success.main,
 			},
 		],
-		[theme],
+		[theme]
 	);
 
 	return (
@@ -135,12 +135,15 @@ export default function AboutSection(props: {
 								<Box
 									sx={(t) => {
 										const c = landingChrome(t);
+										const isDark = t.palette.mode === "dark";
 										return {
 											position: "relative",
 											borderRadius: "24px",
 											overflow: "hidden",
 											border: `1px solid ${c.border}`,
-											boxShadow: `0 20px 60px rgba(0,0,0,0.4), ${c.glow}`,
+											boxShadow: isDark
+												? `0 12px 36px rgba(0,0,0,0.26), ${c.glow}`
+												: `0 5px 18px rgba(15,23,42,0.06), 0 2px 6px rgba(15,23,42,0.04), ${c.glow}`,
 											maxWidth: 440,
 											width: "100%",
 										};
@@ -195,7 +198,10 @@ export default function AboutSection(props: {
 												return {
 													p: 3,
 													borderRadius: "18px",
-													backgroundColor: alpha(t.palette.background.paper, 0.55),
+													backgroundColor: alpha(
+														t.palette.background.paper,
+														0.55
+													),
 													backdropFilter: "blur(16px)",
 													border: `1px solid ${c.border}`,
 													boxShadow: c.cardShadow,

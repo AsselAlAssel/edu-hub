@@ -2,7 +2,7 @@
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
-import { Box, Stack, Typography } from "@mui/material";
+import { alpha, Box, Stack, Typography } from "@mui/material";
 import {
 	AnimatedSection,
 	GlowOrb,
@@ -36,22 +36,29 @@ function ContactCard({
 			<Stack
 				alignItems='center'
 				spacing={2.5}
-				sx={{
-					p: { xs: 3.5, sm: 4 },
-					borderRadius: "20px",
-					backgroundColor: "#FFFFFF",
-					border: "1px solid",
-					borderColor: "#E2E8F0",
-					boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)",
-					transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
-					cursor: href ? "pointer" : "default",
-					textDecoration: "none",
-					color: "inherit",
-					height: "100%",
-					"&:hover": {
-						borderColor: accentColor,
-						boxShadow: `0 12px 40px ${glowColor}, 0 4px 16px rgba(0,0,0,0.06)`,
-					},
+				sx={(theme) => {
+					const isLight = theme.palette.mode === "light";
+					return {
+						p: { xs: 3.5, sm: 4 },
+						borderRadius: "20px",
+						backgroundColor: "#FFFFFF",
+						border: "1px solid",
+						borderColor: "#E2E8F0",
+						boxShadow: isLight
+							? "0 1px 2px rgba(15,23,42,0.03), 0 2px 8px rgba(15,23,42,0.02)"
+							: "0 1px 2px rgba(0,0,0,0.04), 0 3px 10px rgba(0,0,0,0.025)",
+						transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+						cursor: href ? "pointer" : "default",
+						textDecoration: "none",
+						color: "inherit",
+						height: "100%",
+						"&:hover": {
+							borderColor: accentColor,
+							boxShadow: isLight
+								? `0 4px 14px ${alpha(accentColor, 0.06)}, 0 2px 6px rgba(15,23,42,0.03)`
+								: `0 8px 28px ${glowColor}, 0 3px 12px rgba(0,0,0,0.04)`,
+						},
+					};
 				}}
 			>
 				<Box

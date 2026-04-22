@@ -12,7 +12,11 @@ const getServerSnapshot = () => false;
 
 /** زر واحد يبدّل مباشرة بين الوضع الفاتح والداكن (بدون قائمة). */
 export default function ThemeToggle() {
-	const mounted = useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
+	const mounted = useSyncExternalStore(
+		emptySubscribe,
+		getClientSnapshot,
+		getServerSnapshot
+	);
 	const { resolvedTheme, setTheme } = useNextTheme();
 	const isDark = mounted && resolvedTheme === "dark";
 
@@ -25,7 +29,9 @@ export default function ThemeToggle() {
 			size='small'
 			onClick={toggle}
 			title={isDark ? "وضع فاتح" : "وضع داكن"}
-			aria-label={isDark ? "التبديل إلى الوضع الفاتح" : "التبديل إلى الوضع الداكن"}
+			aria-label={
+				isDark ? "التبديل إلى الوضع الفاتح" : "التبديل إلى الوضع الداكن"
+			}
 			sx={(t) => ({
 				color: "text.tertiary",
 				border: "1px solid",
@@ -33,7 +39,7 @@ export default function ThemeToggle() {
 				borderRadius: 2,
 				transition: t.transitions.create(
 					["background-color", "border-color", "color", "transform"],
-					{ duration: t.transitions.duration.shorter },
+					{ duration: t.transitions.duration.shorter }
 				),
 				"&:hover": {
 					backgroundColor: "action.hover",

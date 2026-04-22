@@ -11,7 +11,7 @@ import {
 	IconButton,
 	Typography,
 } from "@mui/material";
-import axios from "axios";
+import { putFileToPresignedUrl } from "@/services/upload.service";
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
@@ -60,11 +60,7 @@ export default function AttachmentsForm({
 		}
 
 		const url = signedUrl.success.url;
-		const response = await axios.put(url, file, {
-			headers: {
-				"Content-Type": file.type,
-			},
-		});
+		const response = await putFileToPresignedUrl(url, file);
 
 		if (response.status !== 200) {
 			return null;

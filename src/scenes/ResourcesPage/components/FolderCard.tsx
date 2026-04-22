@@ -1,21 +1,12 @@
 import ActionsIconButton from "@/components/ActionsIconButton";
 import CustomTooltip from "@/components/CustomTooltip";
-import usePopoverState from "@/hooks/usePopoverState";
 import useRole from "@/hooks/useRole";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 import FolderIcon from "@mui/icons-material/Folder";
-import {
-	alpha,
-	Box,
-	ListItem,
-	ListItemIcon,
-	Menu,
-	Stack,
-	Typography,
-} from "@mui/material";
+import { alpha, Box, Stack, Typography } from "@mui/material";
 import { Folder } from "@prisma/client";
 import Link from "next/link";
+import ResourceCardActionsMenu from "./ResourceCardActionsMenu";
+import { useFolderCard } from "./useFolderCard";
 
 export default function FolderCard({
 	folder,
@@ -30,7 +21,7 @@ export default function FolderCard({
 	isDropTarget?: boolean;
 	isDraggingOver?: boolean;
 }) {
-	const [open, anchorEl, handleOpen, handleClose] = usePopoverState();
+	const [open, anchorEl, handleOpen, handleClose] = useFolderCard();
 	const { isAdmin } = useRole();
 	return (
 		<Stack
@@ -83,7 +74,9 @@ export default function FolderCard({
 					<Stack direction='row' gap={1} alignItems='center'>
 						<FolderIcon
 							sx={(theme) => ({
-								color: isDropTarget ? theme.palette.primary.main : "text.secondary",
+								color: isDropTarget
+									? theme.palette.primary.main
+									: "text.secondary",
 								flexShrink: 0,
 							})}
 						/>
@@ -121,54 +114,14 @@ export default function FolderCard({
 					/>
 				</Box>
 			)}
-			<Menu
+			<ResourceCardActionsMenu
 				anchorEl={anchorEl}
 				open={open}
 				onClose={handleClose}
-				anchorOrigin={{
-					vertical: "bottom",
-					horizontal: "right",
-				}}
-				transformOrigin={{
-					vertical: "top",
-					horizontal: "right",
-				}}
-			>
-				<ListItem
-					sx={{
-						cursor: "pointer",
-					}}
-					onClick={(e) => {
-						e.stopPropagation();
-						onEdit();
-						handleClose();
-					}}
-				>
-					<ListItemIcon>
-						<EditIcon />
-					</ListItemIcon>
-					<Typography>تعديل</Typography>
-				</ListItem>
-				<ListItem
-					sx={{
-						cursor: "pointer",
-					}}
-					onClick={(e) => {
-						e.stopPropagation();
-						onDelete();
-						handleClose();
-					}}
-				>
-					<ListItemIcon>
-						<DeleteIcon
-							sx={{
-								color: "error.main",
-							}}
-						/>
-					</ListItemIcon>
-					<Typography color='error.main'>حذف</Typography>
-				</ListItem>
-			</Menu>
+				editLabel='تعديل'
+				onEdit={onEdit}
+				onDelete={onDelete}
+			/>
 		</Stack>
 	);
 }

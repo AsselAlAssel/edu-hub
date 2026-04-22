@@ -21,13 +21,17 @@ export function landingChrome(theme: Theme) {
 		purple,
 		text: theme.palette.text.primary,
 		textSecondary: theme.palette.text.tertiary,
-		glow: `0 0 60px ${alpha(accent, 0.15)}`,
-		glowStrong: `0 0 80px ${alpha(accent, 0.28)}`,
+		glow: isDark
+			? `0 0 40px ${alpha(accent, 0.1)}`
+			: `0 0 28px ${alpha(accent, 0.045)}`,
+		glowStrong: isDark
+			? `0 0 56px ${alpha(accent, 0.18)}`
+			: `0 0 36px ${alpha(accent, 0.07)}`,
 		cardShadow: isDark
-			? "0 8px 32px rgba(0,0,0,0.45)"
-			: "0 8px 32px rgba(16,24,40,0.08)",
+			? "0 6px 22px rgba(0,0,0,0.28)"
+			: "0 2px 8px rgba(15,23,42,0.04), 0 1px 3px rgba(15,23,42,0.02)",
 		cardShadowHover: isDark
-			? `0 16px 48px ${alpha(accent, 0.14)}, 0 8px 24px rgba(0,0,0,0.35)`
-			: "0 16px 48px rgba(16,24,40,0.1), 0 8px 24px rgba(16,24,40,0.05)",
+			? `0 10px 32px ${alpha(accent, 0.09)}, 0 5px 18px rgba(0,0,0,0.22)`
+			: `0 6px 16px ${alpha(accent, 0.06)}, 0 2px 8px rgba(15,23,42,0.035)`,
 	};
 }

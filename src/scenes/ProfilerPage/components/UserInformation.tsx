@@ -9,17 +9,24 @@ export default function UserInformation() {
 	return (
 		<Stack
 			spacing={3}
-			sx={{
+			sx={(theme) => ({
 				marginTop: 4,
-				bgcolor: "#FFFFFF",
+				bgcolor: theme.palette.background.paper,
 				maxWidth: "260px",
 				width: "100%",
 				borderRadius: "16px",
 				padding: 3,
-				border: "1px solid #EAECF0",
-				boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
+				border: "1px solid",
+				borderColor:
+					theme.palette.mode === "light"
+						? theme.palette.border.main
+						: theme.palette.divider,
+				boxShadow:
+					theme.palette.mode === "dark"
+						? `0 8px 24px ${alpha("#000", 0.35)}`
+						: `0 1px 2px ${alpha("#0F172A", 0.05)}, 0 8px 24px ${alpha("#0F172A", 0.06)}`,
 				height: "fit-content",
-			}}
+			})}
 		>
 			<Avatar
 				sx={(theme) => ({
@@ -36,11 +43,12 @@ export default function UserInformation() {
 			</Avatar>
 			<Box>
 				<Typography
-					sx={{
+					sx={(theme) => ({
 						fontWeight: 700,
 						fontSize: "1.0625rem",
 						mb: 0.5,
-					}}
+						color: theme.palette.text.primary,
+					})}
 				>
 					{user?.name}
 				</Typography>

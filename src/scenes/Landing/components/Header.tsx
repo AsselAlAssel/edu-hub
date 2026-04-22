@@ -66,15 +66,21 @@ export default function Header(props: HeaderProps) {
 				const deep =
 					theme.palette.mode === "dark"
 						? alpha("#020617", 0.96)
-						: alpha(theme.palette.primary.main, 0.05);
+						: alpha(theme.palette.primary.main, 0.06);
+				/* نهاية التدرّج على `c.bg` مثل بقية اللاندنغ — تجنّب قفزة لونية لـ `paper` تظهر كخط أفقي */
+				const midBlend = alpha(
+					c.bg,
+					theme.palette.mode === "dark" ? 0.88 : 0.97
+				);
 				return {
 					position: "relative",
 					minHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
-					maxHeight: 1000,
 					display: "flex",
 					alignItems: "center",
 					overflow: "hidden",
-					background: `linear-gradient(160deg, ${c.bg} 0%, ${deep} 35%, ${alpha(c.surface, 0.98)} 72%, ${c.surface} 100%)`,
+					/* لون أساس + تدرّج ينتهي على نفس `c.bg` (بدون transparent) لتفادي شريط أفقي */
+					backgroundColor: c.bg,
+					backgroundImage: `linear-gradient(160deg, ${c.bg} 0%, ${deep} 36%, ${midBlend} 66%, ${c.bg} 100%)`,
 				};
 			}}
 		>
@@ -109,23 +115,6 @@ export default function Header(props: HeaderProps) {
 				left='-5%'
 				duration={30}
 				color='rgba(124,58,237,0.06)'
-			/>
-
-			{/* Bottom fade */}
-			<Box
-				sx={(theme) => {
-					const c = landingChrome(theme);
-					return {
-						position: "absolute",
-						bottom: 0,
-						left: 0,
-						right: 0,
-						height: 200,
-						background: `linear-gradient(to top, ${c.bg} 0%, transparent 100%)`,
-						pointerEvents: "none",
-						zIndex: 1,
-					};
-				}}
 			/>
 
 			<Box
@@ -178,7 +167,10 @@ export default function Header(props: HeaderProps) {
 												height: 6,
 												borderRadius: "50%",
 												backgroundColor: c.accent,
-												boxShadow: `0 0 8px ${c.accent}`,
+												boxShadow:
+													theme.palette.mode === "dark"
+														? `0 0 6px ${alpha(c.accent, 0.35)}`
+														: `0 0 4px ${alpha(c.accent, 0.18)}`,
 											};
 										}}
 									/>
@@ -274,11 +266,17 @@ export default function Header(props: HeaderProps) {
 												fontSize: "1rem",
 												px: 4,
 												height: 54,
-												boxShadow: `0 4px 20px ${alpha(c.accent, 0.35)}, 0 0 40px ${alpha(c.accent, 0.12)}`,
+												boxShadow:
+													theme.palette.mode === "dark"
+														? `0 3px 14px ${alpha(c.accent, 0.22)}, 0 0 28px ${alpha(c.accent, 0.08)}`
+														: `0 2px 8px ${alpha(c.accent, 0.14)}, 0 0 14px ${alpha(c.accent, 0.05)}`,
 												border: `1px solid ${alpha(c.accent, 0.35)}`,
 												"&:hover": {
 													background: `linear-gradient(135deg, ${alpha(c.accent, 0.95)} 0%, ${c.accent} 100%) !important`,
-													boxShadow: `0 8px 32px ${alpha(c.accent, 0.45)}, 0 0 60px ${alpha(c.accent, 0.18)} !important`,
+													boxShadow:
+														theme.palette.mode === "dark"
+															? `0 6px 22px ${alpha(c.accent, 0.28)}, 0 0 40px ${alpha(c.accent, 0.11)} !important`
+															: `0 4px 12px ${alpha(c.accent, 0.18)}, 0 0 20px ${alpha(c.accent, 0.07)} !important`,
 												},
 											};
 										}}
@@ -306,7 +304,10 @@ export default function Header(props: HeaderProps) {
 												fontSize: "1rem",
 												px: 4,
 												height: 54,
-												backgroundColor: alpha(theme.palette.background.paper, 0.06),
+												backgroundColor: alpha(
+													theme.palette.background.paper,
+													0.06
+												),
 												backdropFilter: "blur(8px)",
 												"&:hover": {
 													borderColor: c.borderHover,
@@ -341,8 +342,15 @@ export default function Header(props: HeaderProps) {
 										width: "100%",
 										borderRadius: "24px",
 										overflow: "hidden",
-										border: `1px solid ${c.border}`,
-										boxShadow: `0 20px 60px rgba(0,0,0,0.45), ${c.glow}`,
+										border: "1px solid",
+										borderColor: alpha(
+											c.border,
+											theme.palette.mode === "dark" ? 0.2 : 0.35
+										),
+										boxShadow:
+											theme.palette.mode === "dark"
+												? `0 12px 36px rgba(0,0,0,0.28), ${c.glow}`
+												: `0 5px 18px rgba(15,23,42,0.07), 0 2px 8px rgba(15,23,42,0.04), ${c.glow}`,
 									};
 								}}
 							>
@@ -367,7 +375,7 @@ export default function Header(props: HeaderProps) {
 										return {
 											position: "absolute",
 											inset: 0,
-											background: `linear-gradient(180deg, transparent 60%, ${alpha(c.accent, 0.1)} 100%)`,
+											background: `linear-gradient(180deg, transparent 0%, transparent 72%, ${alpha(c.accent, 0.08)} 100%)`,
 											pointerEvents: "none",
 										};
 									}}

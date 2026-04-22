@@ -131,7 +131,7 @@ export default function Header() {
 				WebkitBackdropFilter: isScrolled ? "blur(14px)" : "none",
 				transition: theme.transitions.create(
 					["background-color", "border-color", "box-shadow"],
-					{ duration: 220 },
+					{ duration: 220 }
 				),
 			})}
 		>
@@ -180,9 +180,7 @@ export default function Header() {
 						<Stack direction='row' spacing={2.75} alignItems='center'>
 							<LinkItem
 								href='/#home'
-								isSelected={
-									pathName === "/" && landingActiveSection === "home"
-								}
+								isSelected={pathName === "/" && landingActiveSection === "home"}
 							>
 								الرئيسية
 							</LinkItem>
@@ -230,7 +228,7 @@ export default function Header() {
 										cursor: "pointer",
 										transition: theme.transitions.create(
 											["border-color", "box-shadow", "transform"],
-											{ duration: 180 },
+											{ duration: 180 }
 										),
 										"&:hover": {
 											borderColor: theme.palette.primary.main,

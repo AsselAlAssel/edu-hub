@@ -71,13 +71,18 @@ export function useLandingScrollSpy(enabled: boolean): LandingSectionId {
 		const onScroll = () => sync();
 
 		window.addEventListener("scroll", onScroll, { passive: true });
-		document.addEventListener("scroll", onScroll, { passive: true, capture: true });
-		window.visualViewport?.addEventListener("scroll", onScroll, { passive: true });
+		document.addEventListener("scroll", onScroll, {
+			passive: true,
+			capture: true,
+		});
+		window.visualViewport?.addEventListener("scroll", onScroll, {
+			passive: true,
+		});
 		window.addEventListener("resize", onScroll, { passive: true });
 
-		const elements = SECTION_IDS.map((id) => document.getElementById(id)).filter(
-			(n): n is HTMLElement => n instanceof HTMLElement,
-		);
+		const elements = SECTION_IDS.map((id) =>
+			document.getElementById(id)
+		).filter((n): n is HTMLElement => n instanceof HTMLElement);
 
 		const observer = new IntersectionObserver(onScroll, {
 			root: null,

@@ -28,7 +28,7 @@ export default function ClassItem({ classItem }: { classItem: any }) {
 	const { isAdmin } = useRole();
 	const [open, anchorEl, handleOpen, handleClose] = usePopoverState();
 	const [selectedClass, setSelectedClass] = useState<Class | undefined>(
-		undefined,
+		undefined
 	);
 	const [openDialog, setOpenDialog] = useState(false);
 	const [openDeleteDialog, setOpenDeleteDialog] = useState(false);

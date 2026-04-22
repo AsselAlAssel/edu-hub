@@ -37,7 +37,8 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 			{
 				icon: AutoStoriesOutlinedIcon,
 				title: "محتوى شامل ومنظم",
-				description: "دروس مرتبة تغطي كل المواضيع مع أمثلة عملية وتمارين تفاعلية",
+				description:
+					"دروس مرتبة تغطي كل المواضيع مع أمثلة عملية وتمارين تفاعلية",
 				gradient: `linear-gradient(135deg, ${theme.palette.primary.main}, ${alpha(theme.palette.primary.main, 0.75)})`,
 			},
 			{
@@ -55,11 +56,12 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 			{
 				icon: TrendingUpOutlinedIcon,
 				title: "تتبع تقدمك",
-				description: "متابعة مستمرة لأدائك مع تقارير وإحصائيات تساعدك على التحسن",
+				description:
+					"متابعة مستمرة لأدائك مع تقارير وإحصائيات تساعدك على التحسن",
 				gradient: "linear-gradient(135deg, #10B981, #34D399)",
 			},
 		],
-		[theme],
+		[theme]
 	);
 
 	return (
@@ -147,7 +149,10 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 													return {
 														p: 3.5,
 														borderRadius: "20px",
-														backgroundColor: alpha(t.palette.background.paper, 0.55),
+														backgroundColor: alpha(
+															t.palette.background.paper,
+															0.55
+														),
 														backdropFilter: "blur(16px)",
 														border: `1px solid ${c.border}`,
 														boxShadow: c.cardShadow,
@@ -162,7 +167,7 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 												}}
 											>
 												<Box
-													sx={{
+													sx={(t) => ({
 														width: 52,
 														height: 52,
 														borderRadius: "14px",
@@ -170,15 +175,18 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 														display: "flex",
 														alignItems: "center",
 														justifyContent: "center",
-														boxShadow: `0 4px 16px rgba(0,0,0,0.3)`,
-													}}
+														boxShadow:
+															t.palette.mode === "dark"
+																? "0 3px 12px rgba(0,0,0,0.16)"
+																: "0 2px 6px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)",
+													})}
 												>
 													<feature.icon
-													sx={(t) => ({
-														color: t.palette.primary.contrastText,
-														fontSize: 26,
-													})}
-												/>
+														sx={(t) => ({
+															color: t.palette.primary.contrastText,
+															fontSize: 26,
+														})}
+													/>
 												</Box>
 												<Typography
 													sx={(t) => ({
@@ -254,6 +262,7 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 									transition={{ type: "spring", stiffness: 300, damping: 25 }}
 									sx={(t) => {
 										const c = landingChrome(t);
+										const isDark = t.palette.mode === "dark";
 										return {
 											position: "relative",
 											maxWidth: 920,
@@ -261,13 +270,18 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 											borderRadius: "24px",
 											overflow: "hidden",
 											border: `1px solid ${c.border}`,
-											boxShadow: `0 24px 80px rgba(0,0,0,0.5), ${c.glow}`,
+											boxShadow: isDark
+												? `0 14px 44px rgba(0,0,0,0.28), ${c.glow}`
+												: `0 6px 20px rgba(15,23,42,0.06), 0 2px 8px rgba(15,23,42,0.04), ${c.glow}`,
 											aspectRatio: "16 / 9",
 											"&:hover": {
-												boxShadow: `0 32px 100px rgba(0,0,0,0.6), ${c.glowStrong}`,
+												boxShadow: isDark
+													? `0 18px 52px rgba(0,0,0,0.34), ${c.glowStrong}`
+													: `0 8px 24px rgba(15,23,42,0.08), 0 3px 10px rgba(15,23,42,0.05), ${c.glowStrong}`,
 												borderColor: c.borderHover,
 											},
-											transition: "box-shadow 0.4s ease, border-color 0.4s ease",
+											transition:
+												"box-shadow 0.4s ease, border-color 0.4s ease",
 										};
 									}}
 								>
@@ -291,7 +305,7 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 									) : (
 										<Box
 											onClick={() => setVideoLoaded(true)}
-											sx={{
+											sx={(t) => ({
 												position: "absolute",
 												inset: 0,
 												cursor: "pointer",
@@ -303,13 +317,16 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 												backgroundPosition: "center",
 												"&:hover .play-btn": {
 													transform: "scale(1.1)",
-													boxShadow: "0 0 40px rgba(0,180,216,0.4)",
+													boxShadow:
+														t.palette.mode === "dark"
+															? "0 0 28px rgba(0,180,216,0.22)"
+															: "0 0 16px rgba(2,132,199,0.12)",
 												},
-											}}
+											})}
 										>
 											<Box
 												className='play-btn'
-												sx={{
+												sx={(t) => ({
 													width: 72,
 													height: 72,
 													borderRadius: "50%",
@@ -319,8 +336,11 @@ export default function Landing({ data }: { data: LandingPage | null }) {
 													alignItems: "center",
 													justifyContent: "center",
 													transition: "all 0.3s ease",
-													boxShadow: "0 0 24px rgba(0,0,0,0.4)",
-												}}
+													boxShadow:
+														t.palette.mode === "dark"
+															? "0 0 18px rgba(0,0,0,0.22)"
+															: "0 0 12px rgba(0,0,0,0.12)",
+												})}
 											>
 												<Box
 													sx={{

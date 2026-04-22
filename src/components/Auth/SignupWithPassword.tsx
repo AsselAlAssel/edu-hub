@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import FormButton from "@/components/Common/Dashboard/FormButton";
 import InputGroup from "@/components/Common/Dashboard/InputGroup";
 import toast from "react-hot-toast";
-import axios from "axios";
+import { registerUser } from "@/services/user.service";
 import Loader from "../Common/Loader";
 import { useRouter } from "nextjs-toploader/app";
 import { signIn } from "next-auth/react";
@@ -36,7 +36,7 @@ const SignupWithPassword = () => {
 		setLoading(true);
 
 		try {
-			const res = await axios.post("/api/user/register", {
+			const res = await registerUser({
 				name,
 				email,
 				password,

@@ -25,7 +25,7 @@ export const radii = {
 
 export const createEduTheme = (
 	direction: Direction,
-	colorMode: EduColorMode = "light",
+	colorMode: EduColorMode = "light"
 ) => {
 	const eduTheme = createTheme({
 		direction,
@@ -242,7 +242,8 @@ export const createEduTheme = (
 						"& .MuiInputBase-root": {
 							backgroundColor: theme.palette.background.paper,
 							borderRadius: radii.md,
-							transition: "border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.35s ease",
+							transition:
+								"border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.35s ease",
 							"& fieldset": {
 								borderColor: theme.palette.border.main,
 								transition: "border-color 0.2s ease",
