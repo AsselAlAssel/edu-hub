@@ -154,6 +154,7 @@ export default function FileCard({
 					href={file.url ?? "#"}
 					download
 					target='_blank'
+					rel='noreferrer'
 					style={linkShellStyle}
 				>
 					{cardInner}
