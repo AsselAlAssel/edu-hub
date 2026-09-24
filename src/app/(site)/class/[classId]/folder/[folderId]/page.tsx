@@ -25,7 +25,9 @@ export function generateStaticParams(): Params[] {
  * the class (its chain must start at the class root folder). Cached per request
  * so metadata and the page share one lookup.
  */
-const loadFolder = cache(async ({ classId, folderId }: Params) => {
+// Primitive arguments: React `cache` compares by identity, so an object here
+// would never be shared between generateMetadata and the page.
+const loadFolder = cache(async (classId: string, folderId: string) => {
 	if (!isObjectId(classId) || !isObjectId(folderId)) return null;
 	const [classItem, breadcrumb] = await Promise.all([
 		getClass(classId),
@@ -37,12 +39,11 @@ const loadFolder = cache(async ({ classId, folderId }: Params) => {
 	return { classItem, breadcrumb, rootFolderId };
 });
 
-export async function generateMetadata({
-	params,
-}: {
-	params: Params;
-}): Promise<Metadata> {
-	const loaded = await loadFolder(params);
+type Props = { params: Promise<Params> };
+
+export async function generateMetadata(props: Props): Promise<Metadata> {
+	const params = await props.params;
+	const loaded = await loadFolder(params.classId, params.folderId);
 	if (!loaded) return { title: "غير موجود", robots: { index: false } };
 
 	const { classItem, breadcrumb, rootFolderId } = loaded;
@@ -62,8 +63,9 @@ export async function generateMetadata({
 	});
 }
 
-export default async function Page({ params }: { params: Params }) {
-	const loaded = await loadFolder(params);
+export default async function Page(props: Props) {
+	const params = await props.params;
+	const loaded = await loadFolder(params.classId, params.folderId);
 	if (!loaded) notFound();
 
 	const { classItem, breadcrumb, rootFolderId } = loaded;

@@ -6,11 +6,12 @@ export const dynamic = "force-dynamic";
 
 export const GET = async (
 	_req: NextRequest,
-	{ params }: { params: { folderId: string } }
+	props: { params: Promise<{ folderId: string }> }
 ) => {
-	if (!isObjectId(params.folderId)) return jsonError("Invalid folder id", 400);
+	const { folderId } = await props.params;
+	if (!isObjectId(folderId)) return jsonError("Invalid folder id", 400);
 
-	const breadcrumbs = await getBreadcrumbs(params.folderId);
+	const breadcrumbs = await getBreadcrumbs(folderId);
 	if (!breadcrumbs) return jsonError("Folder not found", 404);
 
 	return NextResponse.json({ breadcrumbs });

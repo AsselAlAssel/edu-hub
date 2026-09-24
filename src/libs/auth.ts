@@ -8,7 +8,6 @@ import {
 	getServerSession,
 } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { v4 as uuid } from "uuid";
 
 declare module "next-auth" {
 	interface Session extends DefaultSession {
@@ -83,7 +82,7 @@ export const authOptions: NextAuthOptions = {
 			}
 
 			if (user) {
-				const sessionId = uuid();
+				const sessionId = crypto.randomUUID();
 				token.sessionId = sessionId;
 				await prisma.session.create({
 					data: {

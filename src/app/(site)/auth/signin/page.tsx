@@ -14,11 +14,14 @@ export const metadata = pageMetadata({
 export default async function SigninPage({
 	searchParams,
 }: {
-	searchParams: { signOut?: string };
+	searchParams: Promise<{ signOut?: string }>;
 }) {
 	// Already signed in → skip the form (unless this is the forced sign-out flow).
-	const session = await getServerSession(authOptions);
-	if (session && !searchParams.signOut) redirect("/classes");
+	const [session, { signOut }] = await Promise.all([
+		getServerSession(authOptions),
+		searchParams,
+	]);
+	if (session && !signOut) redirect("/classes");
 
 	return <Signin />;
 }
