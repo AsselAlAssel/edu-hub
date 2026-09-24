@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
+	// Lets verification builds run beside a live `next dev` (which owns .next).
+	distDir: process.env.NEXT_DIST_DIR || ".next",
 	images: {
 		remotePatterns: [
 			{

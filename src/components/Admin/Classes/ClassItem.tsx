@@ -1,238 +1,197 @@
 "use client";
-import ActionsIconButton from "@/components/ActionsIconButton";
 import ClassDialog from "@/components/ClassDialog";
-import DeleteDialog from "@/components/DeleteDialog";
+import ActionsMenu from "@/components/ui/ActionsMenu";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import Surface from "@/components/ui/Surface";
 import { useDeleteClass } from "@/hooks/useClassApi";
-import usePopoverState from "@/hooks/usePopoverState";
 import useRole from "@/hooks/useRole";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import {
-	alpha,
-	Box,
-	ListItem,
-	ListItemIcon,
-	ListItemText,
-	Menu,
-	Stack,
-	Typography,
-} from "@mui/material";
-import { Class } from "@prisma/client";
-import type { Theme } from "@mui/material/styles";
+import { getErrorMessage } from "@/libs/errors";
+import type { ClassWithMeta } from "@/libs/class";
+import { Box, Stack, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { mutate } from "swr";
 
-export default function ClassItem({ classItem }: { classItem: any }) {
-	const { isAdmin } = useRole();
-	const [open, anchorEl, handleOpen, handleClose] = usePopoverState();
-	const [selectedClass, setSelectedClass] = useState<Class | undefined>(
-		undefined
-	);
-	const [openDialog, setOpenDialog] = useState(false);
-	const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-	const { deleteClass, isDeleting } = useDeleteClass();
+/** "3 فيديوهات · 5 ملفات" — only when the backend returned real counts. */
+export function resourceSummary(counts?: { videos: number; files: number }) {
+	if (!counts) return null;
+	const parts: string[] = [];
+	if (counts.videos)
+		parts.push(
+			`${counts.videos} ${counts.videos === 1 ? "فيديو" : "فيديوهات"}`
+		);
+	if (counts.files)
+		parts.push(`${counts.files} ${counts.files === 1 ? "ملف" : "ملفات"}`);
+	return parts.length ? parts.join(" · ") : null;
+}
 
-	const handleDeleteClass = async () => {
-		if (selectedClass) {
-			await deleteClass({ id: selectedClass.id });
-			setOpenDeleteDialog(false);
-			mutate("/api/class");
+export default function ClassItem({
+	classItem,
+	priority = false,
+}: {
+	classItem: ClassWithMeta;
+	priority?: boolean;
+}) {
+	const { isAdmin } = useRole();
+	const [editOpen, setEditOpen] = useState(false);
+	const [deleteOpen, setDeleteOpen] = useState(false);
+	const { deleteClass, isDeleting } = useDeleteClass();
+	const rootFolderId = classItem.folders?.[0]?.id;
+	const href = rootFolderId
+		? `/class/${classItem.id}/folder/${rootFolderId}`
+		: undefined;
+	const summary = resourceSummary(classItem._count);
+	const editValues = useMemo(
+		() => ({
+			name: classItem.name,
+			description: classItem.description ?? "",
+			image: classItem.image ?? "",
+		}),
+		[classItem.name, classItem.description, classItem.image]
+	);
+
+	const handleDelete = async () => {
+		try {
+			await deleteClass({ id: classItem.id });
+			await mutate("/api/class");
+			toast.success("تم حذف الصف");
+			setDeleteOpen(false);
+		} catch (error) {
+			toast.error(getErrorMessage(error, "تعذّر حذف الصف"));
 		}
 	};
 
 	return (
 		<>
-			<Box
-				sx={(theme) => ({
-					borderRadius: "16px",
-					border: `1px solid ${theme.palette.border.secondary}`,
-					overflow: "hidden",
-					position: "relative",
+			<Surface
+				component='article'
+				interactive
+				sx={{
 					display: "flex",
-					cursor: "pointer",
-					width: "100%",
-					backgroundColor: theme.palette.background.paper,
-					color: theme.palette.text.primary,
-					transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-					boxShadow: shadowsFromTheme(theme),
-					"&:hover": {
-						boxShadow: shadowsHoverFromTheme(theme),
-						borderColor: theme.palette.border.main,
-						...(!isAdmin && {
-							transform: "translateY(-3px)",
-						}),
-					},
-					"&:focus-within": {
-						borderColor: "primary.main",
-						boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.12)}`,
-					},
-				})}
+					flexDirection: "column",
+					height: "100%",
+					overflow: "hidden",
+				}}
 			>
-				<Link
-					href={`/class/${classItem.id}/folder/${classItem?.folders[0]?.id}`}
-					style={{ width: "100%", textDecoration: "none", color: "inherit" }}
+				<Box
+					sx={(theme) => ({
+						position: "relative",
+						aspectRatio: "16 / 9",
+						backgroundColor: theme.tokens.colors.surfaceSecondary,
+						borderBottom: `1px solid ${theme.tokens.colors.border}`,
+					})}
 				>
-					<Stack direction='column'>
+					{classItem.image ? (
+						<Image
+							src={classItem.image}
+							alt=''
+							fill
+							priority={priority}
+							sizes='(max-width: 600px) 100vw, (max-width: 900px) 50vw, (max-width: 1200px) 33vw, 300px'
+							style={{ objectFit: "cover" }}
+						/>
+					) : (
 						<Box
+							aria-hidden
 							sx={(theme) => ({
-								height: "168px",
-								width: "100%",
-								backgroundColor:
-									theme.palette.mode === "dark"
-										? alpha(theme.palette.primary.main, 0.06)
-										: theme.palette.background.default,
-								display: "flex",
-								justifyContent: "center",
-								alignItems: "center",
-								overflow: "hidden",
-								position: "relative",
+								position: "absolute",
+								inset: 0,
+								display: "grid",
+								placeItems: "center",
+								backgroundImage: `radial-gradient(80% 90% at 100% 0%, ${alpha(theme.tokens.colors.cyan, 0.2)}, transparent 70%), radial-gradient(70% 80% at 0% 100%, ${alpha(theme.tokens.colors.violet, 0.18)}, transparent 70%)`,
 							})}
 						>
-							{classItem.image ? (
-								<Image
-									src={classItem.image}
-									alt='Class Image'
-									width={150}
-									height={150}
-									style={{
-										width: "100%",
-										height: "100%",
-										objectFit: "cover",
-									}}
-								/>
-							) : (
-								<Box
-									sx={(theme) => ({
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-										width: "100%",
-										height: "100%",
-										background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.08)} 0%, ${theme.palette.background.default} 100%)`,
-									})}
-								>
-									<Image
-										src='/images/logo/logo.svg'
-										alt='شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh'
-										width={56}
-										height={56}
-										style={{ opacity: 0.4 }}
-									/>
-								</Box>
-							)}
+							<Image
+								src='/images/logo/logo.svg'
+								alt=''
+								width={56}
+								height={56}
+								style={{ opacity: 0.85 }}
+							/>
 						</Box>
-						<Box sx={{ px: 2.5, py: 2.5 }}>
-							<Typography
-								variant='h6'
-								sx={(theme) => ({
-									overflow: "hidden",
-									textOverflow: "ellipsis",
-									display: "-webkit-box",
-									WebkitLineClamp: 2,
-									WebkitBoxOrient: "vertical",
-									fontWeight: 700,
-									lineHeight: 1.5,
-									color: theme.palette.text.primary,
-								})}
-							>
-								{classItem.name}
-							</Typography>
-						</Box>
-					</Stack>
-				</Link>
+					)}
+				</Box>
 
-				{isAdmin && (
-					<ActionsIconButton
-						sx={{
-							position: "absolute",
-							top: 10,
-							right: 10,
-							zIndex: 1,
-						}}
-						onClick={(e) => {
-							e.stopPropagation();
-							handleOpen(e);
-							setSelectedClass(classItem);
-						}}
+				<Stack
+					direction='row'
+					alignItems='flex-start'
+					gap={1}
+					sx={{ p: 2.25, flex: 1 }}
+				>
+					<Box sx={{ flex: 1, minWidth: 0 }}>
+						<Typography variant='h5' component='h2'>
+							{href ? (
+								<Box
+									component={Link}
+									href={href}
+									sx={{
+										color: "text.primary",
+										textDecoration: "none",
+										// Stretched link: the whole card is clickable, one tab stop.
+										"&::after": {
+											content: '""',
+											position: "absolute",
+											inset: 0,
+											zIndex: 1,
+										},
+										"&:focus-visible": { outline: "none" },
+										"&:focus-visible::after": {
+											outline: (theme) =>
+												`2px solid ${theme.palette.primary.main}`,
+											outlineOffset: -2,
+											borderRadius: (theme) => `${theme.tokens.radii.lg}px`,
+										},
+									}}
+								>
+									{classItem.name}
+								</Box>
+							) : (
+								classItem.name
+							)}
+						</Typography>
+						{summary ? (
+							<Typography
+								variant='body2'
+								sx={{ color: "text.secondary", mt: 0.5 }}
+							>
+								{summary}
+							</Typography>
+						) : null}
+					</Box>
+					{isAdmin ? (
+						<ActionsMenu
+							label={`خيارات الصف: ${classItem.name}`}
+							editLabel='تعديل الصف'
+							deleteLabel='حذف الصف'
+							onEdit={() => setEditOpen(true)}
+							onDelete={() => setDeleteOpen(true)}
+						/>
+					) : null}
+				</Stack>
+			</Surface>
+
+			{isAdmin ? (
+				<>
+					<ClassDialog
+						open={editOpen}
+						handleCloseDialog={() => setEditOpen(false)}
+						selectedClass={editValues}
+						classId={classItem.id}
 					/>
-				)}
-			</Box>
-			<Menu
-				anchorEl={anchorEl}
-				open={open}
-				onClose={handleClose}
-				anchorOrigin={{
-					vertical: "bottom",
-					horizontal: "right",
-				}}
-				transformOrigin={{
-					vertical: "top",
-					horizontal: "right",
-				}}
-			>
-				<ListItem
-					sx={{ cursor: "pointer" }}
-					onClick={(e) => {
-						e.stopPropagation();
-						if (selectedClass) {
-							setOpenDialog(true);
-						}
-						handleClose();
-					}}
-				>
-					<ListItemIcon>
-						<EditIcon />
-					</ListItemIcon>
-					<ListItemText>تعديل</ListItemText>
-				</ListItem>
-				<ListItem
-					sx={{ cursor: "pointer" }}
-					onClick={(e) => {
-						e.stopPropagation();
-						if (selectedClass) {
-							setOpenDeleteDialog(true);
-						}
-						handleClose();
-					}}
-				>
-					<ListItemIcon>
-						<DeleteIcon sx={{ color: "error.main" }} />
-					</ListItemIcon>
-					<Typography color='error.main'>حذف</Typography>
-				</ListItem>
-			</Menu>
-			<ClassDialog
-				open={openDialog}
-				handleCloseDialog={() => setOpenDialog(false)}
-				selectedClass={{
-					name: selectedClass?.name || "",
-					description: selectedClass?.description || "",
-					image: selectedClass?.image || "",
-				}}
-				classId={selectedClass?.id}
-			/>
-			<DeleteDialog
-				deleteDialogOpen={openDeleteDialog}
-				handleDeleteDialogClose={() => setOpenDeleteDialog(false)}
-				title='حذف الصف'
-				description='هل انت متأكد من حذف الصف?'
-				handleDelete={handleDeleteClass}
-				isDeleting={isDeleting}
-			/>
+					<ConfirmDialog
+						open={deleteOpen}
+						title='حذف الصف'
+						description={`سيتم حذف «${classItem.name}» مع جميع مجلداته وملفاته وفيديوهاته. لا يمكن التراجع عن ذلك.`}
+						confirmLabel='حذف الصف'
+						onConfirm={handleDelete}
+						onClose={() => setDeleteOpen(false)}
+						loading={isDeleting}
+					/>
+				</>
+			) : null}
 		</>
 	);
-}
-
-function shadowsFromTheme(theme: Theme) {
-	return theme.palette.mode === "dark"
-		? "0 4px 20px rgba(0,0,0,0.35)"
-		: "0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04)";
-}
-
-function shadowsHoverFromTheme(theme: Theme) {
-	return theme.palette.mode === "dark"
-		? "0 12px 32px rgba(0,0,0,0.45)"
-		: "0 8px 24px rgba(16, 24, 40, 0.08), 0 4px 8px rgba(16, 24, 40, 0.03)";
 }

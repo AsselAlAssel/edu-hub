@@ -1,19 +1,24 @@
-import React from "react";
 import Signin from "@/components/Auth/Signin";
-import { Metadata } from "next";
-import PageContainer from "@/components/PageContainer";
+import { authOptions } from "@/libs/auth";
+import { pageMetadata } from "@/libs/site";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
 	title: "تسجيل الدخول",
-	description: "تسجيل الدخول",
-};
+	description: "تسجيل الدخول إلى منصة محمد صبح للفيزياء.",
+	path: "/auth/signin",
+	noIndex: true,
+});
 
-const SigninPage = () => {
-	return (
-		<PageContainer>
-			<Signin />
-		</PageContainer>
-	);
-};
+export default async function SigninPage({
+	searchParams,
+}: {
+	searchParams: { signOut?: string };
+}) {
+	// Already signed in → skip the form (unless this is the forced sign-out flow).
+	const session = await getServerSession(authOptions);
+	if (session && !searchParams.signOut) redirect("/classes");
 
-export default SigninPage;
+	return <Signin />;
+}

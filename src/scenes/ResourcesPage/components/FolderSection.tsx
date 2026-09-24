@@ -1,108 +1,79 @@
-import { Box, Grid, Typography } from "@mui/material";
-import { Folder } from "@prisma/client";
-import React, { useState } from "react";
-import FolderCard from "./FolderCard";
-import AddFolderCard from "./AddFolderCard";
-import DeleteDialog from "@/components/DeleteDialog";
-import FolderForm from "@/components/FolderForm";
-import { useDeleteFolder } from "@/hooks/useFolderApis";
-import { mutate } from "swr";
-import useRole from "@/hooks/useRole";
+"use client";
 import SortableGrid from "@/components/SortableGrid";
+import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
+import { Box } from "@mui/material";
+import type { Folder } from "@prisma/client";
+import AddResourceCard from "./AddResourceCard";
+import FolderCard from "./FolderCard";
+import ResourceSection from "./ResourceSection";
+
+export const folderGridSx = {
+	display: "grid",
+	gap: 1.5,
+	gridTemplateColumns: {
+		xs: "1fr",
+		sm: "repeat(2, minmax(0, 1fr))",
+		md: "repeat(3, minmax(0, 1fr))",
+		lg: "repeat(4, minmax(0, 1fr))",
+	},
+} as const;
 
 export default function FolderSection({
 	folders,
-	classId,
-	folderId,
+	isAdmin,
 	isDraggingItem,
 	overFolderId,
+	onCreate,
+	onRename,
+	onDelete,
 }: {
 	folders: Folder[];
-	classId: string;
-	folderId: string;
-	isDraggingItem?: boolean;
-	overFolderId?: string | null;
+	isAdmin: boolean;
+	isDraggingItem: boolean;
+	overFolderId: string | null;
+	onCreate: () => void;
+	onRename: (folder: Folder) => void;
+	onDelete: (folder: Folder) => void;
 }) {
-	const [openFolderForm, setOpenFolderForm] = useState(false);
-	const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-	const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null);
-	const { deleteFolder, isDeletingFolder } = useDeleteFolder();
-	const { isAdmin } = useRole();
-	const isEmpty = folders.length === 0;
-	if (isEmpty && !isAdmin) return null;
+	if (!folders.length && !isAdmin) return null;
+
 	return (
-		<Box>
-			<Typography variant='h5' fontWeight={700} mb={2} color='text.primary'>
-				المجلدات
-			</Typography>
+		<ResourceSection
+			id='folders-title'
+			title='المجلدات'
+			count={folders.length}
+			icon={<FolderOutlinedIcon />}
+		>
 			<SortableGrid
 				items={folders}
 				isAdmin={isAdmin}
-				renderItem={(folder) => (
+				gridSx={folderGridSx}
+				label='المجلدات'
+				getHandleLabel={(folder) => `إعادة ترتيب المجلد: ${folder.name}`}
+				renderItem={(folder, handle) => (
 					<FolderCard
 						folder={folder}
-						isDropTarget={!!isDraggingItem && overFolderId === folder.id}
-						isDraggingOver={!!isDraggingItem}
-						onEdit={() => {
-							setSelectedFolder(() => folder);
-							setOpenFolderForm(() => true);
-						}}
-						onDelete={() => {
-							setSelectedFolder(folder);
-							setOpenDeleteDialog(true);
-						}}
+						handle={handle}
+						isAdmin={isAdmin}
+						dropState={
+							!isDraggingItem
+								? "idle"
+								: overFolderId === folder.id
+									? "over"
+									: "available"
+						}
+						onEdit={() => onRename(folder)}
+						onDelete={() => onDelete(folder)}
 					/>
 				)}
 				extraItems={
 					isAdmin ? (
-						<Grid
-							item
-							xs={12}
-							sm={6}
-							md={4}
-							lg={3}
-							sx={{ display: "flex", width: "100%" }}
-						>
-							<AddFolderCard
-								onClick={() => {
-									setOpenFolderForm(true);
-								}}
-							/>
-						</Grid>
-					) : undefined
+						<Box component='li'>
+							<AddResourceCard compact label='مجلد جديد' onClick={onCreate} />
+						</Box>
+					) : null
 				}
 			/>
-			<DeleteDialog
-				deleteDialogOpen={openDeleteDialog}
-				handleDeleteDialogClose={() => {
-					setOpenDeleteDialog(false);
-					setSelectedFolder(null);
-				}}
-				handleDelete={async () => {
-					if (!selectedFolder) return;
-					await deleteFolder({ folderId: selectedFolder?.id || "" });
-					mutate(
-						`/api/resources/${selectedFolder?.parentFolderId || folderId}`
-					);
-					setOpenDeleteDialog(false);
-					setSelectedFolder(null);
-				}}
-				title='حذف المجلد'
-				description='هل تريد بالتأكيد حذف هذا المجلد؟'
-				isDeleting={isDeletingFolder}
-			/>
-			<FolderForm
-				open={openFolderForm}
-				handleClose={() => {
-					setOpenFolderForm(false);
-					setSelectedFolder(null);
-				}}
-				classId={selectedFolder?.classId || classId}
-				folderId={selectedFolder?.id || folderId}
-				title={selectedFolder ? "تعديل المجلد" : "إضافة مجلد جديد"}
-				folderName={selectedFolder?.name}
-				parentFolderId={selectedFolder?.parentFolderId || ""}
-			/>
-		</Box>
+		</ResourceSection>
 	);
 }

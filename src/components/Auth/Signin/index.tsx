@@ -1,81 +1,65 @@
 "use client";
+import Surface from "@/components/ui/Surface";
 import { Box, Stack, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import Image from "next/image";
+import { Suspense } from "react";
 import SigninWithPassword from "../SigninWithPassword";
 
 export default function Signin() {
 	return (
-		<Stack
-			direction='column'
-			justifyContent='center'
-			alignItems='center'
-			spacing={2}
-			sx={{
-				py: { xs: 10, md: 16 },
+		<Box
+			sx={(theme) => ({
+				minHeight: `calc(100vh - ${theme.tokens.layout.headerHeight}px)`,
+				display: "grid",
+				placeItems: "center",
 				px: 2,
-				minHeight: "60vh",
-			}}
+				py: { xs: 6, md: 10 },
+				backgroundImage: `radial-gradient(50% 45% at 50% 0%, ${alpha(theme.tokens.colors.cyan, 0.12)}, transparent 70%)`,
+			})}
 		>
-			<Box
-				sx={{
-					maxWidth: "440px",
-					width: "100%",
-					backgroundColor: "#FFFFFF",
-					borderRadius: "20px",
-					border: "1px solid #EAECF0",
-					boxShadow:
-						"0 4px 24px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.04)",
-					p: { xs: 3, sm: 4 },
-					transition: "box-shadow 0.3s ease",
-					"&:hover": {
-						boxShadow:
-							"0 8px 32px rgba(16, 24, 40, 0.08), 0 4px 12px rgba(16, 24, 40, 0.04)",
-					},
-				}}
+			<Surface
+				variant='elevated'
+				sx={{ width: "100%", maxWidth: 440, p: { xs: 3, sm: 4.5 } }}
 			>
-				<Stack spacing={3} alignItems='center' mb={3}>
+				<Stack
+					alignItems='center'
+					spacing={2}
+					sx={{ mb: 4, textAlign: "center" }}
+				>
 					<Box
-						sx={{
-							width: 56,
-							height: 56,
-							borderRadius: "16px",
-							background: "linear-gradient(135deg, #F0F7FF 0%, #E6F0FF 100%)",
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-						}}
+						sx={(theme) => ({
+							width: 60,
+							height: 60,
+							display: "grid",
+							placeItems: "center",
+							borderRadius: `${theme.tokens.radii.lg}px`,
+							backgroundColor: theme.tokens.colors.surfaceSecondary,
+							border: `1px solid ${theme.tokens.colors.border}`,
+						})}
 					>
 						<Image
 							src='/images/logo/logo.svg'
-							alt='Logo'
-							width={40}
-							height={40}
+							alt='شعار محمد صبح للفيزياء'
+							width={42}
+							height={42}
+							priority
 						/>
 					</Box>
-					<Box textAlign='center'>
-						<Typography
-							variant='h5'
-							sx={{
-								fontWeight: 800,
-								mb: 0.75,
-								letterSpacing: "-0.01em",
-							}}
-						>
+					<Box>
+						<Typography variant='h1' sx={{ fontSize: "1.75rem" }}>
 							تسجيل الدخول
 						</Typography>
-						<Typography
-							sx={{
-								color: "text.tertiary",
-								fontSize: "0.9375rem",
-								lineHeight: 1.6,
-							}}
-						>
-							أدخل بياناتك للمتابعة
+						<Typography variant='body2' sx={{ color: "text.secondary", mt: 1 }}>
+							أدخل بياناتك للوصول إلى لوحة إدارة المحتوى.
 						</Typography>
 					</Box>
 				</Stack>
-				<SigninWithPassword />
-			</Box>
-		</Stack>
+				{/* useSearchParams requires a Suspense boundary in the App Router. */}
+				<Suspense>
+					<SigninWithPassword />
+				</Suspense>
+			</Surface>
+		</Box>
 	);
 }

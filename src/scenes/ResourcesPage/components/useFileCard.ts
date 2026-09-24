@@ -10,7 +10,7 @@ export function useFileCard(file: File) {
 
 	const isFormatKnown = useMemo(() => {
 		return ICONS_FORMAT_FILE.includes(file.type);
-	}, [file.name]);
+	}, [file.type]);
 
 	const isClosed = useMemo(() => {
 		return file.url === "#";

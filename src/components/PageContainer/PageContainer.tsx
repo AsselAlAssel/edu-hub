@@ -1,20 +1,21 @@
 "use client";
-import { styled } from "@mui/material";
-import Container from "@mui/material/Container";
-import { APP_BAR_HEIGHT } from "@/constants/appShell";
+import { Box, type BoxProps } from "@mui/material";
+import { layout } from "../../../theme/tokens";
 
-const PageContainer = styled(Container)(({ theme }) => ({
-	maxWidth: "1216px !important",
-	[theme.breakpoints.up("xs")]: {
-		padding: "0 16px !important",
-	},
-	[theme.breakpoints.up("sm")]: {
-		padding: "0 24px !important",
-	},
-	[theme.breakpoints.up("lg")]: {
-		padding: "0px !important",
-	},
-	minHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
-})) as typeof Container;
-
-export default PageContainer;
+/** Centered content column with the standard responsive gutters. */
+export default function PageContainer({ sx, ...props }: BoxProps) {
+	return (
+		<Box
+			sx={[
+				{
+					width: "100%",
+					maxWidth: layout.contentMaxWidth,
+					mx: "auto",
+					px: { xs: 2, sm: 3, lg: 4 },
+				},
+				...(Array.isArray(sx) ? sx : sx ? [sx] : []),
+			]}
+			{...props}
+		/>
+	);
+}

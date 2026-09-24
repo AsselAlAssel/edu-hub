@@ -1,67 +1,66 @@
 "use client";
-import { alpha, Avatar, Box, Stack, Typography } from "@mui/material";
+import Surface from "@/components/ui/Surface";
+import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
+import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
+import {
+	Avatar,
+	Box,
+	Button,
+	Chip,
+	Divider,
+	Stack,
+	Typography,
+} from "@mui/material";
 import { useSession } from "next-auth/react";
-import React from "react";
+import Link from "next/link";
 
 export default function UserInformation() {
 	const { data } = useSession();
 	const user = data?.user;
+
 	return (
-		<Stack
-			spacing={3}
-			sx={(theme) => ({
-				marginTop: 4,
-				bgcolor: theme.palette.background.paper,
-				maxWidth: "260px",
-				width: "100%",
-				borderRadius: "16px",
-				padding: 3,
-				border: "1px solid",
-				borderColor:
-					theme.palette.mode === "light"
-						? theme.palette.border.main
-						: theme.palette.divider,
-				boxShadow:
-					theme.palette.mode === "dark"
-						? `0 8px 24px ${alpha("#000", 0.35)}`
-						: `0 1px 2px ${alpha("#0F172A", 0.05)}, 0 8px 24px ${alpha("#0F172A", 0.06)}`,
-				height: "fit-content",
-			})}
-		>
-			<Avatar
-				sx={(theme) => ({
-					width: 52,
-					height: 52,
-					border: "2px solid",
-					borderColor: alpha(theme.palette.primary.main, 0.15),
-					backgroundColor: theme.palette.primary.main,
-					fontSize: 22,
-					fontWeight: 700,
-				})}
-			>
-				{user?.name?.[0]?.toUpperCase()}
-			</Avatar>
-			<Box>
-				<Typography
-					sx={(theme) => ({
-						fontWeight: 700,
-						fontSize: "1.0625rem",
-						mb: 0.5,
-						color: theme.palette.text.primary,
-					})}
+		<Surface component='aside' aria-label='معلومات الحساب' sx={{ p: 3 }}>
+			<Stack direction='row' alignItems='center' gap={1.5}>
+				<Avatar sx={{ width: 52, height: 52, fontSize: "1.25rem" }}>
+					{user?.name?.charAt(0)?.toUpperCase() || "م"}
+				</Avatar>
+				<Box sx={{ minWidth: 0 }}>
+					<Typography sx={{ fontWeight: 800 }} noWrap>
+						{user?.name}
+					</Typography>
+					<Typography
+						variant='body2'
+						sx={{ color: "text.secondary" }}
+						noWrap
+						dir='ltr'
+						textAlign='end'
+					>
+						{user?.email}
+					</Typography>
+				</Box>
+			</Stack>
+			<Chip
+				icon={<AdminPanelSettingsOutlinedIcon />}
+				label='مشرف المنصة'
+				color='primary'
+				variant='outlined'
+				sx={{ mt: 2 }}
+			/>
+			<Divider sx={{ my: 2.5 }} />
+			<Stack spacing={1}>
+				<Button
+					component={Link}
+					href='/'
+					variant='outlined'
+					endIcon={<OpenInNewRoundedIcon />}
+					fullWidth
 				>
-					{user?.name}
-				</Typography>
-				<Typography
-					sx={{
-						fontWeight: 400,
-						color: "text.tertiary",
-						fontSize: "0.875rem",
-					}}
-				>
-					{user?.email}
-				</Typography>
-			</Box>
-		</Stack>
+					عرض الصفحة الرئيسية
+				</Button>
+				<Button component={Link} href='/classes' variant='text' fullWidth>
+					إدارة الصفوف والمحتوى
+				</Button>
+			</Stack>
+		</Surface>
 	);
 }

@@ -1,61 +1,43 @@
-import { prisma } from "@/libs/prismaDb";
+import {
+	cleanString,
+	isObjectId,
+	jsonError,
+	readJson,
+	requireAdmin,
+} from "@/libs/api";
 import { getRankAfterLast } from "@/libs/lexorank";
-import { isAdmin } from "@/libs/uitls";
+import { prisma } from "@/libs/prismaDb";
+import { deleteR2Object, r2KeyFromUrl } from "@/libs/r2";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
-	const body = await req.json();
-	const { name, folderId, url, type, classId } = body;
+	const denied = await requireAdmin();
+	if (denied) return denied;
 
-	if (!name || !folderId || !url || !type || !classId) {
-		return NextResponse.json(
-			{
-				message: "Missing Fields",
-			},
-			{ status: 400 }
-		);
+	const body = await readJson(req);
+	const name = cleanString(body.name, 255);
+	const url = cleanString(body.url, 2000);
+	const type = cleanString(body.type, 20)?.toLowerCase();
+	const { folderId, classId } = body;
+
+	if (!name || !url || !type || !isObjectId(folderId) || !isObjectId(classId)) {
+		return jsonError("Missing Fields", 400);
 	}
-	if (!(await isAdmin())) {
-		return NextResponse.json(
-			{
-				message: "Unauthorized",
-			},
-			{ status: 401 }
-		);
+	if (url !== "#" && !/^https:\/\//.test(url)) {
+		return jsonError("Invalid file url", 400);
 	}
-	const isClassExist = await prisma.class.findUnique({
-		where: {
-			id: classId,
-		},
-	});
-	if (!isClassExist) {
-		return NextResponse.json(
-			{
-				message: "Class not found",
-			},
-			{ status: 404 }
-		);
-	}
-	const isFolderExist = await prisma.folder.findUnique({
-		where: {
-			id: folderId,
-		},
-	});
-	if (!isFolderExist) {
-		return NextResponse.json(
-			{
-				message: "Folder not found",
-			},
-			{ status: 404 }
-		);
-	}
+
+	const folder = await prisma.folder.findUnique({ where: { id: folderId } });
+	if (!folder) return jsonError("Folder not found", 404);
+	if (folder.classId !== classId) return jsonError("Class not found", 404);
+
 	const lastFile = await prisma.file.findFirst({
 		where: { folderId },
 		orderBy: { rank: "desc" },
 		select: { rank: true },
 	});
 
-	await prisma.file.create({
+	const file = await prisma.file.create({
 		data: {
 			name,
 			url,
@@ -65,94 +47,40 @@ export const POST = async (req: NextRequest) => {
 			rank: getRankAfterLast(lastFile?.rank),
 		},
 	});
-	return new NextResponse(null, { status: 201 });
+	return NextResponse.json(file, { status: 201 });
 };
 
 export const DELETE = async (req: NextRequest) => {
-	const body = await req.json();
-	const { fileId } = body;
-	if (!fileId) {
-		return NextResponse.json(
-			{
-				message: "Missing Fields",
-			},
-			{ status: 400 }
-		);
-	}
-	if (!(await isAdmin())) {
-		return NextResponse.json(
-			{
-				message: "Unauthorized",
-			},
-			{ status: 401 }
-		);
-	}
+	const denied = await requireAdmin();
+	if (denied) return denied;
 
-	const isFolderExist = await prisma.file.findUnique({
-		where: {
-			id: fileId,
-		},
-	});
-	if (!isFolderExist) {
-		return NextResponse.json(
-			{
-				message: "Folder not found",
-			},
-			{ status: 404 }
-		);
-	}
+	const { fileId } = await readJson(req);
+	if (!isObjectId(fileId)) return jsonError("Missing Fields", 400);
 
-	await prisma.file.delete({
-		where: {
-			id: fileId,
-		},
-	});
+	const file = await prisma.file.findUnique({ where: { id: fileId } });
+	if (!file) return jsonError("File not found", 404);
+
+	await prisma.file.delete({ where: { id: fileId } });
+
+	const key = r2KeyFromUrl(file.url);
+	if (key) await deleteR2Object(key);
 
 	return new NextResponse(null, { status: 204 });
 };
 
 export const PUT = async (req: NextRequest) => {
-	const body = await req.json();
-	const { fileId, name } = body;
-	if (!fileId || !name) {
-		return NextResponse.json(
-			{
-				message: "Missing Fields",
-			},
-			{ status: 400 }
-		);
-	}
-	if (!(await isAdmin())) {
-		return NextResponse.json(
-			{
-				message: "Unauthorized",
-			},
-			{ status: 401 }
-		);
-	}
+	const denied = await requireAdmin();
+	if (denied) return denied;
 
-	const isFolderExist = await prisma.file.findUnique({
-		where: {
-			id: fileId,
-		},
-	});
-	if (!isFolderExist) {
-		return NextResponse.json(
-			{
-				message: "Folder not found",
-			},
-			{ status: 404 }
-		);
-	}
+	const body = await readJson(req);
+	const name = cleanString(body.name, 255);
+	if (!isObjectId(body.fileId) || !name)
+		return jsonError("Missing Fields", 400);
 
-	await prisma.file.update({
-		where: {
-			id: fileId,
-		},
-		data: {
-			name,
-		},
-	});
+	const file = await prisma.file.findUnique({ where: { id: body.fileId } });
+	if (!file) return jsonError("File not found", 404);
+
+	await prisma.file.update({ where: { id: body.fileId }, data: { name } });
 
 	return new NextResponse(null, { status: 204 });
 };

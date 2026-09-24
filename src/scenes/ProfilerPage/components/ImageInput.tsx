@@ -1,17 +1,17 @@
-import { getSignedURL } from "@/actions/upload";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
+"use client";
+import { ALLOWED_IMAGE_EXTENSIONS, validateUpload } from "@/libs/uploadRules";
+import { uploadToStorage } from "@/services/upload.service";
+import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import {
-	alpha,
 	Box,
+	Button,
 	CircularProgress,
-	IconButton,
 	InputLabel,
+	Stack,
 	Typography,
 } from "@mui/material";
-import { putFileToPresignedUrl } from "@/services/upload.service";
 import Image from "next/image";
-import React from "react";
+import { useId, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
 
@@ -21,143 +21,129 @@ type ImageInputProps = {
 	inputLabel?: string;
 };
 
-export default function ImageInput(props: ImageInputProps) {
-	const { onChangeImage, imageSrc, inputLabel } = props;
-	const [loading, setLoading] = React.useState(false);
+/** Image picker with drag-and-drop, preview, replace and remove. */
+export default function ImageInput({
+	onChangeImage,
+	imageSrc,
+	inputLabel = "الصورة",
+}: ImageInputProps) {
+	const labelId = useId();
+	const [loading, setLoading] = useState(false);
 
-	const handleFileUpload = async (file: File) => {
-		const signedUrl = await getSignedURL(file.type, file.size);
-		if (signedUrl.failure !== undefined) {
-			toast.error(signedUrl.failure);
-
-			return null;
-		}
-
-		const url = signedUrl.success.url;
-		const response = await putFileToPresignedUrl(url, file);
-
-		if (response.status !== 200) {
-			return null;
-		}
-
-		return signedUrl.success.key;
-	};
-	const {
-		getRootProps,
-		getInputProps,
-		open: openDropzone,
-	} = useDropzone({
+	const { getRootProps, getInputProps, open, isDragActive } = useDropzone({
 		noClick: true,
-		noKeyboard: true,
-		accept: {
-			"image/*": [".png", ".gif", ".jpeg", ".jpg"],
-		},
-		onDrop: async (acceptedFiles) => {
-			if (acceptedFiles.length === 0) {
+		multiple: false,
+		accept: { "image/*": ALLOWED_IMAGE_EXTENSIONS.map((ext) => `.${ext}`) },
+		disabled: loading,
+		onDropRejected: () => toast.error("يُسمح بملفات الصور فقط"),
+		onDrop: async ([file]) => {
+			if (!file) return;
+			const invalid = validateUpload(file, "image");
+			if (invalid) {
+				toast.error(invalid);
 				return;
 			}
 			setLoading(true);
-			const file = acceptedFiles[0];
-			const fileKey = await handleFileUpload(file);
-			const url = `${process.env.NEXT_PUBLIC_FILES_URL}/${fileKey}`;
-			onChangeImage(url);
-			setLoading(false);
+			try {
+				onChangeImage(await uploadToStorage(file, "image"));
+			} catch (error) {
+				toast.error(error instanceof Error ? error.message : "فشل رفع الصورة");
+			} finally {
+				setLoading(false);
+			}
 		},
 	});
+
 	return (
 		<Box>
-			{inputLabel && (
-				<InputLabel sx={{ color: "text.secondary", mb: 0.5 }}>
-					{inputLabel}
-				</InputLabel>
-			)}
-
+			<InputLabel id={labelId}>{inputLabel}</InputLabel>
 			<Box
-				{...getRootProps()}
+				{...getRootProps({ role: "group", "aria-labelledby": labelId })}
 				sx={(theme) => ({
-					display: "flex",
-					flexDirection: "column",
-					alignItems: "center",
-					justifyContent: "center",
-					p: 3,
-					border: "1px dashed",
-					borderColor: theme.palette.divider,
-					borderRadius: 1,
-					cursor: "pointer",
-					height: 200,
 					position: "relative",
+					display: "grid",
+					placeItems: "center",
+					minHeight: 180,
+					p: 2,
+					borderRadius: `${theme.tokens.radii.md}px`,
+					border: `1px dashed ${isDragActive ? theme.palette.primary.main : theme.tokens.colors.borderStrong}`,
+					backgroundColor: isDragActive
+						? theme.palette.action.selected
+						: theme.tokens.colors.surfaceSecondary,
 					overflow: "hidden",
-					backgroundColor:
-						theme.palette.mode === "dark"
-							? "rgba(255,255,255,0.03)"
-							: alpha(theme.palette.primary.main, 0.04),
 				})}
-				onClick={() => {
-					openDropzone();
-				}}
 			>
-				<input {...getInputProps()} />
+				<input {...getInputProps({ "aria-label": inputLabel })} />
 				{imageSrc ? (
-					<Image
-						src={imageSrc}
-						alt='header image'
-						width={200}
-						height={200}
-						style={{
-							maxHeight: "100%",
-							width: "auto",
-							height: "auto",
+					<Box
+						sx={{
+							position: "relative",
+							width: "100%",
+							aspectRatio: "16 / 9",
+							maxHeight: 220,
 						}}
-					/>
+					>
+						<Image
+							src={imageSrc}
+							alt={`معاينة ${inputLabel}`}
+							fill
+							sizes='480px'
+							style={{ objectFit: "contain" }}
+						/>
+					</Box>
 				) : (
-					<Typography variant='body1' mb={2} color='text.secondary'>
-						{loading ? "تحميل..." : "اسحب الملف هنا أو انقر لتحميله"}
-					</Typography>
+					<Stack
+						alignItems='center'
+						spacing={1}
+						sx={{ color: "text.secondary", textAlign: "center" }}
+					>
+						<AddPhotoAlternateOutlinedIcon aria-hidden />
+						<Typography variant='body2'>
+							اسحب صورة إلى هنا، أو اختر ملفاً من جهازك
+						</Typography>
+						<Typography variant='caption'>
+							PNG أو JPG أو WEBP — حتى 10 ميغابايت
+						</Typography>
+					</Stack>
 				)}
-				{imageSrc && (
-					<>
-						<IconButton
-							sx={(theme) => ({
-								position: "absolute",
-								top: 10,
-								left: 10,
-								zIndex: 2,
-								bgcolor: "primary.main",
-								color: theme.palette.primary.contrastText,
-							})}
-							onClick={() => {
-								openDropzone();
-							}}
-						>
-							{loading ? (
-								<CircularProgress
-									size={20}
-									sx={(theme) => ({
-										color: theme.palette.primary.contrastText,
-									})}
-								/>
-							) : (
-								<EditIcon />
-							)}
-						</IconButton>
-						<IconButton
-							sx={(theme) => ({
-								position: "absolute",
-								top: 10,
-								right: 10,
-								zIndex: 2,
-								bgcolor: "error.main",
-								color: theme.palette.error.contrastText,
-							})}
-							onClick={() => {
-								onChangeImage("");
-							}}
-						>
-							<DeleteIcon />
-						</IconButton>
-					</>
-				)}
+				{loading ? (
+					<Box
+						role='status'
+						aria-live='polite'
+						sx={(theme) => ({
+							position: "absolute",
+							inset: 0,
+							display: "grid",
+							placeItems: "center",
+							backgroundColor: theme.palette.action.hover,
+							backdropFilter: "blur(2px)",
+						})}
+					>
+						<CircularProgress size={28} aria-label='جارٍ رفع الصورة' />
+					</Box>
+				) : null}
 			</Box>
+			<Stack direction='row' gap={1} sx={{ mt: 1.5 }}>
+				<Button
+					size='small'
+					variant='outlined'
+					onClick={open}
+					disabled={loading}
+				>
+					{imageSrc ? "تغيير الصورة" : "اختيار صورة"}
+				</Button>
+				{imageSrc ? (
+					<Button
+						size='small'
+						variant='text'
+						color='error'
+						onClick={() => onChangeImage(null)}
+						disabled={loading}
+					>
+						إزالة الصورة
+					</Button>
+				) : null}
+			</Stack>
 		</Box>
 	);
 }

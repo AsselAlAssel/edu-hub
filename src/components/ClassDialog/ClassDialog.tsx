@@ -1,23 +1,18 @@
+"use client";
+import AppDialog from "@/components/ui/AppDialog";
+import { FormField } from "@/components/ui/FormField";
 import { useCreateClass, useUpdateClass } from "@/hooks/useClassApi";
-import CloseIcon from "@mui/icons-material/Close";
-import {
-	alpha,
-	Box,
-	Button,
-	CircularProgress,
-	Dialog,
-	DialogContent,
-	DialogTitle,
-	IconButton,
-	Stack,
-} from "@mui/material";
+import { getErrorMessage } from "@/libs/errors";
+import ImageInput from "@/scenes/ProfilerPage/components/ImageInput";
+import { SecondaryButton } from "@/components/ui/buttons";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { Stack } from "@mui/material";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { mutate } from "swr";
-import CustomTextField from "../CustomTextField";
-import ImageInput from "@/scenes/ProfilerPage/components/ImageInput";
 
-type CreateClassForm = {
+type ClassFormValues = {
 	name: string;
 	description?: string;
 	image?: string;
@@ -26,123 +21,88 @@ type CreateClassForm = {
 interface ClassDialogProps {
 	handleCloseDialog: () => void;
 	open: boolean;
-	selectedClass?: CreateClassForm;
+	/** Present when editing. */
+	selectedClass?: ClassFormValues;
 	classId?: string;
 }
 
-const defaultValues = {
-	name: "",
-	description: "",
-	image: "",
-};
+const emptyValues: ClassFormValues = { name: "", description: "", image: "" };
 
-export default function ClassDialog(props: ClassDialogProps) {
-	const { open, handleCloseDialog, selectedClass, classId } = props;
+export default function ClassDialog({
+	open,
+	handleCloseDialog,
+	selectedClass,
+	classId,
+}: ClassDialogProps) {
+	const isEdit = !!classId;
 	const { control, handleSubmit, reset, setValue, watch } =
-		useForm<CreateClassForm>({
-			defaultValues: selectedClass || defaultValues,
+		useForm<ClassFormValues>({
+			defaultValues: selectedClass ?? emptyValues,
 		});
 	const { isMutating, trigger: createClass } = useCreateClass();
 	const { isUpdating, updateClass } = useUpdateClass();
+	const busy = isMutating || isUpdating;
 
 	useEffect(() => {
-		if (selectedClass) {
-			reset(selectedClass);
-		}
-		return () => {
-			reset(defaultValues);
-		};
-	}, [selectedClass, reset]);
+		if (open) reset(selectedClass ?? emptyValues);
+	}, [open, selectedClass, reset]);
 
-	const onSubmit = async (data: CreateClassForm) => {
-		let success = false;
-		if (classId) {
-			success = await updateClass({ id: classId, ...data });
-		} else {
-			success = await createClass(data);
+	const onSubmit = handleSubmit(async (data) => {
+		try {
+			if (classId) await updateClass({ id: classId, ...data });
+			else await createClass(data);
+			await mutate("/api/class");
+			toast.success(isEdit ? "تم تحديث الصف" : "تم إنشاء الصف");
+			handleCloseDialog();
+		} catch (error) {
+			toast.error(getErrorMessage(error, "تعذّر حفظ الصف"));
 		}
-		if (success) {
-			mutate("/api/class");
-			handleClose();
-		}
-	};
-
-	const handleClose = () => {
-		reset(defaultValues);
-		handleCloseDialog();
-	};
+	});
 
 	return (
-		<Dialog
+		<AppDialog
 			open={open}
-			maxWidth='sm'
-			fullWidth
-			onClose={handleClose}
-			PaperProps={{
-				style: {
-					maxWidth: 400,
-				},
-			}}
-			sx={{
-				bgcolor: alpha("#0C111D", 0.7),
-				backdropFilter: "blur(2px)",
-			}}
+			onClose={handleCloseDialog}
+			busy={busy}
+			title={isEdit ? "تعديل الصف" : "إنشاء صف جديد"}
+			onSubmit={() => void onSubmit()}
+			actions={
+				<>
+					<SecondaryButton onClick={handleCloseDialog} disabled={busy}>
+						إلغاء
+					</SecondaryButton>
+					<LoadingButton type='submit' variant='contained' loading={busy}>
+						{isEdit ? "حفظ التغييرات" : "إنشاء الصف"}
+					</LoadingButton>
+				</>
+			}
 		>
-			<Box position='absolute' right={24} top={24}>
-				<IconButton color='default' size='small' onClick={handleClose}>
-					<CloseIcon fontSize='inherit' />
-				</IconButton>
-			</Box>
-			<DialogTitle>إنشاء صف جديد</DialogTitle>
-			<DialogContent>
-				<form onSubmit={handleSubmit((date) => onSubmit(date))}>
-					<Stack spacing={2}>
-						<ImageInput
-							imageSrc={watch("image") ?? ""}
-							onChangeImage={(image: string | null) => {
-								console.log("image", image);
-								if (image) {
-									setValue("image", image);
-									return;
-								}
-								setValue("image", undefined);
-							}}
+			<Stack spacing={2.5}>
+				<Controller
+					name='name'
+					control={control}
+					rules={{
+						validate: (value) => !!value.trim() || "اسم الصف مطلوب",
+						maxLength: { value: 50, message: "الحد الأقصى 50 حرفاً" },
+					}}
+					render={({ field, fieldState: { error } }) => (
+						<FormField
+							{...field}
+							label='اسم الصف'
+							placeholder='مثال: الصف العاشر'
+							autoFocus
+							required
+							error={!!error}
+							helperText={error?.message}
 						/>
-
-						<Controller
-							name='name'
-							control={control}
-							rules={{
-								required: "اسم الصف مطلوب",
-								maxLength: {
-									value: 50,
-									message: "الحد الأقصى للحروف هو 50",
-								},
-							}}
-							render={({ field, fieldState: { error } }) => (
-								<CustomTextField
-									{...field}
-									label='اسم الصف'
-									variant='outlined'
-									fullWidth
-									error={!!error}
-									helperText={error?.message}
-									required
-								/>
-							)}
-						/>
-						<Button type='submit' disabled={isMutating || isUpdating}>
-							{isMutating || isUpdating ? (
-								<CircularProgress size={24} />
-							) : selectedClass ? (
-								"تعديل"
-							) : (
-								"إنشاء"
-							)}
-						</Button>
-					</Stack>
-				</form>
-			</DialogContent>
-		</Dialog>
+					)}
+				/>
+				<ImageInput
+					inputLabel='صورة الصف (اختياري)'
+					imageSrc={watch("image") || null}
+					onChangeImage={(url) => setValue("image", url ?? "")}
+				/>
+			</Stack>
+		</AppDialog>
 	);
 }

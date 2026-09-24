@@ -1,30 +1,29 @@
 import { prisma } from "./prismaDb";
 
+export type BreadcrumbItem = { id: string; name: string };
+
+const MAX_DEPTH = 50;
+
+/** Folder chain from the class root down to `folderId`, or null if it does not exist. */
 export async function getBreadcrumbs(
-	folderId: string,
-	breadcrumbs: Array<{ id: string; name: string }> = []
-) {
-	const folder = await prisma.folder.findUnique({
-		where: {
-			id: folderId,
-		},
-		select: {
-			id: true,
-			name: true,
-			parentFolderId: true,
-		},
-	});
+	folderId: string
+): Promise<BreadcrumbItem[] | null> {
+	const breadcrumbs: BreadcrumbItem[] = [];
+	let currentId: string | null = folderId;
 
-	if (!folder) {
-		throw new Error("Folder not found");
-	}
-
-	// Add the current folder to the breadcrumbs array
-	breadcrumbs.unshift({ id: folder.id, name: folder.name });
-
-	// If the folder has a parent, continue traversing up the tree
-	if (folder.parentFolderId) {
-		return getBreadcrumbs(folder.parentFolderId, breadcrumbs);
+	// Depth cap guards against corrupted parent cycles.
+	while (currentId && breadcrumbs.length < MAX_DEPTH) {
+		const folder: {
+			id: string;
+			name: string;
+			parentFolderId: string | null;
+		} | null = await prisma.folder.findUnique({
+			where: { id: currentId },
+			select: { id: true, name: true, parentFolderId: true },
+		});
+		if (!folder) return breadcrumbs.length ? breadcrumbs : null;
+		breadcrumbs.unshift({ id: folder.id, name: folder.name });
+		currentId = folder.parentFolderId;
 	}
 
 	return breadcrumbs;

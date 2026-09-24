@@ -1,64 +1,30 @@
 import { getLandingData } from "@/actions/landing";
+import { pageMetadata } from "@/libs/site";
 import Landing from "@/scenes/Landing";
-import { Metadata } from "next";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-	title: "شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh",
-	description:
-		"استكشف أفضل شروحات الفيزياء لجميع الصفوف من إعداد الأستاذ محمد صبح (Mohammed Subuh). موقع متخصص لدعم الطلاب بفهم الفيزياء بأسلوب بسيط وسهل.",
-	openGraph: {
+export const metadata = {
+	...pageMetadata({
 		title: "شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh",
 		description:
-			"أفضل موقع يحتوي على شروحات الفيزياء لجميع المراحل الدراسية. موقع الأستاذ محمد صبح لتعليم الفيزياء بأسلوب مبتكر.",
-		type: "website",
-		locale: "ar_AR",
-		url: process.env.NEXT_PUBLIC_DOMAIN || "https://www.mohammedsubuh.com",
-		images: [
-			{
-				url: `${
-					process.env.NEXT_PUBLIC_DOMAIN || "https://www.mohammedsubuh.com"
-				}/images/cover.png`,
-				width: 1200,
-				height: 630,
-				alt: "شروحات الفيزياء - محمد صبح",
-			},
+			"شروحات الفيزياء لجميع الصفوف من إعداد الأستاذ محمد صبح (Mohammed Subuh): فيديوهات وملفات منظّمة حسب الصف لتفهم الفيزياء بأسلوب بسيط وواضح.",
+		path: "/",
+		keywords: [
+			"شروحات الفيزياء",
+			"محمد صبح",
+			"فيزياء محمد صبح",
+			"الأستاذ محمد صبح",
+			"دروس الفيزياء",
+			"تعليم الفيزياء",
+			"Mohammed Subuh",
+			"Mohammed Subuh physics",
 		],
+	}),
+	// The root layout's title template must not wrap the home title.
+	title: {
+		absolute: "شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh",
 	},
-	twitter: {
-		card: "summary_large_image",
-		title: "شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh",
-		description:
-			"أفضل موقع لشروحات الفيزياء من إعداد الأستاذ محمد صبح. تعلم الفيزياء بأسلوب مبتكر وسهل الفهم.",
-		images: [
-			`${
-				process.env.NEXT_PUBLIC_DOMAIN || "https://www.mohammedsubuh.com"
-			}/images/cover.png`,
-		],
-		creator: "@mohammedsubuh", // ضع اسم حساب تويتر إذا كان لديك
-	},
-	keywords: [
-		"شروحات الفيزياء",
-		"محمد صبح",
-		"فيزياء محمد صبح",
-		"mohammed subuh physics",
-		"mohammed subuh website",
-		"mohammed subuh physics lessons",
-		"Mohammed Subuh physics",
-		"Mohammed Subuh",
-		"Mohammed Subuh website",
-		"Mohammed Subuh Physics Lessons",
-		"الأستاذ محمد صبح",
-		"موقع محمد صبح",
-		"دروس الفيزياء محمد صبح",
-		"موقع الأستاذ محمد صبح",
-		"تعليم الفيزياء",
-		"فيزياء الصفوف المدرسية",
-		"شرح الفيزياء بأسلوب بسيط",
-		"دروس الفيزياء للمراحل الدراسية",
-		"أفضل موقع للفيزياء",
-	],
 };
 
 export default async function LandingPage() {

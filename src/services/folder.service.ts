@@ -8,8 +8,8 @@ export type CreateFolderInput = {
 
 export type UpdateFolderInput = {
 	name: string;
-	parentFolderId: string;
-	classId: string;
+	/** The folder being renamed. */
+	folderId: string;
 };
 
 export type DeleteFolderInput = {

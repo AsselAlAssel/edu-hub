@@ -1,164 +1,139 @@
-import ActionsIconButton from "@/components/ActionsIconButton";
-import useRole from "@/hooks/useRole";
-import LockIcon from "@mui/icons-material/Lock";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import {
-	alpha,
-	Box,
-	IconButton,
-	Stack,
-	styled,
-	Typography,
-} from "@mui/material";
-import { Video } from "@prisma/client";
-import ResourceCardActionsMenu from "./ResourceCardActionsMenu";
-import { useVideoCard } from "./useVideoCard";
+"use client";
+import ActionsMenu from "@/components/ui/ActionsMenu";
+import Surface from "@/components/ui/Surface";
+import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
+import { Box, ButtonBase, Stack, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
+import type { Video } from "@prisma/client";
+import Image from "next/image";
+import type { ReactNode } from "react";
 
-const StyledIconButton = styled(IconButton)(({ theme }) => ({
-	height: 45,
-	width: 45,
-	borderRadius: "50%",
-	backgroundColor: theme.palette.primary.main,
-	color: theme.palette.primary.contrastText,
-	transition: "background-color 0.3s ease-in-out",
-	"&:hover": {
-		backgroundColor: theme.palette.primary.dark,
-	},
-}));
+export const youtubeThumbnail = (
+	video: Pick<Video, "videoId" | "thumbnailUrl">
+) =>
+	video.videoId
+		? `https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg`
+		: video.thumbnailUrl;
 
 export default function VideoCard({
 	video,
+	handle,
 	onChangeName,
 	onDelete,
 	onPlay,
+	isAdmin = false,
+	onMove,
 }: {
 	video: Video;
+	handle?: ReactNode;
 	onChangeName: () => void;
 	onDelete: () => void;
 	onPlay: () => void;
+	isAdmin?: boolean;
+	onMove?: () => void;
 }) {
-	const { menuOpen, anchorEl, handleOpen, handleClose, handleCardClick } =
-		useVideoCard();
-	const { isAdmin } = useRole();
-	const isClosed = false;
-
 	return (
-		<Stack
-			sx={(theme) => ({
-				borderRadius: 1,
+		<Surface
+			interactive
+			component='article'
+			data-testid='video-card'
+			sx={{
+				height: "100%",
 				overflow: "hidden",
-				cursor: "pointer",
-				width: "100%",
-				color: theme.palette.text.primary,
-				backgroundColor:
-					theme.palette.mode === "dark"
-						? alpha(theme.palette.background.paper, 0.9)
-						: alpha(theme.palette.primary.main, 0.04),
-				border: `1px solid ${theme.palette.border.secondary}`,
-				flex: 1,
-				top: 0,
-				transition:
-					"top 0.3s ease-in-out, box-shadow 0.3s ease, background-color 0.2s ease",
-				position: "relative",
-				"& .absolute-button": {
-					display: "none",
-				},
-
-				"&:hover": {
-					backgroundColor:
-						theme.palette.mode === "dark"
-							? theme.palette.background.paper
-							: alpha(theme.palette.primary.main, 0.08),
-					boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.08)",
-					...(!isAdmin && {
-						top: "-6px",
-					}),
-				},
-			})}
-			gap={1}
-			onClick={() => {
-				if (!isClosed) {
-					handleCardClick(onPlay);
-				}
+				display: "flex",
+				flexDirection: "column",
 			}}
 		>
-			<Box
-				sx={{
-					position: "relative",
-				}}
-			>
-				<img
-					src={video.thumbnailUrl}
-					alt={video.name}
-					style={{
-						width: "100%",
-						height: "auto",
-						objectFit: "cover",
-						display: "block",
-					}}
-				/>
-				{isClosed ? (
-					<StyledIconButton
-						sx={{
-							position: "absolute",
-							top: "100%",
-							right: "10px",
-							transform: "translateY(-50%)",
-							zIndex: 1,
-						}}
-					>
-						<LockIcon />
-					</StyledIconButton>
-				) : (
-					<StyledIconButton
-						sx={{
-							position: "absolute",
-							top: "100%",
-							right: "10px",
-							transform: "translateY(-50%)",
-							zIndex: 1,
-						}}
-					>
-						<PlayArrowIcon />
-					</StyledIconButton>
-				)}
-			</Box>
-			<Typography
-				variant='h6'
+			<ButtonBase
+				onClick={onPlay}
+				aria-label={`تشغيل الفيديو: ${video.name}`}
 				sx={(theme) => ({
-					overflow: "hidden",
-					textOverflow: "ellipsis",
-					whiteSpace: "nowrap",
-					maxWidth: "80%",
-					padding: 1,
-					color: theme.palette.text.primary,
+					position: "relative",
+					display: "block",
+					width: "100%",
+					aspectRatio: "16 / 9",
+					backgroundColor: theme.tokens.colors.surfaceSecondary,
+					"&:hover .qa-play, &.Mui-focusVisible .qa-play": {
+						transform: "scale(1.06)",
+						backgroundColor: theme.palette.primary.main,
+						color: theme.palette.primary.contrastText,
+					},
+					"&.Mui-focusVisible": {
+						outline: `3px solid ${theme.palette.primary.main}`,
+						outlineOffset: -3,
+					},
 				})}
 			>
-				{video.name}
-			</Typography>
-
-			{isAdmin ? (
-				<ActionsIconButton
-					sx={{
-						position: "absolute",
-						top: "10px",
-						right: "10px",
-						zIndex: 1,
-					}}
-					onClick={(e) => {
-						e.stopPropagation();
-						handleOpen(e);
-					}}
+				<Image
+					src={youtubeThumbnail(video)}
+					alt=''
+					fill
+					sizes='(max-width: 600px) 100vw, (max-width: 900px) 50vw, (max-width: 1200px) 33vw, 300px'
+					style={{ objectFit: "cover" }}
 				/>
-			) : null}
-			<ResourceCardActionsMenu
-				anchorEl={anchorEl}
-				open={menuOpen}
-				onClose={handleClose}
-				editLabel='تفير الإسم'
-				onEdit={onChangeName}
-				onDelete={onDelete}
-			/>
-		</Stack>
+				<Box
+					className='qa-play'
+					aria-hidden
+					sx={(theme) => ({
+						position: "absolute",
+						top: "50%",
+						left: "50%",
+						width: 52,
+						height: 52,
+						marginTop: "-26px",
+						marginLeft: "-26px",
+						borderRadius: "50%",
+						display: "grid",
+						placeItems: "center",
+						color: theme.palette.common.white,
+						backgroundColor: alpha(theme.palette.common.black, 0.6),
+						border: `1px solid ${alpha(theme.palette.common.white, 0.3)}`,
+						transition: theme.transitions.create([
+							"transform",
+							"background-color",
+							"color",
+						]),
+						"& svg": { fontSize: 30 },
+					})}
+				>
+					<PlayArrowRoundedIcon />
+				</Box>
+			</ButtonBase>
+			<Stack
+				direction='row'
+				alignItems='flex-start'
+				gap={1}
+				sx={{ p: 1.75, flex: 1 }}
+			>
+				<Typography
+					variant='subtitle2'
+					component='h3'
+					sx={{
+						flex: 1,
+						minWidth: 0,
+						fontSize: "0.9375rem",
+						display: "-webkit-box",
+						WebkitLineClamp: 2,
+						WebkitBoxOrient: "vertical",
+						overflow: "hidden",
+					}}
+				>
+					{video.name}
+				</Typography>
+				{isAdmin ? (
+					<Stack direction='row' gap={0.75}>
+						{handle}
+						<ActionsMenu
+							label={`خيارات الفيديو: ${video.name}`}
+							editLabel='إعادة تسمية الفيديو'
+							deleteLabel='حذف الفيديو'
+							onEdit={onChangeName}
+							onDelete={onDelete}
+							onMove={onMove}
+						/>
+					</Stack>
+				) : null}
+			</Stack>
+		</Surface>
 	);
 }

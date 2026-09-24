@@ -16,7 +16,10 @@
 		"format": "prettier --write .",
 		"fix-lint": "eslint --fix .",
 		"fix-style": "npm run fix-format && npm run fix-lint",
-		"test-build": "npm run check-style && npm run build"
+		"test-build": "npm run check-style && npm run build",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:e2e": "playwright test"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.1028.0",
@@ -58,12 +61,18 @@
 		"react-instantsearch-dom": "^6.40.4",
 		"react-player": "^2.16.1",
 		"sanity": "^3.23.4",
+		"stylis": "4.2.0",
 		"stylis-plugin-rtl": "^2.1.1",
 		"swr": "^2.4.1",
 		"tus-js-client": "^1.8.0",
 		"uuid": "^10.0.0"
 	},
 	"devDependencies": {
+		"@playwright/test": "^1.63.0",
+		"@testing-library/dom": "^10.4.2",
+		"@testing-library/jest-dom": "^6.9.1",
+		"@testing-library/react": "^16.3.3",
+		"@testing-library/user-event": "^14.6.7",
 		"@types/bcrypt": "^5.0.2",
 		"@types/bcryptjs": "^2.4.6",
 		"@types/node": "^20.19.0",
@@ -74,6 +83,7 @@
 		"@types/stylis": "^4.2.7",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
 		"@typescript-eslint/parser": "^6.21.0",
+		"@vitejs/plugin-react": "^4.7.0",
 		"autoprefixer": "^10.4.27",
 		"eslint": "^8.57.1",
 		"eslint-config-next": "^14.2.35",
@@ -81,10 +91,12 @@
 		"eslint-plugin-prettier": "^5.5.5",
 		"eslint-plugin-react": "^7.37.5",
 		"eslint-plugin-react-hooks": "^4.6.2",
+		"jsdom": "^26.1.0",
 		"postcss": "^8.5.9",
 		"prettier": "^3.8.2",
 		"prettier-plugin-tailwindcss": "^0.5.14",
 		"tailwindcss": "^3.4.19",
-		"typescript": "^5.9.3"
+		"typescript": "^5.9.3",
+		"vitest": "^3.2.7"
 	}
 }

@@ -1,139 +1,129 @@
-import ActionsIconButton from "@/components/ActionsIconButton";
-import CustomTooltip from "@/components/CustomTooltip";
-import useRole from "@/hooks/useRole";
-import FolderIcon from "@mui/icons-material/Folder";
-import { alpha, Box, Stack, Typography } from "@mui/material";
-import { Folder } from "@prisma/client";
-import { useRouter } from "nextjs-toploader/app";
-import ResourceCardActionsMenu from "./ResourceCardActionsMenu";
-import { useFolderCard } from "./useFolderCard";
+"use client";
+import ActionsMenu from "@/components/ui/ActionsMenu";
+import Surface from "@/components/ui/Surface";
+import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
+import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
+import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
+import { Box, Stack, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
+import type { Folder } from "@prisma/client";
+import Link from "next/link";
+import type { ReactNode } from "react";
 
+export type DropState = "idle" | "available" | "over";
+
+/** Folder row-card: visually distinct from media cards; doubles as a drop target. */
 export default function FolderCard({
 	folder,
+	handle,
 	onEdit,
 	onDelete,
-	isDropTarget,
-	isDraggingOver,
+	dropState = "idle",
+	isAdmin = false,
 }: {
 	folder: Folder;
+	handle?: ReactNode;
 	onEdit: () => void;
 	onDelete: () => void;
-	isDropTarget?: boolean;
-	isDraggingOver?: boolean;
+	dropState?: DropState;
+	isAdmin?: boolean;
 }) {
-	const [open, anchorEl, handleOpen, handleClose] = useFolderCard();
-	const { isAdmin } = useRole();
-	const router = useRouter();
-	const folderHref = `/class/${folder.classId}/folder/${folder.id}`;
-
-	const goToFolder = () => {
-		router.push(folderHref);
-	};
+	const href = `/class/${folder.classId}/folder/${folder.id}`;
+	const isOver = dropState === "over";
 
 	return (
-		<Stack
-			direction='row'
-			justifyContent={"space-between"}
-			alignItems={"center"}
-			role='link'
-			tabIndex={0}
-			aria-label={folder.name}
-			onClick={goToFolder}
-			onKeyDown={(e) => {
-				if (e.key === "Enter" || e.key === " ") {
-					e.preventDefault();
-					goToFolder();
-				}
-			}}
+		<Surface
+			interactive
+			data-testid='folder-card'
 			sx={(theme) => ({
-				border: isDropTarget
-					? `2px dashed ${theme.palette.primary.main}`
-					: isDraggingOver
-						? `2px dashed ${alpha(theme.palette.primary.main, 0.45)}`
-						: `1px solid ${theme.palette.border.main}`,
-				borderRadius: "10px",
-				padding: 1.5,
-				cursor: "pointer",
-				width: "100%",
-				color: theme.palette.text.primary,
-				backgroundColor: isDropTarget
-					? alpha(theme.palette.primary.main, 0.12)
-					: isDraggingOver
-						? alpha(theme.palette.primary.main, 0.06)
-						: theme.palette.mode === "dark"
-							? alpha(theme.palette.background.paper, 0.85)
-							: theme.palette.background.default,
-				transition: "all 0.2s ease",
-				transform: isDropTarget ? "scale(1.02)" : "none",
-				boxShadow: "0px 1px 2px rgba(16, 24, 40, 0.05)",
-				"&:hover": {
-					backgroundColor: isDropTarget
-						? alpha(theme.palette.primary.main, 0.14)
-						: theme.palette.action.hover,
-					borderColor: isDropTarget
-						? theme.palette.primary.main
-						: theme.palette.text.disabled,
-					boxShadow: "0px 2px 6px rgba(16, 24, 40, 0.08)",
-				},
+				display: "flex",
+				alignItems: "center",
+				gap: 1.5,
+				minHeight: 72,
+				px: 1.5,
+				py: 1.25,
+				height: "100%",
+				...(dropState !== "idle" && {
+					borderStyle: "dashed",
+					borderColor: theme.palette.primary.main,
+				}),
+				...(isOver && {
+					backgroundColor: alpha(theme.palette.primary.main, 0.1),
+					boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.25)}`,
+				}),
 			})}
-			gap={1}
 		>
-			<CustomTooltip title={folder.name}>
-				<Stack
-					direction='row'
-					gap={1}
-					alignItems='center'
-					sx={{ flex: 1, minWidth: 0, color: "inherit" }}
+			<Box
+				aria-hidden
+				sx={(theme) => ({
+					width: 44,
+					height: 44,
+					flexShrink: 0,
+					display: "grid",
+					placeItems: "center",
+					borderRadius: `${theme.tokens.radii.md}px`,
+					color: theme.palette.primary.main,
+					backgroundColor: alpha(theme.palette.primary.main, 0.12),
+				})}
+			>
+				{isOver ? <DriveFileMoveOutlinedIcon /> : <FolderRoundedIcon />}
+			</Box>
+			<Box sx={{ flex: 1, minWidth: 0 }}>
+				<Typography
+					variant='subtitle2'
+					component='h3'
+					sx={{ fontSize: "1rem" }}
 				>
-					<FolderIcon
+					<Box
+						component={Link}
+						href={href}
 						sx={(theme) => ({
-							color: isDropTarget
-								? theme.palette.primary.main
-								: "text.secondary",
-							flexShrink: 0,
-						})}
-					/>
-					<Typography
-						variant='h6'
-						sx={(theme) => ({
-							flex: 1,
-							minWidth: 0,
-							overflow: "hidden",
-							textOverflow: "ellipsis",
+							color: "text.primary",
+							textDecoration: "none",
 							display: "-webkit-box",
 							WebkitLineClamp: 2,
 							WebkitBoxOrient: "vertical",
-							lineHeight: "1.8rem",
-							color: isDropTarget
-								? theme.palette.primary.main
-								: theme.palette.text.primary,
+							overflow: "hidden",
+							"&::after": {
+								content: '""',
+								position: "absolute",
+								inset: 0,
+								zIndex: 1,
+							},
+							"&:focus-visible": { outline: "none" },
+							"&:focus-visible::after": {
+								outline: `2px solid ${theme.palette.primary.main}`,
+								outlineOffset: -2,
+								borderRadius: `${theme.tokens.radii.lg}px`,
+							},
 						})}
 					>
-						{isDropTarget ? `نقل إلى: ${folder.name}` : folder.name}
+						{folder.name}
+					</Box>
+				</Typography>
+				{isOver ? (
+					<Typography
+						variant='caption'
+						sx={{ color: "primary.main", fontWeight: 700 }}
+					>
+						أفلِت هنا للنقل إلى هذا المجلد
 					</Typography>
-				</Stack>
-			</CustomTooltip>
-			{isAdmin && (
-				<Box onClick={(e) => e.stopPropagation()}>
-					<ActionsIconButton
-						onClick={(e) => {
-							e.stopPropagation();
-							handleOpen(e);
-						}}
-						sx={{
-							flex: 1,
-						}}
+				) : null}
+			</Box>
+			{isAdmin ? (
+				<Stack direction='row' gap={0.75}>
+					{handle}
+					<ActionsMenu
+						label={`خيارات المجلد: ${folder.name}`}
+						editLabel='إعادة تسمية المجلد'
+						deleteLabel='حذف المجلد'
+						onEdit={onEdit}
+						onDelete={onDelete}
 					/>
-				</Box>
+				</Stack>
+			) : (
+				<ChevronLeftRoundedIcon aria-hidden sx={{ color: "text.secondary" }} />
 			)}
-			<ResourceCardActionsMenu
-				anchorEl={anchorEl}
-				open={open}
-				onClose={handleClose}
-				editLabel='تعديل'
-				onEdit={onEdit}
-				onDelete={onDelete}
-			/>
-		</Stack>
+		</Surface>
 	);
 }

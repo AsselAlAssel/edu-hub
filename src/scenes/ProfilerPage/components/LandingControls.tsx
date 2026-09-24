@@ -1,385 +1,351 @@
 "use client";
-/* eslint-disable */
-import CustomTextField from "@/components/CustomTextField";
+import { GhostButton } from "@/components/ui/buttons";
+import { FormField } from "@/components/ui/FormField";
+import Surface from "@/components/ui/Surface";
 import { useUpdateLandingPage } from "@/hooks/useLandingApis";
-import {
-	getYouTubeVideoID,
-	isYouTubeVideo,
-	youtubeRegex,
-} from "@/libs/constant";
+import { getYouTubeVideoID } from "@/libs/constant";
+import { getErrorMessage } from "@/libs/errors";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { alpha, Box, Stack, Tab, Tabs, Typography } from "@mui/material";
-import type { Theme } from "@mui/material/styles";
-import { LandingPage } from "@prisma/client";
-import React from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Box, Stack, Tab, Tabs, Typography } from "@mui/material";
+import type { LandingPage } from "@prisma/client";
+import { useId, useState, type ReactNode } from "react";
+import { Controller, useForm, type Control } from "react-hook-form";
 import toast from "react-hot-toast";
 import ImageInput from "./ImageInput";
 import PreviewLandingPage from "./PreviewLandingPage";
-type LandingControlsProps = {
-	landingData: LandingPage | null;
-};
-type formDataType = {
+
+export type LandingFormValues = {
 	headerTitle: string;
-	headerSubtitle: string | null;
-	headerImage: string | null;
-	landingVideo: string | null;
-	landingVideoId: string | null;
+	headerSubtitle: string;
+	headerImage: string;
+	landingVideo: string;
 	aboutTitle: string;
 	aboutSubtitle: string;
-	aboutImage: string | null;
+	aboutImage: string;
 	whatsAppNumber: string;
 	address: string;
 	email: string;
 };
 
-const defaultValues = {
-	headerTitle: "",
-	headerSubtitle: "",
-	headerImage: "",
-	landingVideo: "",
-	landingVideoId: "",
-	aboutTitle: "",
-	aboutSubtitle: "",
-	aboutImage: "",
-	whatsAppNumber: "",
-	address: "",
-	email: "",
-};
-enum TabValue {
-	preview = "preview",
-	edit = "edit",
-}
-
-const formSectionSx = (theme: Theme) => ({
-	p: 3,
-	borderRadius: "12px",
-	border: "1px solid",
-	borderColor:
-		theme.palette.mode === "light"
-			? theme.palette.border.secondary
-			: theme.palette.divider,
-	/* فاتح: خلفية مميزة عن البطاقة البيضاء — دارك: طبقة شفافة */
-	backgroundColor:
-		theme.palette.mode === "dark"
-			? alpha(theme.palette.common.white, 0.05)
-			: theme.palette.background["brand-section"],
+export const toFormValues = (data: LandingPage | null): LandingFormValues => ({
+	headerTitle: data?.headerTitle ?? "",
+	headerSubtitle: data?.headerSubtitle ?? "",
+	headerImage: data?.headerImage ?? "",
+	landingVideo: data?.landingVideo ?? "",
+	aboutTitle: data?.aboutTitle ?? "",
+	aboutSubtitle: data?.aboutSubtitle ?? "",
+	aboutImage: data?.aboutImage ?? "",
+	whatsAppNumber: data?.whatsAppNumber ?? "",
+	address: data?.address ?? "",
+	email: data?.email ?? "",
 });
 
-export default function LandingControls(props: LandingControlsProps) {
-	const { landingData } = props;
-	const [selectedTab, setSelectedTab] = React.useState<TabValue>(TabValue.edit);
+const required = (label: string) => (value: string) =>
+	!!value.trim() || `${label} مطلوب`;
 
+function FormSection({
+	title,
+	description,
+	children,
+}: {
+	title: string;
+	description?: string;
+	children: ReactNode;
+}) {
+	const id = useId();
+	return (
+		<Surface
+			component='section'
+			aria-labelledby={id}
+			variant='secondary'
+			sx={{ p: { xs: 2.5, md: 3 }, boxShadow: "none" }}
+		>
+			<Typography id={id} variant='h5' component='h2'>
+				{title}
+			</Typography>
+			{description ? (
+				<Typography variant='body2' sx={{ color: "text.secondary", mt: 0.5 }}>
+					{description}
+				</Typography>
+			) : null}
+			<Stack spacing={2.5} sx={{ mt: 2.5 }}>
+				{children}
+			</Stack>
+		</Surface>
+	);
+}
+
+function TextInput({
+	control,
+	name,
+	label,
+	rules,
+	...props
+}: {
+	control: Control<LandingFormValues>;
+	name: keyof LandingFormValues;
+	label: string;
+	rules?: Parameters<typeof Controller<LandingFormValues>>[0]["rules"];
+} & Omit<React.ComponentProps<typeof FormField>, "name">) {
+	return (
+		<Controller
+			name={name}
+			control={control}
+			rules={rules}
+			render={({ field, fieldState: { error } }) => (
+				<FormField
+					{...field}
+					{...props}
+					label={label}
+					error={!!error}
+					helperText={error?.message ?? props.helperText}
+				/>
+			)}
+		/>
+	);
+}
+
+/** Landing page CMS: edit + live preview, validated before saving. */
+export default function LandingControls({
+	landingData,
+}: {
+	landingData: LandingPage | null;
+}) {
+	const [tab, setTab] = useState<"edit" | "preview">("edit");
 	const {
 		control,
 		handleSubmit,
-		setError,
-		clearErrors,
 		setValue,
 		watch,
 		getValues,
-	} = useForm<formDataType>({
-		defaultValues: landingData
-			? {
-					headerTitle: landingData.headerTitle,
-					headerSubtitle: landingData.headerSubtitle,
-					headerImage: landingData.headerImage,
-					landingVideo: landingData.landingVideo,
-					landingVideoId: landingData.landingVideoId,
-					aboutTitle: landingData.aboutTitle,
-					aboutSubtitle: landingData.aboutSubtitle ?? undefined,
-					aboutImage: landingData.aboutImage,
-					whatsAppNumber: landingData.whatsAppNumber,
-					address: landingData.address,
-					email: landingData.email,
-				}
-			: defaultValues,
+		reset,
+		formState,
+	} = useForm<LandingFormValues>({
+		defaultValues: toFormValues(landingData),
+		mode: "onTouched",
 	});
 	const { isUpdating, updateLandingPage } = useUpdateLandingPage();
 
-	const submitForm = () => {
-		handleSubmit(async (data) => {
-			await updateLandingPage({
-				headerTitle: data.headerTitle,
-				headerSubtitle: data.headerSubtitle ?? undefined,
-				headerImage: data.headerImage ?? undefined,
-				landingVideo: data.landingVideo ?? undefined,
-				landingVideoId: data.landingVideoId ?? undefined,
-				aboutTitle: data.aboutTitle,
-				aboutSubtitle: data.aboutSubtitle,
-				aboutImage: data.aboutImage ?? undefined,
-				whatsAppNumber: data.whatsAppNumber,
-				address: data.address,
-				email: data.email,
-			});
-			toast.success("تم تحديث الصفحة الرئيسية بنجاح");
-		})();
-	};
+	const save = handleSubmit(
+		async (values) => {
+			try {
+				const saved = (await updateLandingPage({
+					...values,
+					landingVideoId: getYouTubeVideoID(values.landingVideo) ?? undefined,
+				})) as LandingPage;
+				reset(toFormValues(saved));
+				toast.success("تم حفظ الصفحة الرئيسية");
+			} catch (error) {
+				toast.error(getErrorMessage(error, "تعذّر حفظ التغييرات"));
+			}
+		},
+		() => {
+			setTab("edit");
+			toast.error("راجع الحقول المطلوبة قبل الحفظ");
+		}
+	);
 
 	return (
-		<Stack
-			spacing={3}
-			flex={1}
-			sx={(theme) => ({
-				backgroundColor: theme.palette.background.paper,
-				borderRadius: "16px",
-				border: "1px solid",
-				borderColor:
-					theme.palette.mode === "light"
-						? theme.palette.border.main
-						: theme.palette.divider,
-				boxShadow:
-					theme.palette.mode === "dark"
-						? `0 8px 28px ${alpha("#000", 0.35)}`
-						: `0 1px 2px ${alpha("#0F172A", 0.05)}, 0 8px 24px ${alpha("#0F172A", 0.06)}`,
-				p: { xs: 3, md: 4 },
-			})}
-		>
-			<Typography
-				variant='h5'
-				textAlign='center'
-				fontWeight={700}
-				sx={(theme) => ({ color: theme.palette.text.primary })}
-			>
-				لوحة التحكم في الصفحة الرئيسية
-			</Typography>
+		<Stack spacing={3} sx={{ minWidth: 0, flex: 1 }}>
 			<Tabs
-				value={selectedTab}
-				onChange={(e, newValue) => setSelectedTab(newValue)}
-				textColor='primary'
-				indicatorColor='primary'
-				sx={(theme) => ({
-					alignSelf: "center",
-					"& .MuiTabs-flexContainer": {
-						gap: 1,
-					},
-					"& .MuiTab-root": {
-						color: theme.palette.text.secondary,
-						fontWeight: 600,
-					},
-					"& .Mui-selected": {
-						color: theme.palette.primary.main,
-					},
-				})}
+				value={tab}
+				onChange={(_, value) => setTab(value)}
+				aria-label='وضع المحرر'
 			>
-				<Tab label='معاينة' value={TabValue.preview} />
-				<Tab label='تعديل' value={TabValue.edit} />
+				<Tab
+					label='تعديل'
+					value='edit'
+					id='cms-tab-edit'
+					aria-controls='cms-panel-edit'
+				/>
+				<Tab
+					label='معاينة'
+					value='preview'
+					id='cms-tab-preview'
+					aria-controls='cms-panel-preview'
+				/>
 			</Tabs>
-			{selectedTab === TabValue.preview ? (
-				<PreviewLandingPage data={getValues()} />
-			) : (
-				<form>
-					<Stack spacing={5}>
-						<Stack spacing={2.5} sx={(theme) => formSectionSx(theme)}>
-							<Typography
-								variant='h6'
-								fontWeight={700}
-								sx={(theme) => ({ color: theme.palette.text.primary })}
-							>
-								القسم العلوي
-							</Typography>
-							<Controller
-								name='headerTitle'
-								control={control}
-								rules={{ required: "هذا الحقل مطلوب" }}
-								render={({ field, fieldState: { error } }) => (
-									<CustomTextField
-										label='عنوان القسم'
-										fullWidth
-										{...field}
-										error={!!error}
-										helperText={error?.message}
-									/>
-								)}
-							/>
-							<Controller
-								name='headerSubtitle'
-								control={control}
-								render={({ field }) => (
-									<CustomTextField
-										label='العنوان الفرعي'
-										fullWidth
-										{...field}
-										multiline
-										minRows={3}
-										maxRows={3}
-									/>
-								)}
-							/>
-							<Box>
-								<ImageInput
-									onChangeImage={(url) => {
-										setValue("headerImage", url);
-									}}
-									imageSrc={watch("headerImage")}
-									inputLabel='صورة القسم'
-								/>
-							</Box>
-						</Stack>
-						<Stack spacing={2.5} sx={(theme) => formSectionSx(theme)}>
-							<Typography
-								variant='h6'
-								fontWeight={700}
-								sx={(theme) => ({ color: theme.palette.text.primary })}
-							>
-								قسم الفيديو التعريفي
-							</Typography>
-							<Controller
-								name='landingVideo'
-								control={control}
-								rules={{
-									pattern: {
-										value: youtubeRegex,
-										message: "يجب ادخال رابط يوتيوب",
-									},
-								}}
-								render={({ field, fieldState: { error } }) => (
-									<CustomTextField
-										label='رابط الفيديو'
-										fullWidth
-										{...field}
-										error={!!error}
-										helperText={error?.message}
-										onBlur={(e) => {
-											const url = e.target.value.trim() as string;
-											if (!url) {
-												return;
-											}
-											if (!isYouTubeVideo(url)) {
-												setError("landingVideo", {
-													message: "يجب ادخال رابط يوتيوب",
-												});
-												return;
-											}
-											clearErrors("landingVideo");
-											const videoId = getYouTubeVideoID(url) as string;
-											setValue("landingVideoId", videoId);
-											field.onChange(url);
-										}}
-									/>
-								)}
-							/>
-						</Stack>
 
-						<Stack spacing={2.5} sx={(theme) => formSectionSx(theme)}>
-							<Typography
-								variant='h6'
-								fontWeight={700}
-								sx={(theme) => ({ color: theme.palette.text.primary })}
-							>
-								قسم عن المنصة
-							</Typography>
-							<Controller
-								name='aboutTitle'
-								control={control}
-								rules={{ required: "هذا الحقل مطلوب" }}
-								render={({ field, fieldState: { error } }) => (
-									<CustomTextField
-										label='عنوان القسم'
-										fullWidth
-										{...field}
-										error={!!error}
-										helperText={error?.message}
-									/>
-								)}
-							/>
-							<Controller
-								name='aboutSubtitle'
-								control={control}
-								rules={{ required: "هذا الحقل مطلوب" }}
-								render={({ field, fieldState: { error } }) => (
-									<CustomTextField
-										label='العنوان الفرعي'
-										fullWidth
-										{...field}
-										error={!!error}
-										helperText={error?.message}
-										multiline
-										minRows={3}
-										maxRows={3}
-									/>
-								)}
-							/>
-							<Box>
-								<ImageInput
-									onChangeImage={(url) => {
-										setValue("aboutImage", url);
-									}}
-									imageSrc={watch("aboutImage")}
-									inputLabel='صورة القسم'
-								/>
-							</Box>
-						</Stack>
-						<Stack spacing={2.5} sx={(theme) => formSectionSx(theme)}>
-							<Typography
-								variant='h6'
-								fontWeight={700}
-								sx={(theme) => ({ color: theme.palette.text.primary })}
-							>
-								بيانات التواصل
-							</Typography>
-							<Controller
-								name='whatsAppNumber'
-								control={control}
-								rules={{ required: "هذا الحقل مطلوب" }}
-								render={({ field, fieldState: { error } }) => (
-									<CustomTextField
-										label='رقم الواتساب'
-										fullWidth
-										{...field}
-										error={!!error}
-										helperText={error?.message}
-									/>
-								)}
-							/>
-							<Controller
-								name='address'
-								control={control}
-								rules={{ required: "هذا الحقل مطلوب" }}
-								render={({ field, fieldState: { error } }) => (
-									<CustomTextField
-										label='العنوان'
-										fullWidth
-										{...field}
-										error={!!error}
-										helperText={error?.message}
-									/>
-								)}
-							/>
-							<Controller
-								name='email'
-								control={control}
-								rules={{ required: "هذا الحقل مطلوب" }}
-								render={({ field, fieldState: { error } }) => (
-									<CustomTextField
-										label='البريد الإلكتروني'
-										fullWidth
-										{...field}
-										error={!!error}
-										helperText={error?.message}
-									/>
-								)}
-							/>
-						</Stack>
+			<Box
+				role='tabpanel'
+				id='cms-panel-preview'
+				aria-labelledby='cms-tab-preview'
+				hidden={tab !== "preview"}
+			>
+				{tab === "preview" ? <PreviewLandingPage data={getValues()} /> : null}
+			</Box>
 
-						<Stack spacing={2} direction={"row"} justifyContent='flex-end'>
-							<LoadingButton
-								variant='contained'
-								color='primary'
-								sx={{
-									width: "auto",
-									px: 5,
-									borderRadius: "10px",
-								}}
-								onClick={submitForm}
-								loading={isUpdating}
-							>
-								حفظ
-							</LoadingButton>
-						</Stack>
+			<Box
+				component='form'
+				noValidate
+				onSubmit={(event) => {
+					event.preventDefault();
+					void save();
+				}}
+				role='tabpanel'
+				id='cms-panel-edit'
+				aria-labelledby='cms-tab-edit'
+				hidden={tab !== "edit"}
+			>
+				<Stack spacing={3}>
+					<FormSection
+						title='القسم الرئيسي'
+						description='أول ما يراه الزائر: العنوان، الوصف والصورة.'
+					>
+						<TextInput
+							control={control}
+							name='headerTitle'
+							label='العنوان الرئيسي'
+							required
+							rules={{ validate: required("العنوان الرئيسي") }}
+						/>
+						<TextInput
+							control={control}
+							name='headerSubtitle'
+							label='الوصف'
+							multiline
+							minRows={3}
+						/>
+						<ImageInput
+							inputLabel='صورة القسم الرئيسي'
+							imageSrc={watch("headerImage") || null}
+							onChangeImage={(url) =>
+								setValue("headerImage", url ?? "", { shouldDirty: true })
+							}
+						/>
+					</FormSection>
+
+					<FormSection
+						title='الفيديو التعريفي'
+						description='اختياري. اتركه فارغاً لإخفاء قسم الفيديو.'
+					>
+						<TextInput
+							control={control}
+							name='landingVideo'
+							label='رابط يوتيوب'
+							type='url'
+							placeholder='https://www.youtube.com/watch?v=…'
+							inputProps={{ dir: "ltr" }}
+							rules={{
+								validate: (value: string) =>
+									!value.trim() ||
+									!!getYouTubeVideoID(value.trim()) ||
+									"أدخل رابط فيديو صالحاً من يوتيوب",
+							}}
+						/>
+					</FormSection>
+
+					<FormSection title='قسم «عن المنصة»'>
+						<TextInput
+							control={control}
+							name='aboutTitle'
+							label='العنوان'
+							required
+							rules={{ validate: required("العنوان") }}
+						/>
+						<TextInput
+							control={control}
+							name='aboutSubtitle'
+							label='النص التعريفي'
+							multiline
+							minRows={4}
+						/>
+						<ImageInput
+							inputLabel='صورة القسم'
+							imageSrc={watch("aboutImage") || null}
+							onChangeImage={(url) =>
+								setValue("aboutImage", url ?? "", { shouldDirty: true })
+							}
+						/>
+					</FormSection>
+
+					<FormSection title='بيانات التواصل'>
+						<TextInput
+							control={control}
+							name='email'
+							label='البريد الإلكتروني'
+							type='email'
+							autoComplete='email'
+							required
+							inputProps={{ dir: "ltr" }}
+							rules={{
+								validate: (value: string) =>
+									!value.trim()
+										? "البريد الإلكتروني مطلوب"
+										: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()) ||
+											"أدخل بريداً إلكترونياً صالحاً",
+							}}
+						/>
+						<TextInput
+							control={control}
+							name='whatsAppNumber'
+							label='رقم واتساب'
+							type='tel'
+							inputMode='tel'
+							required
+							helperText='بالصيغة الدولية بدون + أو أصفار بادئة، مثال: 972597408236'
+							inputProps={{ dir: "ltr" }}
+							rules={{
+								validate: (value: string) =>
+									/^\d{6,15}$/.test(value.replace(/[\s+-]/g, "")) ||
+									"أدخل رقماً صالحاً (6–15 رقماً)",
+							}}
+						/>
+						<TextInput
+							control={control}
+							name='address'
+							label='العنوان'
+							required
+							rules={{ validate: required("العنوان") }}
+						/>
+					</FormSection>
+				</Stack>
+
+				<Surface
+					variant='elevated'
+					sx={{
+						position: "sticky",
+						bottom: 16,
+						mt: 3,
+						p: 1.5,
+						px: 2,
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "space-between",
+						gap: 2,
+						zIndex: 5,
+					}}
+				>
+					<Typography
+						variant='body2'
+						role='status'
+						sx={{
+							color: formState.isDirty ? "warning.main" : "text.secondary",
+							fontWeight: 700,
+						}}
+					>
+						{formState.isDirty
+							? "لديك تغييرات غير محفوظة"
+							: "كل التغييرات محفوظة"}
+					</Typography>
+					<Stack direction='row' gap={1}>
+						<GhostButton
+							disabled={!formState.isDirty || isUpdating}
+							onClick={() => reset()}
+						>
+							تراجع
+						</GhostButton>
+						<LoadingButton
+							type='submit'
+							variant='contained'
+							loading={isUpdating}
+							disabled={!formState.isDirty}
+						>
+							حفظ التغييرات
+						</LoadingButton>
 					</Stack>
-				</form>
-			)}
+				</Surface>
+			</Box>
 		</Stack>
 	);
 }

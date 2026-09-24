@@ -1,53 +1,36 @@
 import bcrypt from "bcrypt";
+import { cleanString, jsonError, readJson } from "@/libs/api";
 import { prisma } from "@/libs/prismaDb";
+import { publicUserSelect } from "@/libs/users";
 import { NextResponse } from "next/server";
 
+/** Bootstrap registration: only the configured ADMIN_EMAIL may register. */
 export async function POST(request: Request) {
-	const body = await request.json();
-	const { name, email, password } = body;
+	const body = await readJson(request);
+	const name = cleanString(body.name, 100);
+	const email = cleanString(body.email, 200)?.toLowerCase();
+	const password = typeof body.password === "string" ? body.password : "";
 
-	if (!name || !email || !password) {
-		return new NextResponse("Missing Fields", { status: 400 });
+	if (!name || !email || !password) return jsonError("Missing Fields", 400);
+	if (password.length < 8) return jsonError("Password too short", 400);
+
+	if (!process.env.ADMIN_EMAIL || email !== process.env.ADMIN_EMAIL) {
+		return jsonError("You are not allowed to register", 403);
 	}
 
-	const formatedEmail = email.toLowerCase();
+	if (await prisma.user.findUnique({ where: { email } })) {
+		return jsonError("Email already exists", 409);
+	}
 
-	const exist = await prisma.user.findUnique({
-		where: {
-			email: formatedEmail,
+	const user = await prisma.user.create({
+		data: {
+			name,
+			email,
+			password: await bcrypt.hash(password, 10),
+			role: "ADMIN",
 		},
+		select: publicUserSelect,
 	});
 
-	if (exist) {
-		throw new Error("Email already exists");
-	}
-
-	const adminEmails = process.env.ADMIN_EMAIL;
-
-	const isAdminEmail = formatedEmail === adminEmails;
-	if (!isAdminEmail) {
-		return new NextResponse("You are not allowed to register", { status: 403 });
-	}
-
-	const hashedPassword = await bcrypt.hash(password, 10);
-
-	const newUser = {
-		name,
-		email: formatedEmail,
-		password: hashedPassword,
-		role: "ADMIN",
-	};
-
-	try {
-		const user = await prisma.user.create({
-			data: {
-				...newUser,
-			},
-		});
-
-		return NextResponse.json(user);
-	} catch (error) {
-		console.error(error);
-		return new NextResponse("Something went wrong", { status: 500 });
-	}
+	return NextResponse.json(user, { status: 201 });
 }

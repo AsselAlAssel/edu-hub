@@ -1,57 +1,65 @@
-import { Button, Stack, Typography } from "@mui/material";
-import Image from "next/image";
+"use client";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import { Box, Button, Stack, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import Link from "next/link";
-import React from "react";
 
 const NotFound = () => {
 	return (
-		<Stack
-			justifyContent='center'
-			alignItems='center'
-			height='100vh'
-			spacing={3}
-			sx={{ px: 3 }}
+		<Box
+			sx={(theme) => ({
+				flex: 1,
+				minHeight: "70vh",
+				display: "grid",
+				placeItems: "center",
+				px: 2,
+				backgroundImage: `radial-gradient(50% 45% at 50% 0%, ${alpha(theme.tokens.colors.violet, 0.14)}, transparent 70%)`,
+			})}
 		>
-			<Image src='/images/404.jpg' alt='404' width={280} height={280} />
-			<Typography
-				variant='h3'
-				sx={{
-					fontWeight: 800,
-					textAlign: "center",
-					letterSpacing: "-0.01em",
-				}}
+			<Stack
+				spacing={2.5}
+				alignItems='center'
+				textAlign='center'
+				sx={{ maxWidth: 480 }}
 			>
-				الصفحة غير موجودة
-			</Typography>
-			<Typography
-				sx={{
-					color: "text.tertiary",
-					textAlign: "center",
-					maxWidth: 420,
-					fontSize: "1.0625rem",
-					lineHeight: 1.7,
-				}}
-			>
-				يبدو أن الصفحة التي تبحث عنها غير موجودة أو تم نقلها
-			</Typography>
-			<Link href='/' style={{ textDecoration: "none" }}>
-				<Button
-					size='large'
+				<Typography
+					aria-hidden
 					sx={{
-						px: 5,
-						borderRadius: "14px",
-						fontWeight: 700,
-						fontSize: "1rem",
-						boxShadow: "0 4px 14px rgba(0, 136, 221, 0.2)",
-						"&:hover": {
-							boxShadow: "0 8px 24px rgba(0, 136, 221, 0.25)",
-						},
+						fontSize: { xs: "4.5rem", md: "6rem" },
+						fontWeight: 800,
+						lineHeight: 1,
+						color: "primary.main",
+						direction: "ltr",
+						fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
 					}}
 				>
-					الرجوع للصفحة الرئيسية
-				</Button>
-			</Link>
-		</Stack>
+					404
+				</Typography>
+				<Typography
+					variant='h1'
+					sx={{ fontSize: { xs: "1.75rem", md: "2.25rem" } }}
+				>
+					الصفحة غير موجودة
+				</Typography>
+				<Typography sx={{ color: "text.secondary" }}>
+					يبدو أن الصفحة التي تبحث عنها غير موجودة أو تم نقلها.
+				</Typography>
+				<Stack direction={{ xs: "column", sm: "row" }} gap={1.5} sx={{ pt: 1 }}>
+					<Button component={Link} href='/' size='large'>
+						الصفحة الرئيسية
+					</Button>
+					<Button
+						component={Link}
+						href='/classes'
+						size='large'
+						variant='outlined'
+						endIcon={<ArrowBackRoundedIcon />}
+					>
+						تصفّح الصفوف
+					</Button>
+				</Stack>
+			</Stack>
+		</Box>
 	);
 };
 

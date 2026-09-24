@@ -32,19 +32,22 @@ export const useResource = ({
 		videos: Video[];
 	};
 }) => {
-	const { data, isLoading, mutate } = useSWR<
+	// Server-rendered data seeds the cache; no duplicate request on mount.
+	const { data, error, isLoading, mutate } = useSWR<
 		{
 			folders: Folder[];
 			files: File[];
 			videos: Video[];
 		},
-		any
+		unknown
 	>(folderId ? `/api/resources/${folderId}` : null, getResources, {
 		fallbackData: resources,
+		revalidateOnMount: false,
 	});
 
 	return {
 		data,
+		error,
 		isLoading,
 		mutate,
 	};

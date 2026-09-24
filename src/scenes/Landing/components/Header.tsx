@@ -1,390 +1,242 @@
 "use client";
-import { Box, Button, Stack, Typography, alpha } from "@mui/material";
-import { motion } from "framer-motion";
+import PageContainer from "@/components/PageContainer";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import { Box, Button, Stack, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import Image from "next/image";
-import { useRouter } from "nextjs-toploader/app";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import {
-	FloatingImage,
-	GlowOrb,
-	GridPattern,
-	MotionBox,
-	OrbitRing,
-	FloatingParticles,
-} from "./MotionComponents";
-import { APP_BAR_HEIGHT } from "@/constants/appShell";
-import { landingChrome } from "../landingChrome";
+import Link from "next/link";
 
-const stagger = {
-	hidden: {},
-	visible: {
-		transition: { staggerChildren: 0.15, delayChildren: 0.3 },
-	},
-};
-
-const fadeUp = {
-	hidden: { opacity: 0, y: 28 },
-	visible: {
-		opacity: 1,
-		y: 0,
-		transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const },
-	},
-} as const;
-
-import { forwardRef, type ComponentProps } from "react";
-
-const RawMotionButton = motion.create(Button);
-type MotionButtonProps = ComponentProps<typeof RawMotionButton>;
-const MotionButton = forwardRef<HTMLButtonElement, MotionButtonProps>(
-	function MotionButton(props, ref) {
-		return (
-			<RawMotionButton
-				ref={ref}
-				{...({ ignoreStrict: true } as any)}
-				{...props}
-			/>
-		);
-	}
-);
-
-type HeaderProps = {
+type HeroProps = {
 	headerTitle?: string;
 	headerSubtitle?: string | null;
 	headerImage?: string | null;
-	isVideoExist: boolean;
+	isVideoExist?: boolean;
+	/** CMS preview: renders an h2 and skips LCP image priority. */
+	preview?: boolean;
 };
 
-export default function Header(props: HeaderProps) {
-	const { headerTitle, headerSubtitle, headerImage } = props;
-	const router = useRouter();
+const EQUATIONS = ["F = ma", "E = mc²", "v = λf"];
 
+/** Landing hero: headline, CTAs and the CMS image inside an orbit frame. */
+export default function Header({
+	headerTitle,
+	headerSubtitle,
+	headerImage,
+	preview = false,
+}: HeroProps) {
 	return (
 		<Box
-			component='section'
 			sx={(theme) => {
-				const c = landingChrome(theme);
-				const deep =
-					theme.palette.mode === "dark"
-						? alpha("#020617", 0.96)
-						: alpha(theme.palette.primary.main, 0.06);
-				/* نهاية التدرّج على `c.bg` مثل بقية اللاندنغ — تجنّب قفزة لونية لـ `paper` تظهر كخط أفقي */
-				const midBlend = alpha(
-					c.bg,
-					theme.palette.mode === "dark" ? 0.88 : 0.97
-				);
+				const { colors } = theme.tokens;
 				return {
 					position: "relative",
-					minHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
-					display: "flex",
-					alignItems: "center",
 					overflow: "hidden",
-					/* لون أساس + تدرّج ينتهي على نفس `c.bg` (بدون transparent) لتفادي شريط أفقي */
-					backgroundColor: c.bg,
-					backgroundImage: `linear-gradient(160deg, ${c.bg} 0%, ${deep} 36%, ${midBlend} 66%, ${c.bg} 100%)`,
+					isolation: "isolate",
+					py: { xs: 7, md: 11 },
+					// Aurora wash: one cyan and one violet radial — static, low alpha.
+					backgroundImage: `radial-gradient(60% 55% at 85% 0%, ${alpha(colors.cyan, 0.14)} 0%, transparent 70%), radial-gradient(45% 50% at 5% 100%, ${alpha(colors.violet, 0.12)} 0%, transparent 70%)`,
+					"&::before": {
+						content: '""',
+						position: "absolute",
+						inset: 0,
+						zIndex: -1,
+						backgroundImage: `linear-gradient(${colors.border} 1px, transparent 1px), linear-gradient(90deg, ${colors.border} 1px, transparent 1px)`,
+						backgroundSize: "56px 56px",
+						maskImage:
+							"radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 75%)",
+						WebkitMaskImage:
+							"radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 75%)",
+						opacity: 0.6,
+					},
 				};
 			}}
 		>
-			<GridPattern />
-			<FloatingParticles count={12} />
-
-			<GlowOrb
-				color='rgba(0,180,216,0.25)'
-				size={600}
-				top='-10%'
-				right='-10%'
-			/>
-			<GlowOrb
-				color='rgba(124,58,237,0.2)'
-				size={500}
-				bottom='-15%'
-				left='-10%'
-				delay={3}
-			/>
-			<GlowOrb
-				color='rgba(0,180,216,0.12)'
-				size={300}
-				top='60%'
-				left='50%'
-				delay={5}
-			/>
-
-			<OrbitRing size={700} top='-20%' right='-15%' duration={25} />
-			<OrbitRing
-				size={500}
-				bottom='-10%'
-				left='-5%'
-				duration={30}
-				color='rgba(124,58,237,0.06)'
-			/>
-
-			<Box
-				sx={{
-					maxWidth: 1200,
-					width: "100%",
-					mx: "auto",
-					px: { xs: 3, sm: 4, md: 6 },
-					position: "relative",
-					zIndex: 2,
-					py: { xs: 8, sm: 10, md: 0 },
-				}}
-			>
-				<Stack
-					direction={{ xs: "column-reverse", md: "row" }}
-					alignItems='center'
-					justifyContent='space-between'
-					spacing={{ xs: 6, md: 8 }}
+			<PageContainer>
+				<Box
+					sx={{
+						display: "grid",
+						alignItems: "center",
+						gap: { xs: 6, md: 8 },
+						gridTemplateColumns: {
+							xs: "1fr",
+							md: headerImage ? "1.1fr 0.9fr" : "1fr",
+						},
+					}}
 				>
-					<MotionBox
-						initial='hidden'
-						animate='visible'
-						variants={stagger}
-						sx={{ flex: 1, maxWidth: { md: "55%" } }}
+					<Stack
+						spacing={3}
+						alignItems={{ xs: "center", md: "flex-start" }}
+						textAlign={{ xs: "center", md: "start" }}
+						sx={{
+							"@media (prefers-reduced-motion: no-preference)": {
+								animation: "qaHeroIn 600ms cubic-bezier(0.22, 1, 0.36, 1) both",
+							},
+							"@keyframes qaHeroIn": {
+								from: { opacity: 0, transform: "translateY(12px)" },
+								to: { opacity: 1, transform: "none" },
+							},
+						}}
 					>
-						<Stack spacing={4} alignItems={{ xs: "center", md: "flex-start" }}>
-							{/* Badge */}
-							<MotionBox variants={fadeUp}>
-								<Box
-									sx={(theme) => {
-										const c = landingChrome(theme);
-										return {
-											display: "inline-flex",
-											alignItems: "center",
-											gap: 1,
-											px: 2.5,
-											py: 0.75,
-											borderRadius: "100px",
-											border: `1px solid ${c.border}`,
-											backgroundColor: alpha(c.accent, 0.08),
-											backdropFilter: "blur(12px)",
-										};
-									}}
-								>
-									<Box
-										sx={(theme) => {
-											const c = landingChrome(theme);
-											return {
-												width: 6,
-												height: 6,
-												borderRadius: "50%",
-												backgroundColor: c.accent,
-												boxShadow:
-													theme.palette.mode === "dark"
-														? `0 0 6px ${alpha(c.accent, 0.35)}`
-														: `0 0 4px ${alpha(c.accent, 0.18)}`,
-											};
-										}}
-									/>
-									<Typography
-										sx={(theme) => ({
-											fontSize: "0.8125rem",
-											fontWeight: 600,
-											color: theme.palette.primary.main,
-											letterSpacing: "0.04em",
-										})}
-									>
-										منصة تعليمية متكاملة
-									</Typography>
-								</Box>
-							</MotionBox>
-
-							{/* Title */}
-							<MotionBox variants={fadeUp}>
-								<Typography
-									sx={(theme) => {
-										const c = landingChrome(theme);
-										return {
-											fontSize: { xs: "2.25rem", sm: "2.75rem", md: "3.5rem" },
-											fontWeight: 800,
-											lineHeight: 1.1,
-											letterSpacing: "-0.03em",
-											color: c.text,
-											textAlign: { xs: "center", md: "start" },
-											"& span": {
-												background: `linear-gradient(135deg, ${c.accent} 0%, ${alpha(c.accent, 0.85)} 50%, ${c.purple} 100%)`,
-												WebkitBackgroundClip: "text",
-												WebkitTextFillColor: "transparent",
-												backgroundClip: "text",
-											},
-										};
-									}}
-								>
-									{headerTitle || (
-										<>
-											اكتشف عالم <span>الفيزياء</span>
-											<br />
-											بطريقة جديدة
-										</>
-									)}
-								</Typography>
-							</MotionBox>
-
-							{/* Subtitle */}
-							{headerSubtitle && (
-								<MotionBox variants={fadeUp}>
-									<Typography
-										sx={(theme) => {
-											const c = landingChrome(theme);
-											return {
-												fontSize: { xs: "1rem", sm: "1.125rem" },
-												lineHeight: 1.8,
-												color: c.textSecondary,
-												textAlign: { xs: "center", md: "start" },
-												maxWidth: 500,
-												fontWeight: 400,
-											};
-										}}
-									>
-										{headerSubtitle}
-									</Typography>
-								</MotionBox>
-							)}
-
-							{/* CTA Buttons */}
-							<MotionBox variants={fadeUp}>
-								<Stack
-									direction={{ xs: "column", sm: "row" }}
-									spacing={2}
-									sx={{ width: { xs: "100%", sm: "auto" }, pt: 1 }}
-									alignItems={{ xs: "stretch", md: "flex-start" }}
-								>
-									<MotionButton
-										onClick={() => router.push("/classes")}
-										size='large'
-										endIcon={
-											<ArrowBackIcon sx={{ fontSize: "20px !important" }} />
-										}
-										whileHover={{ scale: 1.04, y: -2 }}
-										whileTap={{ scale: 0.97 }}
-										transition={{ type: "spring", stiffness: 400, damping: 17 }}
-										sx={(theme) => {
-											const c = landingChrome(theme);
-											return {
-												background: `linear-gradient(135deg, ${c.accent} 0%, ${theme.palette.primary.dark} 100%)`,
-												color: theme.palette.primary.contrastText,
-												borderRadius: "14px",
-												fontWeight: 700,
-												fontSize: "1rem",
-												px: 4,
-												height: 54,
-												boxShadow:
-													theme.palette.mode === "dark"
-														? `0 3px 14px ${alpha(c.accent, 0.22)}, 0 0 28px ${alpha(c.accent, 0.08)}`
-														: `0 2px 8px ${alpha(c.accent, 0.14)}, 0 0 14px ${alpha(c.accent, 0.05)}`,
-												border: `1px solid ${alpha(c.accent, 0.35)}`,
-												"&:hover": {
-													background: `linear-gradient(135deg, ${alpha(c.accent, 0.95)} 0%, ${c.accent} 100%) !important`,
-													boxShadow:
-														theme.palette.mode === "dark"
-															? `0 6px 22px ${alpha(c.accent, 0.28)}, 0 0 40px ${alpha(c.accent, 0.11)} !important`
-															: `0 4px 12px ${alpha(c.accent, 0.18)}, 0 0 20px ${alpha(c.accent, 0.07)} !important`,
-												},
-											};
-										}}
-									>
-										تعرف على الصفوف
-									</MotionButton>
-									<MotionButton
-										onClick={() => {
-											document
-												.getElementById("about")
-												?.scrollIntoView({ behavior: "smooth" });
-										}}
-										variant='outlined'
-										size='large'
-										whileHover={{ scale: 1.04, y: -2 }}
-										whileTap={{ scale: 0.97 }}
-										transition={{ type: "spring", stiffness: 400, damping: 17 }}
-										sx={(theme) => {
-											const c = landingChrome(theme);
-											return {
-												borderColor: c.border,
-												color: c.text,
-												borderRadius: "14px",
-												fontWeight: 600,
-												fontSize: "1rem",
-												px: 4,
-												height: 54,
-												backgroundColor: alpha(
-													theme.palette.background.paper,
-													0.06
-												),
-												backdropFilter: "blur(8px)",
-												"&:hover": {
-													borderColor: c.borderHover,
-													backgroundColor: `${alpha(c.accent, 0.08)} !important`,
-												},
-											};
-										}}
-									>
-										تعرف علينا
-									</MotionButton>
-								</Stack>
-							</MotionBox>
-						</Stack>
-					</MotionBox>
-
-					{/* Hero Image */}
-					{headerImage && (
-						<FloatingImage
-							sx={{
-								flex: 1,
-								maxWidth: { xs: 340, md: 460 },
-								width: "100%",
-								display: "flex",
-								justifyContent: "center",
-							}}
+						<Box
+							sx={(theme) => ({
+								display: "inline-flex",
+								alignItems: "center",
+								gap: 1,
+								px: 1.75,
+								py: 0.5,
+								borderRadius: `${theme.tokens.radii.full}px`,
+								border: `1px solid ${theme.tokens.colors.borderStrong}`,
+								backgroundColor: alpha(theme.palette.primary.main, 0.08),
+								color: "primary.main",
+								fontWeight: 700,
+								fontSize: "0.875rem",
+							})}
 						>
 							<Box
-								sx={(theme) => {
-									const c = landingChrome(theme);
-									return {
-										position: "relative",
-										width: "100%",
-										borderRadius: "24px",
-										overflow: "hidden",
-										border: "1px solid",
-										borderColor: alpha(
-											c.border,
-											theme.palette.mode === "dark" ? 0.2 : 0.35
-										),
-										boxShadow:
-											theme.palette.mode === "dark"
-												? `0 12px 36px rgba(0,0,0,0.28), ${c.glow}`
-												: `0 5px 18px rgba(15,23,42,0.07), 0 2px 8px rgba(15,23,42,0.04), ${c.glow}`,
-									};
+								aria-hidden
+								sx={{
+									width: 6,
+									height: 6,
+									borderRadius: "50%",
+									bgcolor: "primary.main",
 								}}
+							/>
+							منصة الأستاذ محمد صبح لتعليم الفيزياء
+						</Box>
+
+						<Typography
+							variant='h1'
+							component={preview ? "h2" : "h1"}
+							sx={{
+								fontSize: { xs: "2.25rem", sm: "2.875rem", md: "3.5rem" },
+								lineHeight: 1.2,
+								maxWidth: 640,
+								"& .qa-accent": { color: "primary.main" },
+							}}
+						>
+							{headerTitle || (
+								<>
+									اكتشف عالم <span className='qa-accent'>الفيزياء</span> بطريقة
+									واضحة
+								</>
+							)}
+						</Typography>
+
+						{headerSubtitle ? (
+							<Typography
+								variant='subtitle1'
+								component='p'
+								sx={{
+									color: "text.secondary",
+									maxWidth: 560,
+									fontSize: { md: "1.1875rem" },
+								}}
+							>
+								{headerSubtitle}
+							</Typography>
+						) : null}
+
+						<Stack
+							direction={{ xs: "column", sm: "row" }}
+							gap={1.5}
+							sx={{ width: { xs: "100%", sm: "auto" }, pt: 1 }}
+						>
+							<Button
+								component={Link}
+								href='/classes'
+								size='large'
+								endIcon={<ArrowBackRoundedIcon />}
+							>
+								تصفّح الصفوف
+							</Button>
+							<Button
+								component={Link}
+								href='/#about'
+								size='large'
+								variant='outlined'
+							>
+								تعرّف على المنصة
+							</Button>
+						</Stack>
+					</Stack>
+
+					{headerImage ? (
+						<Box
+							sx={{
+								position: "relative",
+								maxWidth: 520,
+								width: "100%",
+								mx: "auto",
+							}}
+						>
+							{/* Orbit rings: static decoration, hidden from assistive tech. */}
+							<Box
+								aria-hidden
+								sx={(theme) => ({
+									position: "absolute",
+									inset: "-8%",
+									borderRadius: "50%",
+									border: `1px dashed ${theme.tokens.colors.borderStrong}`,
+									transform: "rotate(-12deg) scaleY(0.82)",
+									pointerEvents: "none",
+								})}
+							/>
+							<Box
+								sx={(theme) => ({
+									position: "relative",
+									aspectRatio: "5 / 4",
+									borderRadius: `${theme.tokens.radii.xl}px`,
+									overflow: "hidden",
+									border: `1px solid ${theme.tokens.colors.border}`,
+									boxShadow: theme.tokens.shadows.medium,
+									backgroundColor: theme.tokens.colors.surfaceSecondary,
+								})}
 							>
 								<Image
 									src={headerImage}
-									alt='landing-header'
-									width={460}
-									height={370}
-									priority
-									sizes='(max-width: 768px) 340px, 460px'
-									style={{
-										width: "100%",
-										height: "auto",
-										objectFit: "cover",
-										borderRadius: "24px",
-									}}
-								/>
-								{/* Glow overlay */}
-								<Box
-									sx={(theme) => {
-										const c = landingChrome(theme);
-										return {
-											position: "absolute",
-											inset: 0,
-											background: `linear-gradient(180deg, transparent 0%, transparent 72%, ${alpha(c.accent, 0.08)} 100%)`,
-											pointerEvents: "none",
-										};
-									}}
+									alt='الأستاذ محمد صبح — شروحات الفيزياء'
+									fill
+									priority={!preview}
+									sizes='(max-width: 900px) 92vw, 520px'
+									style={{ objectFit: "cover" }}
 								/>
 							</Box>
-						</FloatingImage>
-					)}
-				</Stack>
-			</Box>
+							{EQUATIONS.map((equation, index) => (
+								<Box
+									key={equation}
+									aria-hidden
+									sx={(theme) => ({
+										display: {
+											xs: index === 2 ? "none" : "block",
+											sm: "block",
+										},
+										position: "absolute",
+										...[
+											{ top: "8%", insetInlineStart: "-6%" },
+											{ bottom: "10%", insetInlineEnd: "-5%" },
+											{ bottom: "-4%", insetInlineStart: "18%" },
+										][index],
+										px: 1.5,
+										py: 0.75,
+										borderRadius: `${theme.tokens.radii.sm}px`,
+										backgroundColor: theme.tokens.colors.surfaceElevated,
+										border: `1px solid ${theme.tokens.colors.border}`,
+										boxShadow: theme.tokens.shadows.medium,
+										fontFamily:
+											"ui-monospace, SFMono-Regular, Menlo, monospace",
+										fontWeight: 700,
+										fontSize: "0.875rem",
+										color: index === 1 ? "secondary.main" : "primary.main",
+										direction: "ltr",
+									})}
+								>
+									{equation}
+								</Box>
+							))}
+						</Box>
+					) : null}
+				</Box>
+			</PageContainer>
 		</Box>
 	);
 }

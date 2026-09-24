@@ -1,91 +1,125 @@
 "use client";
+import { FormField, PasswordField } from "@/components/ui/FormField";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { Alert, Stack } from "@mui/material";
 import { signIn, signOut } from "next-auth/react";
-import { useQueryState } from "next-usequerystate";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import FormButton from "../Common/Dashboard/FormButton";
-import InputGroup from "../Common/Dashboard/InputGroup";
-import Loader from "../Common/Loader";
+
+type SigninValues = { email: string; password: string };
+
+export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Only same-origin relative paths are allowed as post-login destinations. */
+export function safeCallbackUrl(value: string | null) {
+	return value && value.startsWith("/") && !value.startsWith("//")
+		? value
+		: "/classes";
+}
 
 export default function SigninWithPassword() {
-	const [signOutQuery] = useQueryState("signOut");
-	const [data, setData] = useState({
-		email: "",
-		password: "",
-		remember: false,
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const [formError, setFormError] = useState<string | null>(null);
+	const { control, handleSubmit, formState } = useForm<SigninValues>({
+		defaultValues: { email: "", password: "" },
+		mode: "onTouched",
 	});
 
-	const [loading, setLoading] = useState(false);
-
-	const router = useRouter();
-
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setData({
-			...data,
-			[e.target.name]: e.target.value,
-		});
-	};
-
-	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-
-		if (!data.email) {
-			return toast.error("Please enter your email address.");
-		}
-
-		setLoading(true);
-
-		signIn("credentials", { ...data, redirect: false }).then((callback) => {
-			if (callback?.error) {
-				toast.error(callback.error);
-				setLoading(false);
-			}
-
-			if (callback?.ok && !callback?.error) {
-				toast.success("Logged in successfully");
-				setLoading(false);
-				setData({ email: "", password: "", remember: false });
-				router.push("/classes");
-			}
-		});
-	};
-
 	useEffect(() => {
-		if (signOutQuery) {
-			signOut({ callbackUrl: "/auth/signin" });
+		if (searchParams.get("signOut"))
+			void signOut({ callbackUrl: "/auth/signin" });
+	}, [searchParams]);
+
+	const onSubmit = handleSubmit(async ({ email, password }) => {
+		setFormError(null);
+		const result = await signIn("credentials", {
+			email: email.trim().toLowerCase(),
+			password,
+			redirect: false,
+		});
+
+		if (!result || result.error) {
+			setFormError(
+				result?.error && result.error !== "CredentialsSignin"
+					? result.error
+					: "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+			);
+			return;
 		}
-	}, [signOutQuery]);
+
+		toast.success("تم تسجيل الدخول بنجاح");
+		router.push(safeCallbackUrl(searchParams.get("callbackUrl")));
+		router.refresh();
+	});
 
 	return (
-		<form className='mb-5' onSubmit={handleSubmit}>
-			<InputGroup
-				label='البريد الإلكتروني'
-				placeholder='أدخل بريدك الإلكتروني'
-				type='email'
+		<Stack
+			component='form'
+			noValidate
+			onSubmit={onSubmit}
+			spacing={2.5}
+			aria-label='نموذج تسجيل الدخول'
+		>
+			{formError ? (
+				<Alert severity='error' role='alert'>
+					{formError}
+				</Alert>
+			) : null}
+			<Controller
 				name='email'
-				required
-				height='50px'
-				handleChange={handleChange}
-				value={data.email}
+				control={control}
+				rules={{
+					required: "البريد الإلكتروني مطلوب",
+					pattern: {
+						value: EMAIL_PATTERN,
+						message: "أدخل بريداً إلكترونياً صالحاً",
+					},
+				}}
+				render={({ field, fieldState: { error } }) => (
+					<FormField
+						{...field}
+						label='البريد الإلكتروني'
+						type='email'
+						autoComplete='email'
+						inputMode='email'
+						placeholder='name@example.com'
+						required
+						autoFocus
+						inputProps={{ dir: "ltr" }}
+						error={!!error}
+						helperText={error?.message}
+					/>
+				)}
 			/>
-
-			<InputGroup
-				label='كلمة المرور'
-				placeholder='أدخل كلمة المرور'
-				type='password'
+			<Controller
 				name='password'
-				required
-				height='50px'
-				handleChange={handleChange}
-				value={data.password}
+				control={control}
+				rules={{ required: "كلمة المرور مطلوبة" }}
+				render={({ field, fieldState: { error } }) => (
+					<PasswordField
+						{...field}
+						label='كلمة المرور'
+						autoComplete='current-password'
+						required
+						inputProps={{ dir: "ltr" }}
+						error={!!error}
+						helperText={error?.message}
+					/>
+				)}
 			/>
-			<br />
-
-			<FormButton height='50px'>
+			<LoadingButton
+				type='submit'
+				variant='contained'
+				size='large'
+				fullWidth
+				loading={formState.isSubmitting}
+			>
 				تسجيل الدخول
-				{loading && <Loader style='dark:border-primary border-white' />}
-			</FormButton>
-		</form>
+			</LoadingButton>
+		</Stack>
 	);
 }

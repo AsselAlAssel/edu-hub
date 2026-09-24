@@ -1,131 +1,61 @@
-import { Box, Grid, Typography } from "@mui/material";
-import React, { useState } from "react";
-import FileCard from "./FileCard";
-import { File } from "@prisma/client";
-import AddFileCard from "./AddFileCard";
-import useRole from "@/hooks/useRole";
-import AttachmentsForm from "@/components/AttachmentsForm";
-import DeleteDialog from "@/components/DeleteDialog";
-import { useDeleteFile, useUpdateFileName } from "@/hooks/useResourceApi";
-import { mutate } from "swr";
-import ChangeNameForm from "@/components/ChangeNameForm";
-import { deleteObjectFromR2 } from "@/actions/upload";
+"use client";
 import SortableGrid from "@/components/SortableGrid";
+import { cardGridSx } from "@/components/ui/Skeletons";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import { Box } from "@mui/material";
+import type { File } from "@prisma/client";
+import AddResourceCard from "./AddResourceCard";
+import FileCard from "./FileCard";
+import ResourceSection from "./ResourceSection";
 
 export default function FilesSection({
 	files,
-	classId,
-	folderId,
+	isAdmin,
+	onAdd,
+	onRename,
+	onDelete,
+	onMove,
 }: {
 	files: File[];
-	classId: string;
-	folderId: string;
+	isAdmin: boolean;
+	onAdd: () => void;
+	onRename: (file: File) => void;
+	onDelete: (file: File) => void;
+	onMove?: (file: File) => void;
 }) {
-	const [open, setOpen] = useState(false);
-	const [selectedFile, setSelectedFile] = useState<File | null>(null);
-	const [openChangeName, setOpenChangeName] = useState(false);
-	const [openDelete, setOpenDelete] = useState(false);
-	const { isAdmin } = useRole();
-	const { deleteFile, isLoading } = useDeleteFile();
-	const { isLoading: isUpdatingName, updateFileName } = useUpdateFileName();
-	const isDataEmpty = files.length === 0;
-	if (isDataEmpty && !isAdmin) return null;
+	if (!files.length && !isAdmin) return null;
+
 	return (
-		<Box>
-			<Typography variant='h5' fontWeight={700} mb={2} color='text.primary'>
-				الملفات
-			</Typography>
+		<ResourceSection
+			id='files-title'
+			title='الملفات'
+			count={files.length}
+			icon={<DescriptionOutlinedIcon />}
+		>
 			<SortableGrid
 				items={files}
 				isAdmin={isAdmin}
-				renderItem={(file) => (
+				gridSx={cardGridSx}
+				label='الملفات'
+				getHandleLabel={(file) => `إعادة ترتيب الملف: ${file.name}`}
+				renderItem={(file, handle) => (
 					<FileCard
 						file={file}
-						onEdit={() => {
-							setSelectedFile(file);
-							setOpenChangeName(true);
-						}}
-						onDelete={() => {
-							setSelectedFile(file);
-							setOpenDelete(true);
-						}}
+						handle={handle}
+						isAdmin={isAdmin}
+						onEdit={() => onRename(file)}
+						onDelete={() => onDelete(file)}
+						onMove={onMove ? () => onMove(file) : undefined}
 					/>
 				)}
 				extraItems={
 					isAdmin ? (
-						<Grid
-							item
-							xs={12}
-							sm={6}
-							md={4}
-							lg={3}
-							sx={{ display: "flex", width: "100%" }}
-						>
-							<AddFileCard onClick={() => setOpen(true)} />
-						</Grid>
-					) : undefined
+						<Box component='li'>
+							<AddResourceCard label='رفع ملف' onClick={onAdd} />
+						</Box>
+					) : null
 				}
 			/>
-			<AttachmentsForm
-				open={open}
-				handleClose={() => setOpen(false)}
-				title={"إضافة ملفات جدد"}
-				folderId={folderId}
-				classId={classId}
-			/>
-			<DeleteDialog
-				deleteDialogOpen={openDelete}
-				handleDeleteDialogClose={() => {
-					setOpenDelete(false);
-					setSelectedFile(null);
-				}}
-				handleDelete={async () => {
-					if (!selectedFile) return;
-					mutate(
-						`/api/resources/${folderId}`,
-						deleteFile({ fileId: selectedFile?.id || "" }),
-						{
-							optimisticData: (oldData) => {
-								return {
-									...oldData,
-									files: oldData.files.filter(
-										(file: File) => file.id !== selectedFile?.id
-									),
-								};
-							},
-							populateCache: false,
-							revalidate: false,
-						}
-					);
-					const url = selectedFile.url;
-					const key = url.split("/").pop() as string;
-					await deleteObjectFromR2(key);
-					setOpenDelete(false);
-				}}
-				title='حذف المجلد'
-				description='هل تريد بالتأكيد حذف هذا المجلد؟'
-				isDeleting={isLoading}
-			/>
-			<ChangeNameForm
-				open={openChangeName && !!selectedFile}
-				handleClose={() => {
-					setOpenChangeName(false);
-					setSelectedFile(null);
-				}}
-				isUpdatingName={isUpdatingName}
-				onSubmit={async (name) => {
-					if (!selectedFile) return;
-					await updateFileName({
-						fileId: selectedFile?.id || "",
-						name,
-					});
-					mutate(`/api/resources/${selectedFile?.folderId || folderId}`);
-					setOpenChangeName(false);
-					setSelectedFile(null);
-				}}
-				title='تعديل اسم الملف'
-				name={selectedFile?.name || ""}
-			/>
-		</Box>
+		</ResourceSection>
 	);
 }

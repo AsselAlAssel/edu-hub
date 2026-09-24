@@ -1,78 +1,60 @@
-import CloseIcon from "@mui/icons-material/Close";
-import { Backdrop, Box, IconButton } from "@mui/material";
-import React, { useState } from "react";
-import ReactPlayer from "react-player";
+"use client";
+import AppDialog from "@/components/ui/AppDialog";
+import { Box, CircularProgress } from "@mui/material";
+import dynamic from "next/dynamic";
+
+// The YouTube-only build of react-player, loaded only when a video is opened.
+const ReactPlayer = dynamic(() => import("react-player/youtube"), {
+	ssr: false,
+	loading: () => (
+		<Box
+			sx={{
+				position: "absolute",
+				inset: 0,
+				display: "grid",
+				placeItems: "center",
+			}}
+		>
+			<CircularProgress aria-label='جارٍ تحميل المشغّل' />
+		</Box>
+	),
+});
 
 export default function VideoPlayer({
 	open,
 	handleClose,
 	url,
+	title = "مشغّل الفيديو",
 }: {
 	open: boolean;
 	handleClose: () => void;
 	url: string;
+	title?: string;
 }) {
-	const [videoUrl, setVideoUrl] = useState(url);
-
-	const handleDialogClose = () => {
-		setVideoUrl(""); // Reset the URL to stop the video
-		handleClose();
-	};
-
-	React.useEffect(() => {
-		if (open) {
-			setVideoUrl(url); // Reset the URL to the original value when the dialog opens
-		}
-	}, [open, url]);
-
 	return (
-		<Backdrop
-			sx={{
-				color: "#fff",
-				zIndex: (theme) => theme.zIndex.drawer + 1,
-			}}
-			open={open}
-			onClick={handleDialogClose}
-		>
-			{url === "" && (
-				<Box
-					sx={{
-						color: "white",
-						fontSize: "30px",
-						textAlign: "center",
-						marginTop: "50px",
-					}}
-				>
-					جاري التحميل...
-				</Box>
-			)}
-			{url ? (
-				<ReactPlayer
-					url={videoUrl}
-					playing={open}
-					controls
-					width='100%'
-					height='100%'
-					style={{
-						border: "none",
-						borderRadius: "8px",
-						overflow: "hidden",
-						maxWidth: "800px",
-						maxHeight: "600px",
-					}}
-				/>
-			) : null}
-
-			<Box position='absolute' right={24} top={24} zIndex={1}>
-				<IconButton color='default' size='large' onClick={handleDialogClose}>
-					<CloseIcon
-						sx={{
-							color: "white",
-							fontSize: "30px",
-						}}
+		<AppDialog open={open} onClose={handleClose} title={title} maxWidth='md'>
+			<Box
+				sx={(theme) => ({
+					position: "relative",
+					aspectRatio: "16 / 9",
+					borderRadius: `${theme.tokens.radii.md}px`,
+					overflow: "hidden",
+					backgroundColor: theme.palette.common.black,
+				})}
+			>
+				{/* Unmounted on close, which stops playback. */}
+				{open && url ? (
+					<ReactPlayer
+						url={url}
+						playing
+						controls
+						width='100%'
+						height='100%'
+						style={{ position: "absolute", inset: 0 }}
+						config={{ playerVars: { rel: 0 } }}
 					/>
-				</IconButton>
+				) : null}
 			</Box>
-		</Backdrop>
+		</AppDialog>
 	);
 }

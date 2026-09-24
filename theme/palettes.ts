@@ -1,145 +1,101 @@
 import type { PaletteOptions } from "@mui/material/styles";
+import { colors, type ColorMode } from "./tokens";
 
-export type EduColorMode = "light" | "dark";
+export type EduColorMode = ColorMode;
 
+/**
+ * MUI palette from the Quantum Aurora tokens.
+ * Light mode uses Primary Dark (#0369A1) as `primary.main`: Azure (#0284C7)
+ * only reaches ~4.1:1 against white, below WCAG AA for button/link text.
+ */
 export function getEduPalette(mode: EduColorMode): PaletteOptions {
-	if (mode === "light") {
-		return {
-			mode: "light",
-			primary: {
-				main: "#0284C7",
-				dark: "#0369A1",
-				light: "#38BDF8",
-				contrastText: "#FFFFFF",
-			},
-			secondary: {
-				main: "#475569",
-				light: "#64748B",
-				dark: "#334155",
-				contrastText: "#FFFFFF",
-			},
-			success: {
-				main: "#059669",
-				dark: "#047857",
-				light: "#D1FAE5",
-				contrastText: "#FFFFFF",
-			},
-			error: {
-				main: "#DC2626",
-				light: "#FECACA",
-				dark: "#B91C1C",
-				contrastText: "#FFFFFF",
-			},
-			warning: {
-				main: "#D97706",
-				light: "#FEF3C7",
-				dark: "#B45309",
-				contrastText: "#0F172A",
-			},
-			info: {
-				main: "#2563EB",
-				light: "#DBEAFE",
-				dark: "#1D4ED8",
-				contrastText: "#FFFFFF",
-			},
-			divider: "#E2E8F0",
-			background: {
-				default: "#F8FAFC",
-				paper: "#FFFFFF",
-				brand: "#0369A1",
-				["brand-secondary"]: "#BAE6FD",
-				["brand-section"]: "#F0F9FF",
-			},
-			text: {
-				primary: "#0F172A",
-				secondary: "#334155",
-				secondaryLight: "#0284C7",
-				tertiary: "#64748B",
-				placeholder: "#94A3B8",
-				["brand-tertiary"]: "#0369A1",
-				["brand-secondary"]: "#0E7490",
-			},
-			border: {
-				main: "#CBD5E1",
-				secondary: "#E2E8F0",
-			},
-			tertiary: {
-				main: "#6366F1",
-				contrastText: "#FFFFFF",
-			},
-			action: {
-				hover: "rgba(15, 23, 42, 0.04)",
-				selected: "rgba(2, 132, 199, 0.08)",
-			},
-		};
-	}
+	const c = colors[mode];
+	const isDark = mode === "dark";
+
+	const primary = {
+		contrastText: c.onPrimary,
+		light: c.azure,
+		main: c.primaryDark,
+		dark: "#075985",
+	};
+	if (isDark)
+		Object.assign(primary, {
+			main: c.azure,
+			light: c.cyan,
+			dark: c.primaryDark,
+		});
 
 	return {
-		mode: "dark",
-		primary: {
-			main: "#38BDF8",
-			dark: "#0EA5E9",
-			light: "#7DD3FC",
-			contrastText: "#0B1220",
-		},
+		mode,
+		primary,
 		secondary: {
-			main: "#94A3B8",
-			light: "#CBD5E1",
-			dark: "#64748B",
-			contrastText: "#0B1220",
+			main: c.violet,
+			light: isDark ? "#A78BFA" : "#8B5CF6",
+			dark: isDark ? "#7C3AED" : "#6D28D9",
+			contrastText: "#FFFFFF",
 		},
 		success: {
-			main: "#34D399",
-			dark: "#10B981",
-			light: "#6EE7B7",
-			contrastText: "#042F2E",
-		},
-		error: {
-			main: "#F87171",
-			light: "#FECACA",
-			dark: "#EF4444",
-			contrastText: "#0B1220",
+			main: c.success,
+			light: isDark ? "#6EE7B7" : "#D1FAE5",
+			dark: isDark ? "#10B981" : "#047857",
+			contrastText: isDark ? "#022C22" : "#FFFFFF",
 		},
 		warning: {
-			main: "#FBBF24",
-			light: "#FEF3C7",
-			dark: "#F59E0B",
-			contrastText: "#0B1220",
+			main: c.warning,
+			light: isDark ? "#FDE68A" : "#FEF3C7",
+			dark: isDark ? "#F59E0B" : "#B45309",
+			contrastText: "#0B1628",
+		},
+		error: {
+			main: c.error,
+			light: isDark ? "#FDA4AF" : "#FFE4E6",
+			dark: isDark ? "#F43F5E" : "#BE123C",
+			contrastText: isDark ? "#1F0A10" : "#FFFFFF",
 		},
 		info: {
-			main: "#60A5FA",
-			light: "#DBEAFE",
-			dark: "#3B82F6",
-			contrastText: "#0B1220",
+			main: c.cyan,
+			light: isDark ? "#67E8F9" : "#CFFAFE",
+			dark: isDark ? "#06B6D4" : "#0E7490",
+			contrastText: isDark ? "#04121F" : "#FFFFFF",
 		},
-		divider: "#273549",
+		divider: c.border,
 		background: {
-			default: "#0C111D",
-			paper: "#151C28",
-			brand: "#0EA5E9",
-			["brand-secondary"]: "#164E63",
-			["brand-section"]: "#111827",
+			default: c.bg,
+			paper: c.surface,
+			brand: c.primaryDark,
+			"brand-secondary": c.surfaceElevated,
+			"brand-section": c.surfaceSecondary,
+		},
+		surface: {
+			main: c.surface,
+			secondary: c.surfaceSecondary,
+			elevated: c.surfaceElevated,
 		},
 		text: {
-			primary: "#F1F5F9",
-			secondary: "#CBD5E1",
-			secondaryLight: "#7DD3FC",
-			tertiary: "#94A3B8",
-			placeholder: "#78909C",
-			["brand-tertiary"]: "#38BDF8",
-			["brand-secondary"]: "#BAE6FD",
+			primary: c.textPrimary,
+			secondary: c.textSecondary,
+			secondaryLight: c.azure,
+			tertiary: c.textMuted,
+			placeholder: c.textMuted,
+			disabled: isDark
+				? "rgba(148, 163, 184, 0.5)"
+				: "rgba(100, 116, 139, 0.6)",
+			"brand-tertiary": c.primaryDark,
+			"brand-secondary": c.cyan,
 		},
 		border: {
-			main: "#334155",
-			secondary: "#1E293B",
+			main: c.border,
+			secondary: c.border,
+			strong: c.borderStrong,
 		},
 		tertiary: {
-			main: "#A5B4FC",
-			contrastText: "#0B1220",
+			main: c.cyan,
+			contrastText: c.onPrimary,
 		},
 		action: {
-			hover: "rgba(241, 245, 249, 0.06)",
-			selected: "rgba(56, 189, 248, 0.12)",
+			hover: isDark ? "rgba(148, 163, 184, 0.08)" : "rgba(11, 22, 40, 0.04)",
+			selected: isDark ? "rgba(56, 189, 248, 0.14)" : "rgba(3, 105, 161, 0.08)",
+			focus: isDark ? "rgba(56, 189, 248, 0.24)" : "rgba(3, 105, 161, 0.16)",
 		},
 	};
 }

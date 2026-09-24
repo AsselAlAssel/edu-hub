@@ -1,85 +1,74 @@
 "use client";
 
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import { alpha, Box, Breadcrumbs, Typography } from "@mui/material";
+import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
+import { Box, Breadcrumbs, Typography } from "@mui/material";
 import Link from "next/link";
 
+export type BreadcrumbProps = {
+	/** Folder chain from the class root folder to the current folder. */
+	breadcrumb: { id: string; name: string }[];
+	classId: string;
+	folderId: string;
+	className: string;
+};
+
+const linkSx = {
+	color: "text.secondary",
+	textDecoration: "none",
+	fontWeight: 600,
+	fontSize: "0.9375rem",
+	borderRadius: 1,
+	px: 0.5,
+	"&:hover": { color: "primary.main", textDecoration: "underline" },
+} as const;
+
+/** الصفوف › اسم الصف › مجلد › … — the root folder is shown as the class name. */
 export default function Breadcrumb({
 	breadcrumb,
 	classId,
 	folderId,
-}: {
-	breadcrumb: {
-		id: string;
-		name: string;
-	}[];
-	classId: string;
-	folderId: string;
-}) {
-	if (!breadcrumb) return null;
-	if (breadcrumb.length === 1) return null;
+	className,
+}: BreadcrumbProps) {
+	const items = breadcrumb.map((item, index) => ({
+		...item,
+		name: index === 0 ? className : item.name,
+		href: `/class/${classId}/folder/${item.id}`,
+	}));
 
 	return (
 		<Breadcrumbs
-			aria-label='breadcrumb'
+			aria-label='مسار التنقل'
+			separator={<ChevronLeftRoundedIcon fontSize='small' />}
+			maxItems={4}
+			itemsBeforeCollapse={1}
+			itemsAfterCollapse={2}
 			sx={{
-				mb: 2,
-				"& .MuiBreadcrumbs-separator": {
-					color: "text.disabled",
-				},
+				"& .MuiBreadcrumbs-separator": { color: "text.disabled", mx: 0.25 },
 			}}
-			maxItems={2}
 		>
-			<Box
-				component={Link}
-				href={`/class/${classId}/folder/${breadcrumb[0].id}`}
-				sx={{
-					cursor: "pointer",
-					textDecoration: "none",
-					color: "text.secondary",
-					display: "flex",
-					alignItems: "center",
-					"&:hover": { color: "primary.main" },
-				}}
-			>
-				<HomeOutlinedIcon sx={{ fontSize: 20 }} />
+			<Box component={Link} href='/classes' sx={linkSx}>
+				الصفوف
 			</Box>
-
-			{breadcrumb.slice(1).map((item) => {
-				const isActive = item.id === folderId;
-				return (
-					<Box
+			{items.map((item) =>
+				item.id === folderId ? (
+					<Typography
 						key={item.id}
-						component={Link}
-						href={`/class/${classId}/folder/${item.id}`}
+						aria-current='page'
 						sx={{
-							cursor: "pointer",
-							textDecoration: "none",
-							color: isActive ? "text.primary" : "text.secondary",
-							"&:hover": { color: "primary.main" },
+							color: "text.primary",
+							fontWeight: 700,
+							fontSize: "0.9375rem",
+							px: 0.5,
 						}}
 					>
-						<Typography
-							sx={(theme) => ({
-								fontSize: "0.875rem",
-								fontWeight: isActive ? 600 : 400,
-								backgroundColor: isActive
-									? alpha(theme.palette.primary.main, 0.1)
-									: "transparent",
-								px: 1.5,
-								py: 0.5,
-								borderRadius: "6px",
-								transition: "background-color 0.15s ease, color 0.15s ease",
-								"&:hover": {
-									backgroundColor: alpha(theme.palette.primary.main, 0.08),
-								},
-							})}
-						>
-							{item.name}
-						</Typography>
+						{item.name}
+					</Typography>
+				) : (
+					<Box key={item.id} component={Link} href={item.href} sx={linkSx}>
+						{item.name}
 					</Box>
-				);
-			})}
+				)
+			)}
 		</Breadcrumbs>
 	);
 }

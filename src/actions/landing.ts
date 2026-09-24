@@ -1,7 +1,7 @@
-"use server";
 import { prisma } from "@/libs/prismaDb";
 
-export const getLandingData = () => {
-	const landing = prisma.landingPage.findFirst();
-	return landing;
-};
+/**
+ * Landing CMS document. Plain server helper (was a "use server" action,
+ * which needlessly exposed it as a public POST endpoint).
+ */
+export const getLandingData = () => prisma.landingPage.findFirst();

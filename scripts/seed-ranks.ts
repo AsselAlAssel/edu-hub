@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- CLI migration script: console output is its UI. */
 import { PrismaClient } from "@prisma/client";
 import { LexoRank } from "lexorank";
 

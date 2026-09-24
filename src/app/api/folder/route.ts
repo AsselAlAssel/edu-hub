@@ -1,53 +1,32 @@
-import { prisma } from "@/libs/prismaDb";
+import {
+	cleanString,
+	isObjectId,
+	jsonError,
+	readJson,
+	requireAdmin,
+} from "@/libs/api";
 import { getRankAfterLast } from "@/libs/lexorank";
-import { isAdmin, recursiveDelete } from "@/libs/uitls";
+import { prisma } from "@/libs/prismaDb";
+import { recursiveDelete } from "@/libs/uitls";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
-	const body = await req.json();
-	const { name, classId, parentFolderId } = body;
-	if (!name || !classId || !parentFolderId) {
-		return NextResponse.json(
-			{
-				message: "Missing Fields",
-			},
-			{ status: 400 }
-		);
-	}
-	if (!(await isAdmin())) {
-		return NextResponse.json(
-			{
-				message: "Unauthorized",
-			},
-			{ status: 401 }
-		);
+	const denied = await requireAdmin();
+	if (denied) return denied;
+
+	const body = await readJson(req);
+	const name = cleanString(body.name, 120);
+	const { classId, parentFolderId } = body;
+	if (!name || !isObjectId(classId) || !isObjectId(parentFolderId)) {
+		return jsonError("Missing Fields", 400);
 	}
 
-	const classItem = await prisma.class.findUnique({
-		where: {
-			id: classId,
-		},
-	});
-	if (!classItem) {
-		return NextResponse.json(
-			{
-				message: "Class not found",
-			},
-			{ status: 404 }
-		);
-	}
 	const parentFolder = await prisma.folder.findUnique({
-		where: {
-			id: parentFolderId,
-		},
+		where: { id: parentFolderId },
 	});
-	if (!parentFolder) {
-		return NextResponse.json(
-			{
-				message: "Parent Folder not found",
-			},
-			{ status: 404 }
-		);
+	if (!parentFolder) return jsonError("Parent Folder not found", 404);
+	if (parentFolder.classId !== classId) {
+		return jsonError("Class not found", 404);
 	}
 
 	const lastFolder = await prisma.folder.findFirst({
@@ -65,103 +44,45 @@ export const POST = async (req: NextRequest) => {
 		},
 	});
 
-	return new NextResponse(JSON.stringify(folder), { status: 201 });
+	return NextResponse.json(folder, { status: 201 });
 };
 
-// edit folder name
+/**
+ * Rename a folder. Accepts `folderId`; the legacy client sent the folder being
+ * renamed as `parentFolderId`, which is still honoured for compatibility.
+ */
 export const PUT = async (req: NextRequest) => {
-	const body = await req.json();
-	const { name, classId, parentFolderId } = body;
-	if (!name || !classId || !parentFolderId) {
-		return NextResponse.json(
-			{
-				message: "Missing Fields",
-			},
-			{ status: 400 }
-		);
-	}
-	if (!(await isAdmin())) {
-		return NextResponse.json(
-			{
-				message: "Unauthorized",
-			},
-			{ status: 401 }
-		);
-	}
+	const denied = await requireAdmin();
+	if (denied) return denied;
 
-	const isClassExist = await prisma.class.findUnique({
-		where: {
-			id: classId,
-		},
-	});
-	if (!isClassExist) {
-		return NextResponse.json(
-			{
-				message: "Class not found",
-			},
-			{ status: 404 }
-		);
-	}
-	const isParentFolderExist = await prisma.folder.findUnique({
-		where: {
-			id: parentFolderId,
-		},
-	});
-	if (!isParentFolderExist) {
-		return NextResponse.json(
-			{
-				message: "Parent Folder not found",
-			},
-			{ status: 404 }
-		);
-	}
+	const body = await readJson(req);
+	const name = cleanString(body.name, 120);
+	const folderId = body.folderId ?? body.parentFolderId;
+	if (!name || !isObjectId(folderId)) return jsonError("Missing Fields", 400);
+
+	const existing = await prisma.folder.findUnique({ where: { id: folderId } });
+	if (!existing) return jsonError("Folder not found", 404);
+	if (existing.isRoot) return jsonError("Root folder cannot be renamed", 400);
 
 	const folder = await prisma.folder.update({
-		where: {
-			id: parentFolderId,
-		},
-		data: {
-			name,
-		},
+		where: { id: folderId },
+		data: { name },
 	});
 
-	return new NextResponse(JSON.stringify(folder), { status: 200 });
+	return NextResponse.json(folder, { status: 200 });
 };
 
-// delete folder
 export const DELETE = async (req: NextRequest) => {
-	const body = await req.json();
-	const { folderId } = body;
-	if (!folderId) {
-		return NextResponse.json(
-			{
-				message: "Missing Fields",
-			},
-			{ status: 400 }
-		);
-	}
-	if (!(await isAdmin())) {
-		return NextResponse.json(
-			{
-				message: "Unauthorized",
-			},
-			{ status: 401 }
-		);
-	}
+	const denied = await requireAdmin();
+	if (denied) return denied;
 
-	const isFolderExist = await prisma.folder.findUnique({
-		where: {
-			id: folderId,
-		},
-	});
-	if (!isFolderExist) {
-		return NextResponse.json(
-			{
-				message: "Folder not found",
-			},
-			{ status: 404 }
-		);
-	}
+	const { folderId } = await readJson(req);
+	if (!isObjectId(folderId)) return jsonError("Missing Fields", 400);
+
+	const folder = await prisma.folder.findUnique({ where: { id: folderId } });
+	if (!folder) return jsonError("Folder not found", 404);
+	if (folder.isRoot) return jsonError("Root folder cannot be deleted", 400);
+
 	await recursiveDelete(folderId);
 
 	return new NextResponse(null, { status: 204 });

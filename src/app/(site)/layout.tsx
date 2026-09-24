@@ -1,45 +1,26 @@
-import BackToTopFab from "@/components/Common/BackToTopFab";
-import Header from "@/components/Common/Dashboard/Header";
-import Loader from "@/components/Common/PreLoader";
-import FooterWrapper from "@/components/Footer/FooterWrapper";
-import NextTopLoader from "nextjs-toploader";
-import "../../styles/globals.css";
-import ToastContext from "../context/ToastContext";
-import { Providers } from "./providers";
-import { getServerSession } from "next-auth";
+import AppShell from "@/components/AppShell/AppShell";
 import { authOptions } from "@/libs/auth";
+import { getServerSession } from "next-auth";
+import NextTopLoader from "nextjs-toploader";
+import { colors } from "../../../theme/tokens";
+import { Providers } from "./providers";
 
-export default async function RootLayout({
+export default async function SiteLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
 	const session = await getServerSession(authOptions);
 	return (
-		<>
-			<Loader />
-			<>
-				<ToastContext />
-				<Providers session={session}>
-					<NextTopLoader
-						color='#635BFF'
-						crawlSpeed={300}
-						showSpinner={false}
-						shadow='none'
-					/>
-					<Header />
-
-					<main
-						style={{
-							paddingTop: `104px`,
-						}}
-					>
-						{children}
-					</main>
-					<FooterWrapper />
-					<BackToTopFab />
-				</Providers>
-			</>
-		</>
+		<Providers session={session}>
+			<NextTopLoader
+				color={colors.dark.azure}
+				height={2}
+				crawlSpeed={300}
+				showSpinner={false}
+				shadow={false}
+			/>
+			<AppShell>{children}</AppShell>
+		</Providers>
 	);
 }

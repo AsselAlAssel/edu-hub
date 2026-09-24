@@ -1,141 +1,95 @@
-import CloseIcon from "@mui/icons-material/Close";
+"use client";
+import AppDialog from "@/components/ui/AppDialog";
+import { FormField } from "@/components/ui/FormField";
+import { SecondaryButton } from "@/components/ui/buttons";
 import LoadingButton from "@mui/lab/LoadingButton";
-import {
-	Box,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-	IconButton,
-	Typography,
-} from "@mui/material";
+
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import CustomTextField from "../CustomTextField";
 
-type FolderFormProps = {
+type ChangeNameFormProps = {
 	open: boolean;
 	handleClose: () => void;
 	title: string;
+	/** Initial value (rename). Empty for create. */
 	name?: string;
 	onSubmit: (name: string) => Promise<void>;
 	isUpdatingName: boolean;
+	label?: string;
+	placeholder?: string;
+	submitLabel?: string;
+	maxLength?: number;
 };
 
-type FolderFormValues = {
-	name: string;
-};
-
-const defaultValues = {
-	name: "",
-};
-
+/** Single-field name dialog used for creating folders and renaming any resource. */
 export default function ChangeNameForm({
 	open,
 	handleClose,
 	title,
-	name,
+	name = "",
 	onSubmit,
 	isUpdatingName,
-}: FolderFormProps) {
-	const { control, handleSubmit, reset } = useForm<FolderFormValues>({
-		defaultValues: {
-			name: name || "",
-		},
+	label = "الاسم",
+	placeholder,
+	submitLabel = "حفظ",
+	maxLength = 120,
+}: ChangeNameFormProps) {
+	const { control, handleSubmit, reset } = useForm<{ name: string }>({
+		defaultValues: { name },
 	});
-	const handleCloseDialog = () => {
-		reset(defaultValues);
-		handleClose();
-	};
 
 	useEffect(() => {
-		const handleEnter = (e: KeyboardEvent) => {
-			if (e.key === "Enter") {
-				e.preventDefault();
-				handleSubmit((data) => {
-					onSubmit(data.name);
-				})();
-			}
-		};
-		window.addEventListener("keydown", handleEnter);
-		return () => {
-			window.removeEventListener("keydown", handleEnter);
-		};
-	}, []);
+		if (open) reset({ name });
+	}, [open, name, reset]);
 
-	useEffect(() => {
-		if (name) {
-			reset({
-				name: name,
-			});
-		}
-	}, [name]);
+	const submit = handleSubmit(async (data) => {
+		await onSubmit(data.name.trim());
+	});
 
 	return (
-		<Dialog
+		<AppDialog
 			open={open}
-			onClose={handleCloseDialog}
-			maxWidth='sm'
-			fullWidth
-			PaperProps={{
-				style: {
-					maxWidth: 400,
-				},
-			}}
+			onClose={handleClose}
+			busy={isUpdatingName}
+			title={title}
+			onSubmit={() => void submit()}
+			actions={
+				<>
+					<SecondaryButton onClick={handleClose} disabled={isUpdatingName}>
+						إلغاء
+					</SecondaryButton>
+					<LoadingButton
+						type='submit'
+						variant='contained'
+						loading={isUpdatingName}
+					>
+						{submitLabel}
+					</LoadingButton>
+				</>
+			}
 		>
-			<Box position='absolute' right={24} top={24}>
-				<IconButton color='default' size='small' onClick={handleCloseDialog}>
-					<CloseIcon fontSize='inherit' />
-				</IconButton>
-			</Box>
-			<DialogTitle
-				sx={{
-					p: 3,
-					pb: 4,
+			<Controller
+				name='name'
+				control={control}
+				rules={{
+					validate: (value) => !!value.trim() || `${label} مطلوب`,
+					maxLength: {
+						value: maxLength,
+						message: `الحد الأقصى ${maxLength} حرفاً`,
+					},
 				}}
-			>
-				<Typography
-					sx={(theme) => ({
-						fontSize: theme.typography.pxToRem(18),
-						lineHeight: theme.typography.pxToRem(28),
-						fontWeight: 600,
-						mt: 2,
-						position: "relative",
-						zIndex: 1,
-					})}
-				>
-					{title}
-				</Typography>
-			</DialogTitle>
-			<DialogContent>
-				<Controller
-					name='name'
-					control={control}
-					rules={{
-						required: "الإسم مطلوب",
-					}}
-					render={({ field, fieldState: { error } }) => (
-						<CustomTextField
-							fullWidth
-							label='الإسم'
-							{...field}
-							error={!!error}
-							helperText={error?.message}
-						/>
-					)}
-				/>
-			</DialogContent>
-			<DialogActions>
-				<LoadingButton
-					onClick={handleSubmit(async (data) => {
-						onSubmit(data.name);
-					})}
-					fullWidth
-					loading={isUpdatingName}
-				>
-					حفظ
-				</LoadingButton>
-			</DialogActions>
-		</Dialog>
+				render={({ field, fieldState: { error } }) => (
+					<FormField
+						{...field}
+						label={label}
+						placeholder={placeholder}
+						autoFocus
+						required
+						error={!!error}
+						helperText={error?.message}
+					/>
+				)}
+			/>
+		</AppDialog>
 	);
 }

@@ -1,8 +1,8 @@
-import { User } from "@prisma/client";
+import type { PublicUser } from "@/libs/users";
 import UserAction from "./UserAction";
 // import axios from "axios";
 
-export default function UserListTable({ users }: { users: User[] }) {
+export default function UserListTable({ users }: { users: PublicUser[] }) {
 	return (
 		<>
 			<div className='rounded-10 bg-white shadow-1 dark:bg-gray-dark'>
