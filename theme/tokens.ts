@@ -1,5 +1,5 @@
 /**
- * Quantum Aurora — design tokens.
+ * Neon Physics — design tokens.
  * Single source of truth: the MUI palette (theme/palettes.ts) and the CSS
  * custom properties (`cssVariables()`, injected in the root layout) both read
  * these values. Components use theme tokens / CSS vars, never raw hex.
@@ -8,12 +8,12 @@ export type ColorMode = "light" | "dark";
 
 export const colors = {
 	dark: {
-		bg: "#07111F",
-		surface: "#0B1B2E",
-		surfaceSecondary: "#10263D",
-		surfaceElevated: "#14314B",
-		border: "rgba(148, 163, 184, 0.16)",
-		borderStrong: "rgba(56, 189, 248, 0.32)",
+		bg: "#050816",
+		surface: "#0A1024",
+		surfaceSecondary: "#111B38",
+		surfaceElevated: "#17244A",
+		border: "rgba(148, 163, 184, 0.18)",
+		borderStrong: "rgba(34, 211, 238, 0.45)",
 		textPrimary: "#F8FAFC",
 		textSecondary: "#CBD5E1",
 		textMuted: "#94A3B8",
@@ -21,64 +21,96 @@ export const colors = {
 		azure: "#38BDF8",
 		primaryDark: "#0284C7",
 		violet: "#8B5CF6",
+		amber: "#F59E0B",
 		success: "#34D399",
-		warning: "#FBBF24",
+		warning: "#F59E0B",
 		error: "#FB7185",
-		onPrimary: "#04121F",
+		onPrimary: "#03101C",
 	},
+	// Light: cool blue-grey page, brighter surfaces lifted by clear borders and
+	// soft blue shadows; vivid blue as the primary (white text passes AA).
 	light: {
-		bg: "#F4F8FC",
-		surface: "#FFFFFF",
-		surfaceSecondary: "#EAF3FA",
+		bg: "#EBF2F8",
+		surface: "#F7FAFD",
+		surfaceSecondary: "#E2EDF6",
 		surfaceElevated: "#FFFFFF",
-		border: "#D9E5EF",
-		borderStrong: "#8EDCF0",
-		textPrimary: "#0B1628",
-		textSecondary: "#334155",
-		textMuted: "#64748B",
-		cyan: "#0891B2",
-		azure: "#0284C7",
-		primaryDark: "#0369A1",
-		violet: "#7C3AED",
-		success: "#059669",
-		warning: "#D97706",
-		error: "#E11D48",
+		border: "#AEC3D3",
+		borderStrong: "#5EA8C4",
+		textPrimary: "#09111B",
+		textSecondary: "#334559",
+		textMuted: "#4F6275",
+		cyan: "#0E7490",
+		azure: "#2563EB",
+		primaryDark: "#1D4ED8",
+		violet: "#6D28D9",
+		amber: "#B45309",
+		success: "#047857",
+		warning: "#B45309",
+		error: "#BE123C",
 		onPrimary: "#FFFFFF",
 	},
 } as const satisfies Record<ColorMode, Record<string, string>>;
 
 export type ColorTokens = (typeof colors)[ColorMode];
 
+/** Controlled gradients: hero highlights, primary CTAs and selected states only. */
+export const gradients = {
+	dark: {
+		primary: `linear-gradient(110deg, ${colors.dark.cyan} 0%, ${colors.dark.azure} 55%, ${colors.dark.primaryDark} 100%)`,
+		text: `linear-gradient(100deg, ${colors.dark.cyan} 0%, ${colors.dark.azure} 55%, ${colors.dark.violet} 100%)`,
+		accent: `linear-gradient(110deg, ${colors.dark.azure}, ${colors.dark.violet})`,
+		energy: `linear-gradient(110deg, ${colors.dark.violet}, ${colors.dark.amber})`,
+	},
+	light: {
+		primary: `linear-gradient(110deg, ${colors.light.cyan} 0%, ${colors.light.azure} 65%, ${colors.light.primaryDark} 100%)`,
+		text: `linear-gradient(100deg, ${colors.light.cyan} 0%, ${colors.light.azure} 55%, ${colors.light.violet} 100%)`,
+		accent: `linear-gradient(110deg, ${colors.light.azure}, ${colors.light.violet})`,
+		energy: `linear-gradient(110deg, ${colors.light.violet}, ${colors.light.amber})`,
+	},
+} as const;
+
 export const radii = {
 	sm: 8,
 	md: 12,
-	lg: 16,
-	xl: 24,
+	lg: 18,
+	xl: 26,
 	full: 9999,
 } as const;
 
-/** Restrained elevation: cards → subtle, raised cards → medium, dialogs → strong. */
+/** Cards → subtle, raised cards → medium, dialogs → strong, CTAs/active → glow. */
 export const shadows = {
 	light: {
 		subtle:
-			"0 1px 2px rgba(11, 22, 40, 0.05), 0 1px 3px rgba(11, 22, 40, 0.04)",
+			"0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 8px 24px rgba(9, 17, 27, 0.07)",
 		medium:
-			"0 6px 18px rgba(11, 22, 40, 0.08), 0 2px 6px rgba(11, 22, 40, 0.04)",
+			"0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 18px 44px rgba(9, 17, 27, 0.12)",
 		strong:
-			"0 24px 60px rgba(11, 22, 40, 0.18), 0 8px 20px rgba(11, 22, 40, 0.08)",
+			"0 24px 80px rgba(9, 17, 27, 0.18), 0 8px 24px rgba(9, 17, 27, 0.08)",
+		glow: "0 0 0 1px rgba(14, 116, 144, 0.22), 0 14px 44px rgba(37, 99, 235, 0.2)",
 	},
 	dark: {
-		subtle: "0 1px 2px rgba(0, 0, 0, 0.35)",
-		medium: "0 10px 28px rgba(0, 0, 0, 0.38), 0 2px 8px rgba(0, 0, 0, 0.24)",
-		strong: "0 28px 72px rgba(0, 0, 0, 0.55), 0 8px 24px rgba(0, 0, 0, 0.35)",
+		subtle:
+			"0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 10px 30px rgba(0, 0, 0, 0.35)",
+		medium:
+			"0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 20px 50px rgba(0, 0, 0, 0.5)",
+		strong: "0 30px 90px rgba(0, 0, 0, 0.65), 0 10px 30px rgba(0, 0, 0, 0.4)",
+		glow: "0 0 0 1px rgba(34, 211, 238, 0.25), 0 12px 40px rgba(34, 211, 238, 0.28)",
 	},
 } as const;
 
+/** Motion scale shared by MUI transitions, CSS and Framer Motion. */
 export const motion = {
-	duration: { fast: 150, base: 220, slow: 360 },
+	duration: { fast: 160, base: 240, slow: 420, page: 560 },
 	easing: {
 		standard: "cubic-bezier(0.2, 0, 0, 1)",
 		emphasized: "cubic-bezier(0.22, 1, 0.36, 1)",
+	},
+	/** Framer Motion equivalents (seconds / bezier arrays). */
+	fm: {
+		ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+		reveal: 0.6,
+		stagger: 0.08,
+		spring: { type: "spring", stiffness: 320, damping: 30, mass: 0.8 } as const,
 	},
 } as const;
 
@@ -115,6 +147,9 @@ const declarations = (mode: ColorMode) =>
 		...Object.entries(shadows[mode]).map(
 			([key, value]) => `--qa-shadow-${key}:${value}`
 		),
+		...Object.entries(gradients[mode]).map(
+			([key, value]) => `--qa-gradient-${key}:${value}`
+		),
 		`color-scheme:${mode}`,
 	].join(";");
 
@@ -125,7 +160,7 @@ export function cssVariables() {
 			([key, value]) => `--qa-radius-${key}:${value}px`
 		),
 		`--qa-header-height:${layout.headerHeight}px`,
-		`--qa-ease:${motion.easing.standard}`,
+		`--qa-ease:${motion.easing.emphasized}`,
 	].join(";");
 
 	return `:root{${shared};${declarations("light")}}html.dark{${declarations("dark")}}`;

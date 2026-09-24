@@ -10,6 +10,7 @@ import {
 	TextField,
 	type TextFieldProps,
 } from "@mui/material";
+import { AnimatePresence, motion } from "framer-motion";
 import { forwardRef, useId, useState } from "react";
 
 export type FormFieldProps = TextFieldProps;
@@ -66,11 +67,22 @@ export const PasswordField = forwardRef<HTMLDivElement, FormFieldProps>(
 								aria-label={visible ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
 								aria-pressed={visible}
 							>
-								{visible ? (
-									<VisibilityOffOutlinedIcon />
-								) : (
-									<VisibilityOutlinedIcon />
-								)}
+								<AnimatePresence mode='wait' initial={false}>
+									<motion.span
+										key={visible ? "hide" : "show"}
+										initial={{ opacity: 0, scale: 0.6, rotate: -30 }}
+										animate={{ opacity: 1, scale: 1, rotate: 0 }}
+										exit={{ opacity: 0, scale: 0.6, rotate: 30 }}
+										transition={{ duration: 0.18 }}
+										style={{ display: "grid", placeItems: "center" }}
+									>
+										{visible ? (
+											<VisibilityOffOutlinedIcon />
+										) : (
+											<VisibilityOutlinedIcon />
+										)}
+									</motion.span>
+								</AnimatePresence>
 							</IconButton>
 						</InputAdornment>
 					),

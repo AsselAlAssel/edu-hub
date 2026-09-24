@@ -4,9 +4,9 @@ import { colors, type ColorMode } from "./tokens";
 export type EduColorMode = ColorMode;
 
 /**
- * MUI palette from the Quantum Aurora tokens.
- * Light mode uses Primary Dark (#0369A1) as `primary.main`: Azure (#0284C7)
- * only reaches ~4.1:1 against white, below WCAG AA for button/link text.
+ * MUI palette from the Neon Physics tokens.
+ * `primary.main` is the blue token: #38BDF8 on the dark background, #0369A1
+ * on white (5.9:1, WCAG AA for button/link text).
  */
 export function getEduPalette(mode: EduColorMode): PaletteOptions {
 	const c = colors[mode];
@@ -14,16 +14,10 @@ export function getEduPalette(mode: EduColorMode): PaletteOptions {
 
 	const primary = {
 		contrastText: c.onPrimary,
-		light: c.azure,
-		main: c.primaryDark,
-		dark: "#075985",
+		light: c.cyan,
+		main: c.azure,
+		dark: c.primaryDark,
 	};
-	if (isDark)
-		Object.assign(primary, {
-			main: c.azure,
-			light: c.cyan,
-			dark: c.primaryDark,
-		});
 
 	return {
 		mode,
@@ -31,7 +25,7 @@ export function getEduPalette(mode: EduColorMode): PaletteOptions {
 		secondary: {
 			main: c.violet,
 			light: isDark ? "#A78BFA" : "#8B5CF6",
-			dark: isDark ? "#7C3AED" : "#6D28D9",
+			dark: isDark ? "#7C3AED" : "#5B21B6",
 			contrastText: "#FFFFFF",
 		},
 		success: {
@@ -43,8 +37,8 @@ export function getEduPalette(mode: EduColorMode): PaletteOptions {
 		warning: {
 			main: c.warning,
 			light: isDark ? "#FDE68A" : "#FEF3C7",
-			dark: isDark ? "#F59E0B" : "#B45309",
-			contrastText: "#0B1628",
+			dark: isDark ? "#D97706" : "#92400E",
+			contrastText: isDark ? "#1A0F02" : "#FFFFFF",
 		},
 		error: {
 			main: c.error,

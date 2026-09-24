@@ -23,35 +23,55 @@ function useEmotionCache(direction: "ltr" | "rtl") {
 		});
 		cache.compat = true;
 		const prevInsert = cache.insert;
-		let inserted: string[] = [];
+		let inserted: { name: string; isGlobal: boolean }[] = [];
 		cache.insert = (...args) => {
-			const serialized = args[1];
+			const [selector, serialized] = args;
 			if (cache.inserted[serialized.name] === undefined) {
-				inserted.push(serialized.name);
+				// Global styles (CssBaseline, GlobalStyles) are inserted without a selector.
+				inserted.push({ name: serialized.name, isGlobal: !selector });
 			}
 			return prevInsert(...args);
 		};
 		const flush = () => {
-			const names = inserted;
+			const entries = inserted;
 			inserted = [];
-			return names;
+			return entries;
 		};
 		return { cache, flush };
 	});
 
 	useServerInsertedHTML(() => {
-		const names = registry.flush();
-		if (names.length === 0) return null;
-		const styles = names
-			.map((name) => registry.cache.inserted[name])
-			.filter((style): style is string => typeof style === "string")
-			.join("");
+		const entries = registry.flush();
+		if (entries.length === 0) return null;
+		const { key, inserted } = registry.cache;
+		const css = (name: string) => {
+			const style = inserted[name];
+			return typeof style === "string" ? style : "";
+		};
+		const globals = entries.filter((entry) => entry.isGlobal);
+		const scoped = entries.filter((entry) => !entry.isGlobal);
 		return (
-			<style
-				key={registry.cache.key}
-				data-emotion={`${registry.cache.key} ${names.join(" ")}`}
-				dangerouslySetInnerHTML={{ __html: styles }}
-			/>
+			<>
+				{/* Globals get their own "<key>-global" tags so emotion can remove the
+				    server copies on the client — otherwise the SSR (dark) body rules
+				    outlive a theme switch. */}
+				{globals.map(({ name }) => (
+					<style
+						key={name}
+						data-emotion={`${key}-global ${name}`}
+						dangerouslySetInnerHTML={{ __html: css(name) }}
+					/>
+				))}
+				{scoped.length ? (
+					<style
+						key={key}
+						data-emotion={`${key} ${scoped.map((entry) => entry.name).join(" ")}`}
+						dangerouslySetInnerHTML={{
+							__html: scoped.map((entry) => css(entry.name)).join(""),
+						}}
+					/>
+				) : null}
+			</>
 		);
 	});
 

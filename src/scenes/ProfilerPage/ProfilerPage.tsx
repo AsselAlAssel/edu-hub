@@ -34,7 +34,19 @@ export default function ProfilerPage({
 				<Box sx={{ position: { md: "sticky" }, top: { md: 96 } }}>
 					<UserInformation />
 				</Box>
-				<Box sx={{ minWidth: 0 }}>
+				<Box
+					sx={{
+						minWidth: 0,
+						// Panels rise in when shown (display:none → block restarts the animation).
+						"& [role='tabpanel']:not([hidden])": {
+							animation: "qaPanelIn 380ms cubic-bezier(0.22, 1, 0.36, 1) both",
+						},
+						"@keyframes qaPanelIn": {
+							from: { opacity: 0, transform: "translateY(10px)" },
+							to: { opacity: 1, transform: "none" },
+						},
+					}}
+				>
 					<Tabs
 						value={section}
 						onChange={(_, value) => setSection(value)}

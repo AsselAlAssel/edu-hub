@@ -1,3 +1,4 @@
+import { revalidateResourcePages } from "@/libs/revalidate";
 import {
 	cleanString,
 	isObjectId,
@@ -47,6 +48,7 @@ export const POST = async (req: NextRequest) => {
 			rank: getRankAfterLast(lastFile?.rank),
 		},
 	});
+	revalidateResourcePages();
 	return NextResponse.json(file, { status: 201 });
 };
 
@@ -65,6 +67,7 @@ export const DELETE = async (req: NextRequest) => {
 	const key = r2KeyFromUrl(file.url);
 	if (key) await deleteR2Object(key);
 
+	revalidateResourcePages();
 	return new NextResponse(null, { status: 204 });
 };
 
@@ -82,5 +85,6 @@ export const PUT = async (req: NextRequest) => {
 
 	await prisma.file.update({ where: { id: body.fileId }, data: { name } });
 
+	revalidateResourcePages();
 	return new NextResponse(null, { status: 204 });
 };

@@ -24,6 +24,7 @@ import {
 	useScrollTrigger,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
+import { motion, useScroll, useSpring } from "framer-motion";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -31,6 +32,32 @@ import { useState } from "react";
 import SideBar from "../Sidebar";
 
 export { APP_BAR_HEIGHT };
+
+/** Reading progress along the header's bottom edge (fills from the right in RTL). */
+function ScrollProgress() {
+	const { scrollYProgress } = useScroll();
+	const scaleX = useSpring(scrollYProgress, {
+		stiffness: 160,
+		damping: 30,
+		restDelta: 0.001,
+	});
+	return (
+		<motion.div
+			aria-hidden
+			style={{
+				scaleX,
+				position: "absolute",
+				insetInline: 0,
+				bottom: -1,
+				height: 2,
+				// The site is RTL-only: progress grows from the reading start (right).
+				transformOrigin: "right",
+				backgroundImage: "var(--qa-gradient-text)",
+				pointerEvents: "none",
+			}}
+		/>
+	);
+}
 
 /** Sticky site header: brand, primary nav, theme toggle, account menu, mobile drawer. */
 export default function Header() {
@@ -53,14 +80,19 @@ export default function Header() {
 				height: APP_BAR_HEIGHT,
 				borderBottom: "1px solid",
 				borderColor: scrolled ? theme.tokens.colors.border : "transparent",
-				backgroundColor: alpha(theme.tokens.colors.bg, scrolled ? 0.85 : 1),
-				backdropFilter: scrolled ? "saturate(140%) blur(12px)" : "none",
+				backgroundColor: alpha(theme.tokens.colors.bg, scrolled ? 0.72 : 0),
+				backdropFilter: scrolled ? "saturate(160%) blur(16px)" : "none",
+				WebkitBackdropFilter: scrolled ? "saturate(160%) blur(16px)" : "none",
+				boxShadow: scrolled ? theme.tokens.shadows.subtle : "none",
 				transition: theme.transitions.create([
 					"background-color",
 					"border-color",
+					"box-shadow",
 				]),
 			})}
 		>
+			{/* Reading progress belongs to the long landing page only. */}
+			{pathname === "/" ? <ScrollProgress /> : null}
 			<PageContainer sx={{ height: "100%" }}>
 				<Stack
 					direction='row'
@@ -80,7 +112,7 @@ export default function Header() {
 							component='ul'
 							direction='row'
 							gap={0.5}
-							sx={{ listStyle: "none", m: 0, p: 0 }}
+							sx={{ listStyle: "none", m: 0, p: 0, isolation: "isolate" }}
 						>
 							{NAV_ITEMS.map((item) => {
 								const active = isNavItemActive(item, pathname, activeSection);
@@ -91,27 +123,47 @@ export default function Header() {
 											href={item.href}
 											aria-current={active ? "page" : undefined}
 											sx={(theme) => ({
+												position: "relative",
 												display: "block",
-												px: 1.75,
+												px: 2,
 												py: 1,
-												borderRadius: `${theme.tokens.radii.sm}px`,
-												fontWeight: 700,
-												fontSize: "0.9375rem",
+												borderRadius: `${theme.tokens.radii.full}px`,
+												fontWeight: active ? 600 : 500,
+												fontSize: "1rem",
 												textDecoration: "none",
-												color: active ? "primary.main" : "text.secondary",
-												backgroundColor: active
-													? alpha(theme.palette.primary.main, 0.1)
-													: "transparent",
-												transition: theme.transitions.create([
-													"color",
-													"background-color",
-												]),
-												"&:hover": {
-													color: "text.primary",
-													backgroundColor: "action.hover",
-												},
+												color: active
+													? theme.palette.mode === "dark"
+														? "primary.light"
+														: "primary.main"
+													: "text.secondary",
+												transition: theme.transitions.create("color"),
+												"&:hover": { color: "text.primary" },
 											})}
 										>
+											{/* Shared-layout pill glides between active items. */}
+											{active ? (
+												<motion.span
+													layoutId='qa-nav-pill'
+													transition={{
+														type: "spring",
+														stiffness: 380,
+														damping: 32,
+													}}
+													aria-hidden
+													style={{
+														position: "absolute",
+														inset: 0,
+														zIndex: -1,
+														borderRadius: "inherit",
+														backgroundColor:
+															"color-mix(in srgb, var(--qa-cyan) 12%, transparent)",
+														border:
+															"1px solid color-mix(in srgb, var(--qa-cyan) 38%, transparent)",
+														boxShadow:
+															"0 0 18px color-mix(in srgb, var(--qa-cyan) 16%, transparent)",
+													}}
+												/>
+											) : null}
 											{item.label}
 										</Box>
 									</li>
@@ -165,7 +217,7 @@ export default function Header() {
 				disableScrollLock
 			>
 				<Box sx={{ px: 1.5, py: 1.25, minWidth: 220 }}>
-					<Typography sx={{ fontWeight: 800 }}>{user?.name}</Typography>
+					<Typography sx={{ fontWeight: 700 }}>{user?.name}</Typography>
 					<Typography
 						variant='caption'
 						sx={{

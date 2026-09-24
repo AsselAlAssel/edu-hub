@@ -1,3 +1,4 @@
+import { revalidateResourcePages } from "@/libs/revalidate";
 import {
 	cleanString,
 	isObjectId,
@@ -44,6 +45,7 @@ export const POST = async (req: NextRequest) => {
 		},
 	});
 
+	revalidateResourcePages();
 	return NextResponse.json(folder, { status: 201 });
 };
 
@@ -69,6 +71,7 @@ export const PUT = async (req: NextRequest) => {
 		data: { name },
 	});
 
+	revalidateResourcePages();
 	return NextResponse.json(folder, { status: 200 });
 };
 
@@ -85,5 +88,6 @@ export const DELETE = async (req: NextRequest) => {
 
 	await recursiveDelete(folderId);
 
+	revalidateResourcePages();
 	return new NextResponse(null, { status: 204 });
 };

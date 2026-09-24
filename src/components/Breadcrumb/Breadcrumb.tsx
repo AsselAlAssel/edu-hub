@@ -2,6 +2,7 @@
 
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import { Box, Breadcrumbs, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import Link from "next/link";
 
 export type BreadcrumbProps = {
@@ -15,10 +16,11 @@ export type BreadcrumbProps = {
 const linkSx = {
 	color: "text.secondary",
 	textDecoration: "none",
-	fontWeight: 600,
+	fontWeight: 500,
 	fontSize: "0.9375rem",
 	borderRadius: 1,
 	px: 0.5,
+	transition: "color 160ms ease",
 	"&:hover": { color: "primary.main", textDecoration: "underline" },
 } as const;
 
@@ -44,6 +46,20 @@ export default function Breadcrumb({
 			itemsAfterCollapse={2}
 			sx={{
 				"& .MuiBreadcrumbs-separator": { color: "text.disabled", mx: 0.25 },
+				// Crumbs slide in from the reading start, one after another.
+				"& .MuiBreadcrumbs-ol > li": {
+					animation: "qaCrumb 420ms cubic-bezier(0.22, 1, 0.36, 1) both",
+				},
+				...Object.fromEntries(
+					Array.from({ length: 9 }, (_, i) => [
+						`& .MuiBreadcrumbs-ol > li:nth-of-type(${i + 1})`,
+						{ animationDelay: `${i * 50}ms` },
+					])
+				),
+				"@keyframes qaCrumb": {
+					from: { opacity: 0, transform: "translateX(10px)" },
+					to: { opacity: 1, transform: "none" },
+				},
 			}}
 		>
 			<Box component={Link} href='/classes' sx={linkSx}>
@@ -54,12 +70,19 @@ export default function Breadcrumb({
 					<Typography
 						key={item.id}
 						aria-current='page'
-						sx={{
-							color: "text.primary",
-							fontWeight: 700,
+						sx={(theme) => ({
+							color:
+								theme.palette.mode === "dark"
+									? "primary.light"
+									: "primary.main",
+							fontWeight: 600,
 							fontSize: "0.9375rem",
-							px: 0.5,
-						}}
+							px: 1.25,
+							py: 0.25,
+							borderRadius: `${theme.tokens.radii.full}px`,
+							backgroundColor: alpha(theme.tokens.colors.cyan, 0.12),
+							border: `1px solid ${alpha(theme.tokens.colors.cyan, 0.35)}`,
+						})}
 					>
 						{item.name}
 					</Typography>

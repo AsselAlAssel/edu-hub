@@ -65,7 +65,17 @@ export default function SigninWithPassword() {
 			aria-label='نموذج تسجيل الدخول'
 		>
 			{formError ? (
-				<Alert severity='error' role='alert'>
+				<Alert
+					severity='error'
+					role='alert'
+					sx={{
+						animation: "qaAlertIn 360ms cubic-bezier(0.22, 1, 0.36, 1) both",
+						"@keyframes qaAlertIn": {
+							from: { opacity: 0, transform: "translateY(-6px) scale(0.98)" },
+							to: { opacity: 1, transform: "none" },
+						},
+					}}
+				>
 					{formError}
 				</Alert>
 			) : null}

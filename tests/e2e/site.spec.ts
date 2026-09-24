@@ -16,7 +16,7 @@ test.describe("landing", () => {
 		await expect(page.locator("html")).toHaveAttribute("lang", "ar");
 		await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
 		await expect(
-			page.getByRole("link", { name: /تصفّح الصفوف/ })
+			page.getByRole("link", { name: /استكشف الصفوف/ })
 		).toBeVisible();
 		for (const id of ["home", "features", "about", "contact"]) {
 			await expect(page.locator(`#${id}`)).toBeAttached();
@@ -67,6 +67,21 @@ test.describe("landing", () => {
 		expect(cls).toBeLessThan(0.1);
 	});
 
+	test("scroll reveals never hide content", async ({ page, browser }) => {
+		// Without JS the server HTML must show every section.
+		const noJs = await browser.newContext({ javaScriptEnabled: false });
+		const staticPage = await noJs.newPage();
+		await staticPage.goto(page.url() === "about:blank" ? "/" : page.url());
+		await expect(staticPage.locator("#contact h2")).toHaveCSS("opacity", "1");
+		await noJs.close();
+
+		// With JS, below-the-fold sections reveal once scrolled into view.
+		await page.goto("/");
+		const title = page.locator("#contact h2");
+		await title.scrollIntoViewIfNeeded();
+		await expect(title).toHaveCSS("opacity", "1");
+	});
+
 	test("respects prefers-reduced-motion", async ({ page }) => {
 		await page.emulateMedia({ reducedMotion: "reduce" });
 		await page.goto("/");
@@ -87,8 +102,30 @@ test.describe("theme & keyboard", () => {
 			.getByRole("button", { name: "التبديل إلى الوضع الفاتح" })
 			.click();
 		await expect(page.locator("html")).toHaveClass(/light/);
+		// The painted page must follow, not just the class (#EBF2F8 / #09111B).
+		await expect(page.locator("body")).toHaveCSS(
+			"background-color",
+			"rgb(235, 242, 248)"
+		);
+		// MUI-coloured components must switch live too, without a reload.
+		await expect(page.locator("footer").first()).not.toHaveCSS(
+			"background-color",
+			"rgb(10, 16, 36)"
+		);
+		await expect(page.getByRole("heading", { level: 1 })).toHaveCSS(
+			"color",
+			"rgb(9, 17, 27)"
+		);
 		await page.reload();
 		await expect(page.locator("html")).toHaveClass(/light/);
+		await expect(page.locator("body")).toHaveCSS(
+			"background-color",
+			"rgb(235, 242, 248)"
+		);
+		await expect(page.getByRole("heading", { level: 1 })).toHaveCSS(
+			"color",
+			"rgb(9, 17, 27)"
+		);
 	});
 
 	test("skip link is the first tab stop and moves focus to main", async ({

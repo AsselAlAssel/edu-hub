@@ -178,12 +178,39 @@ describe("navigation", () => {
 });
 
 describe("design tokens", () => {
-	it("exposes the Quantum Aurora palette as CSS variables for both modes", () => {
+	it("exposes the Neon Physics palette as CSS variables for both modes", () => {
 		const css = cssVariables();
 		expect(css).toContain(`--qa-bg:${colors.light.bg}`);
 		expect(css).toContain(`html.dark{--qa-bg:${colors.dark.bg}`);
-		expect(css).toContain("--qa-radius-xl:24px");
-		expect(colors.dark.bg).toBe("#07111F");
-		expect(colors.light.cyan).toBe("#0891B2");
+		expect(css).toContain("--qa-radius-xl:26px");
+		expect(css).toContain("--qa-gradient-text:");
+		expect(colors.dark.bg).toBe("#050816");
+		expect(colors.dark.cyan).toBe("#22D3EE");
+		expect(colors.light.bg).toBe("#EBF2F8");
+		expect(colors.light.azure).toBe("#2563EB");
+	});
+
+	// WCAG AA (4.5:1) for body text and primary buttons in both modes.
+	it("keeps text and primary-button contrast at WCAG AA", () => {
+		const luminance = (hex: string) => {
+			const [r, g, b] = [1, 3, 5].map((i) => {
+				const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+				return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+			});
+			return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+		};
+		const ratio = (a: string, b: string) => {
+			const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+			return (hi + 0.05) / (lo + 0.05);
+		};
+		for (const mode of ["light", "dark"] as const) {
+			const c = colors[mode];
+			expect(ratio(c.textPrimary, c.bg)).toBeGreaterThanOrEqual(4.5);
+			expect(ratio(c.textSecondary, c.surface)).toBeGreaterThanOrEqual(4.5);
+			expect(ratio(c.textMuted, c.surface)).toBeGreaterThanOrEqual(4.5);
+			// Gradient CTAs: every stop must carry the button label.
+			for (const stop of [c.cyan, c.azure])
+				expect(ratio(c.onPrimary, stop)).toBeGreaterThanOrEqual(4.5);
+		}
 	});
 });

@@ -34,8 +34,14 @@ export default function SortableGrid<T extends { id: string }>({
 				...(Array.isArray(gridSx) ? gridSx : [gridSx]),
 			]}
 		>
-			{items.map((item) => (
-				<Box component='li' key={item.id} sx={{ minWidth: 0 }}>
+			{items.map((item, index) => (
+				<Box
+					component='li'
+					key={item.id}
+					className='qa-rise'
+					style={{ ["--i" as string]: index }}
+					sx={{ minWidth: 0 }}
+				>
 					{isAdmin ? (
 						<SortableItem id={item.id} handleLabel={getHandleLabel(item)}>
 							{(handle) => renderItem(item, handle)}

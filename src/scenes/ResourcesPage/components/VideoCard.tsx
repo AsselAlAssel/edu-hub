@@ -52,11 +52,25 @@ export default function VideoCard({
 					display: "block",
 					width: "100%",
 					aspectRatio: "16 / 9",
+					overflow: "hidden",
 					backgroundColor: theme.tokens.colors.surfaceSecondary,
+					"& img": {
+						transition: "transform 700ms cubic-bezier(0.22, 1, 0.36, 1)",
+					},
+					// Legibility + depth: darken toward the bottom edge.
+					"&::after": {
+						content: '""',
+						position: "absolute",
+						inset: 0,
+						background: `linear-gradient(to top, ${alpha(theme.tokens.colors.bg, 0.7)}, transparent 55%)`,
+						pointerEvents: "none",
+					},
+					"&:hover img": { transform: "scale(1.06)" },
 					"&:hover .qa-play, &.Mui-focusVisible .qa-play": {
-						transform: "scale(1.06)",
-						backgroundColor: theme.palette.primary.main,
+						transform: "scale(1.1)",
+						backgroundImage: theme.tokens.gradients.primary,
 						color: theme.palette.primary.contrastText,
+						boxShadow: theme.tokens.shadows.glow,
 					},
 					"&.Mui-focusVisible": {
 						outline: `3px solid ${theme.palette.primary.main}`,
@@ -76,12 +90,14 @@ export default function VideoCard({
 					aria-hidden
 					sx={(theme) => ({
 						position: "absolute",
+						zIndex: 1,
 						top: "50%",
 						left: "50%",
-						width: 52,
-						height: 52,
-						marginTop: "-26px",
-						marginLeft: "-26px",
+						width: 54,
+						height: 54,
+						marginTop: "-27px",
+						marginLeft: "-27px",
+						backdropFilter: "blur(6px)",
 						borderRadius: "50%",
 						display: "grid",
 						placeItems: "center",
@@ -92,6 +108,7 @@ export default function VideoCard({
 							"transform",
 							"background-color",
 							"color",
+							"box-shadow",
 						]),
 						"& svg": { fontSize: 30 },
 					})}
@@ -111,7 +128,9 @@ export default function VideoCard({
 					sx={{
 						flex: 1,
 						minWidth: 0,
-						fontSize: "0.9375rem",
+						fontSize: "1rem",
+						fontWeight: 600,
+						lineHeight: 1.65,
 						display: "-webkit-box",
 						WebkitLineClamp: 2,
 						WebkitBoxOrient: "vertical",

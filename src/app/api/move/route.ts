@@ -1,3 +1,4 @@
+import { revalidateResourcePages } from "@/libs/revalidate";
 import { isObjectId, jsonError, readJson, requireAdmin } from "@/libs/api";
 import { getRankAfterLast } from "@/libs/lexorank";
 import { prisma } from "@/libs/prismaDb";
@@ -56,6 +57,7 @@ export const POST = async (req: NextRequest) => {
 			});
 		}
 
+		revalidateResourcePages();
 		return NextResponse.json({ success: true });
 	} catch (error) {
 		console.error("Move error:", error);

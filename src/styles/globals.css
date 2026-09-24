@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Colour/radius tokens are injected as --qa-* variables by the root layout
-   (theme/tokens.ts). This file only consumes them. */
+/* Colour/radius/gradient tokens are injected as --qa-* variables by the root
+   layout (theme/tokens.ts). This file only consumes them. */
 
 html {
 	scroll-behavior: smooth;
@@ -16,21 +16,83 @@ body {
 	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
-	background-color: var(--qa-bg);
+	/* One soft blue light source above the page: depth without noise. */
+	background:
+		radial-gradient(
+			1100px 520px at 50% -180px,
+			color-mix(in srgb, var(--qa-azure) 12%, transparent),
+			transparent 70%
+		),
+		var(--qa-bg);
+	background-repeat: no-repeat;
 	color: var(--qa-text-primary);
+	font-feature-settings: "kern", "calt";
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
 	overflow-x: clip;
+	transition:
+		background-color 300ms ease,
+		color 300ms ease;
+}
+
+/* Latin runs (formulas, English names, numbers) render in Inter. */
+:lang(en),
+.qa-latin {
+	font-family: var(--qa-font-latin), var(--qa-font-arabic), sans-serif;
 }
 
 :focus-visible {
-	outline: 2px solid var(--qa-azure);
-	outline-offset: 2px;
+	outline: 2px solid var(--qa-cyan);
+	outline-offset: 3px;
 }
 
 ::selection {
-	background-color: color-mix(in srgb, var(--qa-azure) 28%, transparent);
+	background-color: color-mix(in srgb, var(--qa-cyan) 32%, transparent);
 	color: var(--qa-text-primary);
+}
+
+/* Cyan → blue → violet text fill for highlighted phrases. */
+.qa-gradient-text {
+	background-image: var(--qa-gradient-text);
+	background-repeat: no-repeat;
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	color: transparent;
+}
+
+@media (forced-colors: active) {
+	.qa-gradient-text {
+		-webkit-text-fill-color: currentColor;
+		color: CanvasText;
+		background: none;
+	}
+}
+
+/* Entrance for content in the first viewport. CSS (not JS) so server-rendered
+   content animates immediately and is never held invisible until hydration.
+   Stagger with style="--i: <index>". */
+@keyframes qaRise {
+	from {
+		opacity: 0;
+		transform: translateY(18px) scale(0.985);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+.qa-rise {
+	animation: qaRise 600ms var(--qa-ease) both;
+	animation-delay: calc(min(var(--i, 0), 12) * 60ms + var(--qa-delay, 0ms));
+}
+
+.qa-page {
+	animation: qaRise 520ms var(--qa-ease) both;
 }
 
 .qa-skip-link {
@@ -42,7 +104,7 @@ body {
 	border-radius: var(--qa-radius-md);
 	background: var(--qa-surface-elevated);
 	color: var(--qa-text-primary);
-	font-weight: 700;
+	font-weight: 600;
 	text-decoration: none;
 	box-shadow: var(--qa-shadow-medium);
 }
@@ -63,6 +125,9 @@ body {
 	border: 0;
 }
 
+/* Reduced motion: stop looping/keyframe motion and smooth scrolling.
+   Short hover/colour transitions stay — they are feedback, not movement.
+   Framer Motion follows the same preference via <MotionConfig reducedMotion="user">. */
 @media (prefers-reduced-motion: reduce) {
 	html {
 		scroll-behavior: auto;
@@ -73,7 +138,6 @@ body {
 	*::after {
 		animation-duration: 0.01ms !important;
 		animation-iteration-count: 1 !important;
-		transition-duration: 0.01ms !important;
 		scroll-behavior: auto !important;
 	}
 }

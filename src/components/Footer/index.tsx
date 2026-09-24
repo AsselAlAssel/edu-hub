@@ -10,7 +10,7 @@ import Link from "next/link";
 const SOCIAL_LINKS = [
 	{
 		label: "صفحة فيسبوك",
-		href: "https://www.facebook.com/profile.php?id=100088599626669&mibextid=ZbWKwL",
+		href: "https://www.facebook.com/mhmd.anwr.sbh.2025",
 		icon: <FacebookRoundedIcon />,
 	},
 	{

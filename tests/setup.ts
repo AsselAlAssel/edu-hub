@@ -1,16 +1,19 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
+import { MotionGlobalConfig } from "framer-motion";
 import { afterEach, vi } from "vitest";
 
 afterEach(() => cleanup());
 
 // ── Next.js / next-auth runtime stand-ins ─────────────────────────────────
-vi.mock("next/font/google", () => ({
-	Tajawal: () => ({
-		className: "font-tajawal",
-		style: { fontFamily: "Tajawal" },
-	}),
-}));
+vi.mock("next/font/google", () => {
+	const font = (name: string) => () => ({
+		className: `font-${name}`,
+		variable: `var-${name}`,
+		style: { fontFamily: name },
+	});
+	return { IBM_Plex_Sans_Arabic: font("plex-arabic"), Inter: font("inter") };
+});
 
 vi.mock("next/image", async () => {
 	const React = await import("react");
@@ -86,14 +89,29 @@ if (typeof window !== "undefined") {
 	}));
 	window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
 	class NoopObserver {
-		observe() {}
+		observe(_target?: Element) {}
 		unobserve() {}
 		disconnect() {}
 		takeRecords() {
 			return [];
 		}
 	}
+	// Everything is "in view" so scroll reveals resolve instead of staying hidden.
+	class InViewObserver extends NoopObserver {
+		constructor(private callback: IntersectionObserverCallback) {
+			super();
+		}
+		observe(target: Element) {
+			this.callback(
+				[{ isIntersecting: true, intersectionRatio: 1, target } as never],
+				this as unknown as IntersectionObserver
+			);
+		}
+	}
 	window.IntersectionObserver ??=
-		NoopObserver as unknown as typeof IntersectionObserver;
+		InViewObserver as unknown as typeof IntersectionObserver;
 	window.ResizeObserver ??= NoopObserver as unknown as typeof ResizeObserver;
 }
+
+// Motion stays in the components; tests just jump every animation to its end state.
+MotionGlobalConfig.skipAnimations = true;

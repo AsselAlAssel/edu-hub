@@ -1,9 +1,12 @@
 "use client";
 import PageContainer from "@/components/PageContainer";
 import { Box, Stack, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import type { ReactNode } from "react";
+import { PageTransition } from "./motion";
+import { Eyebrow } from "./Section";
 
-/** Standard inner page: container + vertical rhythm + bottom breathing room. */
+/** Standard inner page: container + vertical rhythm + entrance transition. */
 export function PageShell({
 	children,
 	width = "default",
@@ -18,7 +21,7 @@ export function PageShell({
 				...(width === "narrow" && { maxWidth: 560 }),
 			}}
 		>
-			{children}
+			<PageTransition>{children}</PageTransition>
 		</PageContainer>
 	);
 }
@@ -42,11 +45,39 @@ export function PageHeader({
 			component='header'
 			sx={(theme) => ({
 				position: "relative",
-				mb: { xs: 4, md: 5 },
+				mb: { xs: 4, md: 6 },
 				pb: { xs: 3, md: 4 },
 				borderBottom: `1px solid ${theme.tokens.colors.border}`,
+				// Glowing accent under the start of the title rule.
+				"&::after": {
+					content: '""',
+					position: "absolute",
+					insetInlineStart: 0,
+					bottom: -1,
+					width: 120,
+					height: 2,
+					backgroundImage: theme.tokens.gradients.primary,
+					boxShadow:
+						theme.palette.mode === "dark"
+							? `0 0 14px ${alpha(theme.tokens.colors.cyan, 0.7)}`
+							: "none",
+				},
 			})}
 		>
+			{/* Soft light behind the title (decorative). */}
+			<Box
+				aria-hidden
+				sx={(theme) => ({
+					position: "absolute",
+					insetInlineStart: -80,
+					top: -120,
+					width: 420,
+					height: 300,
+					pointerEvents: "none",
+					zIndex: -1,
+					background: `radial-gradient(closest-side, ${alpha(theme.tokens.colors.cyan, 0.12)}, transparent)`,
+				})}
+			/>
 			{children}
 			<Stack
 				direction={{ xs: "column", md: "row" }}
@@ -56,17 +87,17 @@ export function PageHeader({
 			>
 				<Box sx={{ minWidth: 0 }}>
 					{eyebrow ? (
-						<Typography
-							variant='overline'
-							component='p'
-							sx={{ color: "primary.main", mb: 1 }}
-						>
-							{eyebrow}
-						</Typography>
+						<Box sx={{ mb: 1.5 }}>
+							<Eyebrow>{eyebrow}</Eyebrow>
+						</Box>
 					) : null}
 					<Typography
 						variant='h1'
-						sx={{ fontSize: { xs: "1.875rem", md: "2.5rem" } }}
+						sx={{
+							fontSize: { xs: "2.125rem", md: "3rem" },
+							lineHeight: 1.3,
+							overflowWrap: "anywhere",
+						}}
 					>
 						{title}
 					</Typography>

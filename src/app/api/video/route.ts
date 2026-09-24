@@ -1,3 +1,4 @@
+import { revalidateResourcePages } from "@/libs/revalidate";
 import {
 	cleanString,
 	isObjectId,
@@ -48,6 +49,7 @@ export const POST = async (req: NextRequest) => {
 			rank: getRankAfterLast(lastVideo?.rank),
 		},
 	});
+	revalidateResourcePages();
 	return NextResponse.json(video, { status: 201 });
 };
 
@@ -66,6 +68,7 @@ export const PUT = async (req: NextRequest) => {
 
 	await prisma.video.update({ where: { id: body.videoId }, data: { name } });
 
+	revalidateResourcePages();
 	return new NextResponse(null, { status: 204 });
 };
 
@@ -81,5 +84,6 @@ export const DELETE = async (req: NextRequest) => {
 
 	await prisma.video.delete({ where: { id: videoId } });
 
+	revalidateResourcePages();
 	return new NextResponse(null, { status: 204 });
 };

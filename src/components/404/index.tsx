@@ -26,7 +26,7 @@ const NotFound = () => {
 					aria-hidden
 					sx={{
 						fontSize: { xs: "4.5rem", md: "6rem" },
-						fontWeight: 800,
+						fontWeight: 700,
 						lineHeight: 1,
 						color: "primary.main",
 						direction: "ltr",

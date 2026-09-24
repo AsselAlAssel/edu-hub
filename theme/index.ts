@@ -1,3 +1,4 @@
+import Grow from "@mui/material/Grow";
 import {
 	alpha,
 	createTheme,
@@ -12,6 +13,7 @@ import {
 	layout,
 	motion,
 	radii,
+	gradients,
 	shadows as shadowTokens,
 	zIndex,
 } from "./tokens";
@@ -68,33 +70,39 @@ export const createEduTheme = (
 		tokens: {
 			colors: c,
 			shadows: elevation,
+			gradients: gradients[colorMode],
 			radii,
 			layout,
 		},
-		// Arabic script is joined: negative letter-spacing breaks glyph joins.
+		// Arabic script is joined: negative letter-spacing breaks glyph joins,
+		// and tall ascenders/dots need generous line-height.
 		typography: {
 			fontFamily: appFontStack,
-			h1: { fontSize: "2.75rem", fontWeight: 800, lineHeight: 1.25 },
-			h2: { fontSize: "2.125rem", fontWeight: 800, lineHeight: 1.3 },
-			h3: { fontSize: "1.625rem", fontWeight: 700, lineHeight: 1.35 },
-			h4: { fontSize: "1.375rem", fontWeight: 700, lineHeight: 1.4 },
-			h5: { fontSize: "1.125rem", fontWeight: 700, lineHeight: 1.5 },
-			h6: { fontSize: "1rem", fontWeight: 700, lineHeight: 1.55 },
-			subtitle1: { fontSize: "1.0625rem", lineHeight: 1.75, fontWeight: 500 },
-			subtitle2: { fontSize: "0.9375rem", lineHeight: 1.6, fontWeight: 700 },
-			body1: { fontSize: "1rem", lineHeight: 1.8 },
-			body2: { fontSize: "0.9375rem", lineHeight: 1.7 },
-			button: { fontWeight: 700, textTransform: "none" },
-			caption: { fontSize: "0.8125rem", lineHeight: 1.6, fontWeight: 500 },
+			fontWeightRegular: 400,
+			fontWeightMedium: 500,
+			fontWeightBold: 700,
+			h1: { fontSize: "3rem", fontWeight: 700, lineHeight: 1.3 },
+			h2: { fontSize: "2.25rem", fontWeight: 700, lineHeight: 1.35 },
+			h3: { fontSize: "1.625rem", fontWeight: 700, lineHeight: 1.45 },
+			h4: { fontSize: "1.375rem", fontWeight: 600, lineHeight: 1.5 },
+			h5: { fontSize: "1.1875rem", fontWeight: 600, lineHeight: 1.6 },
+			h6: { fontSize: "1.0625rem", fontWeight: 600, lineHeight: 1.65 },
+			subtitle1: { fontSize: "1.125rem", lineHeight: 1.9, fontWeight: 400 },
+			subtitle2: { fontSize: "0.9375rem", lineHeight: 1.7, fontWeight: 600 },
+			body1: { fontSize: "1rem", lineHeight: 1.9 },
+			body2: { fontSize: "0.9375rem", lineHeight: 1.8 },
+			button: { fontWeight: 600, textTransform: "none", lineHeight: 1.5 },
+			caption: { fontSize: "0.8125rem", lineHeight: 1.7, fontWeight: 500 },
 			overline: {
-				fontSize: "0.8125rem",
+				fontSize: "0.875rem",
 				lineHeight: 1.6,
-				fontWeight: 700,
+				fontWeight: 600,
 				letterSpacing: 0,
 				textTransform: "none",
 			},
 		},
 	});
+	const g = gradients[colorMode];
 
 	const focusRing = `0 0 0 3px ${alpha(base.palette.primary.main, isDark ? 0.35 : 0.25)}`;
 
@@ -102,9 +110,11 @@ export const createEduTheme = (
 		components: {
 			MuiCssBaseline: {
 				styleOverrides: {
+					// CSS variables (theme/tokens.ts): correct from the first server
+					// paint in either mode, and identical global CSS for both themes.
 					body: {
-						backgroundColor: c.bg,
-						color: c.textPrimary,
+						backgroundColor: "var(--qa-bg)",
+						color: "var(--qa-text-primary)",
 					},
 				},
 			},
@@ -123,29 +133,55 @@ export const createEduTheme = (
 				styleOverrides: {
 					root: {
 						borderRadius: radii.md,
-						fontWeight: 700,
+						fontWeight: 600,
 						fontSize: "0.9375rem",
-						minHeight: 44,
-						paddingInline: 20,
+						minHeight: 46,
+						paddingInline: 22,
 						gap: 4,
 						transition: base.transitions.create(
-							["background-color", "border-color", "color", "box-shadow"],
+							[
+								"background-color",
+								"border-color",
+								"color",
+								"box-shadow",
+								"transform",
+							],
 							{ duration: motion.duration.fast }
 						),
+						"&:active": { transform: "translateY(1px) scale(0.99)" },
 						"&.Mui-focusVisible": { boxShadow: focusRing },
 					},
-					sizeSmall: { minHeight: 36, paddingInline: 14, fontSize: "0.875rem" },
-					sizeLarge: { minHeight: 52, paddingInline: 28, fontSize: "1rem" },
+					sizeSmall: { minHeight: 38, paddingInline: 14, fontSize: "0.875rem" },
+					sizeLarge: {
+						minHeight: 54,
+						paddingInline: 30,
+						fontSize: "1.0625rem",
+						borderRadius: radii.lg,
+					},
+					// Gradient CTA: cyan → blue, glow on hover, lift without layout shift.
 					containedPrimary: {
-						"&:hover": { backgroundColor: base.palette.primary.dark },
+						backgroundImage: g.primary,
+						backgroundColor: base.palette.primary.main,
+						color: c.onPrimary,
+						boxShadow: isDark ? "none" : elevation.subtle,
+						"&:hover": {
+							backgroundImage: g.primary,
+							backgroundColor: base.palette.primary.dark,
+							boxShadow: elevation.glow,
+							transform: "translateY(-2px)",
+						},
+						"&.Mui-disabled": { backgroundImage: "none" },
 					},
 					outlined: {
-						backgroundColor: c.surface,
-						borderColor: c.border,
+						backgroundColor: alpha(c.surface, isDark ? 0.6 : 1),
+						borderColor: isDark ? alpha(c.cyan, 0.35) : c.borderStrong,
 						color: c.textPrimary,
 						"&:hover": {
-							backgroundColor: c.surfaceSecondary,
-							borderColor: c.borderStrong,
+							backgroundColor: isDark
+								? alpha(c.cyan, 0.08)
+								: c.surfaceSecondary,
+							borderColor: base.palette.primary.main,
+							transform: "translateY(-2px)",
 						},
 					},
 					outlinedError: {
@@ -209,8 +245,8 @@ export const createEduTheme = (
 						position: "static",
 						transform: "none",
 						marginBottom: 8,
-						fontSize: "0.875rem",
-						fontWeight: 700,
+						fontSize: "0.9375rem",
+						fontWeight: 500,
 						color: c.textPrimary,
 						"&.Mui-focused": { color: c.textPrimary },
 						"&.Mui-error": { color: base.palette.error.main },
@@ -220,7 +256,20 @@ export const createEduTheme = (
 			},
 			MuiFormHelperText: {
 				styleOverrides: {
-					root: { marginInline: 2, marginTop: 6, fontSize: "0.8125rem" },
+					root: {
+						marginInline: 2,
+						marginTop: 6,
+						fontSize: "0.8125rem",
+						// Validation errors fade in place — no layout jump beyond the line itself.
+						"&.Mui-error": {
+							fontWeight: 500,
+							animation: `qaHelperIn ${motion.duration.base}ms ${motion.easing.emphasized} both`,
+						},
+						"@keyframes qaHelperIn": {
+							from: { opacity: 0, transform: "translateY(-3px)" },
+							to: { opacity: 1, transform: "none" },
+						},
+					},
 				},
 			},
 			MuiCard: {
@@ -267,11 +316,15 @@ export const createEduTheme = (
 				},
 			},
 			MuiDialog: {
+				// Grow = scale + fade from the centre (Menus use it too).
+				defaultProps: { TransitionComponent: Grow },
 				styleOverrides: {
 					paper: {
 						borderRadius: radii.xl,
-						border: `1px solid ${c.border}`,
+						border: `1px solid ${isDark ? alpha(c.cyan, 0.22) : c.border}`,
 						backgroundColor: c.surface,
+						// Top-edge light: a thin cyan line fading out, like a lit panel.
+						backgroundImage: `linear-gradient(180deg, ${alpha(c.cyan, isDark ? 0.08 : 0.05)} 0%, transparent 120px)`,
 						boxShadow: elevation.strong,
 						margin: 16,
 						width: "calc(100% - 32px)",
@@ -282,8 +335,8 @@ export const createEduTheme = (
 				styleOverrides: {
 					root: {
 						"&:not(.MuiBackdrop-invisible)": {
-							backgroundColor: alpha(colors.dark.bg, isDark ? 0.72 : 0.45),
-							backdropFilter: "blur(4px)",
+							backgroundColor: alpha(colors.dark.bg, isDark ? 0.75 : 0.5),
+							backdropFilter: "blur(6px)",
 						},
 					},
 				},
@@ -292,8 +345,8 @@ export const createEduTheme = (
 				styleOverrides: {
 					root: {
 						padding: "24px 24px 8px",
-						fontSize: "1.125rem",
-						fontWeight: 800,
+						fontSize: "1.25rem",
+						fontWeight: 700,
 					},
 				},
 			},
@@ -325,41 +378,69 @@ export const createEduTheme = (
 			},
 			MuiTabs: {
 				styleOverrides: {
-					root: { minHeight: 44 },
-					indicator: { height: 3, borderRadius: 3 },
+					root: { minHeight: 48 },
+					indicator: {
+						height: 3,
+						borderRadius: 3,
+						backgroundImage: g.primary,
+						boxShadow: isDark ? `0 0 12px ${alpha(c.cyan, 0.6)}` : "none",
+					},
 				},
 			},
 			MuiTab: {
 				styleOverrides: {
 					root: {
-						minHeight: 44,
-						fontWeight: 700,
-						fontSize: "0.9375rem",
+						minHeight: 48,
+						fontWeight: 500,
+						fontSize: "1rem",
 						color: c.textMuted,
-						"&.Mui-selected": { color: base.palette.primary.main },
+						transition: base.transitions.create("color"),
+						"&:hover": { color: c.textPrimary },
+						"&.Mui-selected": {
+							color: base.palette.primary.main,
+							fontWeight: 600,
+						},
 					},
 				},
 			},
 			MuiChip: {
 				styleOverrides: {
-					root: { fontWeight: 700, borderRadius: radii.full },
+					root: { fontWeight: 600, borderRadius: radii.full },
 					outlined: { borderColor: c.border },
 				},
 			},
+			// Premium shimmer: a cyan-tinted light band sweeping across.
 			MuiSkeleton: {
 				defaultProps: { animation: "wave" },
 				styleOverrides: {
 					root: { backgroundColor: c.surfaceSecondary },
 					rounded: { borderRadius: radii.md },
+					wave: {
+						"&::after": {
+							background: `linear-gradient(90deg, transparent, ${alpha(c.cyan, isDark ? 0.12 : 0.14)}, transparent)`,
+							animationDuration: "1.4s",
+						},
+					},
 				},
 			},
 			MuiAvatar: {
 				styleOverrides: {
 					root: {
 						backgroundColor: base.palette.primary.main,
+						backgroundImage: g.primary,
 						color: base.palette.primary.contrastText,
-						fontWeight: 800,
+						fontWeight: 700,
 					},
+				},
+			},
+			MuiLinearProgress: {
+				styleOverrides: {
+					root: {
+						height: 6,
+						borderRadius: radii.full,
+						backgroundColor: c.surfaceSecondary,
+					},
+					bar: { borderRadius: radii.full, backgroundImage: g.primary },
 				},
 			},
 			MuiDivider: {

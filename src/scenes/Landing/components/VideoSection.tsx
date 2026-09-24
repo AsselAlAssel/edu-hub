@@ -1,4 +1,5 @@
 "use client";
+import { Reveal } from "@/components/ui/motion";
 import { Section, SectionHeader } from "@/components/ui/Section";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import { Box, ButtonBase } from "@mui/material";
@@ -26,9 +27,16 @@ export function LiteYouTube({
 				aspectRatio: "16 / 9",
 				borderRadius: `${theme.tokens.radii.xl}px`,
 				overflow: "hidden",
-				border: `1px solid ${theme.tokens.colors.border}`,
-				boxShadow: theme.tokens.shadows.medium,
+				border: `1px solid ${alpha(theme.tokens.colors.cyan, 0.3)}`,
+				boxShadow:
+					theme.palette.mode === "dark"
+						? `${theme.tokens.shadows.strong}, 0 0 80px ${alpha(theme.tokens.colors.cyan, 0.14)}`
+						: theme.tokens.shadows.medium,
 				backgroundColor: theme.tokens.colors.surfaceSecondary,
+				"& img": {
+					transition: "transform 600ms cubic-bezier(0.22, 1, 0.36, 1)",
+				},
+				"&:hover img": { transform: "scale(1.03)" },
 			})}
 		>
 			{playing ? (
@@ -57,6 +65,7 @@ export function LiteYouTube({
 						"&:hover .qa-play, &.Mui-focusVisible .qa-play": {
 							backgroundColor: theme.palette.primary.main,
 							color: theme.palette.primary.contrastText,
+							transform: "scale(1.08)",
 						},
 						"&.Mui-focusVisible": {
 							outline: `3px solid ${theme.palette.primary.main}`,
@@ -88,8 +97,23 @@ export function LiteYouTube({
 							transition: theme.transitions.create([
 								"background-color",
 								"color",
+								"transform",
 							]),
 							"& svg": { fontSize: 40 },
+							// Expanding ring invites the click (stops under reduced motion).
+							"&::before": {
+								content: '""',
+								position: "absolute",
+								inset: -1,
+								borderRadius: "50%",
+								border: `2px solid ${alpha(theme.tokens.colors.cyan, 0.7)}`,
+								animation:
+									"qaRing 2.2s cubic-bezier(0.22, 1, 0.36, 1) infinite",
+							},
+							"@keyframes qaRing": {
+								from: { transform: "scale(1)", opacity: 1 },
+								to: { transform: "scale(1.6)", opacity: 0 },
+							},
 						})}
 					>
 						<PlayArrowRoundedIcon />
@@ -109,12 +133,14 @@ export default function VideoSection({ videoId }: { videoId: string }) {
 				title='تعرّف على طريقة الشرح'
 				description='شاهد مقطعاً قصيراً قبل أن تبدأ رحلتك مع الصفوف.'
 			/>
-			<Box sx={{ maxWidth: 960, mx: "auto" }}>
-				<LiteYouTube
-					videoId={videoId}
-					title='الفيديو التعريفي لمنصة محمد صبح'
-				/>
-			</Box>
+			<Reveal>
+				<Box sx={{ maxWidth: 960, mx: "auto" }}>
+					<LiteYouTube
+						videoId={videoId}
+						title='الفيديو التعريفي لمنصة محمد صبح'
+					/>
+				</Box>
+			</Reveal>
 		</Section>
 	);
 }

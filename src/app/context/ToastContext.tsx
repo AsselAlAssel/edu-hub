@@ -1,5 +1,6 @@
 "use client";
 import { useTheme } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { Toaster } from "react-hot-toast";
 
 /** Toast host themed from the active palette; RTL-aware and polite for screen readers. */
@@ -27,6 +28,10 @@ const ToastContext = () => {
 					boxShadow: shadows.medium,
 				},
 				success: {
+					style: {
+						borderInlineStart: `4px solid ${colors.success}`,
+						boxShadow: `${shadows.medium}, 0 0 24px ${alpha(colors.success, 0.18)}`,
+					},
 					iconTheme: {
 						primary: colors.success,
 						secondary: colors.surfaceElevated,
@@ -34,6 +39,10 @@ const ToastContext = () => {
 				},
 				error: {
 					duration: 6000,
+					style: {
+						borderInlineStart: `4px solid ${colors.error}`,
+						boxShadow: `${shadows.medium}, 0 0 24px ${alpha(colors.error, 0.18)}`,
+					},
 					iconTheme: {
 						primary: colors.error,
 						secondary: colors.surfaceElevated,

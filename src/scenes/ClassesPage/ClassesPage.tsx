@@ -1,6 +1,7 @@
 "use client";
+import dynamic from "next/dynamic";
 import ClassItem from "@/components/Admin/Classes/ClassItem";
-import ClassDialog from "@/components/ClassDialog";
+import { RiseItem } from "@/components/ui/motion";
 import { PageHeader, PageShell } from "@/components/ui/PageShell";
 import { cardGridSx } from "@/components/ui/Skeletons";
 import { EmptyState, ErrorState } from "@/components/ui/States";
@@ -12,6 +13,11 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import { Box, Button } from "@mui/material";
 import { useState } from "react";
+
+// Admin-only UI: loaded on demand so visitors never download the form code.
+const ClassDialog = dynamic(() => import("@/components/ClassDialog"), {
+	ssr: false,
+});
 
 export default function ClassesPage({ classes }: { classes: ClassWithMeta[] }) {
 	const { data, error, mutate } = useAllClass(classes);
@@ -32,7 +38,11 @@ export default function ClassesPage({ classes }: { classes: ClassWithMeta[] }) {
 		<PageShell>
 			<PageHeader
 				eyebrow='المكتبة التعليمية'
-				title='الصفوف الدراسية'
+				title={
+					<>
+						الصفوف <span className='qa-gradient-text'>الدراسية</span>
+					</>
+				}
 				description='اختر صفّك لتصل إلى الشروحات المصوّرة والملفات المنظّمة حسب الوحدات.'
 				actions={createButton}
 			/>
@@ -62,9 +72,18 @@ export default function ClassesPage({ classes }: { classes: ClassWithMeta[] }) {
 					sx={{ ...cardGridSx, listStyle: "none", m: 0, p: 0 }}
 				>
 					{list.map((classItem, index) => (
-						<Box component='li' key={classItem.id} sx={{ minWidth: 0 }}>
-							<ClassItem classItem={classItem} priority={index < 4} />
-						</Box>
+						<RiseItem
+							as='li'
+							key={classItem.id}
+							index={index + 2}
+							style={{ minWidth: 0 }}
+						>
+							<ClassItem
+								classItem={classItem}
+								priority={index < 4}
+								index={index}
+							/>
+						</RiseItem>
 					))}
 				</Box>
 			)}

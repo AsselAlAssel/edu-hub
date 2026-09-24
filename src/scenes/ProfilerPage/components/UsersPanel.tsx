@@ -156,7 +156,7 @@ export default function UsersPanel() {
 									<Avatar>{user.name?.charAt(0)?.toUpperCase() || "؟"}</Avatar>
 									<Box sx={{ minWidth: 0 }}>
 										<Stack direction='row' alignItems='center' gap={1}>
-											<Typography sx={{ fontWeight: 800 }} noWrap>
+											<Typography sx={{ fontWeight: 700 }} noWrap>
 												{user.name || "بدون اسم"}
 											</Typography>
 											{isMe ? (

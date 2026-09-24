@@ -29,7 +29,11 @@ export default function SortableItem({
 		transform,
 		transition,
 		isDragging,
-	} = useSortable({ id });
+	} = useSortable({
+		id,
+		// Neighbours glide aside and the drop settles with an ease-out.
+		transition: { duration: 280, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+	});
 
 	const handle = (
 		<IconButton
@@ -60,14 +64,26 @@ export default function SortableItem({
 	return (
 		<Box
 			ref={setNodeRef}
-			style={{ transform: CSS.Translate.toString(transform), transition }}
+			style={{
+				// Lifted "picked up" look while dragging: slight scale + tilt.
+				transform: [
+					CSS.Translate.toString(transform),
+					isDragging ? "scale(1.03) rotate(-1deg)" : "",
+				]
+					.filter(Boolean)
+					.join(" "),
+				transition,
+			}}
 			sx={(theme) => ({
 				height: "100%",
 				position: "relative",
 				zIndex: isDragging ? 10 : undefined,
-				opacity: isDragging ? 0.85 : 1,
+				opacity: isDragging ? 0.92 : 1,
 				borderRadius: `${theme.tokens.radii.lg}px`,
-				boxShadow: isDragging ? theme.tokens.shadows.strong : "none",
+				boxShadow: isDragging
+					? `${theme.tokens.shadows.strong}, ${theme.tokens.shadows.glow}`
+					: "none",
+				cursor: isDragging ? "grabbing" : undefined,
 			})}
 		>
 			{children(handle)}

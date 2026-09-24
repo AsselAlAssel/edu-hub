@@ -1,16 +1,11 @@
 "use client";
-import AttachmentsForm from "@/components/AttachmentsForm";
+import dynamic from "next/dynamic";
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
-import ChangeNameForm from "@/components/ChangeNameForm";
 import EmptyAddResources, {
 	type AddKind,
 } from "@/components/EmptyAddResources/EmptyAddResources";
-import FolderForm from "@/components/FolderForm";
-import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { PageHeader, PageShell } from "@/components/ui/PageShell";
 import { EmptyState, ErrorState } from "@/components/ui/States";
-import VideoForm from "@/components/VideoForm";
-import VideoPlayer from "@/components/VideoPlayer";
 import { useResource } from "@/hooks/useResourceApi";
 import useRole from "@/hooks/useRole";
 import {
@@ -38,7 +33,6 @@ import type { Folder, Video } from "@prisma/client";
 import { useCallback, useMemo, useRef, useState } from "react";
 import FilesSection from "./components/FilesSection";
 import FolderSection from "./components/FolderSection";
-import MoveDialog from "./components/MoveDialog";
 import VideosSection from "./components/VideosSection";
 import {
 	getItemKind,
@@ -48,6 +42,30 @@ import {
 	type ResourceKind,
 } from "./resourceDnd";
 import { useResourceMutations } from "./useResourceMutations";
+
+// Dialogs load on demand: admin forms (react-hook-form, dropzone, upload)
+// never reach visitors, and the player code loads only when needed.
+const AttachmentsForm = dynamic(() => import("@/components/AttachmentsForm"), {
+	ssr: false,
+});
+const ChangeNameForm = dynamic(() => import("@/components/ChangeNameForm"), {
+	ssr: false,
+});
+const FolderForm = dynamic(() => import("@/components/FolderForm"), {
+	ssr: false,
+});
+const ConfirmDialog = dynamic(() => import("@/components/ui/ConfirmDialog"), {
+	ssr: false,
+});
+const VideoForm = dynamic(() => import("@/components/VideoForm"), {
+	ssr: false,
+});
+const VideoPlayer = dynamic(() => import("@/components/VideoPlayer"), {
+	ssr: false,
+});
+const MoveDialog = dynamic(() => import("./components/MoveDialog"), {
+	ssr: false,
+});
 
 type Named = { id: string; name: string };
 type DialogState =

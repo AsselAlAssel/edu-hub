@@ -1,3 +1,4 @@
+import { revalidateResourcePages } from "@/libs/revalidate";
 import { isObjectId, jsonError, readJson, requireAdmin } from "@/libs/api";
 import { getRankBetween } from "@/libs/lexorank";
 import { prisma } from "@/libs/prismaDb";
@@ -36,6 +37,7 @@ export const POST = async (req: NextRequest) => {
 		else if (type === "file") await prisma.file.update({ where, data });
 		else await prisma.video.update({ where, data });
 
+		revalidateResourcePages();
 		return NextResponse.json({ rank: newRank });
 	} catch (error) {
 		console.error("Reorder error:", error);

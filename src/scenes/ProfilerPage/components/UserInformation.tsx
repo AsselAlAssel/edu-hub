@@ -25,7 +25,7 @@ export default function UserInformation() {
 					{user?.name?.charAt(0)?.toUpperCase() || "م"}
 				</Avatar>
 				<Box sx={{ minWidth: 0 }}>
-					<Typography sx={{ fontWeight: 800 }} noWrap>
+					<Typography sx={{ fontWeight: 700 }} noWrap>
 						{user?.name}
 					</Typography>
 					<Typography

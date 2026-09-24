@@ -6,7 +6,8 @@ import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import { SecondaryButton } from "@/components/ui/buttons";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, LinearProgress, Stack, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
@@ -106,11 +107,28 @@ export default function AttachmentsForm({
 					sx={(theme) => ({
 						p: 3,
 						textAlign: "center",
-						borderRadius: `${theme.tokens.radii.md}px`,
-						border: `1.5px dashed ${isDragActive ? theme.palette.primary.main : theme.tokens.colors.borderStrong}`,
+						borderRadius: `${theme.tokens.radii.lg}px`,
+						border: `1.5px dashed ${isDragActive ? theme.tokens.colors.cyan : theme.tokens.colors.borderStrong}`,
 						backgroundColor: isDragActive
-							? theme.palette.action.selected
+							? alpha(theme.tokens.colors.cyan, 0.1)
 							: theme.tokens.colors.surfaceSecondary,
+						boxShadow: isDragActive
+							? `inset 0 0 40px ${alpha(theme.tokens.colors.cyan, 0.15)}`
+							: "none",
+						transform: isDragActive ? "scale(1.015)" : "none",
+						transition: theme.transitions.create([
+							"transform",
+							"background-color",
+							"border-color",
+							"box-shadow",
+						]),
+						"& .qa-upload-icon": {
+							animation: isDragActive ? "qaBounce 700ms ease infinite" : "none",
+						},
+						"@keyframes qaBounce": {
+							"0%, 100%": { transform: "translateY(0)" },
+							"50%": { transform: "translateY(-6px)" },
+						},
 					})}
 				>
 					<input {...getInputProps({ "aria-label": "اختيار ملف" })} />
@@ -142,11 +160,12 @@ export default function AttachmentsForm({
 					) : (
 						<Stack alignItems='center' spacing={1}>
 							<CloudUploadOutlinedIcon
-								sx={{ color: "primary.main", fontSize: 36 }}
+								className='qa-upload-icon'
+								sx={{ color: "primary.main", fontSize: 40 }}
 								aria-hidden
 							/>
-							<Typography sx={{ fontWeight: 700 }}>
-								اسحب الملف إلى هنا
+							<Typography sx={{ fontWeight: 600 }}>
+								{isDragActive ? "أفلِت الملف للرفع" : "اسحب الملف إلى هنا"}
 							</Typography>
 							<Button size='small' variant='outlined' onClick={openPicker}>
 								أو اختر من جهازك
@@ -171,11 +190,28 @@ export default function AttachmentsForm({
 						inputProps={{ maxLength: 255 }}
 					/>
 				) : null}
+				{/* Indeterminate: the upload is a single request with no byte progress. */}
+				{busy ? (
+					<Stack spacing={1} role='status' aria-live='polite'>
+						<LinearProgress aria-label='جارٍ رفع الملف' />
+						<Typography variant='caption' sx={{ color: "text.secondary" }}>
+							جارٍ رفع الملف، لا تغلق النافذة…
+						</Typography>
+					</Stack>
+				) : null}
 				{error ? (
 					<Typography
 						role='alert'
 						variant='body2'
-						sx={{ color: "error.main", fontWeight: 600 }}
+						sx={{
+							color: "error.main",
+							fontWeight: 600,
+							animation: "qaErrorIn 320ms cubic-bezier(0.22, 1, 0.36, 1) both",
+							"@keyframes qaErrorIn": {
+								from: { opacity: 0, transform: "translateY(-4px)" },
+								to: { opacity: 1, transform: "none" },
+							},
+						}}
 					>
 						{error}
 					</Typography>

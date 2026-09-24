@@ -19,6 +19,7 @@ import {
 	Typography,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
+import { Stagger, StaggerItem } from "@/components/ui/motion";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -46,14 +47,19 @@ export default function SideBar({
 			px: 2,
 			py: 1.5,
 			borderRadius: `${theme.tokens.radii.md}px`,
-			fontWeight: 700,
-			fontSize: "1.0625rem",
+			fontWeight: active ? 600 : 500,
+			fontSize: "1.125rem",
 			textDecoration: "none",
 			color: active ? theme.palette.primary.main : theme.palette.text.primary,
 			backgroundColor: active
-				? alpha(theme.palette.primary.main, 0.1)
+				? alpha(theme.tokens.colors.cyan, 0.12)
 				: "transparent",
-			"&:hover": { backgroundColor: theme.palette.action.hover },
+			borderInlineStart: `3px solid ${active ? theme.tokens.colors.cyan : "transparent"}`,
+			transition: theme.transitions.create(["background-color", "transform"]),
+			"&:hover": {
+				backgroundColor: theme.palette.action.hover,
+				transform: "translateX(-4px)",
+			},
 		});
 
 	return (
@@ -62,12 +68,24 @@ export default function SideBar({
 			// MUI mirrors horizontal anchors under RTL: "left" opens from the right (start) edge.
 			anchor='left'
 			onClose={onClose}
+			// Springy ease-out on enter, quick exit.
+			transitionDuration={{ enter: 480, exit: 260 }}
+			SlideProps={{
+				easing: {
+					enter: "cubic-bezier(0.22, 1.2, 0.36, 1)",
+					exit: "cubic-bezier(0.4, 0, 1, 1)",
+				},
+			}}
 			PaperProps={{
-				sx: {
+				sx: (theme) => ({
 					width: "min(360px, 100%)",
 					display: "flex",
 					flexDirection: "column",
-				},
+					backgroundColor: alpha(theme.tokens.colors.surface, 0.92),
+					backgroundImage: `radial-gradient(120% 50% at 100% 0%, ${alpha(theme.tokens.colors.cyan, 0.12)}, transparent 60%)`,
+					backdropFilter: "blur(18px)",
+					borderInlineEnd: `1px solid ${alpha(theme.tokens.colors.cyan, 0.2)}`,
+				}),
 				"aria-label": "القائمة",
 			}}
 		>
@@ -85,50 +103,52 @@ export default function SideBar({
 			<Divider />
 
 			<Box component='nav' aria-label='التنقل الرئيسي' sx={{ p: 2, flex: 1 }}>
-				<Stack
-					component='ul'
-					spacing={0.5}
-					sx={{ listStyle: "none", m: 0, p: 0 }}
-				>
-					{NAV_ITEMS.map((item) => {
-						const active = isNavItemActive(
-							item,
-							pathname,
-							landingActiveSection
-						);
-						return (
-							<li key={item.href}>
+				<Stagger onMount delay={0.12} gap={0.06}>
+					<Stack
+						component='ul'
+						spacing={0.5}
+						sx={{ listStyle: "none", m: 0, p: 0 }}
+					>
+						{NAV_ITEMS.map((item) => {
+							const active = isNavItemActive(
+								item,
+								pathname,
+								landingActiveSection
+							);
+							return (
+								<StaggerItem as='li' key={item.href}>
+									<Box
+										component={Link}
+										href={item.href}
+										onClick={onClose}
+										aria-current={active ? "page" : undefined}
+										sx={linkSx(active)}
+									>
+										{item.label}
+									</Box>
+								</StaggerItem>
+							);
+						})}
+						{isAdmin ? (
+							<StaggerItem as='li'>
 								<Box
 									component={Link}
-									href={item.href}
+									href='/admin/profile'
 									onClick={onClose}
-									aria-current={active ? "page" : undefined}
-									sx={linkSx(active)}
+									aria-current={
+										pathname.startsWith("/admin") ? "page" : undefined
+									}
+									sx={linkSx(pathname.startsWith("/admin"))}
 								>
-									{item.label}
+									<Stack direction='row' alignItems='center' gap={1}>
+										<DashboardOutlinedIcon fontSize='small' />
+										لوحة التحكم
+									</Stack>
 								</Box>
-							</li>
-						);
-					})}
-					{isAdmin ? (
-						<li>
-							<Box
-								component={Link}
-								href='/admin/profile'
-								onClick={onClose}
-								aria-current={
-									pathname.startsWith("/admin") ? "page" : undefined
-								}
-								sx={linkSx(pathname.startsWith("/admin"))}
-							>
-								<Stack direction='row' alignItems='center' gap={1}>
-									<DashboardOutlinedIcon fontSize='small' />
-									لوحة التحكم
-								</Stack>
-							</Box>
-						</li>
-					) : null}
-				</Stack>
+							</StaggerItem>
+						) : null}
+					</Stack>
+				</Stagger>
 			</Box>
 
 			<Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
@@ -139,7 +159,7 @@ export default function SideBar({
 								{user.name?.charAt(0)?.toUpperCase() || "م"}
 							</Avatar>
 							<Box sx={{ minWidth: 0 }}>
-								<Typography sx={{ fontWeight: 800 }} noWrap>
+								<Typography sx={{ fontWeight: 700 }} noWrap>
 									{user.name}
 								</Typography>
 								<Typography

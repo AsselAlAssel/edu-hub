@@ -1,12 +1,12 @@
 "use client";
-import ClassDialog from "@/components/ClassDialog";
+import dynamic from "next/dynamic";
 import ActionsMenu from "@/components/ui/ActionsMenu";
-import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Surface from "@/components/ui/Surface";
 import { useDeleteClass } from "@/hooks/useClassApi";
 import useRole from "@/hooks/useRole";
 import { getErrorMessage } from "@/libs/errors";
 import type { ClassWithMeta } from "@/libs/class";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import { Box, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import Image from "next/image";
@@ -14,6 +14,14 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { mutate } from "swr";
+
+// Admin-only dialogs: loaded on demand (visitors never download them).
+const ClassDialog = dynamic(() => import("@/components/ClassDialog"), {
+	ssr: false,
+});
+const ConfirmDialog = dynamic(() => import("@/components/ui/ConfirmDialog"), {
+	ssr: false,
+});
 
 /** "3 فيديوهات · 5 ملفات" — only when the backend returned real counts. */
 export function resourceSummary(counts?: { videos: number; files: number }) {
@@ -28,13 +36,19 @@ export function resourceSummary(counts?: { videos: number; files: number }) {
 	return parts.length ? parts.join(" · ") : null;
 }
 
+const ACCENTS = ["cyan", "violet", "azure", "amber"] as const;
+
 export default function ClassItem({
 	classItem,
 	priority = false,
+	index = 0,
 }: {
 	classItem: ClassWithMeta;
 	priority?: boolean;
+	/** Position in the grid: picks the card's accent colour. */
+	index?: number;
 }) {
+	const accentKey = ACCENTS[index % ACCENTS.length];
 	const { isAdmin } = useRole();
 	const [editOpen, setEditOpen] = useState(false);
 	const [deleteOpen, setDeleteOpen] = useState(false);
@@ -69,19 +83,36 @@ export default function ClassItem({
 			<Surface
 				component='article'
 				interactive
-				sx={{
+				sx={(theme) => ({
 					display: "flex",
 					flexDirection: "column",
 					height: "100%",
 					overflow: "hidden",
-				}}
+					"& .qa-class-media img": {
+						transition: "transform 700ms cubic-bezier(0.22, 1, 0.36, 1)",
+					},
+					"&:hover .qa-class-media img": { transform: "scale(1.06)" },
+					"&:hover .qa-class-cta": { color: theme.tokens.colors[accentKey] },
+					"&:hover .qa-class-cta svg": { transform: "translateX(-5px)" },
+				})}
 			>
 				<Box
+					className='qa-class-media'
 					sx={(theme) => ({
 						position: "relative",
 						aspectRatio: "16 / 9",
+						overflow: "hidden",
 						backgroundColor: theme.tokens.colors.surfaceSecondary,
-						borderBottom: `1px solid ${theme.tokens.colors.border}`,
+						// Accent beam along the media's lower edge.
+						"&::after": {
+							content: '""',
+							position: "absolute",
+							insetInline: 0,
+							bottom: 0,
+							height: 3,
+							zIndex: 1,
+							background: `linear-gradient(90deg, transparent, ${theme.tokens.colors[accentKey]}, transparent)`,
+						},
 					})}
 				>
 					{classItem.image ? (
@@ -96,21 +127,30 @@ export default function ClassItem({
 					) : (
 						<Box
 							aria-hidden
-							sx={(theme) => ({
-								position: "absolute",
-								inset: 0,
-								display: "grid",
-								placeItems: "center",
-								backgroundImage: `radial-gradient(80% 90% at 100% 0%, ${alpha(theme.tokens.colors.cyan, 0.2)}, transparent 70%), radial-gradient(70% 80% at 0% 100%, ${alpha(theme.tokens.colors.violet, 0.18)}, transparent 70%)`,
-							})}
+							sx={(theme) => {
+								const accent = theme.tokens.colors[accentKey];
+								return {
+									position: "absolute",
+									inset: 0,
+									display: "grid",
+									placeItems: "center",
+									backgroundImage: `radial-gradient(80% 90% at 100% 0%, ${alpha(accent, 0.32)}, transparent 70%), radial-gradient(70% 80% at 0% 100%, ${alpha(theme.tokens.colors.violet, 0.2)}, transparent 70%), linear-gradient(${alpha(accent, 0.08)} 1px, transparent 1px), linear-gradient(90deg, ${alpha(accent, 0.08)} 1px, transparent 1px)`,
+									backgroundSize: "auto, auto, 24px 24px, 24px 24px",
+								};
+							}}
 						>
-							<Image
-								src='/images/logo/logo.svg'
-								alt=''
-								width={56}
-								height={56}
-								style={{ opacity: 0.85 }}
-							/>
+							<Box
+								className='qa-latin'
+								sx={(theme) => ({
+									fontSize: { xs: "3rem", md: "3.5rem" },
+									fontWeight: 700,
+									lineHeight: 1,
+									color: alpha(theme.tokens.colors[accentKey], 0.9),
+									textShadow: `0 0 30px ${alpha(theme.tokens.colors[accentKey], 0.5)}`,
+								})}
+							>
+								{classItem.name.trim().charAt(0)}
+							</Box>
 						</Box>
 					)}
 				</Box>
@@ -119,10 +159,14 @@ export default function ClassItem({
 					direction='row'
 					alignItems='flex-start'
 					gap={1}
-					sx={{ p: 2.25, flex: 1 }}
+					sx={{ p: 2.5, pb: 1.5, flex: 1 }}
 				>
 					<Box sx={{ flex: 1, minWidth: 0 }}>
-						<Typography variant='h5' component='h2'>
+						<Typography
+							variant='h5'
+							component='h2'
+							sx={{ fontWeight: 700, overflowWrap: "anywhere" }}
+						>
 							{href ? (
 								<Box
 									component={Link}
@@ -154,8 +198,18 @@ export default function ClassItem({
 						</Typography>
 						{summary ? (
 							<Typography
-								variant='body2'
-								sx={{ color: "text.secondary", mt: 0.5 }}
+								variant='caption'
+								sx={(theme) => ({
+									display: "inline-block",
+									mt: 1.25,
+									px: 1.25,
+									py: 0.25,
+									borderRadius: `${theme.tokens.radii.full}px`,
+									fontWeight: 600,
+									color: theme.tokens.colors[accentKey],
+									backgroundColor: alpha(theme.tokens.colors[accentKey], 0.12),
+									border: `1px solid ${alpha(theme.tokens.colors[accentKey], 0.3)}`,
+								})}
 							>
 								{summary}
 							</Typography>
@@ -171,6 +225,30 @@ export default function ClassItem({
 						/>
 					) : null}
 				</Stack>
+				{href ? (
+					<Stack
+						aria-hidden
+						className='qa-class-cta'
+						direction='row'
+						alignItems='center'
+						gap={0.75}
+						sx={(theme) => ({
+							px: 2.5,
+							pb: 2.25,
+							fontSize: "0.875rem",
+							fontWeight: 600,
+							color: "text.secondary",
+							transition: theme.transitions.create("color"),
+							"& svg": {
+								fontSize: 18,
+								transition: theme.transitions.create("transform"),
+							},
+						})}
+					>
+						ابدأ التعلّم
+						<ArrowBackRoundedIcon />
+					</Stack>
+				) : null}
 			</Surface>
 
 			{isAdmin ? (

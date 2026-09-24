@@ -1,4 +1,5 @@
-import { getLandingData } from "@/actions/landing";
+import { getLandingData, getPlatformStats } from "@/actions/landing";
+import JsonLd, { siteJsonLd } from "@/components/seo/JsonLd";
 import { pageMetadata } from "@/libs/site";
 import Landing from "@/scenes/Landing";
 
@@ -28,6 +29,14 @@ export const metadata = {
 };
 
 export default async function LandingPage() {
-	const data = await getLandingData();
-	return <Landing data={data} />;
+	const [data, stats] = await Promise.all([
+		getLandingData(),
+		getPlatformStats(),
+	]);
+	return (
+		<>
+			<JsonLd data={siteJsonLd({ email: data?.email })} />
+			<Landing data={data} stats={stats} />
+		</>
+	);
 }

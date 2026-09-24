@@ -105,7 +105,7 @@ export function SectionHeader({
 			<Typography
 				variant='h3'
 				sx={{
-					fontWeight: 800,
+					fontWeight: 700,
 					letterSpacing: "-0.01em",
 					color: "text.primary",
 				}}

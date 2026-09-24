@@ -23,14 +23,19 @@ export default function AddResourceCard({
 				borderRadius: `${theme.tokens.radii.lg}px`,
 				border: `1.5px dashed ${theme.tokens.colors.borderStrong}`,
 				color: "primary.main",
+				backgroundColor: alpha(theme.tokens.colors.cyan, 0.03),
 				transition: theme.transitions.create([
 					"background-color",
 					"border-color",
+					"box-shadow",
 				]),
+				"& svg": { transition: theme.transitions.create("transform") },
 				"&:hover, &.Mui-focusVisible": {
 					borderColor: theme.palette.primary.main,
-					backgroundColor: alpha(theme.palette.primary.main, 0.06),
+					backgroundColor: alpha(theme.tokens.colors.cyan, 0.08),
+					boxShadow: `inset 0 0 30px ${alpha(theme.tokens.colors.cyan, 0.08)}`,
 				},
+				"&:hover svg": { transform: "rotate(90deg) scale(1.15)" },
 				"&.Mui-focusVisible": {
 					outline: `2px solid ${theme.palette.primary.main}`,
 					outlineOffset: 2,
@@ -39,7 +44,7 @@ export default function AddResourceCard({
 		>
 			<Stack direction={compact ? "row" : "column"} alignItems='center' gap={1}>
 				<AddRoundedIcon />
-				<Typography component='span' sx={{ fontWeight: 700, color: "inherit" }}>
+				<Typography component='span' sx={{ fontWeight: 600, color: "inherit" }}>
 					{label}
 				</Typography>
 			</Stack>

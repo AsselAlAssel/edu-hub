@@ -1,10 +1,11 @@
-import { act, fireEvent, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useTheme } from "@mui/material/styles";
 import type { LandingPage } from "@prisma/client";
 import Header from "@/components/Common/Dashboard/Header";
+import MuiThemeSync from "@/components/ThemeRegistry/MuiThemeSync";
 import ThemeToggle from "@/components/ThemeToggle/ThemeToggle";
 import { useBackToTopFab } from "@/components/Common/useBackToTopFab";
 import Landing from "@/scenes/Landing/Landing";
@@ -37,13 +38,29 @@ describe("landing page", () => {
 		const h1s = screen.getAllByRole("heading", { level: 1 });
 		expect(h1s).toHaveLength(1);
 		expect(h1s[0]).toHaveTextContent(landing.headerTitle);
-		expect(screen.getByRole("link", { name: /تصفّح الصفوف/ })).toHaveAttribute(
+		expect(screen.getByRole("link", { name: /استكشف الصفوف/ })).toHaveAttribute(
 			"href",
 			"/classes"
 		);
-		expect(
-			screen.getByRole("link", { name: /تعرّف على المنصة/ })
-		).toHaveAttribute("href", "/#about");
+		expect(screen.getByRole("link", { name: /تعرف علينا/ })).toHaveAttribute(
+			"href",
+			"/#about"
+		);
+	});
+
+	it("shows only real, non-zero platform stats in the hero", () => {
+		renderWithTheme(
+			<Landing data={landing} stats={{ classes: 6, videos: 42, files: 0 }} />
+		);
+		const hero = document.getElementById("home")!;
+		expect(within(hero).getByText("6+")).toBeInTheDocument();
+		expect(within(hero).getByText("صفوف دراسية")).toBeInTheDocument();
+		expect(within(hero).queryByText("ملف دراسي")).not.toBeInTheDocument();
+	});
+
+	it("omits the stats row entirely without data", () => {
+		renderWithTheme(<Landing data={landing} stats={null} />);
+		expect(document.querySelector("#home dl")).toBeNull();
 	});
 
 	it("has the four feature cards and no fabricated progress/stat claims", () => {
@@ -105,26 +122,41 @@ describe("landing page", () => {
 	});
 });
 
+function ModeProbe() {
+	return <span data-testid='mui-mode'>{useTheme().palette.mode}</span>;
+}
+
 describe("theme switching", () => {
 	it("toggles between dark and light and updates the html class", async () => {
 		localStorage.clear();
-		renderWithTheme(
+		// The real chain: next-themes → <html> class → MuiThemeSync → UI.
+		render(
 			<NextThemesProvider
 				attribute='class'
 				defaultTheme='dark'
 				enableSystem={false}
 			>
-				<ThemeToggle />
+				<MuiThemeSync direction='rtl'>
+					<ThemeToggle />
+					<ModeProbe />
+				</MuiThemeSync>
 			</NextThemesProvider>
 		);
-		const toggle = screen.getByRole("button", {
+		const toggle = await screen.findByRole("button", {
 			name: "التبديل إلى الوضع الفاتح",
 		});
 		await userEvent.click(toggle);
 		expect(document.documentElement.classList.contains("light")).toBe(true);
+		// MUI (every card/text colour) follows the class, not just the icon.
 		expect(
-			screen.getByRole("button", { name: "التبديل إلى الوضع الداكن" })
+			await screen.findByRole("button", { name: "التبديل إلى الوضع الداكن" })
 		).toBeInTheDocument();
+		expect(screen.getByTestId("mui-mode")).toHaveTextContent("light");
+
+		await userEvent.click(
+			screen.getByRole("button", { name: "التبديل إلى الوضع الداكن" })
+		);
+		expect(await screen.findByTestId("mui-mode")).toHaveTextContent("dark");
 	});
 });
 

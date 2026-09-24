@@ -1,8 +1,11 @@
 import { getClasses } from "@/libs/class";
-import { pageMetadata } from "@/libs/site";
+import JsonLd, { coursesJsonLd } from "@/components/seo/JsonLd";
+import { pageMetadata, SITE_URL } from "@/libs/site";
 import ClassesPage from "@/scenes/ClassesPage";
 
-export const dynamic = "force-dynamic";
+// Cached and regenerated at most every minute (class writes also call
+// revalidatePath). Admins see live data through SWR on the client.
+export const revalidate = 60;
 
 export const metadata = pageMetadata({
 	title: "صفوف الفيزياء - جميع المراحل الدراسية",
@@ -20,5 +23,18 @@ export const metadata = pageMetadata({
 
 export default async function Page() {
 	const classes = await getClasses();
-	return <ClassesPage classes={classes} />;
+	const courses = classes
+		.filter((item) => item.folders[0])
+		.map((item) => ({
+			id: item.id,
+			name: item.name,
+			description: item.description,
+			url: `${SITE_URL}/class/${item.id}/folder/${item.folders[0].id}`,
+		}));
+	return (
+		<>
+			{courses.length ? <JsonLd data={coursesJsonLd(courses)} /> : null}
+			<ClassesPage classes={classes} />
+		</>
+	);
 }

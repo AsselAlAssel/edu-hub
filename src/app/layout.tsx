@@ -14,6 +14,12 @@ export const metadata: Metadata = {
 		template: `%s | ${SITE_NAME}`,
 	},
 	applicationName: SITE_NAME,
+	authors: [{ name: "محمد صبح (Mohammed Subuh)", url: SITE_URL }],
+	creator: "محمد صبح",
+	publisher: SITE_NAME,
+	category: "education",
+	formatDetection: { telephone: false, email: false, address: false },
+	icons: { icon: "/favicon.ico", apple: "/images/logo/logo.svg" },
 	verification: {
 		google: "Z_CVlOktniTFxzGBAkRiR6BEv8fZKQt0ZnbgOt3e_3g",
 	},
