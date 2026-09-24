@@ -161,8 +161,11 @@ describe("validation", () => {
 
 		const resources = await import("@/app/api/resources/[folderId]/route");
 		expect(
-			(await resources.GET(req("GET"), { params: { folderId: "not-an-id" } }))
-				.status
+			(
+				await resources.GET(req("GET"), {
+					params: Promise.resolve({ folderId: "not-an-id" }),
+				})
+			).status
 		).toBe(400);
 	});
 

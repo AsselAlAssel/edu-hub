@@ -198,7 +198,7 @@ export function RiseItem({
  * Pointer position over `ref`, normalised to −1…1 and spring-smoothed.
  * Inert for touch pointers and for users who prefer reduced motion.
  */
-export function usePointerParallax(ref: RefObject<HTMLElement>): {
+export function usePointerParallax(ref: RefObject<HTMLElement | null>): {
 	x: MotionValue<number>;
 	y: MotionValue<number>;
 } {

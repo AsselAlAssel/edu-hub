@@ -38,6 +38,7 @@ next-env.d.ts
 /.next-verify/
 /.next-before/
 /.next-after/
+/.next-dev/
 /screenshots/
 
 # test artifacts

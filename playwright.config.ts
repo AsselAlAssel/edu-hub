@@ -31,6 +31,7 @@ export default defineConfig({
 	projects: [
 		{
 			name: "desktop",
+			testIgnore: /perf\.spec\.ts/,
 			use: {
 				...devices["Desktop Chrome"],
 				viewport: { width: 1280, height: 800 },
@@ -38,7 +39,15 @@ export default defineConfig({
 		},
 		{
 			name: "mobile",
+			testIgnore: /perf\.spec\.ts/,
 			use: { ...devices["Pixel 5"], viewport: { width: 375, height: 740 } },
+		},
+		// Timing budgets run last, on an otherwise idle machine.
+		{
+			name: "perf",
+			testMatch: /perf\.spec\.ts/,
+			dependencies: ["desktop", "mobile"],
+			use: { ...devices["Desktop Chrome"] },
 		},
 	],
 	webServer,

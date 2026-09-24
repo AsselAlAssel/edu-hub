@@ -281,35 +281,3 @@ test.describe("SEO", () => {
 		expect(robots).toContain("noindex");
 	});
 });
-
-test.describe("performance", () => {
-	test("landing page is served from cache and paints fast", async ({
-		page,
-	}) => {
-		const response = await page.goto("/");
-		// ISR: Next marks cached pages with x-nextjs-cache (HIT/STALE).
-		expect(response?.headers()["x-nextjs-cache"]).toMatch(/HIT|STALE/);
-		const lcp = await page.evaluate(
-			() =>
-				new Promise<number>((resolve) => {
-					new PerformanceObserver((list) => {
-						const entries = list.getEntries();
-						resolve(entries[entries.length - 1].startTime);
-					}).observe({ type: "largest-contentful-paint", buffered: true });
-					setTimeout(() => resolve(-1), 5000);
-				})
-		);
-		const fcp = await page.evaluate(
-			() =>
-				performance.getEntriesByName("first-contentful-paint")[0]?.startTime ??
-				-1
-		);
-		// Standalone this measures ~0.25s FCP / ~0.4s LCP. The budgets are Google's
-		// "poor" thresholds, so parallel test load can't flake them but a real
-		// regression (blocking script, huge image) still fails.
-		expect(fcp).toBeGreaterThan(0);
-		expect(fcp, "FCP (ms)").toBeLessThan(3000);
-		expect(lcp).toBeGreaterThan(0);
-		expect(lcp, "LCP (ms)").toBeLessThan(4000);
-	});
-});
