@@ -5,23 +5,27 @@ A modern, full-stack SaaS application for managing educational content, classes,
 ## Features
 
 ### 📚 Class Management
+
 - Create and organize educational classes
 - Manage class metadata and descriptions
 - Role-based access control (Admin, User)
 
 ### 📁 Hierarchical Content Organization
+
 - Nested folder structures within classes
 - Drag-and-drop folder reordering with LexoRank
 - File and video management within folders
 - Automatic rank-based sorting
 
 ### 🎬 Multimedia Support
+
 - Video hosting and streaming via Bunny CDN
 - File uploads with AWS S3 integration
 - Support for multiple file types
 - Presigned URLs for secure file access
 
 ### 👤 User Management
+
 - Secure authentication with NextAuth.js
 - Password-based login with bcrypt hashing
 - Session management
@@ -29,6 +33,7 @@ A modern, full-stack SaaS application for managing educational content, classes,
 - Admin panel for user administration
 
 ### 🎨 Modern UI/UX
+
 - Material-UI component library
 - Dark/light theme support with next-themes
 - Responsive design with Tailwind CSS
@@ -36,6 +41,7 @@ A modern, full-stack SaaS application for managing educational content, classes,
 - Toast notifications for user feedback
 
 ### 🔐 Security
+
 - Password reset functionality with token expiration
 - Email verification
 - Secure API endpoints
@@ -44,6 +50,7 @@ A modern, full-stack SaaS application for managing educational content, classes,
 ## Tech Stack
 
 ### Frontend
+
 - **Next.js 14** - React framework for production
 - **TypeScript** - Type-safe development
 - **Material-UI (MUI)** - Component library
@@ -52,17 +59,20 @@ A modern, full-stack SaaS application for managing educational content, classes,
 - **next-themes** - Theme management
 
 ### Backend & Database
+
 - **Next.js API Routes** - Backend endpoints
 - **Prisma ORM** - Database management
 - **MongoDB** - NoSQL database
 - **NextAuth.js** - Authentication
 
 ### External Services
+
 - **AWS S3** - File storage
 - **Bunny CDN** - Video streaming and storage
 - **Stripe** - Payment processing (optional)
 
 ### Developer Tools
+
 - **ESLint** - Code linting
 - **Prettier** - Code formatting
 - **TypeScript** - Static type checking
@@ -70,6 +80,7 @@ A modern, full-stack SaaS application for managing educational content, classes,
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js >= 18.17.0
 - npm or yarn
 - MongoDB database
@@ -79,18 +90,21 @@ A modern, full-stack SaaS application for managing educational content, classes,
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/saasbold.git
    cd saasbold
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
    Create a `.env.local` file in the root directory:
+
    ```env
    DATABASE_URL=your_mongodb_url
    SHADOW_DATABASE_URL=your_shadow_db_url
@@ -105,6 +119,7 @@ A modern, full-stack SaaS application for managing educational content, classes,
    ```
 
 4. **Initialize the database**
+
    ```bash
    npx prisma generate
    npx prisma db push
@@ -118,6 +133,7 @@ A modern, full-stack SaaS application for managing educational content, classes,
 ### Development
 
 Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -143,7 +159,27 @@ npm run start
 - `npm run fix-lint` - Fix linting errors
 - `npm run fix-style` - Fix formatting and linting
 - `npm run test-build` - Run style checks and build
+- `npm run test` - Unit/component/API tests (Vitest + Testing Library)
+- `npm run test:e2e` - End-to-end tests (Playwright, against `next start`)
 - `npm run stripe:listen` - Listen for Stripe webhooks
+
+## Design System — Quantum Aurora
+
+- **Tokens** live in `theme/tokens.ts` (colors for both modes, radii 8/12/16/24/full, subtle/medium/strong shadows, motion, z-index, layout). They feed the MUI palette (`theme/palettes.ts`, `theme/index.ts`, exposed as `theme.tokens`) and are injected as `--qa-*` CSS variables by the root layout. Components never hardcode colors.
+- **Primitives** in `src/components/ui/`: `Surface`, `PageShell`/`PageHeader`, `Section`/`SectionHeader`, `PrimaryButton`/`SecondaryButton`/`GhostButton`/`IconAction`, `FormField`/`PasswordField`/`SearchField`, `AppDialog`, `ConfirmDialog`, `ActionsMenu`, `IconTile`, `EmptyState`/`ErrorState`/`LoadingState`, skeletons.
+- Arabic RTL first (`stylis-plugin-rtl`), Tajawal, no negative letter-spacing (it breaks joined Arabic glyphs). Animations respect `prefers-reduced-motion`.
+- Light-mode `primary.main` is Primary Dark `#0369A1`: Azure `#0284C7` is below WCAG AA contrast on white.
+- `stylis` is pinned to `4.2.0` to match `@emotion/cache`; a mismatched prefixer crashes SSR of MUI inputs.
+
+## Testing
+
+```bash
+npm run test                                   # 75 unit/component/API tests
+npx playwright install chromium                # once
+npm run build && npm run test:e2e              # E2E against a production build
+```
+
+E2E specs are **read-only** (they never create or delete data) but use the database from `.env`. To build next to a running `next dev`, set `NEXT_DIST_DIR=.next-verify` for both `next build` and `npm run test:e2e`; set `E2E_BASE_URL` to test a deployed site instead.
 
 ## Project Structure
 
@@ -164,33 +200,23 @@ src/
 
 ## API Endpoints
 
-### Authentication
-- `POST /api/auth/signin` - User login
-- `POST /api/auth/signup` - User registration
-- `GET /api/auth/session` - Get current session
+All write endpoints require an **ADMIN** session: `401` without a session, `403` for non-admins. IDs must be 24-char Mongo ObjectIds (`400` otherwise). Errors are JSON `{ "message": string }`.
 
-### Classes
-- `GET /api/class` - List classes
-- `POST /api/class` - Create class
-- `PUT /api/class/[id]` - Update class
-- `DELETE /api/class/[id]` - Delete class
-
-### Resources
-- `GET /api/resources` - List resources
-- `POST /api/resources` - Create resource
-- `PUT /api/resources/[id]` - Update resource
-- `DELETE /api/resources/[id]` - Delete resource
-
-### Files & Folders
-- `GET /api/file` - List files
-- `POST /api/file` - Upload file
-- `GET /api/folder` - List folders
-- `POST /api/folder` - Create folder
-
-### Utilities
-- `POST /api/reorder` - Reorder items
-- `POST /api/move` - Move items between folders
-- `POST /api/revalidate` - Revalidate cache
+| Endpoint                                                      | Access | Notes                                                            |
+| ------------------------------------------------------------- | ------ | ---------------------------------------------------------------- |
+| `GET /api/class`                                              | public | classes with root folder and file/video counts                   |
+| `POST` / `PUT` / `DELETE /api/class`                          | admin  | create / rename+image / delete (recursive)                       |
+| `GET /api/class/[classId]`                                    | signed | one class                                                        |
+| `GET /api/resources/[folderId]`                               | public | `{ folders, files, videos }`                                     |
+| `GET /api/folder/[folderId]/breadcrumbs`                      | public | folder chain from the class root                                 |
+| `POST` / `PUT` / `DELETE /api/folder`                         | admin  | `PUT` takes `{ folderId, name }` (legacy `parentFolderId` works) |
+| `POST` / `PUT` / `DELETE /api/file`                           | admin  | `DELETE` also removes the R2 object                              |
+| `POST` / `PUT` / `DELETE /api/video`                          | admin  | YouTube id is derived server-side from `url`                     |
+| `POST /api/move`, `POST /api/reorder`                         | admin  | move file/video (same class only), LexoRank reorder              |
+| `PUT /api/landing` (`POST` alias)                             | admin  | validated upsert of the landing CMS                              |
+| `GET` / `PATCH` / `DELETE /api/user`                          | admin  | list (no credentials), change role, delete (never yourself)      |
+| `POST /api/user/register`                                     | public | only `ADMIN_EMAIL` may register                                  |
+| `POST /api/user/update`, `/change-password`, `DELETE /delete` | signed | own account (admins may delete others)                           |
 
 ## Database Schema
 
@@ -209,6 +235,7 @@ See [prisma/schema.prisma](prisma/schema.prisma) for the complete schema.
 ## Authentication
 
 The application uses [NextAuth.js](https://next-auth.js.org/) for authentication with:
+
 - Credentials provider (email/password)
 - Session-based authentication
 - MongoDB adapter for session persistence
@@ -237,6 +264,7 @@ Contributions are welcome! Please follow these steps:
 5. Open a Pull Request
 
 Please ensure your code follows the project's style guidelines by running:
+
 ```bash
 npm run fix-style
 ```

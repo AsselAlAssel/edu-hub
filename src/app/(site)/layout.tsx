@@ -1,45 +1,29 @@
-import BackToTopFab from "@/components/Common/BackToTopFab";
-import Header from "@/components/Common/Dashboard/Header";
-import Loader from "@/components/Common/PreLoader";
-import FooterWrapper from "@/components/Footer/FooterWrapper";
+import AppShell from "@/components/AppShell/AppShell";
 import NextTopLoader from "nextjs-toploader";
-import "../../styles/globals.css";
-import ToastContext from "../context/ToastContext";
+import { colors } from "../../../theme/tokens";
 import { Providers } from "./providers";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/libs/auth";
 
-export default async function RootLayout({
+/**
+ * No server session here on purpose: reading cookies in the shared layout
+ * would force every public page to render per request. The session loads on
+ * the client (header/account UI only); /admin is still protected by the
+ * middleware + its own server check, and every API route authorises itself.
+ */
+export default function SiteLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	const session = await getServerSession(authOptions);
 	return (
-		<>
-			<Loader />
-			<>
-				<ToastContext />
-				<Providers session={session}>
-					<NextTopLoader
-						color='#635BFF'
-						crawlSpeed={300}
-						showSpinner={false}
-						shadow='none'
-					/>
-					<Header />
-
-					<main
-						style={{
-							paddingTop: `104px`,
-						}}
-					>
-						{children}
-					</main>
-					<FooterWrapper />
-					<BackToTopFab />
-				</Providers>
-			</>
-		</>
+		<Providers>
+			<NextTopLoader
+				color={colors.dark.azure}
+				height={2}
+				crawlSpeed={300}
+				showSpinner={false}
+				shadow={false}
+			/>
+			<AppShell>{children}</AppShell>
+		</Providers>
 	);
 }

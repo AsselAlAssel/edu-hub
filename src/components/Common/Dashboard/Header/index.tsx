@@ -1,386 +1,262 @@
 "use client";
+import Logo from "@/components/AppShell/Logo";
 import PageContainer from "@/components/PageContainer";
-import useMuiMediaQuery from "@/hooks/useMuiMediaQuery";
-import usePopoverState from "@/hooks/usePopoverState";
 import ThemeToggle from "@/components/ThemeToggle/ThemeToggle";
-import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
-import CloseIcon from "@mui/icons-material/Close";
-import LogoutIcon from "@mui/icons-material/Logout";
-import MenuIcon from "@mui/icons-material/Menu";
+import { APP_BAR_HEIGHT } from "@/constants/appShell";
+import { isNavItemActive, NAV_ITEMS } from "@/constants/navigation";
+import { useLandingScrollSpy } from "@/hooks/useLandingScrollSpy";
+import usePopoverState from "@/hooks/usePopoverState";
+import { Role } from "@/types/enums";
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import {
-	alpha,
 	Avatar,
 	Box,
+	ButtonBase,
+	Divider,
 	IconButton,
 	ListItemIcon,
-	ListItemText,
 	Menu,
 	MenuItem,
 	Stack,
 	Typography,
+	useScrollTrigger,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
+import { motion, useScroll, useSpring } from "framer-motion";
 import { signOut, useSession } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRouter } from "nextjs-toploader/app";
-import { useEffect, useState } from "react";
-import { APP_BAR_HEIGHT } from "@/constants/appShell";
-import { useLandingScrollSpy } from "@/hooks/useLandingScrollSpy";
+import { useState } from "react";
 import SideBar from "../Sidebar";
 
 export { APP_BAR_HEIGHT };
 
-const selectedAfterStyle = {
-	"&::after": {
-		content: '""',
-		position: "absolute",
-		bottom: -4,
-		right: 0,
-		left: 0,
-		height: 2,
-		borderRadius: 1,
-		backgroundColor: "primary.main",
-		textDecoration: "none",
-	},
-};
-
-const LinkItem = ({
-	children,
-	href,
-	onClick,
-	isSelected,
-}: {
-	children: React.ReactNode;
-	href: string;
-	onClick?: () => void;
-	isSelected?: boolean;
-}) => {
+/** Reading progress along the header's bottom edge (fills from the right in RTL). */
+function ScrollProgress() {
+	const { scrollYProgress } = useScroll();
+	const scaleX = useSpring(scrollYProgress, {
+		stiffness: 160,
+		damping: 30,
+		restDelta: 0.001,
+	});
 	return (
-		<Typography
-			component='span'
-			sx={{
-				fontWeight: 600,
-				fontSize: "0.9375rem",
-				color: isSelected ? "primary.main" : "text.tertiary",
-				textAlign: "center",
-				position: "relative",
-				transition: "color 0.2s ease",
-				px: 0.5,
-				"&:hover": {
-					color: "primary.main",
-				},
-				...(isSelected ? selectedAfterStyle : {}),
+		<motion.div
+			aria-hidden
+			style={{
+				scaleX,
+				position: "absolute",
+				insetInline: 0,
+				bottom: -1,
+				height: 2,
+				// The site is RTL-only: progress grows from the reading start (right).
+				transformOrigin: "right",
+				backgroundImage: "var(--qa-gradient-text)",
+				pointerEvents: "none",
 			}}
-			onClick={onClick}
-		>
-			<Link
-				href={href}
-				style={{
-					textDecoration: "none",
-					color: "inherit",
-					height: "100%",
-				}}
-			>
-				{children}
-			</Link>
-		</Typography>
+		/>
 	);
-};
+}
 
+/** Sticky site header: brand, primary nav, theme toggle, account menu, mobile drawer. */
 export default function Header() {
 	const { data: session } = useSession();
 	const user = session?.user;
-	const [openSidebar, setOpenSidebar] = useState(false);
-	const router = useRouter();
-	const [open, anchorEl, handleOpen, handleClose] = usePopoverState();
-	const { isTabletOrLess } = useMuiMediaQuery();
-	const pathName = usePathname();
-	const landingActiveSection = useLandingScrollSpy(pathName === "/");
-
-	const [isScrolled, setIsScrolled] = useState(false);
-	useEffect(() => {
-		const handleScroll = () => {
-			setIsScrolled(window.scrollY > 10);
-		};
-		window.addEventListener("scroll", handleScroll, { passive: true });
-		return () => {
-			window.removeEventListener("scroll", handleScroll);
-		};
-	}, []);
+	const isAdmin = user?.role === Role.ADMIN;
+	const pathname = usePathname();
+	const activeSection = useLandingScrollSpy(pathname === "/");
+	const scrolled = useScrollTrigger({ disableHysteresis: true, threshold: 8 });
+	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [menuOpen, anchorEl, openMenu, closeMenu] = usePopoverState();
 
 	return (
 		<Box
 			component='header'
-			role='banner'
 			sx={(theme) => ({
-				height: APP_BAR_HEIGHT,
-				zIndex: 999,
-				position: "fixed",
-				width: "100%",
+				position: "sticky",
 				top: 0,
-				p: 0,
+				zIndex: theme.zIndex.appBar,
+				height: APP_BAR_HEIGHT,
 				borderBottom: "1px solid",
-				borderColor: isScrolled
-					? alpha(theme.palette.border.main, 0.45)
-					: "transparent",
-				backgroundColor: isScrolled
-					? alpha(theme.palette.background.paper, 0.92)
-					: theme.palette.background.paper,
-				backdropFilter: isScrolled ? "blur(14px)" : "none",
-				WebkitBackdropFilter: isScrolled ? "blur(14px)" : "none",
-				transition: theme.transitions.create(
-					["background-color", "border-color", "box-shadow"],
-					{ duration: 220 }
-				),
+				borderColor: scrolled ? theme.tokens.colors.border : "transparent",
+				backgroundColor: alpha(theme.tokens.colors.bg, scrolled ? 0.72 : 0),
+				backdropFilter: scrolled ? "saturate(160%) blur(16px)" : "none",
+				WebkitBackdropFilter: scrolled ? "saturate(160%) blur(16px)" : "none",
+				boxShadow: scrolled ? theme.tokens.shadows.subtle : "none",
+				transition: theme.transitions.create([
+					"background-color",
+					"border-color",
+					"box-shadow",
+				]),
 			})}
 		>
-			<PageContainer
-				sx={(theme) => ({
-					[theme.breakpoints.down("sm")]: {
-						px: "20px !important",
-					},
-					minHeight: APP_BAR_HEIGHT,
-					maxHeight: APP_BAR_HEIGHT,
-				})}
-			>
+			{/* Reading progress belongs to the long landing page only. */}
+			{pathname === "/" ? <ScrollProgress /> : null}
+			<PageContainer sx={{ height: "100%" }}>
 				<Stack
 					direction='row'
-					justifyContent='space-between'
 					alignItems='center'
-					height={APP_BAR_HEIGHT}
-					spacing={2}
+					justifyContent='space-between'
+					height='100%'
+					gap={2}
 				>
+					<Logo />
+
 					<Box
-						sx={{
-							flex: "1 1 0",
-							display: "flex",
-							justifyContent: "flex-start",
-							minWidth: 0,
-						}}
-					>
-						<Link href='/' aria-label='الصفحة الرئيسية'>
-							<Image
-								src='/images/logo/logo.svg'
-								alt='شروحات الفيزياء لجميع الصفوف - محمد صبح | Mohammed Subuh'
-								width={44}
-								height={44}
-							/>
-						</Link>
-					</Box>
-					<Stack
 						component='nav'
-						aria-label='القائمة الرئيسية'
-						direction='row'
-						justifyContent='center'
-						alignItems='center'
-						display={{ xs: "none", md: "flex" }}
-						sx={{ flexShrink: 0 }}
+						aria-label='التنقل الرئيسي'
+						sx={{ display: { xs: "none", md: "block" } }}
 					>
-						<Stack direction='row' spacing={2.75} alignItems='center'>
-							<LinkItem
-								href='/#home'
-								isSelected={pathName === "/" && landingActiveSection === "home"}
-							>
-								الرئيسية
-							</LinkItem>
-							<LinkItem href='/classes' isSelected={pathName === "/classes"}>
-								الصفوف
-							</LinkItem>
-							<LinkItem
-								href='/#about'
-								isSelected={
-									pathName === "/" && landingActiveSection === "about"
-								}
-							>
-								عن هذه المنصة
-							</LinkItem>
-							<LinkItem
-								href='/#contact'
-								isSelected={
-									pathName === "/" && landingActiveSection === "contact"
-								}
-							>
-								اتصل بنا
-							</LinkItem>
+						<Stack
+							component='ul'
+							direction='row'
+							gap={0.5}
+							sx={{ listStyle: "none", m: 0, p: 0, isolation: "isolate" }}
+						>
+							{NAV_ITEMS.map((item) => {
+								const active = isNavItemActive(item, pathname, activeSection);
+								return (
+									<li key={item.href}>
+										<Box
+											component={Link}
+											href={item.href}
+											aria-current={active ? "page" : undefined}
+											sx={(theme) => ({
+												position: "relative",
+												display: "block",
+												px: 2,
+												py: 1,
+												borderRadius: `${theme.tokens.radii.full}px`,
+												fontWeight: active ? 600 : 500,
+												fontSize: "1rem",
+												textDecoration: "none",
+												color: active
+													? theme.palette.mode === "dark"
+														? "primary.light"
+														: "primary.main"
+													: "text.secondary",
+												transition: theme.transitions.create("color"),
+												"&:hover": { color: "text.primary" },
+											})}
+										>
+											{/* Shared-layout pill glides between active items. */}
+											{active ? (
+												<motion.span
+													layoutId='qa-nav-pill'
+													transition={{
+														type: "spring",
+														stiffness: 380,
+														damping: 32,
+													}}
+													aria-hidden
+													style={{
+														position: "absolute",
+														inset: 0,
+														zIndex: -1,
+														borderRadius: "inherit",
+														backgroundColor:
+															"color-mix(in srgb, var(--qa-cyan) 12%, transparent)",
+														border:
+															"1px solid color-mix(in srgb, var(--qa-cyan) 38%, transparent)",
+														boxShadow:
+															"0 0 18px color-mix(in srgb, var(--qa-cyan) 16%, transparent)",
+													}}
+												/>
+											) : null}
+											{item.label}
+										</Box>
+									</li>
+								);
+							})}
 						</Stack>
-					</Stack>
-					<Stack
-						direction='row'
-						alignItems='center'
-						justifyContent='flex-end'
-						spacing={1}
-						sx={{ flex: "1 1 0", minWidth: 0 }}
-					>
+					</Box>
+
+					<Stack direction='row' alignItems='center' gap={1}>
 						<ThemeToggle />
-						{session ? (
-							<>
-								<Avatar
-									sx={(theme) => ({
-										display: { xs: "none", md: "flex" },
-										width: 40,
-										height: 40,
-										border: "2px solid",
-										borderColor: alpha(theme.palette.primary.main, 0.12),
-										backgroundColor: theme.palette.primary.main,
-										fontSize: 18,
-										fontWeight: 700,
-										cursor: "pointer",
-										transition: theme.transitions.create(
-											["border-color", "box-shadow", "transform"],
-											{ duration: 180 }
-										),
-										"&:hover": {
-											borderColor: theme.palette.primary.main,
-											boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.12)}`,
-										},
-									})}
-									onClick={(e) => {
-										if (isTabletOrLess) {
-											setOpenSidebar(true);
-											return;
-										}
-										handleOpen(e);
-									}}
-								>
-									{user?.name?.charAt(0)?.toUpperCase() || "A"}
-								</Avatar>
-								<IconButton
-									onClick={() => setOpenSidebar(!openSidebar)}
-									aria-label={openSidebar ? "إغلاق القائمة" : "فتح القائمة"}
-									sx={{
-										display: { xs: "inline-flex", md: "none" },
-										color: "text.primary",
-									}}
-								>
-									{openSidebar ? <CloseIcon /> : <MenuIcon />}
-								</IconButton>
-							</>
-						) : (
-							<IconButton
-								onClick={() => setOpenSidebar(!openSidebar)}
-								aria-label={openSidebar ? "إغلاق القائمة" : "فتح القائمة"}
+						{user ? (
+							<ButtonBase
+								onClick={openMenu}
+								aria-label='قائمة الحساب'
+								aria-haspopup='menu'
+								aria-expanded={menuOpen}
+								aria-controls={menuOpen ? "account-menu" : undefined}
 								sx={{
-									display: { xs: "inline-flex", md: "none" },
-									color: "text.primary",
+									display: { xs: "none", md: "inline-flex" },
+									borderRadius: "50%",
 								}}
 							>
-								{openSidebar ? <CloseIcon /> : <MenuIcon />}
-							</IconButton>
-						)}
+								<Avatar sx={{ width: 38, height: 38, fontSize: "1rem" }}>
+									{user.name?.charAt(0)?.toUpperCase() || "م"}
+								</Avatar>
+							</ButtonBase>
+						) : null}
+						<IconButton
+							onClick={() => setDrawerOpen(true)}
+							aria-label='فتح القائمة'
+							aria-haspopup='dialog'
+							aria-expanded={drawerOpen}
+							sx={{
+								display: { xs: "inline-flex", md: "none" },
+								color: "text.primary",
+							}}
+						>
+							<MenuRoundedIcon />
+						</IconButton>
 					</Stack>
 				</Stack>
 			</PageContainer>
+
 			<Menu
-				sx={{
-					mt: "8px",
-				}}
-				id='menu-appbar'
+				id='account-menu'
 				anchorEl={anchorEl}
-				anchorOrigin={{
-					vertical: "bottom",
-					horizontal: "right",
-				}}
-				keepMounted
-				transformOrigin={{
-					vertical: "top",
-					horizontal: "right",
-				}}
-				open={open}
-				onClose={handleClose}
-				slotProps={{
-					paper: {
-						sx: {
-							minWidth: 260,
-							p: 0,
-						},
-					},
-				}}
+				open={menuOpen}
+				onClose={closeMenu}
+				anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+				transformOrigin={{ vertical: "top", horizontal: "left" }}
+				disableScrollLock
 			>
+				<Box sx={{ px: 1.5, py: 1.25, minWidth: 220 }}>
+					<Typography sx={{ fontWeight: 700 }}>{user?.name}</Typography>
+					<Typography
+						variant='caption'
+						sx={{
+							color: "text.secondary",
+							direction: "ltr",
+							display: "block",
+							textAlign: "end",
+						}}
+					>
+						{user?.email}
+					</Typography>
+				</Box>
+				<Divider sx={{ my: 0.5 }} />
+				{isAdmin ? (
+					<MenuItem component={Link} href='/admin/profile' onClick={closeMenu}>
+						<ListItemIcon>
+							<DashboardOutlinedIcon fontSize='small' />
+						</ListItemIcon>
+						لوحة التحكم
+					</MenuItem>
+				) : null}
 				<MenuItem
 					onClick={() => {
-						router.push(`/admin/profile`);
-						handleClose();
+						closeMenu();
+						void signOut({ callbackUrl: "/" });
 					}}
-					sx={{
-						py: 1.5,
-						px: 2,
-					}}
-				>
-					<Stack direction='row' spacing={8} alignItems={"center"}>
-						<Stack direction='row' spacing={1.5}>
-							<Avatar
-								sx={(theme) => ({
-									width: 40,
-									height: 40,
-									border: "2px solid",
-									borderColor: alpha(theme.palette.primary.main, 0.15),
-									backgroundColor: theme.palette.primary.main,
-									fontSize: 18,
-									fontWeight: 700,
-								})}
-							>
-								{user?.name?.[0]?.toUpperCase()}
-							</Avatar>
-							<Box>
-								<ListItemText
-									sx={{
-										"& .MuiTypography-root": {
-											fontWeight: "600 !important",
-										},
-									}}
-								>
-									{user?.name}
-								</ListItemText>
-								<ListItemText
-									sx={{
-										color: "text.tertiary",
-										fontWeight: 400,
-									}}
-								>
-									{user?.email}
-								</ListItemText>
-							</Box>
-						</Stack>
-						<ArrowRightAltIcon
-							sx={{
-								color: "primary.main",
-								fontSize: 20,
-							}}
-						/>
-					</Stack>
-				</MenuItem>
-				<MenuItem
-					onClick={() => {
-						router.push("/");
-						signOut();
-					}}
-					sx={(theme) => ({
-						borderTop: `1px solid ${theme.palette.divider}`,
-						borderRadius: "0px",
-						py: 1.75,
-						px: 2,
-					})}
+					sx={{ color: "error.main" }}
 				>
 					<ListItemIcon>
-						<LogoutIcon
-							sx={{
-								fontSize: 16,
-							}}
-						/>
+						<LogoutRoundedIcon fontSize='small' />
 					</ListItemIcon>
-					<ListItemText>تسجيل الخروج</ListItemText>
+					تسجيل الخروج
 				</MenuItem>
 			</Menu>
+
 			<SideBar
-				login={() => {
-					router.push("/auth/signin");
-				}}
-				showSideBar={openSidebar}
-				onClose={() => setOpenSidebar(false)}
-				landingActiveSection={
-					pathName === "/" ? landingActiveSection : undefined
-				}
+				showSideBar={drawerOpen}
+				onClose={() => setDrawerOpen(false)}
+				landingActiveSection={activeSection}
 			/>
 		</Box>
 	);

@@ -1,4 +1,4 @@
-import type { Class } from "@prisma/client";
+import type { ClassWithMeta } from "@/libs/class";
 import {
 	createClassRequest,
 	deleteClassRequest,
@@ -68,9 +68,16 @@ export const getAllClass = async (key: string) => {
 	return fetchAllClasses(key);
 };
 
-export const useAllClass = (classes: Class[]) => {
-	const { data } = useSwr<Class[]>("/api/class", getAllClass, {
-		fallbackData: classes,
-	});
-	return { data };
+/** Classes list; server data is the fallback so the first paint needs no request. */
+export const useAllClass = (classes: ClassWithMeta[]) => {
+	const { data, error, mutate } = useSwr<ClassWithMeta[]>(
+		"/api/class",
+		getAllClass,
+		{
+			fallbackData: classes,
+			revalidateOnMount: false,
+			revalidateOnFocus: false,
+		}
+	);
+	return { data, error, mutate };
 };

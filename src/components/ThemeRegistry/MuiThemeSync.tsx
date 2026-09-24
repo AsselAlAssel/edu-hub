@@ -3,36 +3,35 @@
 import type { Direction } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
-import { useTheme as useNextTheme } from "next-themes";
-import { useLayoutEffect, useMemo, useState } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { createEduTheme } from "../../../theme";
 import type { EduColorMode } from "../../../theme/palettes";
 
-function resolveColorMode(resolvedTheme: string | undefined): EduColorMode {
-	/** يطابق `defaultTheme="dark"` في ThemeRegistry عندما لا يكون الثيم محلّاً بعد (SSR). */
-	if (resolvedTheme === "light") return "light";
-	return "dark";
-}
-
-/** يقرأ نفس الـ class الذي يضبطه `next-themes` على `<html>` (attribute=`class`). */
-function readColorModeFromDocument(): EduColorMode | null {
-	if (typeof document === "undefined") return null;
-	const root = document.documentElement;
-	if (root.classList.contains("dark")) return "dark";
-	if (root.classList.contains("light")) return "light";
-	return null;
-}
-
 /**
- * Bridges `next-themes` to MUI: builds `createTheme` from the resolved
- * color scheme so every MUI component reads `theme.palette.*`.
- *
- * @example
- * ```tsx
- * import { Box, Typography } from "@mui/material";
- * <Box sx={{ bgcolor: "background.paper", color: "text.secondary" }} />
- * ```
+ * The `<html>` class set by next-themes is the single source of truth: the
+ * CSS variables (body, gradients) already follow it, so MUI must too. Reading
+ * it through a MutationObserver keeps MUI in sync whatever changed it — the
+ * toggle, another tab (storage sync) or anything else — so the two can never
+ * drift apart (half-light / half-dark pages).
  */
+const subscribe = (onChange: () => void) => {
+	const observer = new MutationObserver(onChange);
+	observer.observe(document.documentElement, {
+		attributes: true,
+		attributeFilter: ["class"],
+	});
+	return () => observer.disconnect();
+};
+
+const readMode = (): EduColorMode =>
+	document.documentElement.classList.contains("light") ? "light" : "dark";
+
+// The server renders the default (dark) theme; during hydration React uses this
+// snapshot, so the first client render matches the server HTML exactly (React
+// does not patch mismatched classNames), then switches to the real mode.
+const serverMode = (): EduColorMode => "dark";
+
+/** Bridges the page's colour mode to MUI's `createTheme`. */
 export default function MuiThemeSync({
 	direction,
 	children,
@@ -40,27 +39,7 @@ export default function MuiThemeSync({
 	direction: Direction;
 	children: React.ReactNode;
 }) {
-	const { resolvedTheme, theme: nextThemeName, forcedTheme } = useNextTheme();
-	const fromContext = resolveColorMode(
-		forcedTheme ?? resolvedTheme ?? nextThemeName
-	);
-
-	/**
-	 * أحياناً يكون `class` على `<html>` (وسكربت next-themes + متغيرات CSS)
-	 * متقدّماً على حالة الـ hook لبضعة إطارات بعد التحميل أو التبويب.
-	 * نصحّح MUI ليطابق الـ DOM حتى لا يظهر هيدر بلون ثيم والصفحة بلون آخر.
-	 */
-	const [domOverride, setDomOverride] = useState<EduColorMode | null>(null);
-	useLayoutEffect(() => {
-		const fromDom = readColorModeFromDocument();
-		if (fromDom === null) {
-			setDomOverride(null);
-			return;
-		}
-		setDomOverride(fromDom !== fromContext ? fromDom : null);
-	}, [fromContext]);
-
-	const colorMode = domOverride ?? fromContext;
+	const colorMode = useSyncExternalStore(subscribe, readMode, serverMode);
 	const muiTheme = useMemo(
 		() => createEduTheme(direction, colorMode),
 		[direction, colorMode]

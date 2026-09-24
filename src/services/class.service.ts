@@ -1,4 +1,4 @@
-import type { Class } from "@prisma/client";
+import type { ClassWithMeta } from "@/libs/class";
 import axios from "axios";
 
 export type CreateClassInput = {
@@ -18,7 +18,7 @@ export type DeleteClassInput = {
 	id: string;
 };
 
-export async function fetchAllClasses(key: string): Promise<Class[]> {
+export async function fetchAllClasses(key: string): Promise<ClassWithMeta[]> {
 	const response = await axios.get(key);
 	return response.data;
 }

@@ -1,18 +1,18 @@
+import { getSessionUser, isObjectId, jsonError } from "@/libs/api";
 import { getClass } from "@/libs/class";
-import { isUser } from "@/libs/uitls";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
 export const GET = async (
-	req: NextRequest,
+	_req: NextRequest,
 	{ params }: { params: { classId: string } }
 ) => {
-	if (!(await isUser())) {
-		return new NextResponse("Unauthorized", { status: 401 });
-	}
+	if (!(await getSessionUser())) return jsonError("Unauthorized", 401);
+	if (!isObjectId(params.classId)) return jsonError("Invalid class id", 400);
 
 	const classItem = await getClass(params.classId);
+	if (!classItem) return jsonError("Class not found", 404);
 
 	return NextResponse.json(classItem);
 };

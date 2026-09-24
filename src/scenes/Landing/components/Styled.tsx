@@ -43,7 +43,7 @@ export const SectionLabel = styled(Typography)(({ theme }) => ({
 
 export const SectionTitle = styled(Typography)(({ theme }) => ({
 	fontSize: theme.typography.pxToRem(42),
-	fontWeight: 800,
+	fontWeight: 700,
 	lineHeight: 1.15,
 	letterSpacing: "-0.02em",
 	color: theme.palette.text.primary,
@@ -100,7 +100,7 @@ export const GlassCard = styled(Box)(({ theme }) => ({
 
 export const StyledTitle = styled(Typography)(({ theme }) => ({
 	fontSize: theme.typography.pxToRem(52),
-	fontWeight: 800,
+	fontWeight: 700,
 	lineHeight: 1.15,
 	letterSpacing: "-0.03em",
 	color: theme.palette.text.primary,
@@ -139,7 +139,7 @@ export const StyledStack = styled(Stack)(({ theme }) => ({
 
 export const StyledSectionTitle = styled(Typography)(({ theme }) => ({
 	fontSize: theme.typography.pxToRem(36),
-	fontWeight: 800,
+	fontWeight: 700,
 	lineHeight: 1.25,
 	textAlign: "center",
 	color: theme.palette.text.primary,

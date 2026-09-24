@@ -1,173 +1,201 @@
 "use client";
 
+import Logo from "@/components/AppShell/Logo";
+import { isNavItemActive, NAV_ITEMS } from "@/constants/navigation";
+import { Role } from "@/types/enums";
+import type { LandingSectionId } from "@/types/landingNav";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import {
-	alpha,
+	Avatar,
 	Box,
 	Button,
 	Divider,
 	Drawer,
+	IconButton,
 	Stack,
 	Typography,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
+import { Stagger, StaggerItem } from "@/components/ui/motion";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRouter } from "nextjs-toploader/app";
-import React from "react";
-import { APP_BAR_HEIGHT } from "@/constants/appShell";
-import type { LandingSectionId } from "@/types/landingNav";
-import { Role } from "@/types/enums";
 
 type SideBarProps = {
 	showSideBar: boolean;
 	onClose: () => void;
-	login: () => void;
-	landingActiveSection?: LandingSectionId;
+	landingActiveSection?: LandingSectionId | null;
 };
 
-const LinkItem = ({
-	children,
-	href,
-	onClick,
-	isActive,
-}: {
-	children: React.ReactNode;
-	href: string;
-	onClick?: () => void;
-	isActive?: boolean;
-}) => {
-	return (
-		<Typography
-			component='span'
-			sx={{
-				fontWeight: 600,
-				fontSize: "1.0625rem",
-				color: isActive ? "primary.main" : "text.tertiary",
-				width: "100%",
-				py: 1.5,
-				px: 2,
-				borderRadius: 1.5,
-				transition: "all 0.2s ease",
-				backgroundColor: isActive
-					? (theme) => alpha(theme.palette.primary.main, 0.06)
-					: "transparent",
-				"&:active": {
-					backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.1),
-				},
-			}}
-			onClick={onClick}
-		>
-			<Link
-				href={href}
-				style={{
-					textDecoration: "none",
-					color: "inherit",
-					width: "100%",
-					display: "block",
-				}}
-			>
-				{children}
-			</Link>
-		</Typography>
-	);
-};
-
-export default function SideBar(props: SideBarProps) {
-	const { showSideBar, onClose, landingActiveSection } = props;
+/** Mobile navigation drawer (focus-trapped, Escape closes, opens from the start side). */
+export default function SideBar({
+	showSideBar,
+	onClose,
+	landingActiveSection = null,
+}: SideBarProps) {
 	const { data } = useSession();
 	const user = data?.user;
 	const isAdmin = user?.role === Role.ADMIN;
-	const router = useRouter();
 	const pathname = usePathname();
+
+	const linkSx =
+		(active: boolean) => (theme: import("@mui/material").Theme) => ({
+			display: "block",
+			px: 2,
+			py: 1.5,
+			borderRadius: `${theme.tokens.radii.md}px`,
+			fontWeight: active ? 600 : 500,
+			fontSize: "1.125rem",
+			textDecoration: "none",
+			color: active ? theme.palette.primary.main : theme.palette.text.primary,
+			backgroundColor: active
+				? alpha(theme.tokens.colors.cyan, 0.12)
+				: "transparent",
+			borderInlineStart: `3px solid ${active ? theme.tokens.colors.cyan : "transparent"}`,
+			transition: theme.transitions.create(["background-color", "transform"]),
+			"&:hover": {
+				backgroundColor: theme.palette.action.hover,
+				transform: "translateX(-4px)",
+			},
+		});
 
 	return (
 		<Drawer
 			open={showSideBar}
-			anchor='right'
+			// MUI mirrors horizontal anchors under RTL: "left" opens from the right (start) edge.
+			anchor='left'
 			onClose={onClose}
-			transitionDuration={{
-				appear: 300,
-				enter: 300,
-				exit: 250,
-			}}
-			sx={{
-				zIndex: 99,
-			}}
-			PaperProps={{
-				sx: {
-					width: "100%",
-					pt: `${APP_BAR_HEIGHT}px`,
-					backgroundColor: "background.paper",
+			// Springy ease-out on enter, quick exit.
+			transitionDuration={{ enter: 480, exit: 260 }}
+			SlideProps={{
+				easing: {
+					enter: "cubic-bezier(0.22, 1.2, 0.36, 1)",
+					exit: "cubic-bezier(0.4, 0, 1, 1)",
 				},
 			}}
+			PaperProps={{
+				sx: (theme) => ({
+					width: "min(360px, 100%)",
+					display: "flex",
+					flexDirection: "column",
+					backgroundColor: alpha(theme.tokens.colors.surface, 0.92),
+					backgroundImage: `radial-gradient(120% 50% at 100% 0%, ${alpha(theme.tokens.colors.cyan, 0.12)}, transparent 60%)`,
+					backdropFilter: "blur(18px)",
+					borderInlineEnd: `1px solid ${alpha(theme.tokens.colors.cyan, 0.2)}`,
+				}),
+				"aria-label": "القائمة",
+			}}
 		>
-			<Box
-				height={`calc(100svh - ${APP_BAR_HEIGHT}px)`}
-				m={2}
-				role='navigation'
-				aria-label='القائمة الجانبية'
+			<Stack
+				direction='row'
+				alignItems='center'
+				justifyContent='space-between'
+				sx={{ px: 2, py: 2 }}
 			>
-				<Stack height={"100%"} flex={1} justifyContent={"space-between"}>
-					<Stack spacing={1} mt={user ? 2 : 0}>
-						<LinkItem
-							href='/#home'
-							onClick={onClose}
-							isActive={pathname === "/" && landingActiveSection === "home"}
-						>
-							الرئيسية
-						</LinkItem>
-						<LinkItem
-							href='/classes'
-							onClick={onClose}
-							isActive={pathname === "/classes"}
-						>
-							الصفوف
-						</LinkItem>
-						<LinkItem
-							href='/#about'
-							onClick={onClose}
-							isActive={pathname === "/" && landingActiveSection === "about"}
-						>
-							عن هذه المنصة
-						</LinkItem>
-						<LinkItem
-							href='/#contact'
-							onClick={onClose}
-							isActive={pathname === "/" && landingActiveSection === "contact"}
-						>
-							اتصل بنا
-						</LinkItem>
+				<Logo onClick={onClose} />
+				<IconButton onClick={onClose} aria-label='إغلاق القائمة'>
+					<CloseRoundedIcon />
+				</IconButton>
+			</Stack>
+			<Divider />
+
+			<Box component='nav' aria-label='التنقل الرئيسي' sx={{ p: 2, flex: 1 }}>
+				<Stagger onMount delay={0.12} gap={0.06}>
+					<Stack
+						component='ul'
+						spacing={0.5}
+						sx={{ listStyle: "none", m: 0, p: 0 }}
+					>
+						{NAV_ITEMS.map((item) => {
+							const active = isNavItemActive(
+								item,
+								pathname,
+								landingActiveSection
+							);
+							return (
+								<StaggerItem as='li' key={item.href}>
+									<Box
+										component={Link}
+										href={item.href}
+										onClick={onClose}
+										aria-current={active ? "page" : undefined}
+										sx={linkSx(active)}
+									>
+										{item.label}
+									</Box>
+								</StaggerItem>
+							);
+						})}
 						{isAdmin ? (
-							<>
-								<Box px={2} py={1}>
-									<Divider />
-								</Box>
-								<LinkItem
+							<StaggerItem as='li'>
+								<Box
+									component={Link}
 									href='/admin/profile'
 									onClick={onClose}
-									isActive={pathname.startsWith("/admin")}
+									aria-current={
+										pathname.startsWith("/admin") ? "page" : undefined
+									}
+									sx={linkSx(pathname.startsWith("/admin"))}
 								>
-									لوحة التحكم
-								</LinkItem>
-							</>
+									<Stack direction='row' alignItems='center' gap={1}>
+										<DashboardOutlinedIcon fontSize='small' />
+										لوحة التحكم
+									</Stack>
+								</Box>
+							</StaggerItem>
 						) : null}
 					</Stack>
-					<Stack spacing={1.5} pb={4}>
-						{user ? (
-							<Button
-								onClick={async () => {
-									await signOut();
-									router.push("/");
-								}}
-								variant={"outlined"}
-								color='error'
-								fullWidth
-							>
-								تسجيل الخروج
-							</Button>
-						) : null}
+				</Stagger>
+			</Box>
+
+			<Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
+				{user ? (
+					<Stack spacing={2}>
+						<Stack direction='row' alignItems='center' gap={1.5}>
+							<Avatar sx={{ width: 40, height: 40 }}>
+								{user.name?.charAt(0)?.toUpperCase() || "م"}
+							</Avatar>
+							<Box sx={{ minWidth: 0 }}>
+								<Typography sx={{ fontWeight: 700 }} noWrap>
+									{user.name}
+								</Typography>
+								<Typography
+									variant='caption'
+									sx={{ color: "text.secondary" }}
+									noWrap
+								>
+									{user.email}
+								</Typography>
+							</Box>
+						</Stack>
+						<Button
+							variant='outlined'
+							color='error'
+							fullWidth
+							startIcon={<LogoutRoundedIcon />}
+							onClick={() => {
+								onClose();
+								void signOut({ callbackUrl: "/" });
+							}}
+						>
+							تسجيل الخروج
+						</Button>
 					</Stack>
-				</Stack>
+				) : (
+					<Button
+						component={Link}
+						href='/auth/signin'
+						variant='outlined'
+						fullWidth
+						startIcon={<LoginRoundedIcon />}
+						onClick={onClose}
+					>
+						تسجيل الدخول
+					</Button>
+				)}
 			</Box>
 		</Drawer>
 	);

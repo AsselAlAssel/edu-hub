@@ -1,126 +1,31 @@
+import { jsonError, readJson, requireAdmin } from "@/libs/api";
+import { parseLandingPayload } from "@/libs/landing";
 import { prisma } from "@/libs/prismaDb";
-import { isAdmin } from "@/libs/uitls";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest) => {
-	const body = await req.json();
-	const {
-		headerTitle,
-		headerSubtitle,
-		headerImage,
-		landingVideo,
-		aboutTitle,
-		aboutSubtitle,
-		aboutImage,
-		whatsAppNumber,
-		address,
-		email,
-		landingVideoId,
-	} = body;
-	if (!headerTitle || !aboutTitle || !whatsAppNumber || !address || !email) {
-		return NextResponse.json(
-			{
-				message: "Missing Fields",
-			},
-			{ status: 400 }
-		);
-	}
-	if (!(await isAdmin())) {
-		return NextResponse.json(
-			{
-				message: "Unauthorized",
-			},
-			{ status: 401 }
-		);
-	}
+/** Upserts the single LandingPage document. POST is kept for older clients. */
+const upsertLanding = async (req: NextRequest) => {
+	const denied = await requireAdmin();
+	if (denied) return denied;
 
-	const landing = await prisma.landingPage.create({
-		data: {
-			headerTitle,
-			headerSubtitle,
-			headerImage,
-			landingVideo,
-			aboutTitle,
-			aboutSubtitle,
-			aboutImage,
-			whatsAppNumber,
-			address,
-			email,
-			landingVideoId,
-		},
-	});
-
-	return new NextResponse(JSON.stringify(landing), { status: 201 });
-};
-
-export const PUT = async (req: NextRequest) => {
-	const body = await req.json();
-	const {
-		headerTitle,
-		headerSubtitle,
-		headerImage,
-		landingVideo,
-		aboutTitle,
-		aboutSubtitle,
-		aboutImage,
-		whatsAppNumber,
-		address,
-		email,
-		landingVideoId,
-	} = body;
-	if (!headerTitle || !aboutTitle || !whatsAppNumber || !address || !email) {
-		return NextResponse.json(
-			{
-				message: "Missing Fields",
-			},
-			{ status: 400 }
-		);
-	}
-	if (!(await isAdmin())) {
-		return NextResponse.json(
-			{
-				message: "Unauthorized",
-			},
-			{ status: 401 }
-		);
-	}
+	const parsed = parseLandingPayload(await readJson(req));
+	if ("error" in parsed) return jsonError(parsed.error as string, 400);
 
 	const existing = await prisma.landingPage.findFirst();
-
-	if (!existing) {
-		const created = await prisma.landingPage.create({
-			data: {
-				headerTitle,
-				headerSubtitle,
-				headerImage,
-				landingVideo,
-				landingVideoId,
-				aboutTitle,
-				aboutSubtitle,
-				aboutImage,
-				whatsAppNumber,
-				address,
-				email,
-			},
+	let saved;
+	if (existing) {
+		saved = await prisma.landingPage.update({
+			where: { id: existing.id },
+			data: parsed.data,
 		});
-		return new NextResponse(JSON.stringify(created), { status: 201 });
+	} else {
+		saved = await prisma.landingPage.create({ data: parsed.data });
 	}
 
-	const updated = await prisma.landingPage.update({
-		where: { id: existing.id },
-		data: {
-			headerTitle,
-			headerSubtitle,
-			headerImage,
-			landingVideo,
-			landingVideoId,
-			aboutTitle,
-			aboutSubtitle,
-			aboutImage,
-			whatsAppNumber,
-			address,
-			email,
-		},
-	});
-	return new NextResponse(JSON.stringify(updated), { status: 200 });
+	revalidatePath("/");
+	return NextResponse.json(saved, { status: existing ? 200 : 201 });
 };
+
+export const PUT = upsertLanding;
+export const POST = upsertLanding;

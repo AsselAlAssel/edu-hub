@@ -1,79 +1,40 @@
 import { getClasses } from "@/libs/class";
+import JsonLd, { coursesJsonLd } from "@/components/seo/JsonLd";
+import { pageMetadata, SITE_URL } from "@/libs/site";
 import ClassesPage from "@/scenes/ClassesPage";
-import { Stack } from "@mui/material";
-import { Metadata } from "next";
-import React, { Suspense } from "react";
 
-export const metadata: Metadata = {
-	title: "صفوف الفيزياء - جميع المراحل الدراسية | محمد صبح",
+// Cached and regenerated at most every minute (class writes also call
+// revalidatePath). Admins see live data through SWR on the client.
+export const revalidate = 60;
+
+export const metadata = pageMetadata({
+	title: "صفوف الفيزياء - جميع المراحل الدراسية",
 	description:
-		"استعرض جميع صفوف الفيزياء من إعداد الأستاذ محمد صبح (Mohammed Subuh). تعلم الفيزياء لجميع المراحل الدراسية بأسلوب بسيط ومبتكر.",
-	openGraph: {
-		title: "صفوف الفيزياء - جميع المراحل الدراسية | محمد صبح",
-		description:
-			"استعرض جميع صفوف الفيزياء لجميع المراحل الدراسية. شروحات الفيزياء من إعداد الأستاذ محمد صبح بأسلوب سلس وممتع.",
-		type: "website",
-		locale: "ar_AR",
-		url: process.env.NEXT_PUBLIC_DOMAIN || "https://www.mohammedsubuh.com",
-		images: [
-			{
-				url: `${
-					process.env.NEXT_PUBLIC_DOMAIN || "https://www.mohammedsubuh.com"
-				}/images/cover.png`,
-				width: 1200,
-				height: 630,
-				alt: "صفوف الفيزياء - محمد صبح",
-			},
-		],
-	},
-	twitter: {
-		card: "summary_large_image",
-		title: "صفوف الفيزياء - جميع المراحل الدراسية | محمد صبح",
-		description:
-			"أفضل موقع لشروحات الفيزياء لجميع الصفوف الدراسية. تعلم الفيزياء من الأستاذ محمد صبح بأسلوب مميز وسهل الفهم.",
-		images: [
-			`${
-				process.env.NEXT_PUBLIC_DOMAIN || "https://www.mohammedsubuh.com"
-			}/images/cover.png`,
-		],
-		creator: "@mohammedsubuh", // ضع اسم حساب تويتر الخاص بك إن وجد
-	},
+		"استعرض صفوف الفيزياء من إعداد الأستاذ محمد صبح (Mohammed Subuh): شروحات مصوّرة وملفات منظّمة لكل مرحلة دراسية.",
+	path: "/classes",
 	keywords: [
 		"صفوف الفيزياء",
 		"شروحات الفيزياء",
-		"شروحات الفيزياء",
 		"محمد صبح",
-		"فيزياء محمد صبح",
-		"mohammed subuh physics",
-		"mohammed subuh website",
-		"mohammed subuh physics lessons",
-		"Mohammed Subuh physics",
-		"Mohammed Subuh",
-		"Mohammed Subuh website",
-		"Mohammed Subuh Physics Lessons",
-		"الأستاذ محمد صبح",
-		"موقع محمد صبح",
-		"دروس الفيزياء محمد صبح",
-		"موقع الأستاذ محمد صبح",
-		"تعليم الفيزياء",
-		"فيزياء الصفوف المدرسية",
-		"فيزياء لجميع المراحل الدراسية",
 		"دروس الفيزياء",
-		"أفضل موقع فيزياء",
+		"Mohammed Subuh",
 	],
-};
+});
 
-export default async function page() {
+export default async function Page() {
 	const classes = await getClasses();
+	const courses = classes
+		.filter((item) => item.folders[0])
+		.map((item) => ({
+			id: item.id,
+			name: item.name,
+			description: item.description,
+			url: `${SITE_URL}/class/${item.id}/folder/${item.folders[0].id}`,
+		}));
 	return (
-		<Suspense
-			fallback={
-				<Stack justifyContent={"center"} alignItems={"center"}>
-					Loading...
-				</Stack>
-			}
-		>
+		<>
+			{courses.length ? <JsonLd data={coursesJsonLd(courses)} /> : null}
 			<ClassesPage classes={classes} />
-		</Suspense>
+		</>
 	);
 }

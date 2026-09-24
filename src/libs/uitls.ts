@@ -1,44 +1,28 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "./auth";
 import { prisma } from "./prismaDb";
+import { deleteR2Object, r2KeyFromUrl } from "./r2";
 
-export function absoluteUrl(path: string) {
-	return `${process.env.SITE_URL || "http://localhost:3000"}${path}`;
-}
-
-export const getIsAuthorized = async () => {
-	const session = await getServerSession(authOptions);
-	return session?.user;
-};
-export const isAdmin = async () => {
-	const session = await getServerSession(authOptions);
-	return session?.user?.role === "ADMIN";
-};
-
-export const isUser = async () => {
-	const session = await getServerSession(authOptions);
-	return session?.user?.role === "USER" || session?.user?.role === "ADMIN";
-};
-
-export const recursiveDelete = async (folderId: string) => {
-	const folders = await prisma.folder.findMany({
+/** Deletes a folder, its sub-folders, their files/videos and the stored file objects. */
+export const recursiveDelete = async (folderId: string): Promise<void> => {
+	const children = await prisma.folder.findMany({
 		where: { parentFolderId: folderId },
+		select: { id: true },
 	});
 
-	if (folders.length === 0) {
-		await prisma.file.deleteMany({ where: { folderId } });
-		await prisma.video.deleteMany({ where: { folderId } });
-		await prisma.folder.delete({ where: { id: folderId } });
-		return;
-	}
+	await Promise.all(children.map((child) => recursiveDelete(child.id)));
 
-	await Promise.all(
-		folders.map(async (folder) => {
-			await recursiveDelete(folder.id);
-		})
-	);
+	const files = await prisma.file.findMany({
+		where: { folderId },
+		select: { url: true },
+	});
 
 	await prisma.file.deleteMany({ where: { folderId } });
 	await prisma.video.deleteMany({ where: { folderId } });
 	await prisma.folder.delete({ where: { id: folderId } });
+
+	await Promise.all(
+		files
+			.map((file) => r2KeyFromUrl(file.url))
+			.filter((key): key is string => !!key)
+			.map(deleteR2Object)
+	);
 };

@@ -1,26 +1,34 @@
+import {
+	cleanString,
+	isObjectId,
+	jsonError,
+	readJson,
+	requireAdmin,
+} from "@/libs/api";
 import { getClasses } from "@/libs/class";
 import { prisma } from "@/libs/prismaDb";
-import { isAdmin, recursiveDelete } from "@/libs/uitls";
+import { recursiveDelete } from "@/libs/uitls";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
+
 export const dynamic = "force-dynamic";
 
+const optionalString = (value: unknown, maxLength: number) =>
+	typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+
 export const POST = async (req: NextRequest) => {
-	const body = await req.json();
-	const { name, description, image } = body;
+	const denied = await requireAdmin();
+	if (denied) return denied;
 
-	if (!name) {
-		return new NextResponse("Missing Fields", { status: 400 });
-	}
-
-	if (!(await isAdmin())) {
-		return new NextResponse("Unauthorized", { status: 401 });
-	}
+	const body = await readJson(req);
+	const name = cleanString(body.name, 100);
+	if (!name) return jsonError("Missing Fields", 400);
 
 	const classItem = await prisma.class.create({
 		data: {
 			name,
-			description: description || "",
-			image: image || "",
+			description: optionalString(body.description, 1000),
+			image: optionalString(body.image, 2000),
 		},
 	});
 
@@ -32,74 +40,56 @@ export const POST = async (req: NextRequest) => {
 		},
 	});
 
-	return new NextResponse("Class created", { status: 201 });
+	revalidatePath("/classes");
+	return NextResponse.json(classItem, { status: 201 });
 };
 
 export const PUT = async (req: NextRequest) => {
-	const body = await req.json();
-	const { id, name, image } = body;
+	const denied = await requireAdmin();
+	if (denied) return denied;
 
-	if (!id || !name) {
-		return new NextResponse("Missing Fields", { status: 400 });
-	}
+	const body = await readJson(req);
+	const name = cleanString(body.name, 100);
+	if (!isObjectId(body.id) || !name) return jsonError("Missing Fields", 400);
 
-	if (!(await isAdmin())) {
-		return new NextResponse("Unauthorized", { status: 401 });
-	}
+	const existing = await prisma.class.findUnique({ where: { id: body.id } });
+	if (!existing) return jsonError("Class not found", 404);
 
-	await prisma.class.update({
-		where: {
-			id,
-		},
+	const updated = await prisma.class.update({
+		where: { id: body.id },
 		data: {
 			name,
-			image,
+			image: optionalString(body.image, 2000),
 		},
 	});
 
-	return new NextResponse("Class updated", { status: 200 });
+	revalidatePath("/classes");
+	return NextResponse.json(updated, { status: 200 });
 };
 
 export const DELETE = async (req: Request) => {
-	const body = await req.json();
-	const { id } = body;
+	const denied = await requireAdmin();
+	if (denied) return denied;
 
-	if (!id) {
-		return new NextResponse("Missing Fields", { status: 400 });
-	}
-
-	if (!(await isAdmin())) {
-		return new NextResponse("Unauthorized", { status: 401 });
-	}
+	const { id } = await readJson(req);
+	if (!isObjectId(id)) return jsonError("Missing Fields", 400);
 
 	const classItem = await prisma.class.findUnique({
 		where: { id },
-		include: {
-			folders: {
-				where: { isRoot: true },
-			},
-		},
+		include: { folders: { where: { isRoot: true } } },
 	});
 
-	if (!classItem) {
-		return new NextResponse("Class not found", { status: 404 });
-	}
-
-	const rootFolder = classItem.folders[0];
-
-	if (!rootFolder) {
-		return new NextResponse("Class not found", { status: 404 });
-	}
+	const rootFolder = classItem?.folders[0];
+	if (!classItem || !rootFolder) return jsonError("Class not found", 404);
 
 	await recursiveDelete(rootFolder.id);
-
 	await prisma.class.delete({ where: { id } });
 
-	return new NextResponse("Class deleted", { status: 200 });
+	revalidatePath("/classes");
+	return NextResponse.json({ success: true }, { status: 200 });
 };
 
 export const GET = async () => {
 	const classes = await getClasses();
-
 	return NextResponse.json(classes);
 };

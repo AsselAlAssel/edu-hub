@@ -1,54 +1,36 @@
-import { prisma } from "@/libs/prismaDb";
+import { revalidateResourcePages } from "@/libs/revalidate";
+import {
+	cleanString,
+	isObjectId,
+	jsonError,
+	readJson,
+	requireAdmin,
+} from "@/libs/api";
+import { getYouTubeVideoID } from "@/libs/constant";
 import { getRankAfterLast } from "@/libs/lexorank";
-import { isAdmin } from "@/libs/uitls";
+import { prisma } from "@/libs/prismaDb";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
-	const body = await req.json();
-	const { name, url, folderId, classId, videoId } = body;
-	if (!name || !url || !folderId || !classId) {
-		return NextResponse.json(
-			{
-				message: "Missing Fields",
-			},
-			{ status: 400 }
-		);
-	}
-	if (!(await isAdmin())) {
-		return NextResponse.json(
-			{
-				message: "Unauthorized",
-			},
-			{ status: 401 }
-		);
+	const denied = await requireAdmin();
+	if (denied) return denied;
+
+	const body = await readJson(req);
+	const name = cleanString(body.name, 255);
+	const url = cleanString(body.url, 500);
+	const { folderId, classId } = body;
+
+	if (!name || !url || !isObjectId(folderId) || !isObjectId(classId)) {
+		return jsonError("Missing Fields", 400);
 	}
 
-	const classItem = await prisma.class.findUnique({
-		where: {
-			id: classId,
-		},
-	});
-	if (!classItem) {
-		return NextResponse.json(
-			{
-				message: "Class not found",
-			},
-			{ status: 404 }
-		);
-	}
-	const folder = await prisma.folder.findUnique({
-		where: {
-			id: folderId,
-		},
-	});
-	if (!folder) {
-		return NextResponse.json(
-			{
-				message: "Folder not found",
-			},
-			{ status: 404 }
-		);
-	}
+	// Derive the id server-side instead of trusting the client-supplied one.
+	const videoId = getYouTubeVideoID(url);
+	if (!videoId) return jsonError("Invalid YouTube url", 400);
+
+	const folder = await prisma.folder.findUnique({ where: { id: folderId } });
+	if (!folder) return jsonError("Folder not found", 404);
+	if (folder.classId !== classId) return jsonError("Class not found", 404);
 
 	const lastVideo = await prisma.video.findFirst({
 		where: { folderId },
@@ -56,7 +38,7 @@ export const POST = async (req: NextRequest) => {
 		select: { rank: true },
 	});
 
-	await prisma.video.create({
+	const video = await prisma.video.create({
 		data: {
 			name,
 			url,
@@ -67,94 +49,41 @@ export const POST = async (req: NextRequest) => {
 			rank: getRankAfterLast(lastVideo?.rank),
 		},
 	});
-	return new NextResponse(null, { status: 201 });
+	revalidateResourcePages();
+	return NextResponse.json(video, { status: 201 });
 };
 
 export const PUT = async (req: NextRequest) => {
-	const body = await req.json();
-	const { videoId, name } = body;
-	if (!videoId || !name) {
-		return NextResponse.json(
-			{
-				message: "Missing Fields",
-			},
-			{ status: 400 }
-		);
-	}
-	if (!(await isAdmin())) {
-		return NextResponse.json(
-			{
-				message: "Unauthorized",
-			},
-			{ status: 401 }
-		);
+	const denied = await requireAdmin();
+	if (denied) return denied;
+
+	const body = await readJson(req);
+	const name = cleanString(body.name, 255);
+	if (!isObjectId(body.videoId) || !name) {
+		return jsonError("Missing Fields", 400);
 	}
 
-	const isFolderExist = await prisma.video.findUnique({
-		where: {
-			id: videoId,
-		},
-	});
-	if (!isFolderExist) {
-		return NextResponse.json(
-			{
-				message: "Folder not found",
-			},
-			{ status: 404 }
-		);
-	}
+	const video = await prisma.video.findUnique({ where: { id: body.videoId } });
+	if (!video) return jsonError("Video not found", 404);
 
-	await prisma.video.update({
-		where: {
-			id: videoId,
-		},
-		data: {
-			name,
-		},
-	});
+	await prisma.video.update({ where: { id: body.videoId }, data: { name } });
 
+	revalidateResourcePages();
 	return new NextResponse(null, { status: 204 });
 };
 
 export const DELETE = async (req: NextRequest) => {
-	const body = await req.json();
-	const { videoId } = body;
-	if (!videoId) {
-		return NextResponse.json(
-			{
-				message: "Missing Fields",
-			},
-			{ status: 400 }
-		);
-	}
-	if (!(await isAdmin())) {
-		return NextResponse.json(
-			{
-				message: "Unauthorized",
-			},
-			{ status: 401 }
-		);
-	}
+	const denied = await requireAdmin();
+	if (denied) return denied;
 
-	const isFolderExist = await prisma.video.findUnique({
-		where: {
-			id: videoId,
-		},
-	});
-	if (!isFolderExist) {
-		return NextResponse.json(
-			{
-				message: "Folder not found",
-			},
-			{ status: 404 }
-		);
-	}
+	const { videoId } = await readJson(req);
+	if (!isObjectId(videoId)) return jsonError("Missing Fields", 400);
 
-	await prisma.video.delete({
-		where: {
-			id: videoId,
-		},
-	});
+	const video = await prisma.video.findUnique({ where: { id: videoId } });
+	if (!video) return jsonError("Video not found", 404);
 
+	await prisma.video.delete({ where: { id: videoId } });
+
+	revalidateResourcePages();
 	return new NextResponse(null, { status: 204 });
 };

@@ -1,11 +1,55 @@
 "use client";
+import { useTheme } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { Toaster } from "react-hot-toast";
 
+/** Toast host themed from the active palette; RTL-aware and polite for screen readers. */
 const ToastContext = () => {
+	const theme = useTheme();
+	const { colors, shadows, radii } = theme.tokens;
+
 	return (
-		<div className='z-[99999]'>
-			<Toaster position='top-center' reverseOrder={false} />
-		</div>
+		<Toaster
+			position='top-center'
+			containerStyle={{
+				top: theme.tokens.layout.headerHeight + 12,
+				zIndex: 1500,
+			}}
+			toastOptions={{
+				duration: 4000,
+				style: {
+					direction: "rtl",
+					fontFamily: "inherit",
+					fontWeight: 600,
+					background: colors.surfaceElevated,
+					color: colors.textPrimary,
+					border: `1px solid ${colors.border}`,
+					borderRadius: radii.md,
+					boxShadow: shadows.medium,
+				},
+				success: {
+					style: {
+						borderInlineStart: `4px solid ${colors.success}`,
+						boxShadow: `${shadows.medium}, 0 0 24px ${alpha(colors.success, 0.18)}`,
+					},
+					iconTheme: {
+						primary: colors.success,
+						secondary: colors.surfaceElevated,
+					},
+				},
+				error: {
+					duration: 6000,
+					style: {
+						borderInlineStart: `4px solid ${colors.error}`,
+						boxShadow: `${shadows.medium}, 0 0 24px ${alpha(colors.error, 0.18)}`,
+					},
+					iconTheme: {
+						primary: colors.error,
+						secondary: colors.surfaceElevated,
+					},
+				},
+			}}
+		/>
 	);
 };
 

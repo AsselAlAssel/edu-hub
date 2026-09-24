@@ -16,6 +16,8 @@ declare module "next-auth" {
 	}
 }
 
+const INVALID_CREDENTIALS = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
+
 export const authOptions: NextAuthOptions = {
 	pages: {
 		signIn: "/auth/signin",
@@ -30,27 +32,25 @@ export const authOptions: NextAuthOptions = {
 		CredentialsProvider({
 			name: "credentials",
 			credentials: {
-				email: { label: "Email", type: "text", placeholder: "Jhondoe" },
-				password: { label: "Password", type: "password" },
-				username: { label: "Username", type: "text", placeholder: "Jhon Doe" },
+				email: { label: "البريد الإلكتروني", type: "email" },
+				password: { label: "كلمة المرور", type: "password" },
 			},
 
 			async authorize(credentials) {
 				// check to see if email and password is there
 				if (!credentials?.email || !credentials?.password) {
-					throw new Error("Please enter an email or password");
+					throw new Error("يرجى إدخال البريد الإلكتروني وكلمة المرور");
 				}
+				const email = credentials.email.trim().toLowerCase();
 
 				// check to see if user already exists
 				const user = await prisma.user.findUnique({
-					where: {
-						email: credentials.email,
-					},
+					where: { email },
 				});
 
 				// if user was not found
 				if (!user || !user?.password) {
-					throw new Error("No user found");
+					throw new Error(INVALID_CREDENTIALS);
 				}
 
 				// check to see if passwords match
@@ -60,7 +60,7 @@ export const authOptions: NextAuthOptions = {
 				);
 
 				if (!passwordMatch) {
-					throw new Error("Incorrect password");
+					throw new Error(INVALID_CREDENTIALS);
 				}
 
 				return user;
@@ -79,7 +79,6 @@ export const authOptions: NextAuthOptions = {
 					...session.user,
 					picture: session.user.image,
 					image: session.user.image,
-					test: "1",
 				};
 			}
 
@@ -93,8 +92,6 @@ export const authOptions: NextAuthOptions = {
 						sessionId,
 					},
 				});
-				token.sessionId = sessionId;
-				console.log("sessionId1111:", sessionId);
 				return {
 					...token,
 					uid: user.id,
@@ -132,8 +129,6 @@ export const authOptions: NextAuthOptions = {
 			return true;
 		},
 	},
-
-	// debug: process.env.NODE_ENV === "developement",
 };
 
 export const getAuthSession = async () => {

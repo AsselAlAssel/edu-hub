@@ -1,51 +1,46 @@
-import { prisma } from "@/libs/prismaDb";
+import { revalidateResourcePages } from "@/libs/revalidate";
+import { isObjectId, jsonError, readJson, requireAdmin } from "@/libs/api";
 import { getRankBetween } from "@/libs/lexorank";
-import { isAdmin } from "@/libs/uitls";
+import { prisma } from "@/libs/prismaDb";
 import { NextRequest, NextResponse } from "next/server";
 
+const RANK_TYPES = ["folder", "file", "video"] as const;
+type RankType = (typeof RANK_TYPES)[number];
+
+const optionalRank = (value: unknown) =>
+	typeof value === "string" && value ? value : null;
+
 export const POST = async (req: NextRequest) => {
-	if (!(await isAdmin())) {
-		return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+	const denied = await requireAdmin();
+	if (denied) return denied;
+
+	const body = await readJson(req);
+	const type = body.type as RankType;
+	if (!RANK_TYPES.includes(type) || !isObjectId(body.id)) {
+		return jsonError("Missing type or id", 400);
 	}
 
-	const body = await req.json();
-	const { type, id, beforeRank, afterRank } = body as {
-		type: "folder" | "file" | "video";
-		id: string;
-		beforeRank?: string | null;
-		afterRank?: string | null;
-	};
-
-	if (!type || !id) {
-		return NextResponse.json(
-			{ message: "Missing type or id" },
-			{ status: 400 }
+	let newRank: string;
+	try {
+		newRank = getRankBetween(
+			optionalRank(body.beforeRank),
+			optionalRank(body.afterRank)
 		);
+	} catch {
+		return jsonError("Invalid rank", 400);
 	}
-
-	const newRank = getRankBetween(beforeRank, afterRank);
 
 	try {
-		if (type === "folder") {
-			await prisma.folder.update({
-				where: { id },
-				data: { rank: newRank },
-			});
-		} else if (type === "file") {
-			await prisma.file.update({
-				where: { id },
-				data: { rank: newRank },
-			});
-		} else if (type === "video") {
-			await prisma.video.update({
-				where: { id },
-				data: { rank: newRank },
-			});
-		}
+		const where = { id: body.id };
+		const data = { rank: newRank };
+		if (type === "folder") await prisma.folder.update({ where, data });
+		else if (type === "file") await prisma.file.update({ where, data });
+		else await prisma.video.update({ where, data });
 
+		revalidateResourcePages();
 		return NextResponse.json({ rank: newRank });
 	} catch (error) {
 		console.error("Reorder error:", error);
-		return NextResponse.json({ message: "Failed to reorder" }, { status: 500 });
+		return jsonError("Failed to reorder", 500);
 	}
 };

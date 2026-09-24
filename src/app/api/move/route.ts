@@ -1,68 +1,66 @@
-import { prisma } from "@/libs/prismaDb";
+import { revalidateResourcePages } from "@/libs/revalidate";
+import { isObjectId, jsonError, readJson, requireAdmin } from "@/libs/api";
 import { getRankAfterLast } from "@/libs/lexorank";
-import { isAdmin } from "@/libs/uitls";
+import { prisma } from "@/libs/prismaDb";
 import { NextRequest, NextResponse } from "next/server";
 
+/** Moves a file or video into another folder of the same class (appended last). */
 export const POST = async (req: NextRequest) => {
-	if (!(await isAdmin())) {
-		return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-	}
+	const denied = await requireAdmin();
+	if (denied) return denied;
 
-	const body = await req.json();
-	const { type, id, targetFolderId } = body as {
-		type: "file" | "video";
-		id: string;
-		targetFolderId: string;
-	};
+	const { type, id, targetFolderId } = await readJson(req);
 
-	if (!type || !id || !targetFolderId) {
-		return NextResponse.json({ message: "Missing fields" }, { status: 400 });
+	if (
+		(type !== "file" && type !== "video") ||
+		!isObjectId(id) ||
+		!isObjectId(targetFolderId)
+	) {
+		return jsonError("Missing fields", 400);
 	}
 
 	const folder = await prisma.folder.findUnique({
 		where: { id: targetFolderId },
 	});
-	if (!folder) {
-		return NextResponse.json(
-			{ message: "Target folder not found" },
-			{ status: 404 }
-		);
-	}
+	if (!folder) return jsonError("Target folder not found", 404);
 
 	try {
 		if (type === "file") {
-			const lastFile = await prisma.file.findFirst({
+			const item = await prisma.file.findUnique({ where: { id } });
+			if (!item) return jsonError("File not found", 404);
+			if (item.classId !== folder.classId) {
+				return jsonError("Cannot move between classes", 400);
+			}
+			const last = await prisma.file.findFirst({
 				where: { folderId: targetFolderId },
 				orderBy: { rank: "desc" },
 				select: { rank: true },
 			});
-
 			await prisma.file.update({
 				where: { id },
-				data: {
-					folderId: targetFolderId,
-					rank: getRankAfterLast(lastFile?.rank),
-				},
+				data: { folderId: targetFolderId, rank: getRankAfterLast(last?.rank) },
 			});
-		} else if (type === "video") {
-			const lastVideo = await prisma.video.findFirst({
+		} else {
+			const item = await prisma.video.findUnique({ where: { id } });
+			if (!item) return jsonError("Video not found", 404);
+			if (item.classId !== folder.classId) {
+				return jsonError("Cannot move between classes", 400);
+			}
+			const last = await prisma.video.findFirst({
 				where: { folderId: targetFolderId },
 				orderBy: { rank: "desc" },
 				select: { rank: true },
 			});
-
 			await prisma.video.update({
 				where: { id },
-				data: {
-					folderId: targetFolderId,
-					rank: getRankAfterLast(lastVideo?.rank),
-				},
+				data: { folderId: targetFolderId, rank: getRankAfterLast(last?.rank) },
 			});
 		}
 
+		revalidateResourcePages();
 		return NextResponse.json({ success: true });
 	} catch (error) {
 		console.error("Move error:", error);
-		return NextResponse.json({ message: "Failed to move" }, { status: 500 });
+		return jsonError("Failed to move", 500);
 	}
 };

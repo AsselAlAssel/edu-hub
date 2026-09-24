@@ -34,3 +34,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# verification builds (NEXT_DIST_DIR)
+/.next-verify/
+/.next-before/
+/.next-after/
+/screenshots/
+
+# test artifacts
+/test-results/
+/playwright-report/

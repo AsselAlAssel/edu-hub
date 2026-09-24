@@ -1,59 +1,43 @@
 import bcrypt from "bcrypt";
+import { getSessionUser, jsonError, readJson } from "@/libs/api";
 import { prisma } from "@/libs/prismaDb";
 import { NextResponse } from "next/server";
 
+/** Changes the signed-in user's password (the `email` field must match the session). */
 export async function POST(request: Request) {
-	const body = await request.json();
-	const { email, password, currentPassword } = body;
+	const me = await getSessionUser();
+	if (!me?.email) return jsonError("Unauthorized", 401);
 
-	if (!email || !password) {
-		return new NextResponse("Missing Fields", { status: 400 });
+	const { email, password, currentPassword } = await readJson(request);
+	if (
+		typeof password !== "string" ||
+		typeof currentPassword !== "string" ||
+		password.length < 8
+	) {
+		return jsonError("Missing Fields", 400);
 	}
 
-	const formatedEmail = email.toLowerCase();
+	const formattedEmail = me.email.toLowerCase();
+	if (typeof email === "string" && email.toLowerCase() !== formattedEmail) {
+		return jsonError("Forbidden", 403);
+	}
 
 	const user = await prisma.user.findUnique({
-		where: {
-			email: formatedEmail,
-		},
+		where: { email: formattedEmail },
+	});
+	if (!user?.password) return jsonError("User not found", 404);
+	if (user.email?.includes("demo-")) {
+		return jsonError("Can't change password for demo user", 403);
+	}
+
+	if (!(await bcrypt.compare(currentPassword, user.password))) {
+		return jsonError("Incorrect current password!", 400);
+	}
+
+	await prisma.user.update({
+		where: { email: formattedEmail },
+		data: { password: await bcrypt.hash(password, 10) },
 	});
 
-	if (!user) {
-		throw new Error("Email does not exists");
-	}
-
-	// check to see if passwords match
-	const passwordMatch = await bcrypt.compare(
-		currentPassword,
-		user?.password as string
-	);
-
-	if (!passwordMatch) {
-		return new NextResponse("Incorrect current password!", { status: 400 });
-	}
-
-	const isDemo = user?.email?.includes("demo-");
-
-	if (isDemo) {
-		return new NextResponse("Can't change password for demo user", {
-			status: 401,
-		});
-	}
-
-	const hashedPassword = await bcrypt.hash(password, 10);
-
-	try {
-		await prisma.user.update({
-			where: {
-				email: formatedEmail,
-			},
-			data: {
-				password: hashedPassword,
-			},
-		});
-
-		return NextResponse.json("Password Updated", { status: 200 });
-	} catch (error) {
-		return new NextResponse("Something went wrong", { status: 500 });
-	}
+	return NextResponse.json({ message: "Password Updated" });
 }

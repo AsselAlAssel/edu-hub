@@ -1,61 +1,60 @@
-import React from "react";
-import { Box } from "@mui/material";
-import Header from "@/scenes/Landing/components/Header";
-import PageContainer from "@/components/PageContainer";
+"use client";
 import AboutSection from "@/scenes/Landing/components/AboutSection";
 import ContactUs from "@/scenes/Landing/components/ContactUs";
+import FeaturesSection from "@/scenes/Landing/components/FeaturesSection";
+import Hero from "@/scenes/Landing/components/Header";
+import VideoSection from "@/scenes/Landing/components/VideoSection";
+import { getYouTubeVideoID } from "@/libs/constant";
+import { Box, Typography } from "@mui/material";
+import type { LandingFormValues } from "./LandingControls";
 
-export default function PreviewLandingPage({ data }: { data: any }) {
+/** Renders the real landing sections with unsaved form values, in a framed viewport. */
+export default function PreviewLandingPage({
+	data,
+}: {
+	data: LandingFormValues;
+}) {
+	const videoId = data.landingVideo
+		? getYouTubeVideoID(data.landingVideo)
+		: null;
+
 	return (
-		<Box
-			sx={(theme) => ({
-				backgroundColor: theme.palette.background.default,
-				color: theme.palette.text.primary,
-			})}
-		>
-			<Header
-				headerTitle={data?.headerTitle}
-				headerSubtitle={data?.headerSubtitle}
-				headerImage={data?.headerImage}
-				isVideoExist={!!data?.landingVideo}
-			/>
-
-			<PageContainer>
-				{data?.landingVideo && (
-					<Box
-						sx={{
-							width: "100%",
-							height: "100%",
-							pt: 11,
-						}}
-						id='video'
-					>
-						<iframe
-							style={{
-								objectFit: "cover",
-								width: "100%",
-								height: "700px",
-							}}
-							src={`https://www.youtube.com/embed/${data.landingVideoId}`}
-							title='YouTube video player'
-							frameBorder='0'
-							allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-							referrerPolicy='strict-origin-when-cross-origin'
-							allowFullScreen
-						></iframe>
-					</Box>
-				)}
-				<AboutSection
-					aboutTitle={data?.aboutTitle}
-					aboutSubtitle={data?.aboutSubtitle}
-					aboutImage={data?.aboutImage}
+		<Box>
+			<Typography variant='body2' sx={{ color: "text.secondary", mb: 1.5 }}>
+				معاينة للتغييرات الحالية — لن تظهر للزوار قبل الحفظ.
+			</Typography>
+			<Box
+				aria-label='معاينة الصفحة الرئيسية'
+				role='region'
+				sx={(theme) => ({
+					maxHeight: "75vh",
+					overflow: "auto",
+					borderRadius: `${theme.tokens.radii.lg}px`,
+					border: `1px solid ${theme.tokens.colors.border}`,
+					backgroundColor: theme.tokens.colors.bg,
+					// Anchors inside the preview must not steal page navigation.
+					"& section[id]": { scrollMarginTop: 0 },
+				})}
+			>
+				<Hero
+					preview
+					headerTitle={data.headerTitle}
+					headerSubtitle={data.headerSubtitle}
+					headerImage={data.headerImage}
 				/>
-			</PageContainer>
-			<ContactUs
-				whatsappNumber={data?.whatsAppNumber}
-				address={data?.address}
-				email={data?.email}
-			/>
+				<FeaturesSection />
+				{videoId ? <VideoSection videoId={videoId} /> : null}
+				<AboutSection
+					aboutTitle={data.aboutTitle}
+					aboutSubtitle={data.aboutSubtitle}
+					aboutImage={data.aboutImage}
+				/>
+				<ContactUs
+					whatsappNumber={data.whatsAppNumber}
+					address={data.address}
+					email={data.email}
+				/>
+			</Box>
 		</Box>
 	);
 }

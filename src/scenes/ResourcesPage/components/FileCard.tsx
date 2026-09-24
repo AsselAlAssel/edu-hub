@@ -1,188 +1,202 @@
-import ActionsIconButton from "@/components/ActionsIconButton";
-import useRole from "@/hooks/useRole";
-import { alpha, Stack, Typography, Box } from "@mui/material";
-import { File } from "@prisma/client";
-import Image from "next/image";
-import type { CSSProperties } from "react";
-import LockIcon from "@mui/icons-material/Lock";
-import ResourceCardActionsMenu from "./ResourceCardActionsMenu";
-import { useFileCard } from "./useFileCard";
+"use client";
+import ActionsMenu from "@/components/ui/ActionsMenu";
+import IconTile from "@/components/ui/IconTile";
+import Surface from "@/components/ui/Surface";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { Box, Stack, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
+import type { File } from "@prisma/client";
+import type { ReactNode } from "react";
+import { getFileTypeInfo } from "./fileTypes";
+
+/** A file is "closed" when stored with the "#" placeholder URL. */
+export const isFileAvailable = (file: Pick<File, "url">) =>
+	!!file.url && file.url !== "#";
 
 export default function FileCard({
 	file,
+	handle,
 	onEdit,
 	onDelete,
+	isAdmin = false,
+	onMove,
 }: {
 	file: File;
+	handle?: ReactNode;
 	onEdit: () => void;
 	onDelete: () => void;
+	isAdmin?: boolean;
+	onMove?: () => void;
 }) {
-	const {
-		menuOpen,
-		anchorEl,
-		handleOpen,
-		handleClose,
-		isFormatKnown,
-		isClosed,
-		isLink,
-	} = useFileCard(file);
-	const { isAdmin } = useRole();
+	const info = getFileTypeInfo(file.type);
+	const available = isFileAvailable(file);
 
-	const linkShellStyle: CSSProperties = {
-		width: "100%",
-		display: "flex",
-		flexDirection: "column",
-		height: "100%",
-		textDecoration: "none",
-		color: "inherit",
-	};
+	return (
+		<Surface
+			interactive={available}
+			component='article'
+			data-testid='file-card'
+			sx={(theme) => {
+				const tone = theme.palette[info.tone].main;
+				return {
+					height: "100%",
+					p: 2.25,
+					display: "flex",
+					flexDirection: "column",
+					gap: 2,
+					overflow: "hidden",
+					// File-type colour coding: a beam along the top edge.
+					"&::before": {
+						content: '""',
+						position: "absolute",
+						insetInline: 0,
+						top: 0,
+						height: 3,
+						background: `linear-gradient(90deg, ${tone}, ${alpha(tone, 0)})`,
+					},
+					"&:hover .qa-icon-tile": { transform: "translateY(-2px)" },
+					"&:hover .qa-download svg": { animation: "qaDip 700ms ease" },
+					"@keyframes qaDip": {
+						"0%, 100%": { transform: "translateY(0)" },
+						"50%": { transform: "translateY(3px)" },
+					},
+				};
+			}}
+		>
+			<Stack
+				direction='row'
+				alignItems='flex-start'
+				justifyContent='space-between'
+				gap={1}
+			>
+				<IconTile tone={info.tone} size={48}>
+					{info.icon}
+				</IconTile>
+				{isAdmin ? (
+					<Stack direction='row' gap={0.75}>
+						{handle}
+						<ActionsMenu
+							label={`خيارات الملف: ${file.name}`}
+							editLabel='إعادة تسمية الملف'
+							deleteLabel='حذف الملف'
+							onEdit={onEdit}
+							onDelete={onDelete}
+							onMove={onMove}
+						/>
+					</Stack>
+				) : null}
+			</Stack>
 
-	const cardInner = (
-		<>
 			<Typography
-				variant='h6'
-				sx={(theme) => ({
-					maxWidth: "80%",
+				variant='subtitle2'
+				component='h3'
+				sx={{
+					fontSize: "1rem",
+					fontWeight: 600,
+					lineHeight: 1.65,
+					flex: 1,
 					display: "-webkit-box",
 					WebkitLineClamp: 2,
 					WebkitBoxOrient: "vertical",
 					overflow: "hidden",
-					textOverflow: "ellipsis",
-					cursor: "pointer",
-					minHeight: "3.6rem",
-					lineHeight: "1.8rem",
-					color: theme.palette.text.primary,
-				})}
+					overflowWrap: "anywhere",
+				}}
 			>
-				{file.name}
+				{available ? (
+					<Box
+						component='a'
+						href={file.url}
+						target='_blank'
+						rel='noopener noreferrer'
+						download
+						aria-label={`تحميل ${file.name} (${info.label})`}
+						sx={(theme) => ({
+							color: "text.primary",
+							textDecoration: "none",
+							"&::after": {
+								content: '""',
+								position: "absolute",
+								inset: 0,
+								zIndex: 1,
+							},
+							"&:focus-visible": { outline: "none" },
+							"&:focus-visible::after": {
+								outline: `2px solid ${theme.palette.primary.main}`,
+								outlineOffset: -2,
+								borderRadius: `${theme.tokens.radii.lg}px`,
+							},
+						})}
+					>
+						{file.name}
+					</Box>
+				) : (
+					file.name
+				)}
 			</Typography>
 
 			<Stack
-				justifyContent='center'
+				direction='row'
 				alignItems='center'
-				p={3}
+				justifyContent='space-between'
 				sx={(theme) => ({
-					borderRadius: 1,
-					backgroundColor: theme.palette.background.paper,
-					mt: 2,
-					position: "relative",
-					border: `1px solid ${theme.palette.border.secondary}`,
+					pt: 1.5,
+					borderTop: `1px solid ${theme.tokens.colors.border}`,
 				})}
 			>
-				{isFormatKnown ? (
-					<Image
-						src={`/icons/${file.type}.svg`}
-						alt={file.type}
-						width={70}
-						height={70}
-					/>
-				) : (
-					<Image
-						src={`/icons/unknown.svg`}
-						alt={file.type}
-						width={70}
-						height={70}
-					/>
-				)}
-				{isClosed ? (
-					<Box
-						sx={{
-							position: "absolute",
-							top: "0",
-							right: "0",
-							bottom: "0",
-							left: "0",
-							backgroundColor: "rgba(0,0,0,0.5)",
-							backdropFilter: "blur(5px)",
-							display: "flex",
-							justifyContent: "center",
-							alignItems: "center",
-							borderRadius: 1,
-						}}
-					>
-						<LockIcon
-							sx={{
-								color: "common.white",
-							}}
-						/>
-					</Box>
-				) : null}
-			</Stack>
-		</>
-	);
-
-	return (
-		<Stack
-			direction='row'
-			alignItems='center'
-			sx={(theme) => ({
-				borderRadius: 1,
-				padding: 1.5,
-				cursor: "pointer",
-				width: "100%",
-				color: theme.palette.text.primary,
-				backgroundColor:
-					theme.palette.mode === "dark"
-						? alpha(theme.palette.background.paper, 0.9)
-						: alpha(theme.palette.primary.main, 0.04),
-				flex: 1,
-				top: 0,
-				transition:
-					"top 0.3s ease-in-out, box-shadow 0.3s ease, background-color 0.2s ease",
-				position: "relative",
-				height: "100%",
-				border: `1px solid ${theme.palette.border.secondary}`,
-				"& .absolute-button": {
-					display: "none",
-				},
-
-				"&:hover": {
-					backgroundColor:
-						theme.palette.mode === "dark"
-							? theme.palette.background.paper
-							: alpha(theme.palette.primary.main, 0.08),
-					boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.08)",
-					...(!isAdmin && {
-						top: "-6px",
-					}),
-				},
-			})}
-			gap={1}
-		>
-			{isLink ? (
-				<a
-					href={file.url ?? "#"}
-					download
-					target='_blank'
-					rel='noreferrer'
-					style={linkShellStyle}
+				<Typography
+					variant='caption'
+					sx={(theme) => {
+						const tone = theme.palette[info.tone].main;
+						return {
+							px: 1,
+							py: 0.25,
+							borderRadius: `${theme.tokens.radii.full}px`,
+							fontWeight: 600,
+							color: tone,
+							backgroundColor: alpha(tone, 0.12),
+							border: `1px solid ${alpha(tone, 0.3)}`,
+						};
+					}}
 				>
-					{cardInner}
-				</a>
-			) : (
-				<div style={linkShellStyle}>{cardInner}</div>
-			)}
-			<ResourceCardActionsMenu
-				anchorEl={anchorEl}
-				open={menuOpen}
-				onClose={handleClose}
-				editLabel='تفير الإسم'
-				onEdit={onEdit}
-				onDelete={onDelete}
-			/>
-			{isAdmin ? (
-				<ActionsIconButton
+					{info.label}
+					{/* Skip ".pdf" when the label already says "PDF". */}
+					{info.label.toUpperCase().includes(file.type.toUpperCase()) ? null : (
+						<Box
+							component='span'
+							dir='ltr'
+							className='qa-latin'
+							sx={{ mx: 0.5, textTransform: "uppercase" }}
+						>
+							.{file.type}
+						</Box>
+					)}
+				</Typography>
+				<Stack
+					direction='row'
+					alignItems='center'
+					gap={0.5}
+					aria-hidden
+					className='qa-download'
 					sx={{
-						position: "absolute",
-						top: 10,
-						right: 10,
+						color: available ? "primary.main" : "text.secondary",
+						fontWeight: 600,
+						fontSize: "0.875rem",
 					}}
-					onClick={(e) => {
-						e.stopPropagation();
-						handleOpen(e);
-					}}
-				/>
-			) : null}
-		</Stack>
+				>
+					{available ? (
+						<>
+							<FileDownloadOutlinedIcon sx={{ fontSize: 18 }} />
+							تحميل
+						</>
+					) : (
+						<>
+							<LockOutlinedIcon sx={{ fontSize: 18 }} />
+							غير متاح
+						</>
+					)}
+				</Stack>
+			</Stack>
+		</Surface>
 	);
 }

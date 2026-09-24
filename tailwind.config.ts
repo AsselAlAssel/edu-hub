@@ -64,8 +64,8 @@ const config: Config = {
 				transparent: "transparent",
 				white: "#FFFFFF",
 				black: "#0E172B",
-				page: "var(--edu-page-bg)",
-				body: "var(--edu-body-text)",
+				page: "var(--qa-bg)",
+				body: "var(--qa-text-secondary)",
 				stroke: {
 					DEFAULT: "#E8E8E8",
 					dark: "#394152",

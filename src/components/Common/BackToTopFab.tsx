@@ -19,8 +19,7 @@ export default function BackToTopFab() {
 				position: "fixed",
 				bottom: theme.spacing(3),
 				insetInlineEnd: theme.spacing(3),
-				zIndex: 998,
-				boxShadow: theme.shadows[8],
+				zIndex: theme.zIndex.speedDial,
 			})}
 		>
 			<KeyboardArrowUpIcon />

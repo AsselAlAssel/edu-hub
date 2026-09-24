@@ -1,81 +1,137 @@
 "use client";
+import Surface from "@/components/ui/Surface";
 import { Box, Stack, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import Image from "next/image";
+import { Suspense } from "react";
 import SigninWithPassword from "../SigninWithPassword";
 
 export default function Signin() {
 	return (
-		<Stack
-			direction='column'
-			justifyContent='center'
-			alignItems='center'
-			spacing={2}
-			sx={{
-				py: { xs: 10, md: 16 },
+		<Box
+			sx={(theme) => ({
+				position: "relative",
+				overflow: "hidden",
+				isolation: "isolate",
+				minHeight: `calc(100vh - ${theme.tokens.layout.headerHeight}px)`,
+				display: "grid",
+				placeItems: "center",
 				px: 2,
-				minHeight: "60vh",
-			}}
+				py: { xs: 6, md: 10 },
+				backgroundImage: `radial-gradient(45% 40% at 50% 10%, ${alpha(theme.tokens.colors.cyan, 0.16)}, transparent 70%), radial-gradient(35% 35% at 85% 85%, ${alpha(theme.tokens.colors.violet, 0.14)}, transparent 70%)`,
+				// Light grid, masked to the centre.
+				"&::before": {
+					content: '""',
+					position: "absolute",
+					inset: 0,
+					zIndex: -1,
+					backgroundImage: `linear-gradient(${alpha(theme.tokens.colors.cyan, 0.06)} 1px, transparent 1px), linear-gradient(90deg, ${alpha(theme.tokens.colors.cyan, 0.06)} 1px, transparent 1px)`,
+					backgroundSize: "56px 56px",
+					maskImage:
+						"radial-gradient(ellipse 60% 60% at 50% 45%, #000 20%, transparent 75%)",
+					WebkitMaskImage:
+						"radial-gradient(ellipse 60% 60% at 50% 45%, #000 20%, transparent 75%)",
+				},
+			})}
 		>
+			{/* Slow orbit rings behind the card (decorative). */}
 			<Box
-				sx={{
-					maxWidth: "440px",
-					width: "100%",
-					backgroundColor: "#FFFFFF",
-					borderRadius: "20px",
-					border: "1px solid #EAECF0",
-					boxShadow:
-						"0 4px 24px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.04)",
-					p: { xs: 3, sm: 4 },
-					transition: "box-shadow 0.3s ease",
-					"&:hover": {
-						boxShadow:
-							"0 8px 32px rgba(16, 24, 40, 0.08), 0 4px 12px rgba(16, 24, 40, 0.04)",
+				aria-hidden
+				sx={(theme) => ({
+					position: "absolute",
+					zIndex: -1,
+					width: "min(720px, 140vw)",
+					aspectRatio: "1 / 1",
+					borderRadius: "50%",
+					border: `1px solid ${alpha(theme.tokens.colors.cyan, 0.16)}`,
+					"&::before, &::after": {
+						content: '""',
+						position: "absolute",
+						borderRadius: "50%",
 					},
-				}}
+					"&::before": {
+						inset: "14%",
+						border: `1px dashed ${alpha(theme.tokens.colors.violet, 0.28)}`,
+						animation: "qaSpin 80s linear infinite",
+					},
+					"&::after": {
+						top: "-5px",
+						left: "50%",
+						width: 10,
+						height: 10,
+						backgroundColor: theme.tokens.colors.cyan,
+						boxShadow: `0 0 16px ${theme.tokens.colors.cyan}`,
+					},
+					animation: "qaSpin 40s linear infinite",
+					"@keyframes qaSpin": { to: { transform: "rotate(360deg)" } },
+				})}
+			/>
+
+			<Surface
+				variant='glass'
+				className='qa-page'
+				sx={(theme) => ({
+					width: "100%",
+					maxWidth: 460,
+					p: { xs: 3, sm: 5 },
+					overflow: "hidden",
+					borderColor: alpha(theme.tokens.colors.cyan, 0.25),
+					boxShadow: `${theme.tokens.shadows.strong}${theme.palette.mode === "dark" ? `, 0 0 60px ${alpha(theme.tokens.colors.cyan, 0.1)}` : ""}`,
+					"&::before": {
+						content: '""',
+						position: "absolute",
+						insetInline: 0,
+						top: 0,
+						height: 3,
+						backgroundImage: theme.tokens.gradients.text,
+					},
+				})}
 			>
-				<Stack spacing={3} alignItems='center' mb={3}>
+				<Stack
+					alignItems='center'
+					spacing={2}
+					sx={{ mb: 4, textAlign: "center" }}
+				>
 					<Box
-						sx={{
-							width: 56,
-							height: 56,
-							borderRadius: "16px",
-							background: "linear-gradient(135deg, #F0F7FF 0%, #E6F0FF 100%)",
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-						}}
+						sx={(theme) => ({
+							width: 64,
+							height: 64,
+							display: "grid",
+							placeItems: "center",
+							borderRadius: `${theme.tokens.radii.lg}px`,
+							backgroundColor: theme.tokens.colors.surfaceSecondary,
+							border: `1px solid ${alpha(theme.tokens.colors.cyan, 0.4)}`,
+							boxShadow:
+								theme.palette.mode === "dark"
+									? `0 0 30px ${alpha(theme.tokens.colors.cyan, 0.25)}`
+									: theme.tokens.shadows.subtle,
+						})}
 					>
 						<Image
 							src='/images/logo/logo.svg'
-							alt='Logo'
-							width={40}
-							height={40}
+							alt='شعار محمد صبح للفيزياء'
+							width={44}
+							height={44}
+							priority
 						/>
 					</Box>
-					<Box textAlign='center'>
+					<Box>
 						<Typography
-							variant='h5'
-							sx={{
-								fontWeight: 800,
-								mb: 0.75,
-								letterSpacing: "-0.01em",
-							}}
+							variant='h1'
+							sx={{ fontSize: { xs: "1.875rem", sm: "2.125rem" } }}
 						>
 							تسجيل الدخول
 						</Typography>
-						<Typography
-							sx={{
-								color: "text.tertiary",
-								fontSize: "0.9375rem",
-								lineHeight: 1.6,
-							}}
-						>
-							أدخل بياناتك للمتابعة
+						<Typography variant='body2' sx={{ color: "text.secondary", mt: 1 }}>
+							أدخل بياناتك للوصول إلى لوحة إدارة المحتوى.
 						</Typography>
 					</Box>
 				</Stack>
-				<SigninWithPassword />
-			</Box>
-		</Stack>
+				{/* useSearchParams requires a Suspense boundary in the App Router. */}
+				<Suspense>
+					<SigninWithPassword />
+				</Suspense>
+			</Surface>
+		</Box>
 	);
 }
