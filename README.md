@@ -19,10 +19,9 @@ A modern, full-stack SaaS application for managing educational content, classes,
 
 ### 🎬 Multimedia Support
 
-- Video hosting and streaming via Bunny CDN
-- File uploads with AWS S3 integration
+- YouTube videos (the video id is parsed and validated server-side)
+- File uploads to Cloudflare R2 via short-lived presigned URLs
 - Support for multiple file types
-- Presigned URLs for secure file access
 
 ### 👤 User Management
 
@@ -51,7 +50,7 @@ A modern, full-stack SaaS application for managing educational content, classes,
 
 ### Frontend
 
-- **Next.js 14** - React framework for production
+- **Next.js 15.5** + **React 19** - React framework for production
 - **TypeScript** - Type-safe development
 - **Material-UI (MUI)** - Component library
 - **Tailwind CSS** - Utility-first CSS framework
@@ -67,9 +66,8 @@ A modern, full-stack SaaS application for managing educational content, classes,
 
 ### External Services
 
-- **AWS S3** - File storage
-- **Bunny CDN** - Video streaming and storage
-- **Stripe** - Payment processing (optional)
+- **Cloudflare R2** - File storage (S3-compatible API)
+- **YouTube** - Video hosting
 
 ### Developer Tools
 
@@ -84,16 +82,15 @@ A modern, full-stack SaaS application for managing educational content, classes,
 - Node.js >= 18.17.0
 - npm or yarn
 - MongoDB database
-- AWS S3 credentials (for file uploads)
-- Bunny CDN credentials (for video hosting)
+- Cloudflare R2 bucket and credentials (for file uploads)
 
 ### Installation
 
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/saasbold.git
-   cd saasbold
+   git clone https://github.com/AsselAlAssel/edu-hub.git
+   cd edu-hub
    ```
 
 2. **Install dependencies**
@@ -103,19 +100,19 @@ A modern, full-stack SaaS application for managing educational content, classes,
    ```
 
 3. **Set up environment variables**
-   Create a `.env.local` file in the root directory:
+   Copy `.env.example` to `.env` and fill in the values:
 
    ```env
    DATABASE_URL=your_mongodb_url
-   SHADOW_DATABASE_URL=your_shadow_db_url
+   SECRET=your_nextauth_secret
    NEXTAUTH_URL=http://localhost:3000
-   NEXTAUTH_SECRET=your_secret_key
-   AWS_ACCESS_KEY_ID=your_aws_key
-   AWS_SECRET_ACCESS_KEY=your_aws_secret
-   AWS_REGION=your_aws_region
-   S3_BUCKET_NAME=your_bucket_name
-   BUNNY_API_KEY=your_bunny_api_key
-   STRIPE_SECRET_KEY=your_stripe_key
+   NEXT_PUBLIC_DOMAIN=https://www.mohammedsubuh.com
+   R2_ACCESS_KEY_ID=your_r2_key
+   R2_SECRET_ACCESS_KEY=your_r2_secret
+   R2_BUCKET_NAME=your_bucket_name
+   R2_ACCOUNT_ID=your_cloudflare_account_id
+   NEXT_PUBLIC_FILES_URL=https://your-public-r2-url
+   ADMIN_EMAIL=the_only_email_allowed_to_register
    ```
 
 4. **Initialize the database**
@@ -161,7 +158,6 @@ npm run start
 - `npm run test-build` - Run style checks and build
 - `npm run test` - Unit/component/API tests (Vitest + Testing Library)
 - `npm run test:e2e` - End-to-end tests (Playwright, against `next start`)
-- `npm run stripe:listen` - Listen for Stripe webhooks
 
 ## Design System — Quantum Aurora
 
@@ -174,7 +170,7 @@ npm run start
 ## Testing
 
 ```bash
-npm run test                                   # 75 unit/component/API tests
+npm run test                                   # 80 unit/component/API tests
 npx playwright install chromium                # once
 npm run build && npm run test:e2e              # E2E against a production build
 ```
@@ -193,8 +189,10 @@ src/
 ├── hooks/               # Custom React hooks
 ├── libs/                # Utility libraries
 ├── services/            # API service layer
+├── scenes/              # Page-level UI (Landing, Classes, Resources, Profile)
+├── actions/             # Server helpers and admin-only server actions
+├── constants/           # Navigation and shell constants
 ├── types/               # TypeScript type definitions
-├── utils/               # Utility functions
 └── styles/              # Global styles
 ```
 
@@ -242,8 +240,8 @@ The application uses [NextAuth.js](https://next-auth.js.org/) for authentication
 
 ## File Storage
 
-- **AWS S3** - Primary file storage with presigned URLs for secure access
-- **Bunny CDN** - Video streaming with optimized delivery
+- **Cloudflare R2** - File storage; admins upload directly with presigned URLs
+- **YouTube** - Video hosting and playback
 
 ## Performance Optimizations
 

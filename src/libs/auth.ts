@@ -72,13 +72,14 @@ export const authOptions: NextAuthOptions = {
 			const { token, trigger, session } = payload;
 			const user: User = payload.user;
 
+			// `update()` data comes from the client: only allow display fields,
+			// never role/uid/sub (that would let any user make itself an admin).
 			if (trigger === "update") {
-				return {
-					...token,
-					...session.user,
-					picture: session.user.image,
-					image: session.user.image,
-				};
+				const patch = session?.user ?? {};
+				const name = typeof patch.name === "string" ? patch.name : token.name;
+				const image =
+					typeof patch.image === "string" ? patch.image : token.picture;
+				return { ...token, name, picture: image, image };
 			}
 
 			if (user) {
