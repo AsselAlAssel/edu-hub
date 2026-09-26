@@ -179,10 +179,7 @@ describe("header & mobile navigation", () => {
 		const drawerClose = await screen.findByRole("button", {
 			name: "إغلاق القائمة",
 		});
-		expect(screen.getByRole("link", { name: "تسجيل الدخول" })).toHaveAttribute(
-			"href",
-			"/auth/signin"
-		);
+		expect(screen.queryByRole("link", { name: "تسجيل الدخول" })).toBeNull();
 		fireEvent.keyDown(drawerClose, { key: "Escape" });
 		await vi.waitFor(() =>
 			expect(screen.queryByRole("button", { name: "إغلاق القائمة" })).toBeNull()
