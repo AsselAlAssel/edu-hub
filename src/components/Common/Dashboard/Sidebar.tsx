@@ -6,7 +6,6 @@ import { Role } from "@/types/enums";
 import type { LandingSectionId } from "@/types/landingNav";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
-import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import {
 	Avatar,
@@ -151,8 +150,9 @@ export default function SideBar({
 				</Stagger>
 			</Box>
 
-			<Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
-				{user ? (
+			{/* Guests get no sign-in button (matches the desktop header); admins use /auth/signin. */}
+			{user ? (
+				<Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
 					<Stack spacing={2}>
 						<Stack direction='row' alignItems='center' gap={1.5}>
 							<Avatar sx={{ width: 40, height: 40 }}>
@@ -184,19 +184,8 @@ export default function SideBar({
 							تسجيل الخروج
 						</Button>
 					</Stack>
-				) : (
-					<Button
-						component={Link}
-						href='/auth/signin'
-						variant='outlined'
-						fullWidth
-						startIcon={<LoginRoundedIcon />}
-						onClick={onClose}
-					>
-						تسجيل الدخول
-					</Button>
-				)}
-			</Box>
+				</Box>
+			) : null}
 		</Drawer>
 	);
 }
