@@ -6,6 +6,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import { alpha, type Theme } from "@mui/material/styles";
 import { motion, useTransform, type MotionValue } from "framer-motion";
 import Image from "next/image";
+import { canOptimizeImage } from "@/libs/images";
 import type { ReactNode } from "react";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -368,6 +369,7 @@ export default function HeroVisual({
 					>
 						<Image
 							src={image}
+							unoptimized={!canOptimizeImage(image)}
 							alt='الأستاذ محمد صبح — شروحات الفيزياء'
 							fill
 							priority={!preview}

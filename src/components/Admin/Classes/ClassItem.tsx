@@ -10,6 +10,7 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import { Box, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import Image from "next/image";
+import { canOptimizeImage } from "@/libs/images";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
@@ -118,6 +119,7 @@ export default function ClassItem({
 					{classItem.image ? (
 						<Image
 							src={classItem.image}
+							unoptimized={!canOptimizeImage(classItem.image)}
 							alt=''
 							fill
 							priority={priority}

@@ -2,6 +2,7 @@
 import AppDialog from "@/components/ui/AppDialog";
 import { Box, CircularProgress } from "@mui/material";
 import dynamic from "next/dynamic";
+import { useEffect, useRef } from "react";
 
 // The YouTube-only build of react-player, loaded only when a video is opened.
 const ReactPlayer = dynamic(() => import("react-player/youtube"), {
@@ -20,6 +21,10 @@ const ReactPlayer = dynamic(() => import("react-player/youtube"), {
 	),
 });
 
+/** Marks the history entry pushed while the player is open. */
+const HISTORY_KEY = "__videoPlayer";
+const onPlayerEntry = () => Boolean(window.history.state?.[HISTORY_KEY]);
+
 export default function VideoPlayer({
 	open,
 	handleClose,
@@ -31,8 +36,34 @@ export default function VideoPlayer({
 	url: string;
 	title?: string;
 }) {
+	const handleCloseRef = useRef(handleClose);
+	handleCloseRef.current = handleClose;
+
+	// The device/browser back button closes the player instead of leaving the
+	// page: opening pushes a history entry (keeping Next's router state),
+	// and every close goes back through it.
+	useEffect(() => {
+		if (!open) return;
+		if (!onPlayerEntry()) {
+			window.history.pushState(
+				{ ...window.history.state, [HISTORY_KEY]: true },
+				""
+			);
+		}
+		const onPopState = () => {
+			if (!onPlayerEntry()) handleCloseRef.current();
+		};
+		window.addEventListener("popstate", onPopState);
+		return () => window.removeEventListener("popstate", onPopState);
+	}, [open]);
+
+	const close = () => {
+		if (onPlayerEntry()) window.history.back();
+		else handleClose();
+	};
+
 	return (
-		<AppDialog open={open} onClose={handleClose} title={title} maxWidth='md'>
+		<AppDialog open={open} onClose={close} title={title} maxWidth='md'>
 			<Box
 				sx={(theme) => ({
 					position: "relative",
