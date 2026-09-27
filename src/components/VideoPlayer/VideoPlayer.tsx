@@ -63,11 +63,20 @@ export default function VideoPlayer({
 	};
 
 	return (
-		<AppDialog open={open} onClose={close} title={title} maxWidth='md'>
+		<AppDialog
+			open={open}
+			onClose={close}
+			title={title}
+			maxWidth='md'
+			fullScreenOnMobile={false}
+		>
 			<Box
 				sx={(theme) => ({
 					position: "relative",
 					aspectRatio: "16 / 9",
+					// Fit the viewport height too (phones in landscape).
+					maxWidth: "calc((100dvh - 150px) * 16 / 9)",
+					mx: "auto",
 					borderRadius: `${theme.tokens.radii.md}px`,
 					overflow: "hidden",
 					backgroundColor: theme.palette.common.black,
