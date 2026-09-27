@@ -113,6 +113,7 @@ A modern, full-stack SaaS application for managing educational content, classes,
    R2_ACCOUNT_ID=your_cloudflare_account_id
    NEXT_PUBLIC_FILES_URL=https://your-public-r2-url
    ADMIN_EMAIL=the_only_email_allowed_to_register
+   IMAGE_HOSTS=optional,extra,image,hosts
    ```
 
 4. **Initialize the database**
@@ -170,10 +171,12 @@ npm run start
 ## Testing
 
 ```bash
-npm run test                                   # 80 unit/component/API tests
+npm run test                                   # 85 unit/component/API tests
 npx playwright install chromium                # once
 npm run build && npm run test:e2e              # E2E against a production build
 ```
+
+CI (`.github/workflows/ci.yml`) runs formatting, lint, type check and unit tests on every pull request and push to `master`.
 
 E2E specs are **read-only** (they never create or delete data) but use the database from `.env`. To build next to a running `next dev`, set `NEXT_DIST_DIR=.next-verify` for both `next build` and `npm run test:e2e`; set `E2E_BASE_URL` to test a deployed site instead.
 
