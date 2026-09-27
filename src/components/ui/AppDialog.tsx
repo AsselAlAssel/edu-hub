@@ -26,7 +26,19 @@ export type AppDialogProps = {
 	/** Blocks Escape/backdrop/close while a request is in flight. */
 	busy?: boolean;
 	maxWidth?: "xs" | "sm" | "md";
+	/** Phones get a full-screen sheet (forms). Off: a centred card with slim margins (media). */
+	fullScreenOnMobile?: boolean;
 };
+
+/** Media dialogs on phones: slim margins, smaller title, tighter padding. */
+const mediaPaperOnPhones = (theme: Theme) => ({
+	[theme.breakpoints.down("sm")]: {
+		m: 1.5,
+		width: "calc(100% - 24px)",
+		"& .MuiDialogTitle-root": { fontSize: "1.05rem", px: 2, py: 1.5 },
+		"& .MuiDialogContent-root": { px: 1.5 },
+	},
+});
 
 /** Accessible dialog shell: labelled title, close button, Escape handling. */
 export default function AppDialog({
@@ -39,6 +51,7 @@ export default function AppDialog({
 	onSubmit,
 	busy = false,
 	maxWidth = "xs",
+	fullScreenOnMobile = true,
 }: AppDialogProps) {
 	const titleId = useId();
 	const descriptionId = useId();
@@ -63,10 +76,13 @@ export default function AppDialog({
 			onClose={close}
 			fullWidth
 			maxWidth={maxWidth}
-			fullScreen={fullScreen && maxWidth !== "xs"}
+			fullScreen={fullScreen && fullScreenOnMobile && maxWidth !== "xs"}
 			aria-labelledby={titleId}
 			aria-describedby={description ? descriptionId : undefined}
-			PaperProps={formPaperProps}
+			PaperProps={{
+				...formPaperProps,
+				sx: fullScreenOnMobile ? undefined : mediaPaperOnPhones,
+			}}
 		>
 			{/* `pr` is flipped to the inline end by the RTL stylis plugin. */}
 			<Stack direction='row' alignItems='flex-start' gap={1} sx={{ pr: 1.5 }}>
