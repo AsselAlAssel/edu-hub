@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
  * Non-admins used to be redirected to /user, which does not exist.
  */
 export default withAuth(
-	function middleware(req: NextRequestWithAuth) {
+	function proxy(req: NextRequestWithAuth) {
 		const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
 		if (isAdminRoute && req.nextauth.token?.role !== "ADMIN") {
 			return NextResponse.redirect(new URL("/", req.url));
