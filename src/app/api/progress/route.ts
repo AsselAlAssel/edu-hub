@@ -15,8 +15,10 @@ const seconds = (value: unknown) =>
 		: undefined;
 
 /**
- * The signed-in student's progress on every video they've opened, with each
- * video's classId (for per-class totals). Deleted videos are left out.
+ * The signed-in student's progress on every video they've opened, newest
+ * first, with what the progress pages need about each video (class/folder for
+ * links and totals, name, YouTube id for the thumbnail). Deleted videos are
+ * left out.
  */
 export const GET = async () => {
 	const user = await getSessionUser();
@@ -24,17 +26,34 @@ export const GET = async () => {
 
 	const progress = await prisma.videoProgress.findMany({
 		where: { userId: user.id },
-		select: progressSelect,
+		select: { ...progressSelect, updatedAt: true },
+		orderBy: { updatedAt: "desc" },
 	});
 	const videos = await prisma.video.findMany({
 		where: { id: { in: progress.map((item) => item.videoId) } },
-		select: { id: true, classId: true },
+		select: {
+			id: true,
+			classId: true,
+			folderId: true,
+			name: true,
+			videoId: true,
+		},
 	});
-	const classOf = new Map(videos.map((video) => [video.id, video.classId]));
+	const videoOf = new Map(videos.map((video) => [video.id, video]));
 	return NextResponse.json(
-		progress
-			.filter((item) => classOf.has(item.videoId))
-			.map((item) => ({ ...item, classId: classOf.get(item.videoId) }))
+		progress.flatMap((item) => {
+			const video = videoOf.get(item.videoId);
+			if (!video) return [];
+			return [
+				{
+					...item,
+					classId: video.classId,
+					folderId: video.folderId,
+					name: video.name,
+					youtubeId: video.videoId,
+				},
+			];
+		})
 	);
 };
 
