@@ -3,7 +3,7 @@
 import type { Direction } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
-import { useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { createEduTheme } from "../../../theme";
 import type { EduColorMode } from "../../../theme/palettes";
 
@@ -44,6 +44,13 @@ export default function MuiThemeSync({
 		() => createEduTheme(direction, colorMode),
 		[direction, colorMode]
 	);
+
+	// Reveal the page (hidden by the root layout's script for a saved light
+	// theme) once MUI renders the real mode, not the hydration-time dark one.
+	useEffect(() => {
+		if (colorMode === readMode())
+			document.documentElement.classList.remove("qa-theme-pending");
+	}, [colorMode]);
 
 	return (
 		<MuiThemeProvider theme={muiTheme}>

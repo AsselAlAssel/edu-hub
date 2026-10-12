@@ -12,8 +12,10 @@ const collectErrors = (page: Page) => {
 		if (message.type() !== "error") return;
 		const text = message.text();
 		// Third-party network noise (analytics / YouTube thumbnails) is not ours.
+		// /_vercel/insights only exists on Vercel: locally it 404s as HTML, which
+		// `X-Content-Type-Options: nosniff` reports as a refused script.
 		if (
-			/googletagmanager|google-analytics|ytimg|Failed to load resource/.test(
+			/googletagmanager|google-analytics|ytimg|_vercel\/insights|Failed to load resource/.test(
 				text
 			)
 		)

@@ -192,7 +192,11 @@ test.describe("authentication", () => {
 		page,
 	}) => {
 		await page.goto("/auth/signin");
-		await page.getByRole("button", { name: "تسجيل الدخول" }).click();
+		// The header has its own (Google) sign-in button: target the form's.
+		await page
+			.getByRole("form", { name: "نموذج تسجيل الدخول" })
+			.getByRole("button", { name: "تسجيل الدخول" })
+			.click();
 		await expect(page.getByText("البريد الإلكتروني مطلوب")).toBeVisible();
 		await page.getByLabel(/البريد الإلكتروني/).fill("x@y");
 		await page.getByRole("button", { name: "إظهار كلمة المرور" }).click();
@@ -239,6 +243,17 @@ test.describe("API authorization", () => {
 		).toBe(401);
 		expect((await request.get("/api/user")).status()).toBe(401);
 		expect((await request.get("/api/user/get-all")).status()).toBe(401);
+		expect((await request.get("/api/progress")).status()).toBe(401);
+		expect(
+			(
+				await request.post("/api/progress", {
+					data: { videoId: "a".repeat(24), completed: true },
+				})
+			).status()
+		).toBe(401);
+		expect(
+			(await request.post("/api/user/update", { data: { name: "x" } })).status()
+		).toBe(401);
 		expect((await request.get("/api/resources/not-an-id")).status()).toBe(400);
 	});
 });

@@ -3,6 +3,7 @@ import Logo from "@/components/AppShell/Logo";
 import PageContainer from "@/components/PageContainer";
 import { NAV_ITEMS } from "@/constants/navigation";
 import FacebookRoundedIcon from "@mui/icons-material/FacebookRounded";
+import GitHubIcon from "@mui/icons-material/GitHub";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import { Box, IconButton, Stack, Typography } from "@mui/material";
 import Link from "next/link";
@@ -19,6 +20,11 @@ const SOCIAL_LINKS = [
 		icon: <YouTubeIcon />,
 	},
 ];
+
+const DEVELOPER = {
+	name: "Aseel AlAseel",
+	href: "https://github.com/AsselAlAssel",
+};
 
 export default function Footer() {
 	return (
@@ -85,9 +91,35 @@ export default function Footer() {
 					gap={2}
 					sx={{ mt: 4, pt: 3, borderTop: 1, borderColor: "divider" }}
 				>
-					<Typography variant='caption' sx={{ color: "text.secondary" }}>
-						© {new Date().getFullYear()} محمد صبح. جميع الحقوق محفوظة.
-					</Typography>
+					<Stack spacing={0.5}>
+						<Typography variant='caption' sx={{ color: "text.secondary" }}>
+							© {new Date().getFullYear()} محمد صبح. جميع الحقوق محفوظة.
+						</Typography>
+						<Typography variant='caption' sx={{ color: "text.secondary" }}>
+							تصميم وتطوير{" "}
+							<Box
+								component='a'
+								href={DEVELOPER.href}
+								target='_blank'
+								rel='noopener noreferrer'
+								aria-label={`${DEVELOPER.name} على GitHub (يفتح في نافذة جديدة)`}
+								sx={{
+									display: "inline-flex",
+									alignItems: "center",
+									gap: 0.5,
+									verticalAlign: "middle",
+									color: "text.primary",
+									fontWeight: 700,
+									textDecoration: "none",
+									"&:hover": { color: "primary.main" },
+									"& svg": { fontSize: 14 },
+								}}
+							>
+								<GitHubIcon aria-hidden />
+								<span className='qa-latin'>{DEVELOPER.name}</span>
+							</Box>
+						</Typography>
+					</Stack>
 					<Stack direction='row' gap={1}>
 						{SOCIAL_LINKS.map((link) => (
 							<IconButton

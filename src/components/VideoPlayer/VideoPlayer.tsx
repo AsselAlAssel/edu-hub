@@ -2,6 +2,7 @@
 import AppDialog from "@/components/ui/AppDialog";
 import { Box, CircularProgress } from "@mui/material";
 import dynamic from "next/dynamic";
+import { useRef } from "react";
 
 // The YouTube-only build of react-player, loaded only when a video is opened.
 const ReactPlayer = dynamic(() => import("react-player/youtube"), {
@@ -25,12 +26,20 @@ export default function VideoPlayer({
 	handleClose,
 	url,
 	title = "مشغّل الفيديو",
+	startAt = 0,
+	onProgress,
 }: {
 	open: boolean;
 	handleClose: () => void;
 	url: string;
 	title?: string;
+	/** Second to resume from. */
+	startAt?: number;
+	/** Called every second while playing: (playedSeconds, duration). */
+	onProgress?: (playedSeconds: number, duration: number) => void;
 }) {
+	const duration = useRef(0);
+
 	return (
 		<AppDialog open={open} onClose={handleClose} title={title} maxWidth='md'>
 			<Box
@@ -51,7 +60,13 @@ export default function VideoPlayer({
 						width='100%'
 						height='100%'
 						style={{ position: "absolute", inset: 0 }}
-						config={{ playerVars: { rel: 0 } }}
+						config={{
+							playerVars: { rel: 0, start: Math.floor(startAt) },
+						}}
+						onDuration={(seconds) => (duration.current = seconds)}
+						onProgress={({ playedSeconds }) =>
+							duration.current && onProgress?.(playedSeconds, duration.current)
+						}
 					/>
 				) : null}
 			</Box>

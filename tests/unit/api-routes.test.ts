@@ -292,3 +292,25 @@ describe("validation", () => {
 		expect(r2.deleteR2Object).toHaveBeenCalledWith("obj-key");
 	});
 });
+
+describe("student accounts (Google sign-in)", () => {
+	it("register is closed once any admin exists, even for ADMIN_EMAIL", async () => {
+		process.env.ADMIN_EMAIL = "boot@x.dev";
+		prisma.user.findFirst.mockResolvedValue({ id: ADMIN_ID, role: "ADMIN" });
+		const register = await import("@/app/api/user/register/route");
+		const res = await register.POST(
+			req("POST", { name: "x", email: "boot@x.dev", password: "12345678" })
+		);
+		expect(res.status).toBe(403);
+		expect(prisma.user.create).not.toHaveBeenCalled();
+	});
+
+	it("students cannot edit their profile (unverified email change)", async () => {
+		asUser();
+		const update = await import("@/app/api/user/update/route");
+		expect(
+			(await update.POST(req("POST", { email: "teacher@x.dev" }))).status
+		).toBe(403);
+		expect(prisma.user.update).not.toHaveBeenCalled();
+	});
+});

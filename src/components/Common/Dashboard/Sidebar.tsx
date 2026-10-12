@@ -27,6 +27,7 @@ import { usePathname } from "next/navigation";
 type SideBarProps = {
 	showSideBar: boolean;
 	onClose: () => void;
+	onSignIn: () => void;
 	landingActiveSection?: LandingSectionId | null;
 };
 
@@ -34,6 +35,7 @@ type SideBarProps = {
 export default function SideBar({
 	showSideBar,
 	onClose,
+	onSignIn,
 	landingActiveSection = null,
 }: SideBarProps) {
 	const { data } = useSession();
@@ -186,12 +188,14 @@ export default function SideBar({
 					</Stack>
 				) : (
 					<Button
-						component={Link}
-						href='/auth/signin'
 						variant='outlined'
 						fullWidth
+						aria-haspopup='dialog'
 						startIcon={<LoginRoundedIcon />}
-						onClick={onClose}
+						onClick={() => {
+							onClose();
+							onSignIn();
+						}}
 					>
 						تسجيل الدخول
 					</Button>

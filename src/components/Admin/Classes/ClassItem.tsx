@@ -7,7 +7,8 @@ import useRole from "@/hooks/useRole";
 import { getErrorMessage } from "@/libs/errors";
 import type { ClassWithMeta } from "@/libs/class";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
-import { Box, Stack, Typography } from "@mui/material";
+import useProgress from "@/hooks/useProgress";
+import { Box, LinearProgress, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import Image from "next/image";
 import Link from "next/link";
@@ -58,6 +59,12 @@ export default function ClassItem({
 		? `/class/${classItem.id}/folder/${rootFolderId}`
 		: undefined;
 	const summary = resourceSummary(classItem._count);
+	const progress = useProgress();
+	const totalVideos = classItem._count?.videos ?? 0;
+	const done = Array.from(progress.byVideo.values()).filter(
+		(item) => item.completed && item.classId === classItem.id
+	).length;
+	const showProgress = progress.signedIn && !isAdmin && totalVideos > 0;
 	const editValues = useMemo(
 		() => ({
 			name: classItem.name,
@@ -213,6 +220,22 @@ export default function ClassItem({
 							>
 								{summary}
 							</Typography>
+						) : null}
+						{showProgress ? (
+							<Box sx={{ mt: 1.5 }}>
+								<Typography
+									variant='caption'
+									sx={{ color: "text.secondary", display: "block", mb: 0.5 }}
+								>
+									أنهيت {done} من {totalVideos} فيديو
+								</Typography>
+								<LinearProgress
+									variant='determinate'
+									value={(done / totalVideos) * 100}
+									aria-label={`أنهيت ${done} من ${totalVideos} فيديو في ${classItem.name}`}
+									sx={{ height: 6, borderRadius: 3 }}
+								/>
+							</Box>
 						) : null}
 					</Box>
 					{isAdmin ? (

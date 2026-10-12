@@ -179,9 +179,12 @@ describe("header & mobile navigation", () => {
 		const drawerClose = await screen.findByRole("button", {
 			name: "إغلاق القائمة",
 		});
-		expect(screen.getByRole("link", { name: "تسجيل الدخول" })).toHaveAttribute(
-			"href",
-			"/auth/signin"
+		// Header (desktop) and drawer both offer sign-in; both open the Google dialog.
+		const signinButtons = screen.getAllByRole("button", {
+			name: "تسجيل الدخول",
+		});
+		signinButtons.forEach((button) =>
+			expect(button).toHaveAttribute("aria-haspopup", "dialog")
 		);
 		fireEvent.keyDown(drawerClose, { key: "Escape" });
 		await vi.waitFor(() =>
@@ -213,5 +216,17 @@ describe("reduced motion", () => {
 		renderWithTheme(<Probe />);
 		act(() => scrollTop());
 		expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "auto" });
+	});
+});
+
+describe("student sign-in dialog", () => {
+	it("opens from the header with a Google button", async () => {
+		renderWithTheme(<Header />);
+		await userEvent.click(
+			screen.getAllByRole("button", { name: "تسجيل الدخول" })[0]
+		);
+		expect(
+			await screen.findByRole("button", { name: "المتابعة باستخدام Google" })
+		).toBeInTheDocument();
 	});
 });

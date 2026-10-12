@@ -4,7 +4,7 @@ import { prisma } from "@/libs/prismaDb";
 import { publicUserSelect } from "@/libs/users";
 import { NextResponse } from "next/server";
 
-/** Bootstrap registration: only the configured ADMIN_EMAIL may register. */
+/** Bootstrap registration: only the configured ADMIN_EMAIL, and only before any admin exists. */
 export async function POST(request: Request) {
 	const body = await readJson(request);
 	const name = cleanString(body.name, 100);
@@ -15,6 +15,11 @@ export async function POST(request: Request) {
 	if (password.length < 8) return jsonError("Password too short", 400);
 
 	if (!process.env.ADMIN_EMAIL || email !== process.env.ADMIN_EMAIL) {
+		return jsonError("You are not allowed to register", 403);
+	}
+	// One-time bootstrap: once an admin exists, nobody can self-register as
+	// one (ADMIN_EMAIL alone was enough while no account used that email).
+	if (await prisma.user.findFirst({ where: { role: "ADMIN" } })) {
 		return jsonError("You are not allowed to register", 403);
 	}
 
