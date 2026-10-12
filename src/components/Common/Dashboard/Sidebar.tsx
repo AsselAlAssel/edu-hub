@@ -6,6 +6,7 @@ import { Role } from "@/types/enums";
 import type { LandingSectionId } from "@/types/landingNav";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import {
 	Avatar,
@@ -26,6 +27,7 @@ import { usePathname } from "next/navigation";
 type SideBarProps = {
 	showSideBar: boolean;
 	onClose: () => void;
+	onSignIn: () => void;
 	landingActiveSection?: LandingSectionId | null;
 };
 
@@ -33,6 +35,7 @@ type SideBarProps = {
 export default function SideBar({
 	showSideBar,
 	onClose,
+	onSignIn,
 	landingActiveSection = null,
 }: SideBarProps) {
 	const { data } = useSession();
@@ -150,9 +153,10 @@ export default function SideBar({
 				</Stagger>
 			</Box>
 
-			{/* Guests get no sign-in button (matches the desktop header); admins use /auth/signin. */}
-			{user ? (
-				<Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
+			{/* Guests get the student (Google) sign-in, like the desktop header;
+			    admins use /auth/signin. */}
+			<Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
+				{user ? (
 					<Stack spacing={2}>
 						<Stack direction='row' alignItems='center' gap={1.5}>
 							<Avatar sx={{ width: 40, height: 40 }}>
@@ -184,8 +188,21 @@ export default function SideBar({
 							تسجيل الخروج
 						</Button>
 					</Stack>
-				</Box>
-			) : null}
+				) : (
+					<Button
+						variant='outlined'
+						fullWidth
+						aria-haspopup='dialog'
+						startIcon={<LoginRoundedIcon />}
+						onClick={() => {
+							onClose();
+							onSignIn();
+						}}
+					>
+						تسجيل الدخول
+					</Button>
+				)}
+			</Box>
 		</Drawer>
 	);
 }

@@ -43,6 +43,19 @@ const nextConfig = {
 	async headers() {
 		return [
 			{
+				source: "/:path*",
+				headers: [
+					// Nobody can frame the site (clickjacking on sign-in / admin).
+					{ key: "X-Frame-Options", value: "SAMEORIGIN" },
+					{ key: "X-Content-Type-Options", value: "nosniff" },
+					{ key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+					{
+						key: "Permissions-Policy",
+						value: "camera=(), microphone=(), geolocation=()",
+					},
+				],
+			},
+			{
 				source: "/:all*(svg|jpg|jpeg|png|webp|avif|ico|woff|woff2)",
 				headers: [
 					{
@@ -51,15 +64,8 @@ const nextConfig = {
 					},
 				],
 			},
-			{
-				source: "/_next/static/:path*",
-				headers: [
-					{
-						key: "Cache-Control",
-						value: "public, max-age=31536000, immutable",
-					},
-				],
-			},
+			// No rule for /_next/static: Next already sends `immutable` for hashed
+			// production chunks, and forcing it in dev pins stale (unhashed) chunks.
 		];
 	},
 };

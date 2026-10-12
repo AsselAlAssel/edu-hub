@@ -1,5 +1,6 @@
 "use client";
 import Logo from "@/components/AppShell/Logo";
+import GoogleSigninDialog from "@/components/Auth/GoogleSigninDialog";
 import PageContainer from "@/components/PageContainer";
 import ThemeToggle from "@/components/ThemeToggle/ThemeToggle";
 import { APP_BAR_HEIGHT } from "@/constants/appShell";
@@ -8,17 +9,20 @@ import { useLandingScrollSpy } from "@/hooks/useLandingScrollSpy";
 import usePopoverState from "@/hooks/usePopoverState";
 import { Role } from "@/types/enums";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import {
 	Avatar,
 	Box,
+	Button,
 	ButtonBase,
 	Divider,
 	IconButton,
 	ListItemIcon,
 	Menu,
 	MenuItem,
+	Skeleton,
 	Stack,
 	Typography,
 	useScrollTrigger,
@@ -32,6 +36,9 @@ import { useState } from "react";
 import SideBar from "../Sidebar";
 
 export { APP_BAR_HEIGHT };
+
+/** Fits the "تسجيل الدخول" button, the widest account state (+ toggle and gap). */
+const ACCOUNT_SLOT_WIDTH = 148;
 
 /** Reading progress along the header's bottom edge (fills from the right in RTL). */
 function ScrollProgress() {
@@ -61,13 +68,14 @@ function ScrollProgress() {
 
 /** Sticky site header: brand, primary nav, theme toggle, account menu, mobile drawer. */
 export default function Header() {
-	const { data: session } = useSession();
+	const { data: session, status } = useSession();
 	const user = session?.user;
 	const isAdmin = user?.role === Role.ADMIN;
 	const pathname = usePathname();
 	const activeSection = useLandingScrollSpy(pathname === "/");
 	const scrolled = useScrollTrigger({ disableHysteresis: true, threshold: 8 });
 	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [signinOpen, setSigninOpen] = useState(false);
 	const [menuOpen, anchorEl, openMenu, closeMenu] = usePopoverState();
 
 	return (
@@ -172,25 +180,49 @@ export default function Header() {
 						</Stack>
 					</Box>
 
-					<Stack direction='row' alignItems='center' gap={1}>
+					{/* Fixed width on desktop, packed to the outer (left) edge: the
+					    nav never moves when the session arrives after a refresh, and
+					    the loading circle becomes the avatar in the same spot. */}
+					<Stack
+						direction='row'
+						alignItems='center'
+						justifyContent='flex-end'
+						gap={1}
+						sx={{ width: { md: ACCOUNT_SLOT_WIDTH + 50 } }}
+					>
 						<ThemeToggle />
-						{user ? (
-							<ButtonBase
-								onClick={openMenu}
-								aria-label='قائمة الحساب'
-								aria-haspopup='menu'
-								aria-expanded={menuOpen}
-								aria-controls={menuOpen ? "account-menu" : undefined}
-								sx={{
-									display: { xs: "none", md: "inline-flex" },
-									borderRadius: "50%",
-								}}
-							>
-								<Avatar sx={{ width: 38, height: 38, fontSize: "1rem" }}>
-									{user.name?.charAt(0)?.toUpperCase() || "م"}
-								</Avatar>
-							</ButtonBase>
-						) : null}
+						<Box sx={{ display: { xs: "none", md: "flex" } }}>
+							{status === "loading" ? (
+								<Skeleton variant='circular' width={38} height={38} />
+							) : user ? (
+								<ButtonBase
+									onClick={openMenu}
+									aria-label='قائمة الحساب'
+									aria-haspopup='menu'
+									aria-expanded={menuOpen}
+									aria-controls={menuOpen ? "account-menu" : undefined}
+									sx={{ borderRadius: "50%" }}
+								>
+									<Avatar
+										src={user.image ?? undefined}
+										alt=''
+										sx={{ width: 38, height: 38, fontSize: "1rem" }}
+									>
+										{user.name?.charAt(0)?.toUpperCase() || "م"}
+									</Avatar>
+								</ButtonBase>
+							) : (
+								<Button
+									onClick={() => setSigninOpen(true)}
+									aria-haspopup='dialog'
+									variant='outlined'
+									size='small'
+									startIcon={<LoginRoundedIcon />}
+								>
+									تسجيل الدخول
+								</Button>
+							)}
+						</Box>
 						<IconButton
 							onClick={() => setDrawerOpen(true)}
 							aria-label='فتح القائمة'
@@ -256,7 +288,12 @@ export default function Header() {
 			<SideBar
 				showSideBar={drawerOpen}
 				onClose={() => setDrawerOpen(false)}
+				onSignIn={() => setSigninOpen(true)}
 				landingActiveSection={activeSection}
+			/>
+			<GoogleSigninDialog
+				open={signinOpen}
+				onClose={() => setSigninOpen(false)}
 			/>
 		</Box>
 	);

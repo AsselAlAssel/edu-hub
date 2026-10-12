@@ -30,12 +30,19 @@ export default function VideoPlayer({
 	handleClose,
 	url,
 	title = "مشغّل الفيديو",
+	startAt = 0,
+	onProgress,
 }: {
 	open: boolean;
 	handleClose: () => void;
 	url: string;
 	title?: string;
+	/** Second to resume from. */
+	startAt?: number;
+	/** Called every second while playing: (playedSeconds, duration). */
+	onProgress?: (playedSeconds: number, duration: number) => void;
 }) {
+	const duration = useRef(0);
 	const handleCloseRef = useRef(handleClose);
 	handleCloseRef.current = handleClose;
 
@@ -91,7 +98,13 @@ export default function VideoPlayer({
 						width='100%'
 						height='100%'
 						style={{ position: "absolute", inset: 0 }}
-						config={{ playerVars: { rel: 0 } }}
+						config={{
+							playerVars: { rel: 0, start: Math.floor(startAt) },
+						}}
+						onDuration={(seconds) => (duration.current = seconds)}
+						onProgress={({ playedSeconds }) =>
+							duration.current && onProgress?.(playedSeconds, duration.current)
+						}
 					/>
 				) : null}
 			</Box>

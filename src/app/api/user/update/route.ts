@@ -6,6 +6,9 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
 	const me = await getSessionUser();
 	if (!me?.email) return jsonError("Unauthorized", 401);
+	// Students (Google accounts) have no profile editing; an unverified email
+	// change would let them impersonate someone.
+	if (me.role !== "ADMIN") return jsonError("Forbidden", 403);
 	if (me.email.includes("demo-")) {
 		return jsonError("Can't update demo user", 403);
 	}

@@ -39,9 +39,21 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang='ar' dir='rtl' suppressHydrationWarning>
-			<head>
+			<head suppressHydrationWarning>
 				{/* Token CSS variables for both modes — server-rendered, so no colour flash. */}
 				<style dangerouslySetInnerHTML={{ __html: cssVariables() }} />
+				{/* The server renders MUI in dark. For a saved light theme, hide the
+				    page until MuiThemeSync has switched, so refresh never flashes
+				    dark. The 3s animation reveals it anyway if JS never runs.
+				    ponytail: blank light page during hydration; MUI CSS-vars theme
+				    (extendTheme) removes the need, but touches ~150 sx call sites. */}
+				<style>{`html.qa-theme-pending body{visibility:hidden;animation:qa-reveal 0s 3s forwards}@keyframes qa-reveal{to{visibility:visible}}`}</style>
+				<script
+					dangerouslySetInnerHTML={{
+						// "edu-hub-theme" = THEME_STORAGE_KEY (a client module, not importable here).
+						__html: `try{if(localStorage.getItem("edu-hub-theme")==="light")document.documentElement.classList.add("qa-theme-pending")}catch(e){}`,
+					}}
+				/>
 			</head>
 			<body className={appBodyFontClassName}>
 				<ThemeRegistry direction='rtl'>

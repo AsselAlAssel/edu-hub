@@ -6,6 +6,7 @@ import EmptyAddResources, {
 } from "@/components/EmptyAddResources/EmptyAddResources";
 import { PageHeader, PageShell } from "@/components/ui/PageShell";
 import { EmptyState, ErrorState } from "@/components/ui/States";
+import useProgress, { useWatchTracker } from "@/hooks/useProgress";
 import { useResource } from "@/hooks/useResourceApi";
 import useRole from "@/hooks/useRole";
 import {
@@ -73,7 +74,7 @@ type DialogState =
 	| { type: "rename"; kind: ResourceKind; item: Named }
 	| { type: "delete"; kind: ResourceKind; item: Named }
 	| { type: "move"; kind: "file" | "video"; item: Named }
-	| { type: "play"; video: Video }
+	| { type: "play"; video: Video; startAt: number }
 	| null;
 
 /** "4 مجلدات · 6 فيديوهات · 3 ملفات" from real counts. */
@@ -114,13 +115,23 @@ export default function ResourcesPage({
 	const data: ResourceData = swrData ?? resources;
 	const { folders, files, videos } = data;
 	const actions = useResourceMutations(folderId, classId);
+	const progress = useProgress();
+	const tracker = useWatchTracker(progress.save, progress.signedIn && !isAdmin);
 
 	const [dialog, setDialog] = useState<DialogState>(null);
 	const [addMenuAnchor, setAddMenuAnchor] = useState<HTMLElement | null>(null);
 	const [draggedKind, setDraggedKind] = useState<ResourceKind | null>(null);
 	const [overFolderId, setOverFolderId] = useState<string | null>(null);
 	const draggedKindRef = useRef<ResourceKind | null>(null);
-	const close = () => setDialog(null);
+	const close = () => {
+		if (dialog?.type === "play") tracker.stop();
+		setDialog(null);
+	};
+	const play = (video: Video) => {
+		const saved = progress.byVideo.get(video.id);
+		tracker.start(video.id, saved);
+		setDialog({ type: "play", video, startAt: saved?.position ?? 0 });
+	};
 
 	const title = isRootFolder
 		? className
@@ -258,7 +269,8 @@ export default function ResourcesPage({
 				videos={videos}
 				isAdmin={isAdmin}
 				onAdd={() => openCreate("video")}
-				onPlay={(video: Video) => setDialog({ type: "play", video })}
+				onPlay={play}
+				progress={progress}
 				onRename={rename("video")}
 				onDelete={remove("video")}
 				onMove={move("video")}
@@ -460,6 +472,8 @@ export default function ResourcesPage({
 				handleClose={close}
 				url={dialog?.type === "play" ? dialog.video.url : ""}
 				title={dialog?.type === "play" ? dialog.video.name : undefined}
+				startAt={dialog?.type === "play" ? dialog.startAt : 0}
+				onProgress={tracker.onProgress}
 			/>
 		</PageShell>
 	);

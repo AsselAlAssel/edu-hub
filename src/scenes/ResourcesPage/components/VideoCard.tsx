@@ -1,8 +1,18 @@
 "use client";
 import ActionsMenu from "@/components/ui/ActionsMenu";
 import Surface from "@/components/ui/Surface";
+import { formatTime, type VideoProgress } from "@/hooks/useProgress";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
-import { Box, ButtonBase, Stack, Typography } from "@mui/material";
+import RadioButtonUncheckedRoundedIcon from "@mui/icons-material/RadioButtonUncheckedRounded";
+import {
+	Box,
+	ButtonBase,
+	IconButton,
+	Stack,
+	Tooltip,
+	Typography,
+} from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import type { Video } from "@prisma/client";
 import Image from "next/image";
@@ -24,6 +34,8 @@ export default function VideoCard({
 	onPlay,
 	isAdmin = false,
 	onMove,
+	progress,
+	onToggleDone,
 }: {
 	video: Video;
 	handle?: ReactNode;
@@ -32,8 +44,17 @@ export default function VideoCard({
 	onPlay: () => void;
 	isAdmin?: boolean;
 	onMove?: () => void;
+	progress?: VideoProgress;
+	/** Present for signed-in students: the manual "finished" toggle. */
+	onToggleDone?: (completed: boolean) => void;
 }) {
 	const thumbnail = youtubeThumbnail(video);
+	const done = !!progress?.completed;
+	const badge = done
+		? "مكتمل"
+		: progress?.position
+			? `تابع من ${formatTime(progress.position)}`
+			: null;
 	return (
 		<Surface
 			interactive
@@ -48,7 +69,7 @@ export default function VideoCard({
 		>
 			<ButtonBase
 				onClick={onPlay}
-				aria-label={`تشغيل الفيديو: ${video.name}`}
+				aria-label={`تشغيل الفيديو: ${video.name}${badge ? ` (${badge})` : ""}`}
 				sx={(theme) => ({
 					position: "relative",
 					display: "block",
@@ -118,6 +139,34 @@ export default function VideoCard({
 				>
 					<PlayArrowRoundedIcon />
 				</Box>
+				{badge ? (
+					<Box
+						component='span'
+						aria-hidden
+						sx={(theme) => ({
+							position: "absolute",
+							zIndex: 1,
+							top: 10,
+							insetInlineStart: 10,
+							display: "inline-flex",
+							alignItems: "center",
+							gap: 0.5,
+							px: 1,
+							py: 0.25,
+							borderRadius: `${theme.tokens.radii.full}px`,
+							fontSize: "0.75rem",
+							fontWeight: 700,
+							color: theme.palette.common.white,
+							backgroundColor: done
+								? theme.palette.success.main
+								: alpha(theme.palette.common.black, 0.65),
+							"& svg": { fontSize: 14 },
+						})}
+					>
+						{done ? <CheckCircleRoundedIcon /> : null}
+						{badge}
+					</Box>
+				) : null}
 			</ButtonBase>
 			<Stack
 				direction='row'
@@ -154,6 +203,23 @@ export default function VideoCard({
 							onMove={onMove}
 						/>
 					</Stack>
+				) : null}
+				{onToggleDone ? (
+					<Tooltip title={done ? "إلغاء علامة الإنهاء" : "علّمته كمكتمل"}>
+						<IconButton
+							size='small'
+							aria-label={`أنهيت الفيديو: ${video.name}`}
+							aria-pressed={done}
+							onClick={() => onToggleDone(!done)}
+							sx={{ color: done ? "success.main" : "text.secondary", mt: -0.5 }}
+						>
+							{done ? (
+								<CheckCircleRoundedIcon />
+							) : (
+								<RadioButtonUncheckedRoundedIcon />
+							)}
+						</IconButton>
+					</Tooltip>
 				) : null}
 			</Stack>
 		</Surface>

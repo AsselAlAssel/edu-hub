@@ -8,6 +8,7 @@ import {
 	getServerSession,
 } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 declare module "next-auth" {
 	interface Session extends DefaultSession {
@@ -20,6 +21,8 @@ const INVALID_CREDENTIALS = "البريد الإلكتروني أو كلمة ا�
 export const authOptions: NextAuthOptions = {
 	pages: {
 		signIn: "/auth/signin",
+		// OAuth (Google) failures: back to the student's page with a toast.
+		error: "/auth/error",
 	},
 	adapter: PrismaAdapter(prisma),
 	secret: process.env.SECRET,
@@ -28,6 +31,11 @@ export const authOptions: NextAuthOptions = {
 	},
 
 	providers: [
+		// Students sign in with Google; new accounts get the default USER role.
+		GoogleProvider({
+			clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+		}),
 		CredentialsProvider({
 			name: "credentials",
 			credentials: {
@@ -121,6 +129,8 @@ export const authOptions: NextAuthOptions = {
 		},
 
 		signIn: async ({ user }) => {
+			// A first-time Google user has no DB id yet (user.id is Google's id).
+			if (!/^[a-f\d]{24}$/i.test(user.id)) return true;
 			await prisma.session.deleteMany({
 				where: {
 					userId: user.id,
