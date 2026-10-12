@@ -8,7 +8,9 @@ import {
 	WHATS_NEW_VERSION,
 } from "./version";
 
-const OPEN_DELAY_MS = 1200;
+// Just enough for the page to paint first, so the dialog doesn't pop in
+// over a half-loaded screen.
+const OPEN_DELAY_MS = 300;
 
 /** Not over sign-in or admin screens; those visitors are mid-task. */
 const isQuietPath = (pathname: string) =>
