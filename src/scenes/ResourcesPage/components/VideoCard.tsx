@@ -16,6 +16,7 @@ import {
 import { alpha } from "@mui/material/styles";
 import type { Video } from "@prisma/client";
 import Image from "next/image";
+import { canOptimizeImage } from "@/libs/images";
 import type { ReactNode } from "react";
 
 export const youtubeThumbnail = (
@@ -47,6 +48,7 @@ export default function VideoCard({
 	/** Present for signed-in students: the manual "finished" toggle. */
 	onToggleDone?: (completed: boolean) => void;
 }) {
+	const thumbnail = youtubeThumbnail(video);
 	const done = !!progress?.completed;
 	const badge = done
 		? "مكتمل"
@@ -100,7 +102,8 @@ export default function VideoCard({
 				})}
 			>
 				<Image
-					src={youtubeThumbnail(video)}
+					src={thumbnail}
+					unoptimized={!canOptimizeImage(thumbnail)}
 					alt=''
 					fill
 					sizes='(max-width: 600px) 100vw, (max-width: 900px) 50vw, (max-width: 1200px) 33vw, 300px'

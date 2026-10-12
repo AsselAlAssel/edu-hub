@@ -36,7 +36,9 @@ export function signInWithGoogle() {
 	const here = window.location.pathname + window.location.search;
 	try {
 		sessionStorage.setItem(RETURN_KEY, here);
-	} catch {}
+	} catch {
+		// Storage blocked: a failed sign-in then returns to the home page.
+	}
 	void signIn("google", { callbackUrl: here });
 }
 
@@ -77,7 +79,9 @@ export default function GoogleSigninDialog({
 			if (!message) return;
 			sessionStorage.removeItem(ERROR_KEY);
 			toast.error(message);
-		} catch {}
+		} catch {
+			// Storage blocked: no message to show.
+		}
 	}, []);
 
 	return (

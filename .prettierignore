@@ -4,8 +4,6 @@ node_modules
 yarn.lock
 package-lock.json
 public
-# Legacy runtime sitemap cache (no longer written; safe to delete)
-sitemap-cache.json
 .next-verify
 test-results
 playwright-report

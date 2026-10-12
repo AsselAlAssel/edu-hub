@@ -9,6 +9,7 @@ import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
 import { Box, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import Image from "next/image";
+import { canOptimizeImage } from "@/libs/images";
 
 const HIGHLIGHTS = [
 	{
@@ -176,6 +177,7 @@ export default function AboutSection({
 								>
 									<Image
 										src={aboutImage}
+										unoptimized={!canOptimizeImage(aboutImage)}
 										alt='صورة تعريفية بمنصة محمد صبح للفيزياء'
 										fill
 										sizes='(max-width: 900px) 92vw, 520px'
