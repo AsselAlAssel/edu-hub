@@ -7,7 +7,7 @@ import { Providers } from "./providers";
  * No server session here on purpose: reading cookies in the shared layout
  * would force every public page to render per request. The session loads on
  * the client (header/account UI only); /admin is still protected by the
- * middleware + its own server check, and every API route authorises itself.
+ * proxy (src/proxy.ts) + its own server check, and every API route authorises itself.
  */
 export default function SiteLayout({
 	children,
