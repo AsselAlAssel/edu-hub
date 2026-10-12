@@ -6,6 +6,7 @@ import { Role } from "@/types/enums";
 import type { LandingSectionId } from "@/types/landingNav";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import {
@@ -145,6 +146,21 @@ export default function SideBar({
 									<Stack direction='row' alignItems='center' gap={1}>
 										<DashboardOutlinedIcon fontSize='small' />
 										لوحة التحكم
+									</Stack>
+								</Box>
+							</StaggerItem>
+						) : user ? (
+							<StaggerItem as='li'>
+								<Box
+									component={Link}
+									href='/progress'
+									onClick={onClose}
+									aria-current={pathname === "/progress" ? "page" : undefined}
+									sx={linkSx(pathname === "/progress")}
+								>
+									<Stack direction='row' alignItems='center' gap={1}>
+										<InsightsOutlinedIcon fontSize='small' />
+										تقدّمي
 									</Stack>
 								</Box>
 							</StaggerItem>

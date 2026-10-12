@@ -18,10 +18,13 @@ vi.mock("next-auth/react", () => ({ useSession: () => ({ data: null }) }));
 
 import { GET, POST } from "@/app/api/progress/route";
 import {
+	completedIn,
 	formatTime,
+	inProgress,
 	isWatched,
 	playedDelta,
 	resumeAt,
+	watchUrl,
 } from "@/hooks/useProgress";
 
 const USER_ID = "b".repeat(24);
@@ -69,6 +72,42 @@ describe("watch logic", () => {
 	});
 });
 
+describe("progress views", () => {
+	const item = (over: Record<string, unknown>) => ({
+		videoId: "v",
+		position: 0,
+		watched: 0,
+		completed: false,
+		classId: "c1",
+		folderId: "f1",
+		...over,
+	});
+
+	it("resume list: started, unfinished, newest first", () => {
+		const list = inProgress([
+			item({ videoId: "old", position: 30, updatedAt: "2026-10-01" }),
+			item({ videoId: "done", position: 30, completed: true }),
+			item({ videoId: "unstarted", position: 0 }),
+			item({ videoId: "new", position: 5, updatedAt: "2026-10-12" }),
+		]);
+		expect(list.map((x) => x.videoId)).toEqual(["new", "old"]);
+	});
+
+	it("counts finished videos per class", () => {
+		const items = [
+			item({ completed: true }),
+			item({ completed: true, classId: "c2" }),
+			item({ completed: false }),
+		];
+		expect(completedIn(items, "c1")).toBe(1);
+		expect(completedIn(items, "c2")).toBe(1);
+	});
+
+	it("links straight to the video in its folder", () => {
+		expect(watchUrl(item({ videoId: "v9" }))).toBe("/class/c1/folder/f1?v=v9");
+	});
+});
+
 describe("/api/progress", () => {
 	it("rejects guests", async () => {
 		session.current = null;
@@ -84,7 +123,15 @@ describe("/api/progress", () => {
 			{ videoId: VIDEO_ID, position: 0, watched: 0, completed: true },
 			{ videoId: GONE_ID, position: 0, watched: 0, completed: true },
 		]);
-		prisma.video.findMany.mockResolvedValue([{ id: VIDEO_ID, classId: "c1" }]);
+		prisma.video.findMany.mockResolvedValue([
+			{
+				id: VIDEO_ID,
+				classId: "c1",
+				folderId: "f1",
+				name: "قانون فاراداي",
+				videoId: "yt1",
+			},
+		]);
 		const res = await GET();
 		expect(prisma.videoProgress.findMany).toHaveBeenCalledWith(
 			expect.objectContaining({ where: { userId: USER_ID } })
@@ -96,6 +143,9 @@ describe("/api/progress", () => {
 				watched: 0,
 				completed: true,
 				classId: "c1",
+				folderId: "f1",
+				name: "قانون فاراداي",
+				youtubeId: "yt1",
 			},
 		]);
 	});
