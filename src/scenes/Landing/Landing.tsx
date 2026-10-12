@@ -1,4 +1,5 @@
 import type { PlatformStats } from "@/actions/landing";
+import ContinueWatching from "@/components/Progress/ContinueWatching";
 import { ScienceDivider } from "@/components/ui/Section";
 import type { LandingPage } from "@prisma/client";
 import AboutSection from "./components/AboutSection";
@@ -40,6 +41,7 @@ export default function Landing({
 				address={data?.address}
 				email={data?.email}
 			/>
+			<ContinueWatching />
 		</>
 	);
 }

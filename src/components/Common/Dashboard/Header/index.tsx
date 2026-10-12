@@ -9,6 +9,7 @@ import { useLandingScrollSpy } from "@/hooks/useLandingScrollSpy";
 import usePopoverState from "@/hooks/usePopoverState";
 import { Role } from "@/types/enums";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
@@ -270,7 +271,14 @@ export default function Header() {
 						</ListItemIcon>
 						لوحة التحكم
 					</MenuItem>
-				) : null}
+				) : (
+					<MenuItem component={Link} href='/progress' onClick={closeMenu}>
+						<ListItemIcon>
+							<InsightsOutlinedIcon fontSize='small' />
+						</ListItemIcon>
+						تقدّمي
+					</MenuItem>
+				)}
 				<MenuItem
 					onClick={() => {
 						closeMenu();

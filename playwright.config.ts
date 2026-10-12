@@ -1,4 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
+import {
+	WHATS_NEW_STORAGE_KEY,
+	WHATS_NEW_VERSION,
+} from "./src/components/WhatsNew/version";
 
 const PORT = Number(process.env.E2E_PORT ?? 3100);
 
@@ -15,6 +19,21 @@ const localServer = {
 	env: { NEXT_DIST_DIR: process.env.NEXT_DIST_DIR ?? ".next" },
 };
 const webServer = process.env.E2E_BASE_URL ? undefined : localServer;
+const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
+
+/**
+ * Every test starts as a visitor who has already seen the "what's new"
+ * dialog (it would otherwise cover the page); whats-new.spec.ts opts out.
+ */
+const seenWhatsNew = {
+	cookies: [],
+	origins: [
+		{
+			origin: baseURL,
+			localStorage: [{ name: WHATS_NEW_STORAGE_KEY, value: WHATS_NEW_VERSION }],
+		},
+	],
+};
 
 export default defineConfig({
 	testDir: "./tests/e2e",
@@ -24,7 +43,8 @@ export default defineConfig({
 	retries: process.env.CI ? 1 : 0,
 	reporter: [["list"]],
 	use: {
-		baseURL: process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`,
+		baseURL,
+		storageState: seenWhatsNew,
 		locale: "ar",
 		trace: "retain-on-failure",
 	},

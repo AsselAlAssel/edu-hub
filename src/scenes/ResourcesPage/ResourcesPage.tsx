@@ -31,7 +31,7 @@ import SmartDisplayOutlinedIcon from "@mui/icons-material/SmartDisplayOutlined";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { Button, ListItemIcon, Menu, MenuItem, Stack } from "@mui/material";
 import type { Folder, Video } from "@prisma/client";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import FilesSection from "./components/FilesSection";
 import FolderSection from "./components/FolderSection";
 import VideosSection from "./components/VideosSection";
@@ -132,6 +132,22 @@ export default function ResourcesPage({
 		tracker.start(video.id, saved);
 		setDialog({ type: "play", video, startAt: saved?.position ?? 0 });
 	};
+
+	// "Continue watching" links (…/folder/<id>?v=<videoId>) open the video at
+	// its saved position: wait for progress, then drop ?v from the URL.
+	// (window, not useSearchParams: that would opt this ISR page out of SSR.)
+	const deepLinkHandled = useRef(false);
+	useEffect(() => {
+		if (deepLinkHandled.current || !progress.ready) return;
+		deepLinkHandled.current = true;
+		const url = new URL(window.location.href);
+		const video = videos.find((item) => item.id === url.searchParams.get("v"));
+		if (!url.searchParams.has("v")) return;
+		url.searchParams.delete("v");
+		window.history.replaceState(window.history.state, "", url);
+		if (video) play(video);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- runs once, when progress is known
+	}, [progress.ready]);
 
 	const title = isRootFolder
 		? className

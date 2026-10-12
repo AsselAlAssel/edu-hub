@@ -7,7 +7,7 @@ import useRole from "@/hooks/useRole";
 import { getErrorMessage } from "@/libs/errors";
 import type { ClassWithMeta } from "@/libs/class";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
-import useProgress from "@/hooks/useProgress";
+import useProgress, { completedIn } from "@/hooks/useProgress";
 import { Box, LinearProgress, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import Image from "next/image";
@@ -62,9 +62,7 @@ export default function ClassItem({
 	const summary = resourceSummary(classItem._count);
 	const progress = useProgress();
 	const totalVideos = classItem._count?.videos ?? 0;
-	const done = Array.from(progress.byVideo.values()).filter(
-		(item) => item.completed && item.classId === classItem.id
-	).length;
+	const done = completedIn(progress.items, classItem.id);
 	const showProgress = progress.signedIn && !isAdmin && totalVideos > 0;
 	const editValues = useMemo(
 		() => ({

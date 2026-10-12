@@ -1,6 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import ClassItem from "@/components/Admin/Classes/ClassItem";
+import ContinueWatching from "@/components/Progress/ContinueWatching";
 import { RiseItem } from "@/components/ui/motion";
 import { PageHeader, PageShell } from "@/components/ui/PageShell";
 import { cardGridSx } from "@/components/ui/Skeletons";
@@ -87,6 +88,8 @@ export default function ClassesPage({ classes }: { classes: ClassWithMeta[] }) {
 					))}
 				</Box>
 			)}
+
+			<ContinueWatching />
 
 			{isAdmin ? (
 				<ClassDialog

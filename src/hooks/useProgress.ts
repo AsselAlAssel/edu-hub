@@ -9,10 +9,28 @@ export type VideoProgress = {
 	position: number;
 	watched: number;
 	completed: boolean;
-	/** Sent by GET only. */
+	// Sent by GET only (about the video, for links, totals and thumbnails).
 	classId?: string;
+	folderId?: string;
+	name?: string;
+	youtubeId?: string;
+	updatedAt?: string;
 };
-type Patch = Partial<Omit<VideoProgress, "videoId" | "classId">>;
+type Patch = Pick<Partial<VideoProgress>, "position" | "watched" | "completed">;
+
+/** Folder page URL that opens this video straight away (see ResourcesPage). */
+export const watchUrl = (item: VideoProgress) =>
+	`/class/${item.classId}/folder/${item.folderId}?v=${item.videoId}`;
+
+/** How many videos of a class the student has finished. */
+export const completedIn = (items: VideoProgress[], classId: string) =>
+	items.filter((item) => item.completed && item.classId === classId).length;
+
+/** Videos started but not finished, most recently watched first. */
+export const inProgress = (items: VideoProgress[]) =>
+	items
+		.filter((item) => !item.completed && item.position > 0 && item.folderId)
+		.sort((a, b) => (b.updatedAt ?? "").localeCompare(a.updatedAt ?? ""));
 
 const PROGRESS_KEY = "/api/progress";
 /** A video counts as finished once this share of it was actually played. */
@@ -44,7 +62,7 @@ export const formatTime = (totalSeconds: number) => {
 
 /** The signed-in student's progress; guests get an empty map and no requests. */
 export default function useProgress() {
-	const { data: session } = useSession();
+	const { data: session, status } = useSession();
 	const signedIn = !!session?.user;
 	const { data, mutate } = useSWR<VideoProgress[]>(
 		signedIn ? PROGRESS_KEY : null,
@@ -66,19 +84,23 @@ export default function useProgress() {
 				(list = []) => {
 					const previous = list.find((item) => item.videoId === videoId);
 					return [
+						// Newest first, keeping the video details GET added.
+						{ ...previous, ...saved, updatedAt: new Date().toISOString() },
 						...list.filter((item) => item !== previous),
-						{ ...saved, classId: previous?.classId },
 					];
 				},
-				// A first-time video gets its classId on the next fetch
-				// (SWR refetches when the classes page mounts).
+				// A first-time video gets its details on the next fetch
+				// (SWR refetches when another page mounts).
 				{ revalidate: false }
 			);
 		},
 		[mutate]
 	);
 
-	return { signedIn, byVideo, save };
+	// Known for sure: a guest, or a student whose progress has loaded.
+	const ready = signedIn ? data !== undefined : status !== "loading";
+
+	return { signedIn, ready, items: data ?? [], byVideo, save };
 }
 
 type Track = {
