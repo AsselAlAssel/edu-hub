@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 /** Google's multicolour "G" mark. */
-const GoogleLogo = () => (
+export const GoogleLogo = () => (
 	<svg width='20' height='20' viewBox='0 0 48 48' aria-hidden>
 		<path
 			fill='#EA4335'

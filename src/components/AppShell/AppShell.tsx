@@ -2,6 +2,7 @@ import ToastContext from "@/app/context/ToastContext";
 import BackToTopFab from "@/components/Common/BackToTopFab";
 import Header from "@/components/Common/Dashboard/Header";
 import FooterWrapper from "@/components/Footer/FooterWrapper";
+import WhatsNewDialog from "@/components/WhatsNew/WhatsNewDialog";
 import type { ReactNode } from "react";
 
 /** Skip link → sticky header → <main> landmark → footer → floating helpers. */
@@ -22,6 +23,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 			<FooterWrapper />
 			<BackToTopFab />
 			<ToastContext />
+			<WhatsNewDialog />
 		</>
 	);
 }
