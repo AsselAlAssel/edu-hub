@@ -5,8 +5,10 @@ const classInclude = {
 	_count: { select: { files: true, videos: true } },
 } as const;
 
-export const getClasses = () =>
+/** Public list; admins pass `includeHidden` to also get hidden classes. */
+export const getClasses = (includeHidden = false) =>
 	prisma.class.findMany({
+		where: includeHidden ? undefined : { hidden: false },
 		include: classInclude,
 		orderBy: { createdAt: "asc" },
 	});

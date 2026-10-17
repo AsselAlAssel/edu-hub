@@ -12,19 +12,33 @@ import useRole from "@/hooks/useRole";
 import type { ClassWithMeta } from "@/libs/class";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
-import { Box, Button } from "@mui/material";
-import { useState } from "react";
+import { Box, Button, Chip, Stack } from "@mui/material";
+import { useEffect, useState } from "react";
 
 // Admin-only UI: loaded on demand so visitors never download the form code.
 const ClassDialog = dynamic(() => import("@/components/ClassDialog"), {
 	ssr: false,
 });
 
+const FILTERS = {
+	all: { label: "الكل", match: () => true },
+	visible: { label: "الظاهرة", match: (c: ClassWithMeta) => !c.hidden },
+	hidden: { label: "المخفية", match: (c: ClassWithMeta) => c.hidden },
+} as const;
+type VisibilityFilter = keyof typeof FILTERS;
+
 export default function ClassesPage({ classes }: { classes: ClassWithMeta[] }) {
 	const { data, error, mutate } = useAllClass(classes);
 	const { isAdmin } = useRole();
 	const [createOpen, setCreateOpen] = useState(false);
-	const list = data ?? [];
+	const [filter, setFilter] = useState<VisibilityFilter>("all");
+	const all = data ?? [];
+	const list = isAdmin ? all.filter(FILTERS[filter].match) : all;
+
+	// The server render is the public (cached) list; admins refetch to get hidden classes.
+	useEffect(() => {
+		if (isAdmin) void mutate();
+	}, [isAdmin, mutate]);
 
 	const createButton = isAdmin ? (
 		<PrimaryButton
@@ -48,7 +62,36 @@ export default function ClassesPage({ classes }: { classes: ClassWithMeta[] }) {
 				actions={createButton}
 			/>
 
-			{error && !list.length ? (
+			{isAdmin && all.length ? (
+				<Stack
+					direction='row'
+					gap={1}
+					flexWrap='wrap'
+					role='group'
+					aria-label='تصفية الصفوف حسب الظهور'
+					sx={{ mb: 3 }}
+				>
+					{(Object.keys(FILTERS) as VisibilityFilter[]).map((key) => (
+						<Chip
+							key={key}
+							label={`${FILTERS[key].label} (${all.filter(FILTERS[key].match).length})`}
+							color={filter === key ? "primary" : "default"}
+							variant={filter === key ? "filled" : "outlined"}
+							aria-pressed={filter === key}
+							onClick={() => setFilter(key)}
+						/>
+					))}
+				</Stack>
+			) : null}
+
+			{isAdmin && all.length && !list.length ? (
+				<EmptyState
+					icon={<SchoolOutlinedIcon />}
+					title={
+						filter === "hidden" ? "لا توجد صفوف مخفية" : "لا توجد صفوف ظاهرة"
+					}
+				/>
+			) : error && !list.length ? (
 				<ErrorState
 					action={
 						<Button variant='outlined' onClick={() => void mutate()}>

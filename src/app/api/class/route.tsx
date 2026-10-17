@@ -1,5 +1,6 @@
 import {
 	cleanString,
+	getSessionUser,
 	isObjectId,
 	jsonError,
 	readJson,
@@ -89,7 +90,31 @@ export const DELETE = async (req: Request) => {
 	return NextResponse.json({ success: true }, { status: 200 });
 };
 
+/** Hides or shows a class: `{ id, hidden }`. */
+export const PATCH = async (req: NextRequest) => {
+	const denied = await requireAdmin();
+	if (denied) return denied;
+
+	const body = await readJson(req);
+	if (!isObjectId(body.id) || typeof body.hidden !== "boolean")
+		return jsonError("Missing Fields", 400);
+
+	const existing = await prisma.class.findUnique({ where: { id: body.id } });
+	if (!existing) return jsonError("Class not found", 404);
+
+	const updated = await prisma.class.update({
+		where: { id: body.id },
+		data: { hidden: body.hidden },
+	});
+
+	revalidatePath("/classes");
+	revalidatePath("/progress");
+	revalidatePath("/");
+	return NextResponse.json(updated, { status: 200 });
+};
+
 export const GET = async () => {
-	const classes = await getClasses();
+	const user = await getSessionUser();
+	const classes = await getClasses(user?.role === "ADMIN");
 	return NextResponse.json(classes);
 };

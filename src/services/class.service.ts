@@ -33,6 +33,14 @@ export async function updateClassRequest(arg: UpdateClassInput) {
 	return response.data;
 }
 
+export async function setClassHiddenRequest(arg: {
+	id: string;
+	hidden: boolean;
+}) {
+	const response = await axios.patch("/api/class", arg);
+	return response.data;
+}
+
 export async function deleteClassRequest(arg: DeleteClassInput) {
 	const response = await axios.delete("/api/class", { data: arg });
 	return response.data;

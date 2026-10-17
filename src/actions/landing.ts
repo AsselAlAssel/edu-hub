@@ -12,7 +12,7 @@ export type PlatformStats = { classes: number; videos: number; files: number };
 export async function getPlatformStats(): Promise<PlatformStats | null> {
 	try {
 		const [classes, videos, files] = await Promise.all([
-			prisma.class.count(),
+			prisma.class.count({ where: { hidden: false } }),
 			prisma.video.count(),
 			prisma.file.count(),
 		]);

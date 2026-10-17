@@ -3,6 +3,8 @@ import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
 import DriveFileRenameOutlineRoundedIcon from "@mui/icons-material/DriveFileRenameOutlineRounded";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
+import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { IconButton, ListItemIcon, Menu, MenuItem } from "@mui/material";
 import { useId, useState, type MouseEvent } from "react";
 
@@ -15,6 +17,9 @@ export type ActionsMenuProps = {
 	onDelete: () => void;
 	/** Optional "move to folder" action (keyboard alternative to drag-and-drop). */
 	onMove?: () => void;
+	/** Optional hide/show toggle; `hidden` is the current state. */
+	onToggleHidden?: () => void;
+	hidden?: boolean;
 };
 
 /** Admin ⋯ menu with edit + delete; keyboard and screen-reader friendly. */
@@ -25,6 +30,8 @@ export default function ActionsMenu({
 	onEdit,
 	onDelete,
 	onMove,
+	onToggleHidden,
+	hidden = false,
 }: ActionsMenuProps) {
 	const menuId = useId();
 	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -87,6 +94,18 @@ export default function ActionsMenu({
 							<DriveFileMoveOutlinedIcon fontSize='small' />
 						</ListItemIcon>
 						نقل إلى مجلد
+					</MenuItem>
+				) : null}
+				{onToggleHidden ? (
+					<MenuItem onClick={run(onToggleHidden)}>
+						<ListItemIcon>
+							{hidden ? (
+								<VisibilityOutlinedIcon fontSize='small' />
+							) : (
+								<VisibilityOffOutlinedIcon fontSize='small' />
+							)}
+						</ListItemIcon>
+						{hidden ? "إظهار للطلاب" : "إخفاء عن الطلاب"}
 					</MenuItem>
 				) : null}
 				<MenuItem onClick={run(onDelete)} sx={{ color: "error.main" }}>

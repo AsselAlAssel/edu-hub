@@ -60,6 +60,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 		description: `شروحات فيديو وملفات ${folderName ? `«${folderName}» في ` : ""}${classItem.name} من إعداد الأستاذ محمد صبح.`,
 		path: `/class/${params.classId}/folder/${params.folderId}`,
 		keywords: [classItem.name, "شروحات الفيزياء", "محمد صبح", "Mohammed Subuh"],
+		noIndex: classItem.hidden,
 	});
 }
 

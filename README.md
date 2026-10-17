@@ -126,6 +126,7 @@ A modern, full-stack SaaS application for managing educational content, classes,
 5. **Seed initial data (optional)**
    ```bash
    npx ts-node scripts/seed-ranks.ts
+   npx tsx scripts/backfill-class-hidden.ts  # sets hidden=false on old classes; safe to rerun
    ```
 
 ### Development

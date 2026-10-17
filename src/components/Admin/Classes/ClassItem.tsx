@@ -3,12 +3,14 @@ import dynamic from "next/dynamic";
 import ActionsMenu from "@/components/ui/ActionsMenu";
 import Surface from "@/components/ui/Surface";
 import { useDeleteClass } from "@/hooks/useClassApi";
+import { setClassHiddenRequest } from "@/services/class.service";
+import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import useRole from "@/hooks/useRole";
 import { getErrorMessage } from "@/libs/errors";
 import type { ClassWithMeta } from "@/libs/class";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import useProgress, { completedIn } from "@/hooks/useProgress";
-import { Box, LinearProgress, Stack, Typography } from "@mui/material";
+import { Box, Chip, LinearProgress, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import Image from "next/image";
 import { canOptimizeImage } from "@/libs/images";
@@ -81,6 +83,21 @@ export default function ClassItem({
 			setDeleteOpen(false);
 		} catch (error) {
 			toast.error(getErrorMessage(error, "تعذّر حذف الصف"));
+		}
+	};
+
+	const handleToggleHidden = async () => {
+		try {
+			await setClassHiddenRequest({
+				id: classItem.id,
+				hidden: !classItem.hidden,
+			});
+			await mutate("/api/class");
+			toast.success(
+				classItem.hidden ? "أصبح الصف ظاهراً للطلاب" : "تم إخفاء الصف عن الطلاب"
+			);
+		} catch (error) {
+			toast.error(getErrorMessage(error, "تعذّر تغيير ظهور الصف"));
 		}
 	};
 
@@ -160,6 +177,24 @@ export default function ClassItem({
 							</Box>
 						</Box>
 					)}
+					{classItem.hidden ? (
+						<Chip
+							size='small'
+							icon={<VisibilityOffOutlinedIcon />}
+							label='مخفي عن الطلاب'
+							sx={{
+								position: "absolute",
+								top: 12,
+								insetInlineStart: 12,
+								zIndex: 2,
+								fontWeight: 600,
+								color: "common.white",
+								backgroundColor: "rgba(0, 0, 0, 0.7)",
+								backdropFilter: "blur(4px)",
+								"& .MuiChip-icon": { color: "inherit" },
+							}}
+						/>
+					) : null}
 				</Box>
 
 				<Stack
@@ -245,6 +280,8 @@ export default function ClassItem({
 							deleteLabel='حذف الصف'
 							onEdit={() => setEditOpen(true)}
 							onDelete={() => setDeleteOpen(true)}
+							onToggleHidden={handleToggleHidden}
+							hidden={classItem.hidden}
 						/>
 					) : null}
 				</Stack>
