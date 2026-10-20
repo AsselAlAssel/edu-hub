@@ -331,9 +331,9 @@ describe("file links need sign-in", () => {
 		return (await res.json()).files.map((file: { url: string }) => file.url);
 	};
 
-	it("guests get a placeholder instead of the URL; closed files stay closed", async () => {
+	it("guests get neither the URL nor the name", async () => {
 		asGuest();
-		expect(await getFiles()).toEqual(["signin", "#"]);
+		expect(await getFiles()).toEqual(["signin", "signin"]);
 	});
 
 	it("signed-in students get the real URL", async () => {

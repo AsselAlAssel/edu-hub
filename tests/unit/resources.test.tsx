@@ -10,7 +10,7 @@ import ResourcesPage, {
 	summarizeResources,
 } from "@/scenes/ResourcesPage/ResourcesPage";
 import { moveResourceItem } from "@/services/move.service";
-import { asAdmin, asUser, oid, renderWithTheme } from "../utils";
+import { asAdmin, asGuest, asUser, oid, renderWithTheme } from "../utils";
 
 vi.mock("@/services/move.service", () => ({
 	moveResourceItem: vi.fn(async () => ({})),
@@ -337,5 +337,18 @@ describe("resource dialogs", () => {
 			</>
 		);
 		expect(screen.getByRole("status")).toHaveTextContent("جارٍ التحميل");
+	});
+});
+
+describe("resource explorer (guest)", () => {
+	it("files are behind a sign-in box: no names, no links, no count", () => {
+		asGuest();
+		const locked = { ...file("4", ""), url: "signin" };
+		renderPage({ ...resources, files: [locked] });
+		expect(
+			screen.getByRole("button", { name: /سجّل الدخول للوصول للملفات/ })
+		).toBeInTheDocument();
+		expect(screen.queryByRole("link", { name: /تحميل/ })).toBeNull();
+		expect(screen.getByText("2 مجلدات · 1 فيديو")).toBeInTheDocument();
 	});
 });

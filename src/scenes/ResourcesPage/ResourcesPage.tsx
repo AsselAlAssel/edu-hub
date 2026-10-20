@@ -83,7 +83,12 @@ export function summarizeResources(data: ResourceData) {
 	const parts = [
 		[data.folders.length, "مجلد", "مجلدات"],
 		[data.videos.length, "فيديو", "فيديوهات"],
-		[data.files.length, "ملف", "ملفات"],
+		// Locked files (guests) aren't counted: the page doesn't reveal them.
+		[
+			data.files.filter((file) => file.url !== SIGNIN_FILE_URL).length,
+			"ملف",
+			"ملفات",
+		],
 	] as const;
 	return parts
 		.filter(([count]) => count > 0)
