@@ -70,6 +70,8 @@ export default async function Page(props: Props) {
 	if (!loaded) notFound();
 
 	const { classItem, breadcrumb, rootFolderId } = loaded;
+	// Cached for everyone, so no file links here: signed-in users get them
+	// from /api/resources (see ResourcesPage).
 	const resources = await getResources(params.folderId);
 
 	const folderUrl = (id: string) =>

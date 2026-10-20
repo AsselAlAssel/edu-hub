@@ -314,3 +314,30 @@ describe("student accounts (Google sign-in)", () => {
 		expect(prisma.user.update).not.toHaveBeenCalled();
 	});
 });
+
+describe("file links need sign-in", () => {
+	const files = [
+		{ id: "1", url: "https://cdn.x/a.pdf" },
+		{ id: "2", url: "#" },
+	];
+	const getFiles = async () => {
+		prisma.folder.findMany.mockResolvedValue([]);
+		prisma.video.findMany.mockResolvedValue([]);
+		prisma.file.findMany.mockResolvedValue(files);
+		const route = await import("@/app/api/resources/[folderId]/route");
+		const res = await route.GET(req("GET"), {
+			params: Promise.resolve({ folderId: FOLDER_ID }),
+		});
+		return (await res.json()).files.map((file: { url: string }) => file.url);
+	};
+
+	it("guests get a placeholder instead of the URL; closed files stay closed", async () => {
+		asGuest();
+		expect(await getFiles()).toEqual(["signin", "#"]);
+	});
+
+	it("signed-in students get the real URL", async () => {
+		asUser();
+		expect(await getFiles()).toEqual(["https://cdn.x/a.pdf", "#"]);
+	});
+});

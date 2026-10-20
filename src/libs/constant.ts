@@ -23,3 +23,6 @@ export function getYouTubeVideoID(url: string) {
 	const match = url.match(regex);
 	return match ? match[1] : null;
 }
+
+/** Stands in for a file's URL until the student signs in (see getResources). */
+export const SIGNIN_FILE_URL = "signin";

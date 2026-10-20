@@ -1,3 +1,4 @@
+import { SIGNIN_FILE_URL } from "./constant";
 import { prisma } from "./prismaDb";
 
 const classInclude = {
@@ -21,7 +22,11 @@ export const getClass = (classId: string) =>
 		include: classInclude,
 	});
 
-export const getResources = async (folderId: string) => {
+/**
+ * A folder's contents. File links go only to signed-in users (`withFileUrls`);
+ * guests get SIGNIN_FILE_URL instead. Closed files ("#") stay as they are.
+ */
+export const getResources = async (folderId: string, withFileUrls = false) => {
 	const orderBy = [{ rank: "asc" as const }, { createdAt: "asc" as const }];
 	const [folders, videos, files] = await Promise.all([
 		prisma.folder.findMany({ where: { parentFolderId: folderId }, orderBy }),
@@ -29,7 +34,12 @@ export const getResources = async (folderId: string) => {
 		prisma.file.findMany({ where: { folderId }, orderBy }),
 	]);
 
-	return { folders, files, videos };
+	const lock = (file: (typeof files)[number]) =>
+		withFileUrls || !file.url || file.url === "#"
+			? file
+			: { ...file, url: SIGNIN_FILE_URL };
+
+	return { folders, files: files.map(lock), videos };
 };
 
 export type Resources = Awaited<ReturnType<typeof getResources>>;
