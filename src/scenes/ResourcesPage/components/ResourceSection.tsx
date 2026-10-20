@@ -14,7 +14,8 @@ export default function ResourceSection({
 }: {
 	id: string;
 	title: string;
-	count: number;
+	/** Hidden when undefined (e.g. files locked until sign-in). */
+	count?: number;
 	icon: ReactNode;
 	children: ReactNode;
 }) {
@@ -52,25 +53,29 @@ export default function ResourceSection({
 					>
 						{title}
 					</Typography>
-					<Box
-						component='span'
-						className='qa-latin'
-						sx={(theme) => ({
-							minWidth: 28,
-							px: 1,
-							py: 0.125,
-							borderRadius: `${theme.tokens.radii.full}px`,
-							textAlign: "center",
-							fontSize: "0.8125rem",
-							fontWeight: 700,
-							color:
-								theme.palette.mode === "dark" ? theme.tokens.colors.bg : "#fff",
-							backgroundImage: theme.tokens.gradients.primary,
-						})}
-					>
-						{count}
-						<span className='qa-visually-hidden'> عنصر</span>
-					</Box>
+					{count === undefined ? null : (
+						<Box
+							component='span'
+							className='qa-latin'
+							sx={(theme) => ({
+								minWidth: 28,
+								px: 1,
+								py: 0.125,
+								borderRadius: `${theme.tokens.radii.full}px`,
+								textAlign: "center",
+								fontSize: "0.8125rem",
+								fontWeight: 700,
+								color:
+									theme.palette.mode === "dark"
+										? theme.tokens.colors.bg
+										: "#fff",
+								backgroundImage: theme.tokens.gradients.primary,
+							})}
+						>
+							{count}
+							<span className='qa-visually-hidden'> عنصر</span>
+						</Box>
+					)}
 					{/* Rule that fills the rest of the row. */}
 					<Box
 						aria-hidden

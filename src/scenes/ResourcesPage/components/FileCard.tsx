@@ -5,36 +5,14 @@ import Surface from "@/components/ui/Surface";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Box, Stack, Typography } from "@mui/material";
-import { alpha, type Theme } from "@mui/material/styles";
+import { alpha } from "@mui/material/styles";
 import type { File } from "@prisma/client";
-import { signInWithGoogle } from "@/components/Auth/GoogleSigninDialog";
-import { SIGNIN_FILE_URL } from "@/libs/constant";
 import type { ReactNode } from "react";
 import { getFileTypeInfo } from "./fileTypes";
 
 /** A file is "closed" when stored with the "#" placeholder URL. */
 export const isFileAvailable = (file: Pick<File, "url">) =>
 	!!file.url && file.url !== "#";
-
-/** The file name as a link/button whose hit area covers the whole card. */
-const stretchedSx = (theme: Theme) => ({
-	all: "unset" as const,
-	color: "text.primary",
-	textDecoration: "none",
-	cursor: "pointer",
-	"&::after": {
-		content: '""',
-		position: "absolute" as const,
-		inset: 0,
-		zIndex: 1,
-	},
-	"&:focus-visible": { outline: "none" },
-	"&:focus-visible::after": {
-		outline: `2px solid ${theme.palette.primary.main}`,
-		outlineOffset: -2,
-		borderRadius: `${theme.tokens.radii.lg}px`,
-	},
-});
 
 export default function FileCard({
 	file,
@@ -52,12 +30,11 @@ export default function FileCard({
 	onMove?: () => void;
 }) {
 	const info = getFileTypeInfo(file.type);
-	const needsSignin = file.url === SIGNIN_FILE_URL;
-	const available = isFileAvailable(file) && !needsSignin;
+	const available = isFileAvailable(file);
 
 	return (
 		<Surface
-			interactive={available || needsSignin}
+			interactive={available}
 			component='article'
 			data-testid='file-card'
 			sx={(theme) => {
@@ -126,17 +103,7 @@ export default function FileCard({
 					overflowWrap: "anywhere",
 				}}
 			>
-				{needsSignin ? (
-					<Box
-						component='button'
-						type='button'
-						onClick={signInWithGoogle}
-						aria-label={`سجّل الدخول بحساب Google لتحميل ${file.name}`}
-						sx={stretchedSx}
-					>
-						{file.name}
-					</Box>
-				) : available ? (
+				{available ? (
 					<Box
 						component='a'
 						href={file.url}
@@ -144,7 +111,22 @@ export default function FileCard({
 						rel='noopener noreferrer'
 						download
 						aria-label={`تحميل ${file.name} (${info.label})`}
-						sx={stretchedSx}
+						sx={(theme) => ({
+							color: "text.primary",
+							textDecoration: "none",
+							"&::after": {
+								content: '""',
+								position: "absolute",
+								inset: 0,
+								zIndex: 1,
+							},
+							"&:focus-visible": { outline: "none" },
+							"&:focus-visible::after": {
+								outline: `2px solid ${theme.palette.primary.main}`,
+								outlineOffset: -2,
+								borderRadius: `${theme.tokens.radii.lg}px`,
+							},
+						})}
 					>
 						{file.name}
 					</Box>
@@ -197,17 +179,12 @@ export default function FileCard({
 					aria-hidden
 					className='qa-download'
 					sx={{
-						color: available || needsSignin ? "primary.main" : "text.secondary",
+						color: available ? "primary.main" : "text.secondary",
 						fontWeight: 600,
 						fontSize: "0.875rem",
 					}}
 				>
-					{needsSignin ? (
-						<>
-							<LockOutlinedIcon sx={{ fontSize: 18 }} />
-							سجّل الدخول للتحميل
-						</>
-					) : available ? (
+					{available ? (
 						<>
 							<FileDownloadOutlinedIcon sx={{ fontSize: 18 }} />
 							تحميل

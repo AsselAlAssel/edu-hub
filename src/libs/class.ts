@@ -23,8 +23,8 @@ export const getClass = (classId: string) =>
 	});
 
 /**
- * A folder's contents. File links go only to signed-in users (`withFileUrls`);
- * guests get SIGNIN_FILE_URL instead. Closed files ("#") stay as they are.
+ * A folder's contents. Files go only to signed-in users (`withFileUrls`):
+ * guests get them without name or link (url = SIGNIN_FILE_URL).
  */
 export const getResources = async (folderId: string, withFileUrls = false) => {
 	const orderBy = [{ rank: "asc" as const }, { createdAt: "asc" as const }];
@@ -35,9 +35,7 @@ export const getResources = async (folderId: string, withFileUrls = false) => {
 	]);
 
 	const lock = (file: (typeof files)[number]) =>
-		withFileUrls || !file.url || file.url === "#"
-			? file
-			: { ...file, url: SIGNIN_FILE_URL };
+		withFileUrls ? file : { ...file, name: "", url: SIGNIN_FILE_URL };
 
 	return { folders, files: files.map(lock), videos };
 };
