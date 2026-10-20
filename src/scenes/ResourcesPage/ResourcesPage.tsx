@@ -9,6 +9,7 @@ import { EmptyState, ErrorState } from "@/components/ui/States";
 import useProgress, { useWatchTracker } from "@/hooks/useProgress";
 import { useResource } from "@/hooks/useResourceApi";
 import useRole from "@/hooks/useRole";
+import { SIGNIN_FILE_URL } from "@/libs/constant";
 import {
 	closestCenter,
 	DndContext,
@@ -117,6 +118,11 @@ export default function ResourcesPage({
 	const actions = useResourceMutations(folderId, classId);
 	const progress = useProgress();
 	const tracker = useWatchTracker(progress.save, progress.signedIn && !isAdmin);
+	// The cached page has no file links; fetch them once the user is known.
+	const hasLockedFiles = files.some((file) => file.url === SIGNIN_FILE_URL);
+	useEffect(() => {
+		if (progress.signedIn && hasLockedFiles) void mutate();
+	}, [progress.signedIn, hasLockedFiles, mutate]);
 
 	const [dialog, setDialog] = useState<DialogState>(null);
 	const [addMenuAnchor, setAddMenuAnchor] = useState<HTMLElement | null>(null);
