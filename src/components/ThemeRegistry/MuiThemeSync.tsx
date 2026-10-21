@@ -24,12 +24,12 @@ const subscribe = (onChange: () => void) => {
 };
 
 const readMode = (): EduColorMode =>
-	document.documentElement.classList.contains("light") ? "light" : "dark";
+	document.documentElement.classList.contains("dark") ? "dark" : "light";
 
-// The server renders the default (dark) theme; during hydration React uses this
+// The server renders the default (light) theme; during hydration React uses this
 // snapshot, so the first client render matches the server HTML exactly (React
 // does not patch mismatched classNames), then switches to the real mode.
-const serverMode = (): EduColorMode => "dark";
+const serverMode = (): EduColorMode => "light";
 
 /** Bridges the page's colour mode to MUI's `createTheme`. */
 export default function MuiThemeSync({
@@ -45,8 +45,8 @@ export default function MuiThemeSync({
 		[direction, colorMode]
 	);
 
-	// Reveal the page (hidden by the root layout's script for a saved light
-	// theme) once MUI renders the real mode, not the hydration-time dark one.
+	// Reveal the page (hidden by the root layout's script for a saved dark
+	// theme) once MUI renders the real mode, not the hydration-time light one.
 	useEffect(() => {
 		if (colorMode === readMode())
 			document.documentElement.classList.remove("qa-theme-pending");

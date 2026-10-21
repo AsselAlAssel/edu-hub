@@ -90,7 +90,7 @@ export default function ThemeRegistry({
 	return (
 		<NextThemesProvider
 			attribute='class'
-			defaultTheme='dark'
+			defaultTheme='light'
 			enableSystem={false}
 			storageKey={THEME_STORAGE_KEY}
 			disableTransitionOnChange

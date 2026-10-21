@@ -3,7 +3,7 @@ import Logo from "@/components/AppShell/Logo";
 import PageContainer from "@/components/PageContainer";
 import { NAV_ITEMS } from "@/constants/navigation";
 import FacebookRoundedIcon from "@mui/icons-material/FacebookRounded";
-import GitHubIcon from "@mui/icons-material/GitHub";
+import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import { Box, IconButton, Stack, Typography } from "@mui/material";
 import Link from "next/link";
@@ -22,8 +22,14 @@ const SOCIAL_LINKS = [
 ];
 
 const DEVELOPER = {
-	name: "Aseel AlAseel",
-	href: "https://github.com/AsselAlAssel",
+	name: "Aseel Hussain AlAli",
+	links: [
+		{
+			label: "الموقع الشخصي",
+			href: "https://aseel-portfolio-flax.vercel.app/",
+			icon: <LanguageRoundedIcon />,
+		},
+	],
 };
 
 export default function Footer() {
@@ -91,35 +97,9 @@ export default function Footer() {
 					gap={2}
 					sx={{ mt: 4, pt: 3, borderTop: 1, borderColor: "divider" }}
 				>
-					<Stack spacing={0.5}>
-						<Typography variant='caption' sx={{ color: "text.secondary" }}>
-							© {new Date().getFullYear()} محمد صبح. جميع الحقوق محفوظة.
-						</Typography>
-						<Typography variant='caption' sx={{ color: "text.secondary" }}>
-							تصميم وتطوير{" "}
-							<Box
-								component='a'
-								href={DEVELOPER.href}
-								target='_blank'
-								rel='noopener noreferrer'
-								aria-label={`${DEVELOPER.name} على GitHub (يفتح في نافذة جديدة)`}
-								sx={{
-									display: "inline-flex",
-									alignItems: "center",
-									gap: 0.5,
-									verticalAlign: "middle",
-									color: "text.primary",
-									fontWeight: 700,
-									textDecoration: "none",
-									"&:hover": { color: "primary.main" },
-									"& svg": { fontSize: 14 },
-								}}
-							>
-								<GitHubIcon aria-hidden />
-								<span className='qa-latin'>{DEVELOPER.name}</span>
-							</Box>
-						</Typography>
-					</Stack>
+					<Typography variant='caption' sx={{ color: "text.secondary" }}>
+						© {new Date().getFullYear()} محمد صبح. جميع الحقوق محفوظة.
+					</Typography>
 					<Stack direction='row' gap={1}>
 						{SOCIAL_LINKS.map((link) => (
 							<IconButton
@@ -137,6 +117,61 @@ export default function Footer() {
 							>
 								{link.icon}
 							</IconButton>
+						))}
+					</Stack>
+				</Stack>
+
+				<Stack
+					alignItems='center'
+					spacing={1}
+					sx={{ mt: 3, textAlign: "center" }}
+				>
+					<Typography sx={{ color: "text.secondary", fontSize: "0.9375rem" }}>
+						تصميم وتطوير
+					</Typography>
+					<Typography
+						className='qa-latin'
+						sx={{ fontWeight: 800, fontSize: { xs: "1.25rem", sm: "1.5rem" } }}
+					>
+						{DEVELOPER.name}
+					</Typography>
+					<Stack
+						direction='row'
+						gap={1}
+						flexWrap='wrap'
+						justifyContent='center'
+					>
+						{DEVELOPER.links.map((link) => (
+							<Box
+								key={link.href}
+								component='a'
+								href={link.href}
+								target='_blank'
+								rel='noopener noreferrer'
+								aria-label={`${link.label} لـ ${DEVELOPER.name} (يفتح في نافذة جديدة)`}
+								sx={{
+									display: "inline-flex",
+									alignItems: "center",
+									gap: 0.75,
+									px: 1.5,
+									py: 0.75,
+									border: 1,
+									borderColor: "divider",
+									borderRadius: 999,
+									color: "text.primary",
+									fontSize: "0.875rem",
+									fontWeight: 600,
+									textDecoration: "none",
+									"&:hover": {
+										color: "primary.main",
+										borderColor: "primary.main",
+									},
+									"& svg": { fontSize: 18 },
+								}}
+							>
+								{link.icon}
+								{link.label}
+							</Box>
 						))}
 					</Stack>
 				</Stack>
