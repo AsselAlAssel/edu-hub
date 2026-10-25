@@ -10,10 +10,18 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { Button, Stack, Typography } from "@mui/material";
 
-/** wa.me link with a ready message naming the unit and class. */
+/** "الصف العاشر" stays as is; "العاشر" becomes "الصف العاشر". */
+const classLabel = (name: string) =>
+	/^(ال)?صف/.test(name.trim()) ? name.trim() : `الصف ${name.trim()}`;
+
+/** wa.me link with a ready, polite message naming the unit and class. */
 export const subscribeLink = (number: string, unit: Unit, className: string) =>
 	`https://wa.me/${number}?text=${encodeURIComponent(
-		`مرحباً، أريد الاشتراك في «${unit.name}» من ${className}.`
+		[
+			"السلام عليكم ورحمة الله،",
+			`أرغب بالاشتراك في «${unit.name}» من ${classLabel(className)} (${unit.price} ₪).`,
+			"أرجو تزويدي بطريقة الدفع، وشكراً جزيلاً.",
+		].join("\n")
 	)}`;
 
 /** Locked paid-unit content: price + subscribe on WhatsApp (sign in first). */

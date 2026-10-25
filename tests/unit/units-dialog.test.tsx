@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { PublicUser } from "@/libs/users";
 import { parseUnitPrice } from "@/components/FolderForm/FolderForm";
 import UnitsDialog from "@/scenes/ProfilerPage/components/UnitsDialog";
+import { subscribeLink } from "@/scenes/ResourcesPage/components/PaywallDialog";
 import { renderWithTheme } from "../utils";
 
 vi.mock("axios", () => ({ default: { put: vi.fn(async () => ({})) } }));
@@ -40,8 +41,12 @@ describe("UnitsDialog", () => {
 			/>
 		);
 
-		expect(screen.getByLabelText("الوحدة 1 — 100 ₪")).toBeChecked();
-		await user.click(screen.getByLabelText("الوحدة 2 — 80 ₪"));
+		expect(
+			screen.getByRole("checkbox", { name: "الوحدة 1 — 100 ₪" })
+		).toBeChecked();
+		expect(screen.getByText("1 وحدة · 100 ₪")).toBeInTheDocument();
+		await user.click(screen.getByRole("checkbox", { name: "الوحدة 2 — 80 ₪" }));
+		expect(screen.getByText("2 وحدات · 180 ₪")).toBeInTheDocument();
 		await user.click(screen.getByRole("button", { name: "حفظ" }));
 
 		expect(axios.put).toHaveBeenCalledWith("/api/user/u1/units", {
@@ -58,5 +63,19 @@ describe("parseUnitPrice (new unit form)", () => {
 		for (const bad of ["0", "-5", "1.5", "abc", "100001"]) {
 			expect(parseUnitPrice(bad)).toBe("invalid");
 		}
+	});
+});
+
+describe("subscribeLink (WhatsApp)", () => {
+	const unit = { id: "u", name: "الوحدة الأولى", price: 100 };
+	const text = (className: string) =>
+		decodeURIComponent(
+			subscribeLink("970599000000", unit, className).split("?text=")[1]
+		);
+
+	it("names the unit, the class (with صف once) and the price, politely", () => {
+		expect(text("العاشر")).toContain("«الوحدة الأولى» من الصف العاشر (100 ₪)");
+		expect(text("الصف العاشر")).toContain("من الصف العاشر (");
+		expect(text("العاشر")).toMatch(/^السلام عليكم/);
 	});
 });

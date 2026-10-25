@@ -471,12 +471,15 @@ export default function UsersPanel() {
 								<Stack direction='row' alignItems='center' gap={1}>
 									<Button
 										size='small'
-										variant='outlined'
+										variant={unitCount(user) ? "contained" : "outlined"}
+										color={unitCount(user) ? "success" : "primary"}
 										startIcon={<SellOutlinedIcon />}
 										onClick={() => setUnitsFor(user)}
 										aria-label={`وحدات ${user.name || user.email}`}
 									>
-										الوحدات
+										{unitCount(user)
+											? `الوحدات (${unitCount(user)})`
+											: "فتح وحدات"}
 									</Button>
 									<Select
 										size='small'

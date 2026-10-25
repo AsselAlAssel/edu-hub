@@ -5,6 +5,7 @@ import type useProgress from "@/hooks/useProgress";
 import GoogleIcon from "@mui/icons-material/Google";
 import SmartDisplayOutlinedIcon from "@mui/icons-material/SmartDisplayOutlined";
 import { Box, Button, LinearProgress, Stack, Typography } from "@mui/material";
+import type { ResourceVideo } from "@/libs/class";
 import type { Video } from "@prisma/client";
 import { signInWithGoogle } from "@/components/Auth/GoogleSigninDialog";
 import toast from "react-hot-toast";
@@ -19,7 +20,7 @@ function ProgressSummary({
 	videos,
 	progress,
 }: {
-	videos: Video[];
+	videos: ResourceVideo[];
 	progress: Progress;
 }) {
 	if (!progress.signedIn) {
@@ -81,7 +82,7 @@ export default function VideosSection({
 	onMove,
 	isLocked = () => false,
 }: {
-	videos: Video[];
+	videos: ResourceVideo[];
 	isAdmin: boolean;
 	progress: Progress;
 	/** Paid-unit videos the student cannot open (shown with a lock). */

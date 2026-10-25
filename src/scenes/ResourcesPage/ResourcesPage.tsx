@@ -9,7 +9,6 @@ import { EmptyState, ErrorState } from "@/components/ui/States";
 import useProgress, { useWatchTracker } from "@/hooks/useProgress";
 import { useResource } from "@/hooks/useResourceApi";
 import useRole from "@/hooks/useRole";
-import { isBunnyUrl } from "@/libs/bunnyUrl";
 import { SIGNIN_FILE_URL } from "@/libs/constant";
 import {
 	closestCenter,
@@ -32,6 +31,7 @@ import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
 import SmartDisplayOutlinedIcon from "@mui/icons-material/SmartDisplayOutlined";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { Button, ListItemIcon, Menu, MenuItem, Stack } from "@mui/material";
+import type { ResourceVideo } from "@/libs/class";
 import type { Folder, Video } from "@prisma/client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import FilesSection from "./components/FilesSection";
@@ -146,8 +146,8 @@ export default function ResourcesPage({
 	useEffect(() => {
 		if (progress.signedIn && needsViewerData) void mutate();
 	}, [progress.signedIn, needsViewerData, mutate]);
-	const isLocked = (video: Video) =>
-		!isAdmin && isBunnyUrl(video.url) && access?.canOpen !== true;
+	// Decided on the server (getResources); admins always play.
+	const isLocked = (video: ResourceVideo) => !isAdmin && !!video.locked;
 
 	const [dialog, setDialog] = useState<DialogState>(null);
 	const [addMenuAnchor, setAddMenuAnchor] = useState<HTMLElement | null>(null);
@@ -158,10 +158,10 @@ export default function ResourcesPage({
 		if (dialog?.type === "play") tracker.stop();
 		setDialog(null);
 	};
-	const play = (video: Video) => {
+	const play = (video: ResourceVideo) => {
 		if (isLocked(video)) return setDialog({ type: "paywall" });
 		// Bunny playback is not tracked: its iframe reports no position.
-		if (isBunnyUrl(video.url)) return setDialog({ type: "bunny", video });
+		if (video.isBunny) return setDialog({ type: "bunny", video });
 		const saved = progress.byVideo.get(video.id);
 		tracker.start(video.id, saved);
 		setDialog({ type: "play", video, startAt: saved?.position ?? 0 });

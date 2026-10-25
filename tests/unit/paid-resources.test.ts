@@ -53,11 +53,38 @@ describe("getResources in a paid unit", () => {
 		expect(access.whatsAppNumber).toBe("970599000000");
 	});
 
-	it("locks files for students without the unit", async () => {
+	it("locks files for students without the unit: no link, no name", async () => {
 		const { files, access } = await run(student);
 		expect(files[0].url).toBe(PAID_FILE_URL);
+		expect(files[0].name).toBe("");
 		expect(JSON.stringify(files)).not.toContain(R2_URL);
 		expect(access.canOpen).toBe(false);
+	});
+
+	it("never sends a Bunny video's link or id; flags it instead", async () => {
+		const GUID = "594324c9-0b1e-48cc-945a-f1bd20716fc0";
+		prisma.video.findMany.mockResolvedValue([
+			{
+				id: "v1",
+				name: "شرح",
+				url: `https://iframe.mediadelivery.net/embed/789604/${GUID}`,
+				videoId: GUID,
+			},
+			{
+				id: "v2",
+				name: "مقدمة",
+				url: "https://youtu.be/dQw4w9WgXcQ",
+				videoId: "dQw4w9WgXcQ",
+			},
+		]);
+		const stranger = await run(student);
+		expect(JSON.stringify(stranger.videos)).not.toContain(GUID);
+		expect(stranger.videos[0]).toMatchObject({ isBunny: true, locked: true });
+		expect(stranger.videos[1].url).toBe("https://youtu.be/dQw4w9WgXcQ");
+
+		const owner = await run({ ...student, unlockedUnitIds: [UNIT] });
+		expect(owner.videos[0]).toMatchObject({ isBunny: true, locked: false });
+		expect(JSON.stringify(owner.videos)).not.toContain(GUID);
 	});
 
 	it("opens files for owners and admins", async () => {

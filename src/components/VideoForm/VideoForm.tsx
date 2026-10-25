@@ -43,9 +43,17 @@ export default function VideoForm({
 }: VideoFormProps) {
 	const { control, handleSubmit, reset, watch } = useForm<VideoFormValues>({
 		defaultValues: emptyValues,
-		mode: "onTouched",
+		// Errors only after a submit attempt, then live while fixing them.
+		mode: "onSubmit",
+		reValidateMode: "onChange",
 	});
-	const previewId = getYouTubeVideoID(watch("url") ?? "");
+	const url = (watch("url") ?? "").trim();
+	const previewId = getYouTubeVideoID(url);
+	const linkHint = previewId
+		? "فيديو يوتيوب: متاح للجميع."
+		: parseBunnyUrl(url)
+			? "فيديو Bunny: داخل وحدة مدفوعة يظهر للمشتركين فقط."
+			: " ";
 
 	useEffect(() => {
 		if (open) reset(emptyValues);
@@ -63,7 +71,7 @@ export default function VideoForm({
 			onClose={handleClose}
 			busy={busy}
 			title={title}
-			description='رابط يوتيوب = فيديو مجاني. رابط Bunny = فيديو مقفل لغير المشتركين بالوحدة.'
+			description='الصق رابط الفيديو من يوتيوب أو من Bunny.'
 			onSubmit={() => void submit()}
 			actions={
 				<>
@@ -92,7 +100,7 @@ export default function VideoForm({
 							required
 							inputProps={{ dir: "ltr" }}
 							error={!!error}
-							helperText={error?.message}
+							helperText={error?.message ?? linkHint}
 						/>
 					)}
 				/>

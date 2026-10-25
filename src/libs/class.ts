@@ -1,4 +1,6 @@
 import { canOpenUnit, getUnit, type Unit, type Viewer } from "./access";
+import type { Video } from "@prisma/client";
+import { isBunnyUrl } from "./bunnyUrl";
 import { PAID_FILE_URL, SIGNIN_FILE_URL } from "./constant";
 import { prisma } from "./prismaDb";
 
@@ -31,11 +33,12 @@ export const getClass = (classId: string) =>
 	});
 
 /**
- * A folder's contents as `viewer` may see them. Guests (no viewer) get files
- * without name or link (SIGNIN_FILE_URL); inside a paid unit the student has
- * not bought, files keep their name but lose their link (PAID_FILE_URL).
- * `access` drives the paywall; videos are locked on the client from it and
- * playback is checked again by /api/video/[id]/playback.
+ * A folder's contents as `viewer` may see them, and nothing more:
+ * - files: guests get neither name nor link (SIGNIN_FILE_URL); students
+ *   without the paid unit get neither either (PAID_FILE_URL).
+ * - Bunny videos never carry their link or Bunny id: the player asks
+ *   /api/video/[id]/playback (which re-checks access) and the card shows
+ *   /api/video/[id]/thumbnail. `locked` tells the card to show the paywall.
  */
 export const getResources = async (folderId: string, viewer?: Viewer) => {
 	const orderBy = [{ rank: "asc" as const }, { createdAt: "asc" as const }];
@@ -53,7 +56,11 @@ export const getResources = async (folderId: string, viewer?: Viewer) => {
 
 	const lock = (file: (typeof files)[number]) => {
 		if (!viewer) return { ...file, name: "", url: SIGNIN_FILE_URL };
-		return canOpen ? file : { ...file, url: PAID_FILE_URL };
+		return canOpen ? file : { ...file, name: "", url: PAID_FILE_URL };
+	};
+	const strip = (video: (typeof videos)[number]): ResourceVideo => {
+		if (!isBunnyUrl(video.url)) return video;
+		return { ...video, url: "", videoId: "", isBunny: true, locked: !canOpen };
 	};
 
 	const access: ResourceAccess = {
@@ -62,8 +69,16 @@ export const getResources = async (folderId: string, viewer?: Viewer) => {
 		ownedUnitIds: viewer?.unlockedUnitIds ?? [],
 		whatsAppNumber,
 	};
-	return { folders, files: files.map(lock), videos, access };
+	return {
+		folders,
+		files: files.map(lock),
+		videos: videos.map(strip),
+		access,
+	};
 };
+
+/** Bunny videos arrive without url/videoId, flagged instead. */
+export type ResourceVideo = Video & { isBunny?: boolean; locked?: boolean };
 
 export type ResourceAccess = {
 	unit: Unit | null;

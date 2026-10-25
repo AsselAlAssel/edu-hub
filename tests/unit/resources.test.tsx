@@ -108,7 +108,6 @@ beforeEach(() => {
 });
 
 describe("paid unit (student without it)", () => {
-	const GUID = "594324c9-0b1e-48cc-945a-f1bd20716fc0";
 	const paid = {
 		folders: [],
 		files: [file("4", "ملخص", "pdf", "paid")],
@@ -116,8 +115,11 @@ describe("paid unit (student without it)", () => {
 			video("6", "مقدمة مجانية"),
 			{
 				...video("7", "شرح مدفوع"),
-				url: `https://iframe.mediadelivery.net/embed/789604/${GUID}`,
-				videoId: GUID,
+				// As the server sends it: no link or Bunny id, flags instead.
+				url: "",
+				videoId: "",
+				isBunny: true,
+				locked: true,
 			},
 		],
 		access: {
