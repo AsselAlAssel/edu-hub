@@ -26,3 +26,6 @@ export function getYouTubeVideoID(url: string) {
 
 /** Stands in for a file's URL until the student signs in (see getResources). */
 export const SIGNIN_FILE_URL = "signin";
+
+/** Stands in for a file's URL inside a paid unit the student has not bought. */
+export const PAID_FILE_URL = "paid";
