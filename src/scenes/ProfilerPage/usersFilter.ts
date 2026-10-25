@@ -3,12 +3,18 @@ import type { PublicUser, RoleName } from "@/libs/users";
 export type RoleFilter = "ALL" | RoleName;
 export type JoinedFilter = "ALL" | "7" | "30";
 export type SortKey = "newest" | "oldest" | "name";
+export type SubscriptionFilter = "ALL" | "PAID";
 export type UserFilters = {
 	query: string;
 	role: RoleFilter;
 	joined: JoinedFilter;
 	sort: SortKey;
+	/** PAID: students with at least one unlocked unit. */
+	subscription?: SubscriptionFilter;
 };
+
+export const unitCount = (user: Pick<PublicUser, "unlockedUnitIds">) =>
+	user.unlockedUnitIds?.length ?? 0;
 
 const DAY = 86_400_000;
 
@@ -21,7 +27,7 @@ const joinedAt = (user: Pick<PublicUser, "createdAt">) =>
 
 export function filterUsers(
 	users: PublicUser[],
-	{ query, role, joined, sort }: UserFilters,
+	{ query, role, joined, sort, subscription = "ALL" }: UserFilters,
 	now = Date.now()
 ) {
 	const q = query.trim().toLowerCase();
@@ -33,6 +39,7 @@ export function filterUsers(
 					user.email?.toLowerCase().includes(q) ||
 					user.name?.toLowerCase().includes(q)) &&
 				(role === "ALL" || roleOf(user) === role) &&
+				(subscription === "ALL" || unitCount(user) > 0) &&
 				joinedAt(user) >= since
 		)
 		.sort((a, b) =>

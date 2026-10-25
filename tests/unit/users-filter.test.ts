@@ -28,6 +28,23 @@ const users = [
 ];
 const base = { query: "", role: "ALL", joined: "ALL", sort: "newest" } as const;
 
+describe("filterUsers by subscription", () => {
+	it("PAID keeps only students with at least one unit", () => {
+		const subscriber = {
+			...user("d", "Lina", 1),
+			unlockedUnitIds: ["u1"],
+		} as PublicUser;
+		expect(
+			filterUsers(
+				[...users, subscriber],
+				{ ...base, subscription: "PAID" },
+				NOW
+			).map((u) => u.id)
+		).toEqual(["d"]);
+		expect(filterUsers([...users, subscriber], base, NOW)).toHaveLength(4);
+	});
+});
+
 describe("filterUsers", () => {
 	it("filters by search, role (null role = USER) and join window", () => {
 		expect(
