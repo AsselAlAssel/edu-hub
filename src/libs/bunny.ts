@@ -1,6 +1,9 @@
 import { createHash } from "node:crypto";
 
-/** Short on purpose: long enough to start playback, short enough to test expiry. */
+/**
+ * How long a signed embed URL can be opened. It only gates loading the player:
+ * once loaded, Bunny issues its own CDN token (about 10 hours, measured 2026-10-25).
+ */
 export const BUNNY_TOKEN_TTL_SECONDS = 120;
 
 /**
@@ -28,20 +31,4 @@ export function signBunnyEmbedUrl({
 	url.searchParams.set("token", token);
 	url.searchParams.set("expires", String(expires));
 	return url.toString();
-}
-
-/** Only the account in BUNNY_TEST_EMAIL may use /bunny-test; unset = nobody. */
-export function canUseBunnyTest(user: { email?: string | null } | null) {
-	const allowed = process.env.BUNNY_TEST_EMAIL?.trim().toLowerCase();
-	return !!allowed && user?.email?.trim().toLowerCase() === allowed;
-}
-
-/** Server-only config for the /bunny-test page; null when anything is missing. */
-export function bunnyTestConfig() {
-	const libraryId = process.env.BUNNY_LIBRARY_ID?.trim();
-	const tokenKey = process.env.BUNNY_TOKEN_KEY?.trim();
-	const videoId = process.env.BUNNY_TEST_VIDEO_ID?.trim();
-	return libraryId && tokenKey && videoId
-		? { libraryId, tokenKey, videoId }
-		: null;
 }
