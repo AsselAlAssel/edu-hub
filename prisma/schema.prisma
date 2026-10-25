@@ -40,6 +40,8 @@ model User {
   session               Session?        @relation
   accounts              Account[]
   progress              VideoProgress[]
+  // Paid units (first-level folders) the admin unlocked for this student.
+  unlockedUnitIds       String[]        @db.ObjectId
 }
 
 // OAuth links (Google), required by the NextAuth Prisma adapter.
@@ -111,6 +113,8 @@ model Folder {
   videos         Video[]
   isRoot         Boolean  @default(false)
   rank           String?
+  // Set on a first-level folder: a paid unit, price in ILS.
+  price          Int?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
