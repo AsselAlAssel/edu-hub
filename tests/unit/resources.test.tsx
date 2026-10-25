@@ -277,7 +277,7 @@ describe("resource dialogs", () => {
 			screen.getByRole("button", { name: "إضافة الفيديو" })
 		);
 		expect(
-			await screen.findByText("أدخل رابط فيديو صالحاً من يوتيوب")
+			await screen.findByText("أدخل رابط فيديو صالحاً من يوتيوب أو Bunny")
 		).toBeInTheDocument();
 		expect(onSubmit).not.toHaveBeenCalled();
 

@@ -389,7 +389,7 @@ export default function ResourcesPage({
 									<ListItemIcon>
 										<SmartDisplayOutlinedIcon fontSize='small' />
 									</ListItemIcon>
-									فيديو من يوتيوب
+									إضافة فيديو
 								</MenuItem>
 								<MenuItem onClick={() => openCreate("file")}>
 									<ListItemIcon>

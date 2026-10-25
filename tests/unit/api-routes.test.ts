@@ -224,6 +224,35 @@ describe("validation", () => {
 		);
 	});
 
+	it("video POST stores Bunny links from our library without a thumbnail", async () => {
+		const guid = "594324c9-0b1e-48cc-945a-f1bd20716fc0";
+		vi.stubEnv("BUNNY_LIBRARY_ID", "789604");
+		prisma.folder.findUnique.mockResolvedValue({
+			id: FOLDER_ID,
+			classId: CLASS_ID,
+		});
+		prisma.video.findFirst.mockResolvedValue(null);
+		prisma.video.create.mockResolvedValue({ id: OTHER_ID });
+		const video = await import("@/app/api/video/route");
+		const post = (url: string) =>
+			video.POST(
+				req("POST", { name: "v", url, folderId: FOLDER_ID, classId: CLASS_ID })
+			);
+
+		expect(
+			(await post(`https://iframe.mediadelivery.net/embed/111/${guid}`)).status
+		).toBe(400);
+		expect(
+			(await post(`https://player.mediadelivery.net/play/789604/${guid}`))
+				.status
+		).toBe(201);
+		expect(prisma.video.create.mock.calls[0][0].data).toMatchObject({
+			videoId: guid,
+			url: `https://iframe.mediadelivery.net/embed/789604/${guid}`,
+			thumbnailUrl: "",
+		});
+	});
+
 	it("folder PUT renames by folderId and still accepts the legacy parentFolderId", async () => {
 		prisma.folder.findUnique.mockResolvedValue({
 			id: FOLDER_ID,

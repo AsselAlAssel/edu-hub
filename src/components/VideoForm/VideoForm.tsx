@@ -1,6 +1,7 @@
 "use client";
 import AppDialog from "@/components/ui/AppDialog";
 import { FormField } from "@/components/ui/FormField";
+import { parseBunnyUrl } from "@/libs/bunnyUrl";
 import { getYouTubeVideoID } from "@/libs/constant";
 import { SecondaryButton } from "@/components/ui/buttons";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -21,12 +22,16 @@ type VideoFormProps = {
 
 const emptyValues: VideoFormValues = { name: "", url: "" };
 
-/** Returns an Arabic error for an invalid YouTube URL, or true. */
+/** YouTube (free) or Bunny Stream (paid-unit) id, or null. */
+const videoIdOf = (url: string) =>
+	getYouTubeVideoID(url) ?? parseBunnyUrl(url)?.videoId ?? null;
+
+/** Returns an Arabic error for an invalid video URL, or true. */
 export function validateYouTubeUrl(value: string) {
 	if (!value.trim()) return "رابط الفيديو مطلوب";
-	return getYouTubeVideoID(value.trim())
+	return videoIdOf(value.trim())
 		? true
-		: "أدخل رابط فيديو صالحاً من يوتيوب";
+		: "أدخل رابط فيديو صالحاً من يوتيوب أو Bunny";
 }
 
 export default function VideoForm({
@@ -47,7 +52,7 @@ export default function VideoForm({
 	}, [open, reset]);
 
 	const submit = handleSubmit(async ({ name, url }) => {
-		const videoId = getYouTubeVideoID(url.trim());
+		const videoId = videoIdOf(url.trim());
 		if (!videoId) return;
 		await onSubmit({ name: name.trim(), url: url.trim(), videoId });
 	});
@@ -58,7 +63,7 @@ export default function VideoForm({
 			onClose={handleClose}
 			busy={busy}
 			title={title}
-			description='الصق رابط الفيديو من يوتيوب وسيُعرض داخل المنصة.'
+			description='رابط يوتيوب = فيديو مجاني. رابط Bunny = فيديو مقفل لغير المشتركين بالوحدة.'
 			onSubmit={() => void submit()}
 			actions={
 				<>
@@ -79,7 +84,7 @@ export default function VideoForm({
 					render={({ field, fieldState: { error } }) => (
 						<FormField
 							{...field}
-							label='رابط يوتيوب'
+							label='رابط يوتيوب أو Bunny'
 							placeholder='https://www.youtube.com/watch?v=…'
 							type='url'
 							inputMode='url'

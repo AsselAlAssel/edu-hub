@@ -6,6 +6,7 @@ import {
 	readJson,
 	requireAdmin,
 } from "@/libs/api";
+import { parseBunnyUrl } from "@/libs/bunnyUrl";
 import { getYouTubeVideoID } from "@/libs/constant";
 import { getRankAfterLast } from "@/libs/lexorank";
 import { prisma } from "@/libs/prismaDb";
@@ -25,8 +26,23 @@ export const POST = async (req: NextRequest) => {
 	}
 
 	// Derive the id server-side instead of trusting the client-supplied one.
-	const videoId = getYouTubeVideoID(url);
-	if (!videoId) return jsonError("Invalid YouTube url", 400);
+	// Bunny links become paid-unit videos; their thumbnails are token-protected,
+	// so the card shows a placeholder (empty thumbnailUrl).
+	const bunny = parseBunnyUrl(url);
+	if (bunny && bunny.libraryId !== process.env.BUNNY_LIBRARY_ID?.trim()) {
+		return jsonError("Bunny video from another library", 400);
+	}
+	const videoId = bunny ? bunny.videoId : getYouTubeVideoID(url);
+	if (!videoId) return jsonError("Invalid video url", 400);
+	const media = bunny
+		? {
+				url: `https://iframe.mediadelivery.net/embed/${bunny.libraryId}/${videoId}`,
+				thumbnailUrl: "",
+			}
+		: {
+				url,
+				thumbnailUrl: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+			};
 
 	const folder = await prisma.folder.findUnique({ where: { id: folderId } });
 	if (!folder) return jsonError("Folder not found", 404);
@@ -41,11 +57,10 @@ export const POST = async (req: NextRequest) => {
 	const video = await prisma.video.create({
 		data: {
 			name,
-			url,
 			folderId,
 			classId,
 			videoId,
-			thumbnailUrl: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+			...media,
 			rank: getRankAfterLast(lastVideo?.rank),
 		},
 	});
