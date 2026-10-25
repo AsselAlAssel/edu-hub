@@ -338,6 +338,12 @@ describe("file links need sign-in", () => {
 
 	it("signed-in students get the real URL", async () => {
 		asUser();
+		// Access is read from the DB, not the session.
+		prisma.user.findUnique.mockResolvedValue({
+			id: "b".repeat(24),
+			role: "USER",
+			unlockedUnitIds: [],
+		});
 		expect(await getFiles()).toEqual(["https://cdn.x/a.pdf", "#"]);
 	});
 });
