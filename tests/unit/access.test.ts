@@ -14,7 +14,7 @@ vi.mock("@/libs/folder", () => ({
 }));
 
 import { canOpenUnit, getUnit } from "@/libs/access";
-import { isBunnyUrl, parseBunnyUrl } from "@/libs/bunny";
+import { isBunnyUrl, parseBunnyUrl } from "@/libs/bunnyUrl";
 
 const GUID = "594324c9-0b1e-48cc-945a-f1bd20716fc0";
 const ROOT = "a".repeat(24);
