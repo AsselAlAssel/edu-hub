@@ -1,3 +1,4 @@
+import { isFirstLevelFolder } from "@/libs/access";
 import { revalidateResourcePages } from "@/libs/revalidate";
 import {
 	cleanString,
@@ -73,6 +74,35 @@ export const PUT = async (req: NextRequest) => {
 
 	revalidateResourcePages();
 	return NextResponse.json(folder, { status: 200 });
+};
+
+const MAX_UNIT_PRICE = 100_000;
+
+/** Sets (whole ILS) or clears (null) a unit's price; first-level folders only. */
+export const PATCH = async (req: NextRequest) => {
+	const denied = await requireAdmin();
+	if (denied) return denied;
+
+	const { folderId, price } = await readJson(req);
+	const validPrice =
+		price === null ||
+		(Number.isInteger(price) && price > 0 && price <= MAX_UNIT_PRICE);
+	if (!isObjectId(folderId) || !validPrice) {
+		return jsonError("Missing Fields", 400);
+	}
+
+	const folder = await prisma.folder.findUnique({ where: { id: folderId } });
+	if (!folder) return jsonError("Folder not found", 404);
+	if (!(await isFirstLevelFolder(folder))) {
+		return jsonError("Only a class's first-level folders can be priced", 400);
+	}
+
+	const updated = await prisma.folder.update({
+		where: { id: folderId },
+		data: { price },
+	});
+	revalidateResourcePages();
+	return NextResponse.json(updated, { status: 200 });
 };
 
 export const DELETE = async (req: NextRequest) => {
