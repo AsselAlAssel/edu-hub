@@ -451,7 +451,10 @@ export default function ResourcesPage({
 						open={dialog?.type === "create" && dialog.kind === "folder"}
 						handleClose={close}
 						busy={actions.pending === "folder"}
-						onSubmit={async (name) => closeOn(await actions.createFolder(name))}
+						withPrice={isRootFolder}
+						onSubmit={async (name, price) =>
+							closeOn(await actions.createFolder(name, price))
+						}
 					/>
 					<VideoForm
 						open={dialog?.type === "create" && dialog.kind === "video"}

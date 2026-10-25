@@ -3,7 +3,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { prisma, session } = vi.hoisted(() => ({
 	prisma: {
-		folder: { findUnique: vi.fn(), findMany: vi.fn(), update: vi.fn() },
+		folder: {
+			findUnique: vi.fn(),
+			findMany: vi.fn(),
+			findFirst: vi.fn(),
+			create: vi.fn(),
+			update: vi.fn(),
+		},
 		user: { findUnique: vi.fn(), update: vi.fn() },
 	},
 	session: { current: null as null | { user: Record<string, unknown> } },
@@ -16,7 +22,7 @@ vi.mock("next-auth", () => ({
 }));
 vi.mock("@/libs/revalidate", () => ({ revalidateResourcePages: vi.fn() }));
 
-import { PATCH } from "@/app/api/folder/route";
+import { PATCH, POST } from "@/app/api/folder/route";
 import { GET as listUnits } from "@/app/api/units/route";
 import { PUT as setUnits } from "@/app/api/user/[id]/units/route";
 
@@ -119,6 +125,36 @@ describe("PATCH /api/folder (unit price)", () => {
 			where: { id: UNIT },
 			data: { price: null },
 		});
+	});
+});
+
+describe("POST /api/folder with a price", () => {
+	const create = (parentFolderId: string, price?: unknown) =>
+		POST(
+			json("POST", { name: "الوحدة 2", classId: CLASS, parentFolderId, price })
+		);
+
+	beforeEach(() => {
+		asAdmin();
+		folders[ROOT] = { ...folders[ROOT], classId: CLASS };
+		folders[UNIT] = { ...folders[UNIT], classId: CLASS };
+		prisma.folder.findFirst.mockResolvedValue(null);
+		prisma.folder.create.mockImplementation(async ({ data }) => data);
+	});
+
+	it("creates a paid unit directly under the class root", async () => {
+		expect((await create(ROOT, 120)).status).toBe(201);
+		expect(prisma.folder.create.mock.lastCall?.[0].data.price).toBe(120);
+	});
+
+	it("keeps folders free without a price, and rejects nested or bad prices", async () => {
+		expect((await create(ROOT)).status).toBe(201);
+		expect(prisma.folder.create.mock.lastCall?.[0].data).not.toHaveProperty(
+			"price"
+		);
+		expect((await create(UNIT, 50)).status).toBe(400);
+		expect((await create(ROOT, 0)).status).toBe(400);
+		expect((await create(ROOT, "50")).status).toBe(400);
 	});
 });
 

@@ -79,13 +79,14 @@ export function useResourceMutations(folderId: string, classId: string) {
 	return {
 		pending,
 
-		createFolder: (name: string) =>
+		createFolder: (name: string, price: number | null = null) =>
 			withPending("folder", async () => {
 				try {
 					await createFolderRequest({
 						name,
 						parentFolderId: folderId,
 						classId,
+						price,
 					});
 					await mutate(key);
 					toast.success("تم إنشاء المجلد");

@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import axios from "axios";
 import { describe, expect, it, vi } from "vitest";
 import type { PublicUser } from "@/libs/users";
+import { parseUnitPrice } from "@/components/FolderForm/FolderForm";
 import UnitsDialog from "@/scenes/ProfilerPage/components/UnitsDialog";
 import { renderWithTheme } from "../utils";
 
@@ -47,5 +48,15 @@ describe("UnitsDialog", () => {
 			unitIds: ["unit-1", "unit-2"],
 		});
 		expect(onSaved).toHaveBeenCalled();
+	});
+});
+
+describe("parseUnitPrice (new unit form)", () => {
+	it("empty is free, whole numbers are prices, the rest is invalid", () => {
+		expect(parseUnitPrice("")).toBeNull();
+		expect(parseUnitPrice(" 120 ")).toBe(120);
+		for (const bad of ["0", "-5", "1.5", "abc", "100001"]) {
+			expect(parseUnitPrice(bad)).toBe("invalid");
+		}
 	});
 });

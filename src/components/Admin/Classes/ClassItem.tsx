@@ -4,6 +4,7 @@ import ActionsMenu from "@/components/ui/ActionsMenu";
 import Surface from "@/components/ui/Surface";
 import { useDeleteClass } from "@/hooks/useClassApi";
 import { setClassHiddenRequest } from "@/services/class.service";
+import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import useRole from "@/hooks/useRole";
 import { getErrorMessage } from "@/libs/errors";
@@ -186,6 +187,24 @@ export default function ClassItem({
 								position: "absolute",
 								top: 12,
 								insetInlineStart: 12,
+								zIndex: 2,
+								fontWeight: 600,
+								color: "common.white",
+								backgroundColor: "rgba(0, 0, 0, 0.7)",
+								backdropFilter: "blur(4px)",
+								"& .MuiChip-icon": { color: "inherit" },
+							}}
+						/>
+					) : null}
+					{classItem._count?.folders ? (
+						<Chip
+							size='small'
+							icon={<SellOutlinedIcon />}
+							label='فيه وحدات مدفوعة'
+							sx={{
+								position: "absolute",
+								top: 12,
+								insetInlineEnd: 12,
 								zIndex: 2,
 								fontWeight: 600,
 								color: "common.white",

@@ -4,7 +4,14 @@ import { prisma } from "./prismaDb";
 
 const classInclude = {
 	folders: { where: { isRoot: true } },
-	_count: { select: { files: true, videos: true } },
+	// `folders` counts paid units (only first-level folders can be priced).
+	_count: {
+		select: {
+			files: true,
+			videos: true,
+			folders: { where: { price: { not: null } } },
+		},
+	},
 } as const;
 
 /** Public list; admins pass `includeHidden` to also get hidden classes. */

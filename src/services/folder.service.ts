@@ -4,6 +4,8 @@ export type CreateFolderInput = {
 	name: string;
 	parentFolderId: string;
 	classId: string;
+	/** Set only for a class first-level folder: makes it a paid unit. */
+	price?: number | null;
 };
 
 export type UpdateFolderInput = {
