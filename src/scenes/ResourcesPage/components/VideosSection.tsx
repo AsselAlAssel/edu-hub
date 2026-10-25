@@ -79,10 +79,13 @@ export default function VideosSection({
 	onRename,
 	onDelete,
 	onMove,
+	isLocked = () => false,
 }: {
 	videos: Video[];
 	isAdmin: boolean;
 	progress: Progress;
+	/** Paid-unit videos the student cannot open (shown with a lock). */
+	isLocked?: (video: Video) => boolean;
 	onAdd: () => void;
 	onPlay: (video: Video) => void;
 	onRename: (video: Video) => void;
@@ -121,8 +124,9 @@ export default function VideosSection({
 						handle={handle}
 						isAdmin={isAdmin}
 						progress={progress.byVideo.get(video.id)}
+						locked={isLocked(video)}
 						onToggleDone={
-							progress.signedIn && !isAdmin
+							progress.signedIn && !isAdmin && !isLocked(video)
 								? (completed) => void toggleDone(video, completed)
 								: undefined
 						}

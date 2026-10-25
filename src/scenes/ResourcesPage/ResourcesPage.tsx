@@ -9,6 +9,7 @@ import { EmptyState, ErrorState } from "@/components/ui/States";
 import useProgress, { useWatchTracker } from "@/hooks/useProgress";
 import { useResource } from "@/hooks/useResourceApi";
 import useRole from "@/hooks/useRole";
+import { isBunnyUrl } from "@/libs/bunnyUrl";
 import { SIGNIN_FILE_URL } from "@/libs/constant";
 import {
 	closestCenter,
@@ -68,6 +69,15 @@ const VideoPlayer = dynamic(() => import("@/components/VideoPlayer"), {
 const MoveDialog = dynamic(() => import("./components/MoveDialog"), {
 	ssr: false,
 });
+const BunnyPlayer = dynamic(() => import("@/components/BunnyPlayer"), {
+	ssr: false,
+});
+const PaywallDialog = dynamic(() => import("./components/PaywallDialog"), {
+	ssr: false,
+});
+const PriceDialog = dynamic(() => import("./components/PriceDialog"), {
+	ssr: false,
+});
 
 type Named = { id: string; name: string };
 type DialogState =
@@ -76,6 +86,9 @@ type DialogState =
 	| { type: "delete"; kind: ResourceKind; item: Named }
 	| { type: "move"; kind: "file" | "video"; item: Named }
 	| { type: "play"; video: Video; startAt: number }
+	| { type: "bunny"; video: Video }
+	| { type: "paywall" }
+	| { type: "price"; folder: Folder }
 	| null;
 
 /** "4 مجلدات · 6 فيديوهات · 3 ملفات" from real counts. */
@@ -123,11 +136,18 @@ export default function ResourcesPage({
 	const actions = useResourceMutations(folderId, classId);
 	const progress = useProgress();
 	const tracker = useWatchTracker(progress.save, progress.signedIn && !isAdmin);
-	// The cached page has no file links; fetch them once the user is known.
+	// The cached page is the guest view: no file links, every paid unit locked.
+	// Once the user is known, fetch their own view (links, bought units).
+	const access = data.access;
 	const hasLockedFiles = files.some((file) => file.url === SIGNIN_FILE_URL);
+	const hasPaidContent =
+		!!access?.unit?.price || folders.some((folder) => folder.price);
+	const needsViewerData = hasLockedFiles || hasPaidContent;
 	useEffect(() => {
-		if (progress.signedIn && hasLockedFiles) void mutate();
-	}, [progress.signedIn, hasLockedFiles, mutate]);
+		if (progress.signedIn && needsViewerData) void mutate();
+	}, [progress.signedIn, needsViewerData, mutate]);
+	const isLocked = (video: Video) =>
+		!isAdmin && isBunnyUrl(video.url) && access?.canOpen !== true;
 
 	const [dialog, setDialog] = useState<DialogState>(null);
 	const [addMenuAnchor, setAddMenuAnchor] = useState<HTMLElement | null>(null);
@@ -139,6 +159,9 @@ export default function ResourcesPage({
 		setDialog(null);
 	};
 	const play = (video: Video) => {
+		if (isLocked(video)) return setDialog({ type: "paywall" });
+		// Bunny playback is not tracked: its iframe reports no position.
+		if (isBunnyUrl(video.url)) return setDialog({ type: "bunny", video });
 		const saved = progress.byVideo.get(video.id);
 		tracker.start(video.id, saved);
 		setDialog({ type: "play", video, startAt: saved?.position ?? 0 });
@@ -291,10 +314,17 @@ export default function ResourcesPage({
 				onCreate={() => openCreate("folder")}
 				onRename={rename("folder")}
 				onDelete={remove("folder")}
+				ownedUnitIds={access?.ownedUnitIds}
+				onPrice={
+					isAdmin && isRootFolder
+						? (folder) => setDialog({ type: "price", folder })
+						: undefined
+				}
 			/>
 			<VideosSection
 				videos={videos}
 				isAdmin={isAdmin}
+				isLocked={isLocked}
 				onAdd={() => openCreate("video")}
 				onPlay={play}
 				progress={progress}
@@ -309,6 +339,7 @@ export default function ResourcesPage({
 				onRename={rename("file")}
 				onDelete={remove("file")}
 				onMove={move("file")}
+				onSubscribe={() => setDialog({ type: "paywall" })}
 			/>
 		</Stack>
 	);
@@ -474,6 +505,11 @@ export default function ResourcesPage({
 							await actions.remove(dialog.kind, dialog.item.id);
 						}}
 					/>
+					<PriceDialog
+						folder={dialog?.type === "price" ? dialog.folder : null}
+						onClose={close}
+						onSaved={() => void mutate()}
+					/>
 					<MoveDialog
 						open={dialog?.type === "move"}
 						itemName={dialog?.type === "move" ? dialog.item.name : ""}
@@ -501,6 +537,20 @@ export default function ResourcesPage({
 				title={dialog?.type === "play" ? dialog.video.name : undefined}
 				startAt={dialog?.type === "play" ? dialog.startAt : 0}
 				onProgress={tracker.onProgress}
+			/>
+			<BunnyPlayer
+				open={dialog?.type === "bunny"}
+				handleClose={close}
+				videoId={dialog?.type === "bunny" ? dialog.video.id : ""}
+				title={dialog?.type === "bunny" ? dialog.video.name : undefined}
+			/>
+			<PaywallDialog
+				open={dialog?.type === "paywall"}
+				onClose={close}
+				unit={access?.unit ?? null}
+				className={className}
+				whatsAppNumber={access?.whatsAppNumber ?? null}
+				signedIn={progress.signedIn}
 			/>
 		</PageShell>
 	);

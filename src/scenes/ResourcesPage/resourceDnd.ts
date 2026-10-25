@@ -1,10 +1,13 @@
 import type { File, Folder, Video } from "@prisma/client";
+import type { ResourceAccess } from "@/libs/class";
 
 export type ResourceKind = "folder" | "file" | "video";
 export type ResourceData = {
 	folders: Folder[];
 	files: File[];
 	videos: Video[];
+	/** Paid-unit state for the current viewer (see getResources). */
+	access?: ResourceAccess;
 };
 
 export const dataKey = {

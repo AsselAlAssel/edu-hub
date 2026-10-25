@@ -39,11 +39,10 @@ export const getResources = async (folderId: string, viewer?: Viewer) => {
 		getUnit(folderId),
 	]);
 	const canOpen = canOpenUnit(viewer ?? null, unit);
-	const whatsAppNumber = unit?.price
-		? ((
-				await prisma.landingPage.findFirst({ select: { whatsAppNumber: true } })
-			)?.whatsAppNumber ?? null)
+	const landing = unit?.price
+		? await prisma.landingPage.findFirst({ select: { whatsAppNumber: true } })
 		: null;
+	const whatsAppNumber = landing?.whatsAppNumber ?? null;
 
 	const lock = (file: (typeof files)[number]) => {
 		if (!viewer) return { ...file, name: "", url: SIGNIN_FILE_URL };

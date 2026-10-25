@@ -3,6 +3,7 @@ import ActionsMenu from "@/components/ui/ActionsMenu";
 import Surface from "@/components/ui/Surface";
 import { formatTime, type VideoProgress } from "@/hooks/useProgress";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import RadioButtonUncheckedRoundedIcon from "@mui/icons-material/RadioButtonUncheckedRounded";
 import {
@@ -19,12 +20,20 @@ import Image from "next/image";
 import { canOptimizeImage } from "@/libs/images";
 import type { ReactNode } from "react";
 
+/** Bunny thumbnails are token-protected, so Bunny videos show a placeholder. */
+export const VIDEO_PLACEHOLDER = "/images/video-placeholder.svg";
+
+// Bunny ids are UUIDs (36 chars); YouTube ids are 11 chars.
+const isBunnyVideoId = (videoId: string) => videoId.length === 36;
+
 export const youtubeThumbnail = (
 	video: Pick<Video, "videoId" | "thumbnailUrl">
-) =>
-	video.videoId
+) => {
+	if (video.videoId && isBunnyVideoId(video.videoId)) return VIDEO_PLACEHOLDER;
+	return video.videoId
 		? `https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg`
 		: video.thumbnailUrl;
+};
 
 export default function VideoCard({
 	video,
@@ -36,6 +45,7 @@ export default function VideoCard({
 	onMove,
 	progress,
 	onToggleDone,
+	locked = false,
 }: {
 	video: Video;
 	handle?: ReactNode;
@@ -47,14 +57,18 @@ export default function VideoCard({
 	progress?: VideoProgress;
 	/** Present for signed-in students: the manual "finished" toggle. */
 	onToggleDone?: (completed: boolean) => void;
+	/** Paid-unit video the student has not bought; `onPlay` opens the paywall. */
+	locked?: boolean;
 }) {
 	const thumbnail = youtubeThumbnail(video);
 	const done = !!progress?.completed;
-	const badge = done
-		? "مكتمل"
-		: progress?.position
-			? `تابع من ${formatTime(progress.position)}`
-			: null;
+	const badge = locked
+		? "للمشتركين"
+		: done
+			? "مكتمل"
+			: progress?.position
+				? `تابع من ${formatTime(progress.position)}`
+				: null;
 	return (
 		<Surface
 			interactive
@@ -69,7 +83,11 @@ export default function VideoCard({
 		>
 			<ButtonBase
 				onClick={onPlay}
-				aria-label={`تشغيل الفيديو: ${video.name}${badge ? ` (${badge})` : ""}`}
+				aria-label={
+					locked
+						? `فيديو للمشتركين: ${video.name}`
+						: `تشغيل الفيديو: ${video.name}${badge ? ` (${badge})` : ""}`
+				}
 				sx={(theme) => ({
 					position: "relative",
 					display: "block",
@@ -137,7 +155,7 @@ export default function VideoCard({
 						"& svg": { fontSize: 30 },
 					})}
 				>
-					<PlayArrowRoundedIcon />
+					{locked ? <LockOutlinedIcon /> : <PlayArrowRoundedIcon />}
 				</Box>
 				{badge ? (
 					<Box

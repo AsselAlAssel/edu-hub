@@ -107,6 +107,53 @@ beforeEach(() => {
 	asUser();
 });
 
+describe("paid unit (student without it)", () => {
+	const GUID = "594324c9-0b1e-48cc-945a-f1bd20716fc0";
+	const paid = {
+		folders: [],
+		files: [file("4", "ملخص", "pdf", "paid")],
+		videos: [
+			video("6", "مقدمة مجانية"),
+			{
+				...video("7", "شرح مدفوع"),
+				url: `https://iframe.mediadelivery.net/embed/789604/${GUID}`,
+				videoId: GUID,
+			},
+		],
+		access: {
+			unit: { id: CURRENT_ID, name: "الوحدة الأولى", price: 100 },
+			canOpen: false,
+			ownedUnitIds: [],
+			whatsAppNumber: "970599000000",
+		},
+	};
+
+	it("keeps YouTube free, locks the Bunny video and opens the paywall", async () => {
+		const user = userEvent.setup();
+		hookState.override = { data: paid, mutate: vi.fn() };
+		renderPage(paid);
+
+		expect(
+			screen.getByRole("button", { name: /^تشغيل الفيديو: مقدمة مجانية/ })
+		).toBeInTheDocument();
+		await user.click(
+			screen.getByRole("button", { name: "فيديو للمشتركين: شرح مدفوع" })
+		);
+		const dialog = await screen.findByRole("dialog");
+		expect(within(dialog).getByText("100 ₪")).toBeInTheDocument();
+		expect(
+			within(dialog).getByRole("link", { name: "اشترك عبر واتساب" })
+		).toHaveAttribute("href", expect.stringContaining("wa.me/970599000000"));
+	});
+
+	it("locks the unit's files behind the paywall", () => {
+		hookState.override = { data: paid, mutate: vi.fn() };
+		renderPage(paid);
+		expect(screen.getByText("ملفات هذه الوحدة للمشتركين")).toBeInTheDocument();
+		expect(screen.queryByRole("link", { name: /ملخص/ })).toBeNull();
+	});
+});
+
 describe("resource explorer (student)", () => {
 	it("titles the page with the folder and summarises real counts", () => {
 		renderPage();

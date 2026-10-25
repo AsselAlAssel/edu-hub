@@ -46,31 +46,32 @@ beforeEach(() => {
 	prisma.folder.findUnique.mockImplementation(
 		async ({ where }: { where: { id: string } }) => folders[where.id] ?? null
 	);
-	// Priced folders, then root ids (see listPaidUnits).
+	// listPaidUnits asks for root folders, then for priced folders.
+	const priced = [
+		{
+			id: UNIT,
+			name: "الوحدة 1",
+			price: 100,
+			rank: "a",
+			classId: CLASS,
+			parentFolderId: ROOT,
+			parentClass: { name: "الحادي عشر" },
+		},
+		{
+			id: LESSON,
+			name: "درس مسعّر بالغلط",
+			price: 50,
+			rank: "a",
+			classId: CLASS,
+			parentFolderId: UNIT,
+			parentClass: { name: "الحادي عشر" },
+		},
+	];
 	prisma.folder.findMany.mockImplementation(
-		async ({ where }: { where: Record<string, unknown> }) =>
-			where.isRoot
-				? [{ id: ROOT }]
-				: [
-						{
-							id: UNIT,
-							name: "الوحدة 1",
-							price: 100,
-							rank: "a",
-							classId: CLASS,
-							parentFolderId: ROOT,
-							parentClass: { name: "الحادي عشر" },
-						},
-						{
-							id: LESSON,
-							name: "درس مسعّر بالغلط",
-							price: 50,
-							rank: "a",
-							classId: CLASS,
-							parentFolderId: UNIT,
-							parentClass: { name: "الحادي عشر" },
-						},
-					]
+		async ({ where }: { where: Record<string, unknown> }) => {
+			if (where.isRoot) return [{ id: ROOT }];
+			return priced;
+		}
 	);
 	prisma.folder.update.mockImplementation(async ({ data }) => data);
 	prisma.user.findUnique.mockResolvedValue({ id: USER });

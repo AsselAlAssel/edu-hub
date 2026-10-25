@@ -34,15 +34,12 @@ export const POST = async (req: NextRequest) => {
 	}
 	const videoId = bunny ? bunny.videoId : getYouTubeVideoID(url);
 	if (!videoId) return jsonError("Invalid video url", 400);
-	const media = bunny
-		? {
-				url: `https://iframe.mediadelivery.net/embed/${bunny.libraryId}/${videoId}`,
-				thumbnailUrl: "",
-			}
-		: {
-				url,
-				thumbnailUrl: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
-			};
+	const bunnyEmbed = `https://iframe.mediadelivery.net/embed/${bunny?.libraryId}/${videoId}`;
+	const youtubeThumb = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+	const media = {
+		url: bunny ? bunnyEmbed : url,
+		thumbnailUrl: bunny ? "" : youtubeThumb,
+	};
 
 	const folder = await prisma.folder.findUnique({ where: { id: folderId } });
 	if (!folder) return jsonError("Folder not found", 404);

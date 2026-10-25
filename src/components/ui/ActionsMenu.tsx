@@ -3,6 +3,7 @@ import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
 import DriveFileRenameOutlineRoundedIcon from "@mui/icons-material/DriveFileRenameOutlineRounded";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
+import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { IconButton, ListItemIcon, Menu, MenuItem } from "@mui/material";
@@ -20,6 +21,8 @@ export type ActionsMenuProps = {
 	/** Optional hide/show toggle; `hidden` is the current state. */
 	onToggleHidden?: () => void;
 	hidden?: boolean;
+	/** Optional "unit price" action (first-level folders). */
+	onPrice?: () => void;
 };
 
 /** Admin ⋯ menu with edit + delete; keyboard and screen-reader friendly. */
@@ -32,6 +35,7 @@ export default function ActionsMenu({
 	onMove,
 	onToggleHidden,
 	hidden = false,
+	onPrice,
 }: ActionsMenuProps) {
 	const menuId = useId();
 	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -106,6 +110,14 @@ export default function ActionsMenu({
 							)}
 						</ListItemIcon>
 						{hidden ? "إظهار للطلاب" : "إخفاء عن الطلاب"}
+					</MenuItem>
+				) : null}
+				{onPrice ? (
+					<MenuItem onClick={run(onPrice)}>
+						<ListItemIcon>
+							<SellOutlinedIcon fontSize='small' />
+						</ListItemIcon>
+						سعر الوحدة
 					</MenuItem>
 				) : null}
 				<MenuItem onClick={run(onDelete)} sx={{ color: "error.main" }}>
