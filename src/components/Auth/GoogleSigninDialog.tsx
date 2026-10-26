@@ -98,6 +98,7 @@ export default function GoogleSigninDialog({
 			>
 				<Image
 					src='/images/logo/logo.svg'
+					unoptimized
 					alt='شعار محمد صبح للفيزياء'
 					width={64}
 					height={64}

@@ -75,6 +75,7 @@ export function LiteYouTube({
 				>
 					<Image
 						src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
+						unoptimized
 						alt=''
 						fill
 						sizes='(max-width: 900px) 100vw, 960px'

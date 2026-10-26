@@ -61,6 +61,7 @@ function ResumeCard({ item }: { item: VideoProgress }) {
 								videoId: item.youtubeId,
 								thumbnailUrl: "",
 							})}
+							unoptimized
 							alt=''
 							fill
 							sizes='(max-width: 600px) 100vw, 300px'
