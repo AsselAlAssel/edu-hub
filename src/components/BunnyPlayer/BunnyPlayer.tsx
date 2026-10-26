@@ -1,4 +1,8 @@
 "use client";
+import {
+	GoogleLogo,
+	signInWithGoogle,
+} from "@/components/Auth/GoogleSigninDialog";
 import AppDialog from "@/components/ui/AppDialog";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { useCloseOnBack } from "@/components/VideoPlayer/VideoPlayer";
@@ -9,7 +13,7 @@ import useWatermarkGuard from "./useWatermarkGuard";
 
 type Playback =
 	| { status: "loading" }
-	| { status: "error"; message: string }
+	| { status: "error"; message: string; code?: number }
 	| { status: "ready"; url: string; watermark: string };
 
 const ERRORS: Record<number, string> = {
@@ -53,7 +57,6 @@ export default function BunnyPlayer({
 	useEffect(() => {
 		if (!open || !videoId) return;
 		let cancelled = false;
-		setPlayback({ status: "loading" });
 		fetch(`/api/video/${videoId}/playback`, { cache: "no-store" })
 			.then(async (res) => {
 				if (cancelled) return;
@@ -61,6 +64,7 @@ export default function BunnyPlayer({
 					setPlayback({
 						status: "error",
 						message: ERRORS[res.status] ?? "تعذّر تشغيل الفيديو.",
+						code: res.status,
 					});
 					return;
 				}
@@ -74,6 +78,8 @@ export default function BunnyPlayer({
 			});
 		return () => {
 			cancelled = true;
+			// Closing (or retrying) never shows the previous video's expired URL.
+			setPlayback({ status: "loading" });
 		};
 	}, [open, videoId, attempt]);
 
@@ -107,9 +113,19 @@ export default function BunnyPlayer({
 				title='تعذّر تشغيل الفيديو'
 				description={playback.message}
 				action={
-					<Button variant='outlined' onClick={() => setAttempt((n) => n + 1)}>
-						إعادة المحاولة
-					</Button>
+					playback.code === 401 ? (
+						<Button
+							variant='outlined'
+							startIcon={<GoogleLogo />}
+							onClick={signInWithGoogle}
+						>
+							تسجيل الدخول
+						</Button>
+					) : (
+						<Button variant='outlined' onClick={() => setAttempt((n) => n + 1)}>
+							إعادة المحاولة
+						</Button>
+					)
 				}
 			/>
 		);

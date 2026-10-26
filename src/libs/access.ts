@@ -5,6 +5,7 @@ import { prisma } from "./prismaDb";
 /** The signed-in user as stored now: role and units come from the DB, not the JWT. */
 export type Viewer = {
 	id: string;
+	email: string | null;
 	role: string | null;
 	unlockedUnitIds: string[];
 } | null;
@@ -17,7 +18,7 @@ export async function getViewer(): Promise<Viewer> {
 	if (!session?.id) return null;
 	const user = await prisma.user.findUnique({
 		where: { id: session.id },
-		select: { id: true, role: true, unlockedUnitIds: true },
+		select: { id: true, email: true, role: true, unlockedUnitIds: true },
 	});
 	return user && { ...user, unlockedUnitIds: user.unlockedUnitIds ?? [] };
 }
@@ -27,11 +28,7 @@ export async function getUnit(folderId: string): Promise<Unit | null> {
 	const crumbs = await getBreadcrumbs(folderId);
 	const unit = crumbs?.[1];
 	if (!unit) return null;
-	const folder = await prisma.folder.findUnique({
-		where: { id: unit.id },
-		select: { price: true },
-	});
-	return { id: unit.id, name: unit.name, price: folder?.price ?? null };
+	return { id: unit.id, name: unit.name, price: unit.price ?? null };
 }
 
 /** A folder can be sold as a unit only if its parent is the class root. */
@@ -49,29 +46,22 @@ export async function isFirstLevelFolder(folder: {
 
 /** Every unit on sale, grouped by class, in class then folder order. */
 export async function listPaidUnits() {
-	const [priced, roots] = await Promise.all([
-		prisma.folder.findMany({
-			where: { price: { not: null } },
-			select: {
-				id: true,
-				name: true,
-				price: true,
-				rank: true,
-				classId: true,
-				parentFolderId: true,
-				parentClass: { select: { name: true } },
-			},
-			orderBy: [{ classId: "asc" }, { rank: "asc" }],
-		}),
-		prisma.folder.findMany({ where: { isRoot: true }, select: { id: true } }),
-	]);
-	const rootIds = new Set(roots.map((root) => root.id));
+	const priced = await prisma.folder.findMany({
+		where: { price: { not: null }, parentFolder: { is: { isRoot: true } } },
+		select: {
+			id: true,
+			name: true,
+			price: true,
+			classId: true,
+			parentClass: { select: { name: true } },
+		},
+		orderBy: [{ classId: "asc" }, { rank: "asc" }],
+	});
 	const byClass = new Map<
 		string,
 		{ classId: string; className: string; units: Unit[] }
 	>();
 	for (const folder of priced) {
-		if (!folder.parentFolderId || !rootIds.has(folder.parentFolderId)) continue;
 		const group = byClass.get(folder.classId) ?? {
 			classId: folder.classId,
 			className: folder.parentClass.name,

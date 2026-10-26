@@ -52,7 +52,7 @@ beforeEach(() => {
 	prisma.folder.findUnique.mockImplementation(
 		async ({ where }: { where: { id: string } }) => folders[where.id] ?? null
 	);
-	// listPaidUnits asks for root folders, then for priced folders.
+	// Priced folders; only those whose parent is the class root are units.
 	const priced = [
 		{
 			id: UNIT,
@@ -73,11 +73,16 @@ beforeEach(() => {
 			parentClass: { name: "الحادي عشر" },
 		},
 	];
+	// Emulates the `parentFolder: { is: { isRoot: true } }` relation filter.
 	prisma.folder.findMany.mockImplementation(
-		async ({ where }: { where: Record<string, unknown> }) => {
-			if (where.isRoot) return [{ id: ROOT }];
-			return priced;
-		}
+		async ({
+			where,
+		}: {
+			where: { parentFolder?: { is?: { isRoot?: boolean } } };
+		}) =>
+			where.parentFolder?.is?.isRoot
+				? priced.filter((folder) => folder.parentFolderId === ROOT)
+				: priced
 	);
 	prisma.folder.update.mockImplementation(async ({ data }) => data);
 	prisma.user.findUnique.mockResolvedValue({ id: USER });

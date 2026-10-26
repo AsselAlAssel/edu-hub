@@ -1,5 +1,5 @@
 import { canOpenUnit, getUnit, getViewer } from "@/libs/access";
-import { getSessionUser, isObjectId, jsonError } from "@/libs/api";
+import { isObjectId, jsonError } from "@/libs/api";
 import { BUNNY_TOKEN_TTL_SECONDS, signBunnyEmbedUrl } from "@/libs/bunny";
 import { parseBunnyUrl } from "@/libs/bunnyUrl";
 import { prisma } from "@/libs/prismaDb";
@@ -18,8 +18,8 @@ export const GET = async (
 	const { id } = await props.params;
 	if (!isObjectId(id)) return jsonError("Invalid video id", 400);
 
-	const [session, viewer] = await Promise.all([getSessionUser(), getViewer()]);
-	if (!session || !viewer) return jsonError("Unauthorized", 401);
+	const viewer = await getViewer();
+	if (!viewer) return jsonError("Unauthorized", 401);
 
 	const video = await prisma.video.findUnique({
 		where: { id },
@@ -46,7 +46,7 @@ export const GET = async (
 		expires,
 	});
 	return NextResponse.json(
-		{ url, expires, watermark: session.email ?? session.id },
+		{ url, expires, watermark: viewer.email ?? viewer.id },
 		{ headers: { "Cache-Control": "private, no-store" } }
 	);
 };

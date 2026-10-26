@@ -132,7 +132,7 @@ describe("paid unit (student without it)", () => {
 
 	it("keeps YouTube free, locks the Bunny video and opens the paywall", async () => {
 		const user = userEvent.setup();
-		hookState.override = { data: paid, mutate: vi.fn() };
+		hookState.override = { data: paid, mutate: vi.fn(async () => undefined) };
 		renderPage(paid);
 
 		expect(
@@ -149,7 +149,7 @@ describe("paid unit (student without it)", () => {
 	});
 
 	it("locks the unit's files behind the paywall", () => {
-		hookState.override = { data: paid, mutate: vi.fn() };
+		hookState.override = { data: paid, mutate: vi.fn(async () => undefined) };
 		renderPage(paid);
 		expect(screen.getByText("ملفات هذه الوحدة للمشتركين")).toBeInTheDocument();
 		expect(screen.queryByRole("link", { name: /ملخص/ })).toBeNull();
@@ -220,7 +220,7 @@ describe("resource explorer (student)", () => {
 		hookState.override = {
 			data: undefined,
 			error: new Error("boom"),
-			mutate: vi.fn(),
+			mutate: vi.fn(async () => undefined),
 		};
 		renderPage();
 		expect(screen.getByRole("alert")).toHaveTextContent("تعذّر تحميل المحتوى");

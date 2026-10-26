@@ -8,7 +8,7 @@ const { prisma, session, crumbs } = vi.hoisted(() => ({
 		user: { findUnique: vi.fn() },
 	},
 	session: { current: null as null | { user: Record<string, unknown> } },
-	crumbs: { current: [] as { id: string; name: string }[] },
+	crumbs: { current: [] as { id: string; name: string; price?: number }[] },
 }));
 
 vi.mock("@/libs/prismaDb", () => ({ prisma }));
@@ -34,7 +34,12 @@ const call = (id = VIDEO) =>
 	});
 const signIn = (unlockedUnitIds: string[] = [], role = "USER") => {
 	session.current = { user: { id: USER, email: "s@x.dev" } };
-	prisma.user.findUnique.mockResolvedValue({ id: USER, role, unlockedUnitIds });
+	prisma.user.findUnique.mockResolvedValue({
+		id: USER,
+		email: "s@x.dev",
+		role,
+		unlockedUnitIds,
+	});
 };
 
 beforeEach(() => {
@@ -43,9 +48,8 @@ beforeEach(() => {
 	vi.stubEnv("BUNNY_TOKEN_KEY", KEY);
 	crumbs.current = [
 		{ id: "a".repeat(24), name: "root" },
-		{ id: UNIT, name: "الوحدة 1" },
+		{ id: UNIT, name: "الوحدة 1", price: 100 },
 	];
-	prisma.folder.findUnique.mockResolvedValue({ price: 100 });
 	prisma.video.findUnique.mockResolvedValue({
 		id: VIDEO,
 		folderId: UNIT,
@@ -79,7 +83,7 @@ describe("GET /api/video/[id]/playback", () => {
 		expect((await call()).status).toBe(403);
 	});
 
-	it("signs a short-lived URL for owners, with the watermark from the session", async () => {
+	it("signs a short-lived URL for owners, with the watermark from the account", async () => {
 		signIn([UNIT]);
 		const res = await call();
 		const body = await res.json();

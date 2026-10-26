@@ -21,16 +21,10 @@ import Image from "next/image";
 import { canOptimizeImage } from "@/libs/images";
 import type { ReactNode } from "react";
 
-/** Bunny thumbnails are token-protected, so Bunny videos show a placeholder. */
-export const VIDEO_PLACEHOLDER = "/images/video-placeholder.svg";
-
-// Bunny ids are UUIDs (36 chars); YouTube ids are 11 chars.
-const isBunnyVideoId = (videoId: string) => videoId.length === 36;
-
+// Bunny videos reach the client without videoId; their cards use the thumbnail route.
 export const youtubeThumbnail = (
 	video: Pick<Video, "videoId" | "thumbnailUrl">
 ) => {
-	if (video.videoId && isBunnyVideoId(video.videoId)) return VIDEO_PLACEHOLDER;
 	return video.videoId
 		? `https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg`
 		: video.thumbnailUrl;
@@ -64,7 +58,8 @@ export default function VideoCard({
 	const thumbnail = video.isBunny
 		? `/api/video/${video.id}/thumbnail`
 		: youtubeThumbnail(video);
-	const done = !!progress?.completed;
+	// A locked video reads as locked, even if it was finished before access ended.
+	const done = !locked && !!progress?.completed;
 	const badge = locked
 		? "للمشتركين"
 		: done

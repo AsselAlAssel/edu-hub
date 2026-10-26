@@ -29,7 +29,9 @@ export default function useWatermarkGuard(
 ) {
 	const [tampered, setTampered] = useState(false);
 	useEffect(() => {
-		if (!active || !box.current) return;
+		// Each open starts clean: one stop must not block the next video.
+		if (!active) return setTampered(false);
+		if (!box.current) return;
 		const check = () => {
 			const b = box.current;
 			const m = mark.current;

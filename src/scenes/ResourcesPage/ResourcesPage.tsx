@@ -142,10 +142,11 @@ export default function ResourcesPage({
 	const hasLockedFiles = files.some((file) => file.url === SIGNIN_FILE_URL);
 	const hasPaidContent =
 		!!access?.unit?.price || folders.some((folder) => folder.price);
-	const needsViewerData = hasLockedFiles || hasPaidContent;
+	const loadViewer = progress.signedIn && (hasLockedFiles || hasPaidContent);
+	const [viewerLoaded, setViewerLoaded] = useState(false);
 	useEffect(() => {
-		if (progress.signedIn && needsViewerData) void mutate();
-	}, [progress.signedIn, needsViewerData, mutate]);
+		if (loadViewer) void mutate().finally(() => setViewerLoaded(true));
+	}, [loadViewer, mutate]);
 	// Decided on the server (getResources); admins always play.
 	const isLocked = (video: ResourceVideo) => !isAdmin && !!video.locked;
 
@@ -168,11 +169,13 @@ export default function ResourcesPage({
 	};
 
 	// "Continue watching" links (…/folder/<id>?v=<videoId>) open the video at
-	// its saved position: wait for progress, then drop ?v from the URL.
+	// its saved position: wait for progress and for the viewer's own resources
+	// (the cached ones lock every paid video), then drop ?v from the URL.
 	// (window, not useSearchParams: that would opt this ISR page out of SSR.)
 	const deepLinkHandled = useRef(false);
 	useEffect(() => {
 		if (deepLinkHandled.current || !progress.ready) return;
+		if (loadViewer && !viewerLoaded) return;
 		deepLinkHandled.current = true;
 		const url = new URL(window.location.href);
 		const video = videos.find((item) => item.id === url.searchParams.get("v"));
@@ -180,8 +183,8 @@ export default function ResourcesPage({
 		url.searchParams.delete("v");
 		window.history.replaceState(window.history.state, "", url);
 		if (video) play(video);
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- runs once, when progress is known
-	}, [progress.ready]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- runs once, when the viewer is known
+	}, [progress.ready, loadViewer, viewerLoaded]);
 
 	const title = isRootFolder
 		? className

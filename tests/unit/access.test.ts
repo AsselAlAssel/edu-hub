@@ -3,7 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { prisma, crumbs } = vi.hoisted(() => ({
 	prisma: { folder: { findUnique: vi.fn() }, user: { findUnique: vi.fn() } },
-	crumbs: { current: null as null | { id: string; name: string }[] },
+	crumbs: {
+		current: null as null | { id: string; name: string; price?: number }[],
+	},
 }));
 
 vi.mock("@/libs/prismaDb", () => ({ prisma }));
@@ -46,7 +48,12 @@ describe("parseBunnyUrl", () => {
 
 describe("canOpenUnit", () => {
 	const paid = { id: UNIT, name: "الوحدة 1", price: 100 };
-	const student = { id: "u", role: "USER", unlockedUnitIds: [] as string[] };
+	const student = {
+		id: "u",
+		email: null,
+		role: "USER",
+		unlockedUnitIds: [] as string[],
+	};
 
 	it("opens anything outside a paid unit", () => {
 		expect(canOpenUnit(null, null)).toBe(true);
@@ -68,7 +75,7 @@ describe("canOpenUnit", () => {
 
 describe("getUnit", () => {
 	beforeEach(() => {
-		prisma.folder.findUnique.mockResolvedValue({ price: 100 });
+		prisma.folder.findUnique.mockClear();
 	});
 
 	it("is null for the class root and unknown folders", async () => {
@@ -81,7 +88,7 @@ describe("getUnit", () => {
 	it("resolves any depth to the first-level folder", async () => {
 		crumbs.current = [
 			{ id: ROOT, name: "root" },
-			{ id: UNIT, name: "الوحدة 1" },
+			{ id: UNIT, name: "الوحدة 1", price: 100 },
 			{ id: LESSON, name: "الدرس 1" },
 		];
 		expect(await getUnit(LESSON)).toEqual({
@@ -89,9 +96,7 @@ describe("getUnit", () => {
 			name: "الوحدة 1",
 			price: 100,
 		});
-		expect(prisma.folder.findUnique).toHaveBeenCalledWith({
-			where: { id: UNIT },
-			select: { price: true },
-		});
+		// The price rides on the breadcrumb walk: no extra query.
+		expect(prisma.folder.findUnique).not.toHaveBeenCalled();
 	});
 });

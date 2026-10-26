@@ -8,7 +8,7 @@ const { prisma, crumbs } = vi.hoisted(() => ({
 		file: { findMany: vi.fn() },
 		landingPage: { findFirst: vi.fn() },
 	},
-	crumbs: { current: [] as { id: string; name: string }[] },
+	crumbs: { current: [] as { id: string; name: string; price?: number }[] },
 }));
 
 vi.mock("@/libs/prismaDb", () => ({ prisma }));
@@ -25,7 +25,12 @@ const ROOT = "a".repeat(24);
 const UNIT = "b".repeat(24);
 const R2_URL = "https://files.example/secret.pdf";
 const file = { id: "f1", name: "ورقة عمل", url: R2_URL, type: "pdf" };
-const student = { id: "u", role: "USER", unlockedUnitIds: [] as string[] };
+const student = {
+	id: "u",
+	email: null,
+	role: "USER",
+	unlockedUnitIds: [] as string[],
+};
 
 const run = (viewer?: Parameters<typeof getResources>[1]) =>
 	getResources(UNIT, viewer);
@@ -33,12 +38,11 @@ const run = (viewer?: Parameters<typeof getResources>[1]) =>
 beforeEach(() => {
 	crumbs.current = [
 		{ id: ROOT, name: "root" },
-		{ id: UNIT, name: "الوحدة 1" },
+		{ id: UNIT, name: "الوحدة 1", price: 100 },
 	];
 	prisma.folder.findMany.mockResolvedValue([]);
 	prisma.video.findMany.mockResolvedValue([]);
 	prisma.file.findMany.mockResolvedValue([file]);
-	prisma.folder.findUnique.mockResolvedValue({ price: 100 });
 	prisma.landingPage.findFirst.mockResolvedValue({
 		whatsAppNumber: "970599000000",
 	});
@@ -100,11 +104,10 @@ describe("getResources in a paid unit", () => {
 
 describe("getResources outside a paid unit", () => {
 	it("behaves as before: links for any signed-in student", async () => {
-		prisma.folder.findUnique.mockResolvedValue({ price: null });
+		crumbs.current[1].price = undefined;
 		const { files, access } = await run(student);
 		expect(files[0].url).toBe(R2_URL);
 		expect(access.canOpen).toBe(true);
 		expect(access.whatsAppNumber).toBeNull();
-		expect(prisma.landingPage.findFirst).not.toHaveBeenCalled();
 	});
 });

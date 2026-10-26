@@ -1,4 +1,5 @@
 import { getSessionUser, isObjectId, jsonError, readJson } from "@/libs/api";
+import { isBunnyUrl } from "@/libs/bunnyUrl";
 import { prisma } from "@/libs/prismaDb";
 import { NextResponse } from "next/server";
 
@@ -37,6 +38,7 @@ export const GET = async () => {
 			folderId: true,
 			name: true,
 			videoId: true,
+			url: true,
 		},
 	});
 	const videoOf = new Map(videos.map((video) => [video.id, video]));
@@ -50,7 +52,8 @@ export const GET = async () => {
 					classId: video.classId,
 					folderId: video.folderId,
 					name: video.name,
-					youtubeId: video.videoId,
+					// Bunny ids stay server-side (see getResources).
+					youtubeId: isBunnyUrl(video.url) ? undefined : video.videoId,
 				},
 			];
 		})

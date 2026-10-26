@@ -13,8 +13,14 @@ export type UserFilters = {
 	subscription?: SubscriptionFilter;
 };
 
-export const unitCount = (user: Pick<PublicUser, "unlockedUnitIds">) =>
-	user.unlockedUnitIds?.length ?? 0;
+/**
+ * Units the student owns that are still on sale. Ids of units since deleted
+ * or made free stay in the DB (harmless: they open nothing) but don't count.
+ */
+export const unitCount = (
+	user: Pick<PublicUser, "unlockedUnitIds">,
+	onSale: Pick<ReadonlySet<string>, "has">
+) => (user.unlockedUnitIds ?? []).filter((id) => onSale.has(id)).length;
 
 const DAY = 86_400_000;
 
@@ -28,7 +34,8 @@ const joinedAt = (user: Pick<PublicUser, "createdAt">) =>
 export function filterUsers(
 	users: PublicUser[],
 	{ query, role, joined, sort, subscription = "ALL" }: UserFilters,
-	now = Date.now()
+	now = Date.now(),
+	onSale: Pick<ReadonlySet<string>, "has"> = new Set()
 ) {
 	const q = query.trim().toLowerCase();
 	const since = joined === "ALL" ? -Infinity : now - Number(joined) * DAY;
@@ -39,7 +46,7 @@ export function filterUsers(
 					user.email?.toLowerCase().includes(q) ||
 					user.name?.toLowerCase().includes(q)) &&
 				(role === "ALL" || roleOf(user) === role) &&
-				(subscription === "ALL" || unitCount(user) > 0) &&
+				(subscription === "ALL" || unitCount(user, onSale) > 0) &&
 				joinedAt(user) >= since
 		)
 		.sort((a, b) =>

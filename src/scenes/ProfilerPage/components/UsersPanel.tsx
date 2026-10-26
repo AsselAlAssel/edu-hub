@@ -170,8 +170,8 @@ export default function UsersPanel() {
 	// ponytail: filters/pages client-side over the full list; move to
 	// server-side paging (skip/take) if users grow into the tens of thousands.
 	const users = useMemo(
-		() => filterUsers(data ?? [], filters),
-		[data, filters]
+		() => filterUsers(data ?? [], filters, Date.now(), unitLabels),
+		[data, filters, unitLabels]
 	);
 	const stats = useMemo(() => userStats(data ?? []), [data]);
 	const pageCount = Math.max(1, Math.ceil(users.length / PAGE_SIZE));
@@ -446,7 +446,7 @@ export default function UsersPanel() {
 										>
 											انضم {dateFormat.format(new Date(user.createdAt))}
 										</Typography>
-										{unitCount(user) ? (
+										{unitCount(user, unitLabels) ? (
 											<Stack
 												direction='row'
 												flexWrap='wrap'
@@ -471,14 +471,16 @@ export default function UsersPanel() {
 								<Stack direction='row' alignItems='center' gap={1}>
 									<Button
 										size='small'
-										variant={unitCount(user) ? "contained" : "outlined"}
-										color={unitCount(user) ? "success" : "primary"}
+										variant={
+											unitCount(user, unitLabels) ? "contained" : "outlined"
+										}
+										color={unitCount(user, unitLabels) ? "success" : "primary"}
 										startIcon={<SellOutlinedIcon />}
 										onClick={() => setUnitsFor(user)}
 										aria-label={`وحدات ${user.name || user.email}`}
 									>
-										{unitCount(user)
-											? `الوحدات (${unitCount(user)})`
+										{unitCount(user, unitLabels)
+											? `الوحدات (${unitCount(user, unitLabels)})`
 											: "فتح وحدات"}
 									</Button>
 									<Select

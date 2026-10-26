@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const PLACEHOLDER = "/images/video-placeholder.svg";
 const PLAYER_ORIGIN = "https://player.mediadelivery.net/";
+const CACHE_SECONDS = 3600;
 
 /**
  * Bunny thumbnails sit behind CDN token auth, signed with a key we do not
@@ -36,13 +37,18 @@ export const GET = async (
 	if (!bunny || !libraryId || !tokenKey) return fallback();
 
 	try {
+		// The route is public, so Bunny is fetched at most once per video per
+		// hour: `expires` is bucketed (stable URL, 1-2h left) and both fetches go
+		// through Next's data cache, whatever query string a caller adds.
+		const hour = Math.floor(Date.now() / 1000 / CACHE_SECONDS);
 		const embed = signBunnyEmbedUrl({
 			libraryId,
 			videoId: bunny.videoId,
 			tokenKey,
-			expires: Math.floor(Date.now() / 1000) + 60,
+			expires: (hour + 2) * CACHE_SECONDS,
 		});
-		const html = await (await fetch(embed, { cache: "no-store" })).text();
+		const cached = { next: { revalidate: CACHE_SECONDS } };
+		const html = await (await fetch(embed, cached)).text();
 		const thumbnail = html
 			.match(/https:\/\/vz-[^"'\s<>]*token_path[^"'\s<>]*thumbnail\.jpg/)?.[0]
 			?.replace(/&amp;/g, "&");
@@ -50,7 +56,7 @@ export const GET = async (
 
 		const image = await fetch(thumbnail, {
 			headers: { Referer: PLAYER_ORIGIN },
-			cache: "no-store",
+			...cached,
 		});
 		if (!image.ok) return fallback();
 		return new NextResponse(image.body, {

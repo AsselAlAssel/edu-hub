@@ -264,7 +264,7 @@ export default function UnitsDialog({
 					<LoadingButton
 						variant='contained'
 						loading={busy}
-						disabled={!groups?.length}
+						disabled={!groups}
 						onClick={() => void save()}
 					>
 						حفظ

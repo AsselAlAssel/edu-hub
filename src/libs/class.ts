@@ -42,17 +42,16 @@ export const getClass = (classId: string) =>
  */
 export const getResources = async (folderId: string, viewer?: Viewer) => {
 	const orderBy = [{ rank: "asc" as const }, { createdAt: "asc" as const }];
-	const [folders, videos, files, unit] = await Promise.all([
+	const [folders, videos, files, unit, landing] = await Promise.all([
 		prisma.folder.findMany({ where: { parentFolderId: folderId }, orderBy }),
 		prisma.video.findMany({ where: { folderId }, orderBy }),
 		prisma.file.findMany({ where: { folderId }, orderBy }),
 		getUnit(folderId),
+		prisma.landingPage.findFirst({ select: { whatsAppNumber: true } }),
 	]);
 	const canOpen = canOpenUnit(viewer ?? null, unit);
-	const landing = unit?.price
-		? await prisma.landingPage.findFirst({ select: { whatsAppNumber: true } })
-		: null;
-	const whatsAppNumber = landing?.whatsAppNumber ?? null;
+	// Only a paid unit's paywall needs the number.
+	const whatsAppNumber = unit?.price ? (landing?.whatsAppNumber ?? null) : null;
 
 	const lock = (file: (typeof files)[number]) => {
 		if (!viewer) return { ...file, name: "", url: SIGNIN_FILE_URL };
