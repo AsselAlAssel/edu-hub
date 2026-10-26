@@ -96,6 +96,7 @@ export default function ContinueWatching() {
 											videoId: next.youtubeId,
 											thumbnailUrl: "",
 										})}
+										unoptimized
 										alt=''
 										fill
 										sizes='96px'

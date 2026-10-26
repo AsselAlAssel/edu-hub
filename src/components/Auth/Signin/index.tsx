@@ -109,6 +109,7 @@ export default function Signin() {
 					>
 						<Image
 							src='/images/logo/logo.svg'
+							unoptimized
 							alt='شعار محمد صبح للفيزياء'
 							width={44}
 							height={44}

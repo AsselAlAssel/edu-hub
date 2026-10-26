@@ -11,7 +11,6 @@ import {
 	Typography,
 } from "@mui/material";
 import Image from "next/image";
-import { canOptimizeImage } from "@/libs/images";
 import { useId, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
@@ -86,7 +85,7 @@ export default function ImageInput({
 					>
 						<Image
 							src={imageSrc}
-							unoptimized={!canOptimizeImage(imageSrc)}
+							unoptimized
 							alt={`معاينة ${inputLabel}`}
 							fill
 							sizes='480px'
