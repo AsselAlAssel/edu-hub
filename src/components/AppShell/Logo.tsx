@@ -42,6 +42,7 @@ export default function Logo({ onClick }: { onClick?: () => void }) {
 			>
 				<Image
 					src='/images/logo/logo.svg'
+					unoptimized
 					alt=''
 					width={30}
 					height={30}

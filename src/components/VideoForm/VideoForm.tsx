@@ -134,6 +134,7 @@ export default function VideoForm({
 					>
 						<Image
 							src={`https://i.ytimg.com/vi/${previewId}/hqdefault.jpg`}
+							unoptimized
 							alt='معاينة صورة الفيديو'
 							fill
 							sizes='400px'
