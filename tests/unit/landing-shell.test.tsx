@@ -206,18 +206,28 @@ describe("header & mobile navigation", () => {
 
 describe("reduced motion", () => {
 	it("back-to-top jumps instantly when the user prefers reduced motion", () => {
-		vi.spyOn(window, "matchMedia").mockImplementation(
-			(query) =>
-				({ matches: query.includes("reduce"), media: query }) as MediaQueryList
-		);
-		let scrollTop = () => {};
-		const Probe = () => {
-			scrollTop = useBackToTopFab().scrollTop;
-			return null;
-		};
-		renderWithTheme(<Probe />);
-		act(() => scrollTop());
-		expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "auto" });
+		// Swapped and put back by hand: a spy on the setup's matchMedia mock
+		// is not undone by restoreMocks, and would leak into later tests.
+		const original = window.matchMedia;
+		window.matchMedia = (query) => ({
+			...original(query),
+			matches: query.includes("reduce"),
+		});
+		try {
+			let scrollTop = () => {};
+			const Probe = () => {
+				scrollTop = useBackToTopFab().scrollTop;
+				return null;
+			};
+			renderWithTheme(<Probe />);
+			act(() => scrollTop());
+			expect(window.scrollTo).toHaveBeenCalledWith({
+				top: 0,
+				behavior: "auto",
+			});
+		} finally {
+			window.matchMedia = original;
+		}
 	});
 });
 
