@@ -40,6 +40,7 @@ model User {
   session               Session?        @relation
   accounts              Account[]
   progress              VideoProgress[]
+  examAttempts          ExamAttempt[]
   // Paid units (first-level folders) the admin unlocked for this student.
   unlockedUnitIds       String[]        @db.ObjectId
 }
@@ -146,6 +147,49 @@ model Video {
   rank         String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+// Question bank, grouped by lesson (a free-text name the admin picks).
+model Question {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  lesson       String
+  text         String
+  // Optional drawing shown above the options.
+  image        String?
+  // Where it came from, e.g. "وزاري 2021 – الدورة الأولى".
+  source       String?
+  options      String[]
+  correctIndex Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// An exam attached to a folder; questionIds keeps the admin's order.
+model Exam {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  folderId    String   @db.ObjectId
+  questionIds String[] @db.ObjectId
+  // When students see it: ALWAYS, FOLDER (its own videos done) or TREE (everything under it done).
+  unlockRule  String   @default("ALWAYS")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([folderId])
+}
+
+// One submitted exam and its score (the answers themselves are not kept).
+model ExamAttempt {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  examId    String   @db.ObjectId
+  userId    String   @db.ObjectId
+  correct   Int
+  total     Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, examId])
+  @@index([examId])
 }
 
 model LandingPage {

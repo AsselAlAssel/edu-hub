@@ -2,8 +2,9 @@
 import { PageHeader, PageShell } from "@/components/ui/PageShell";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import WebOutlinedIcon from "@mui/icons-material/WebOutlined";
-import { Box, Tab, Tabs } from "@mui/material";
+import { Box, Button, Tab, Tabs } from "@mui/material";
 import type { LandingPage } from "@prisma/client";
+import Link from "next/link";
 import { useState } from "react";
 import LandingControls from "./components/LandingControls";
 import UserInformation from "./components/UserInformation";
@@ -22,6 +23,11 @@ export default function ProfilerPage({
 				eyebrow='الإدارة'
 				title='لوحة التحكم'
 				description='حدّث محتوى الصفحة الرئيسية وأدِر حسابات المستخدمين.'
+				actions={
+					<Button component={Link} href='/admin/exams' variant='outlined'>
+						الامتحانات
+					</Button>
+				}
 			/>
 			<Box
 				sx={{

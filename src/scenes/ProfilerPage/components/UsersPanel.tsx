@@ -1,7 +1,7 @@
 "use client";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { SearchField } from "@/components/ui/FormField";
-import IconTile from "@/components/ui/IconTile";
+import StatTile from "@/components/ui/StatTile";
 import { ErrorState, EmptyState } from "@/components/ui/States";
 import Surface from "@/components/ui/Surface";
 import { getErrorMessage } from "@/libs/errors";
@@ -29,7 +29,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import useSWR from "swr";
 import {
@@ -59,34 +59,6 @@ const fetchUnits = (url: string) =>
 	axios.get<PaidUnitGroup[]>(url).then((res) => res.data);
 const dateFormat = new Intl.DateTimeFormat("ar", { dateStyle: "medium" });
 const monthFormat = new Intl.DateTimeFormat("ar", { month: "short" });
-
-function StatTile({
-	icon,
-	label,
-	value,
-	tone,
-}: {
-	icon: ReactNode;
-	label: string;
-	value: number;
-	tone: "primary" | "secondary" | "success" | "info";
-}) {
-	return (
-		<Surface sx={{ p: 2, display: "flex", alignItems: "center", gap: 1.5 }}>
-			<IconTile tone={tone} size={44}>
-				{icon}
-			</IconTile>
-			<Box sx={{ minWidth: 0 }}>
-				<Typography variant='h5' sx={{ fontWeight: 800, lineHeight: 1.1 }}>
-					{value.toLocaleString("ar")}
-				</Typography>
-				<Typography variant='body2' sx={{ color: "text.secondary" }} noWrap>
-					{label}
-				</Typography>
-			</Box>
-		</Surface>
-	);
-}
 
 function SignupsChart({
 	monthly,

@@ -1,6 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
+import FolderExams from "./components/FolderExams";
 import EmptyAddResources, {
 	type AddKind,
 } from "@/components/EmptyAddResources/EmptyAddResources";
@@ -396,44 +397,52 @@ export default function ResourcesPage({
 				title={title}
 				description={summary || undefined}
 				actions={
-					isAdmin ? (
-						<>
-							<Button
-								startIcon={<AddRoundedIcon />}
-								aria-haspopup='menu'
-								aria-expanded={!!addMenuAnchor}
-								onClick={(event) => setAddMenuAnchor(event.currentTarget)}
-							>
-								إضافة محتوى
-							</Button>
-							<Menu
-								anchorEl={addMenuAnchor}
-								open={!!addMenuAnchor}
-								onClose={() => setAddMenuAnchor(null)}
-								anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-								transformOrigin={{ vertical: "top", horizontal: "left" }}
-							>
-								<MenuItem onClick={() => openCreate("folder")}>
-									<ListItemIcon>
-										<CreateNewFolderOutlinedIcon fontSize='small' />
-									</ListItemIcon>
-									مجلد جديد
-								</MenuItem>
-								<MenuItem onClick={() => openCreate("video")}>
-									<ListItemIcon>
-										<SmartDisplayOutlinedIcon fontSize='small' />
-									</ListItemIcon>
-									إضافة فيديو
-								</MenuItem>
-								<MenuItem onClick={() => openCreate("file")}>
-									<ListItemIcon>
-										<UploadFileOutlinedIcon fontSize='small' />
-									</ListItemIcon>
-									رفع ملف
-								</MenuItem>
-							</Menu>
-						</>
-					) : undefined
+					<>
+						<FolderExams
+							folderId={folderId}
+							folderName={title}
+							isAdmin={isAdmin}
+							onSubscribe={() => setDialog({ type: "paywall" })}
+						/>
+						{isAdmin ? (
+							<>
+								<Button
+									startIcon={<AddRoundedIcon />}
+									aria-haspopup='menu'
+									aria-expanded={!!addMenuAnchor}
+									onClick={(event) => setAddMenuAnchor(event.currentTarget)}
+								>
+									إضافة محتوى
+								</Button>
+								<Menu
+									anchorEl={addMenuAnchor}
+									open={!!addMenuAnchor}
+									onClose={() => setAddMenuAnchor(null)}
+									anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+									transformOrigin={{ vertical: "top", horizontal: "left" }}
+								>
+									<MenuItem onClick={() => openCreate("folder")}>
+										<ListItemIcon>
+											<CreateNewFolderOutlinedIcon fontSize='small' />
+										</ListItemIcon>
+										مجلد جديد
+									</MenuItem>
+									<MenuItem onClick={() => openCreate("video")}>
+										<ListItemIcon>
+											<SmartDisplayOutlinedIcon fontSize='small' />
+										</ListItemIcon>
+										إضافة فيديو
+									</MenuItem>
+									<MenuItem onClick={() => openCreate("file")}>
+										<ListItemIcon>
+											<UploadFileOutlinedIcon fontSize='small' />
+										</ListItemIcon>
+										رفع ملف
+									</MenuItem>
+								</Menu>
+							</>
+						) : null}
+					</>
 				}
 			>
 				<Stack sx={{ mb: 2 }}>

@@ -17,7 +17,7 @@ export function PageShell({
 	return (
 		<PageContainer
 			sx={{
-				py: { xs: 4, md: 6 },
+				py: { xs: 3, md: 4 },
 				...(width === "narrow" && { maxWidth: 560 }),
 			}}
 		>
@@ -45,8 +45,8 @@ export function PageHeader({
 			component='header'
 			sx={(theme) => ({
 				position: "relative",
-				mb: { xs: 4, md: 6 },
-				pb: { xs: 3, md: 4 },
+				mb: { xs: 3, md: 4 },
+				pb: { xs: 2, md: 2.5 },
 				borderBottom: `1px solid ${theme.tokens.colors.border}`,
 				// Glowing accent under the start of the title rule.
 				"&::after": {
@@ -78,24 +78,24 @@ export function PageHeader({
 					background: `radial-gradient(closest-side, ${alpha(theme.tokens.colors.cyan, 0.12)}, transparent)`,
 				})}
 			/>
-			{children}
+			{children ? <Box sx={{ mb: 1.5 }}>{children}</Box> : null}
 			<Stack
 				direction={{ xs: "column", md: "row" }}
 				alignItems={{ xs: "stretch", md: "flex-end" }}
 				justifyContent='space-between'
-				gap={3}
+				gap={{ xs: 2, md: 3 }}
 			>
 				<Box sx={{ minWidth: 0 }}>
 					{eyebrow ? (
-						<Box sx={{ mb: 1.5 }}>
+						<Box sx={{ mb: 0.75 }}>
 							<Eyebrow>{eyebrow}</Eyebrow>
 						</Box>
 					) : null}
 					<Typography
 						variant='h1'
 						sx={{
-							fontSize: { xs: "2.125rem", md: "3rem" },
-							lineHeight: 1.3,
+							fontSize: { xs: "1.75rem", md: "2.25rem" },
+							lineHeight: 1.25,
 							overflowWrap: "anywhere",
 						}}
 					>
@@ -105,7 +105,7 @@ export function PageHeader({
 						<Typography
 							variant='subtitle1'
 							component='p'
-							sx={{ color: "text.secondary", mt: 1.5, maxWidth: 680 }}
+							sx={{ color: "text.secondary", mt: 0.75, maxWidth: 680 }}
 						>
 							{description}
 						</Typography>

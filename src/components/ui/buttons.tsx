@@ -38,9 +38,12 @@ export const IconAction = forwardRef<
 >(function IconAction({ label, children, ...props }, ref) {
 	return (
 		<Tooltip title={label}>
-			<IconButton ref={ref} aria-label={label} {...props}>
-				{children}
-			</IconButton>
+			{/* A disabled button fires no events, so the tooltip listens on this wrapper. */}
+			<span style={{ display: "inline-flex" }}>
+				<IconButton ref={ref} aria-label={label} {...props}>
+					{children}
+				</IconButton>
+			</span>
 		</Tooltip>
 	);
 });
