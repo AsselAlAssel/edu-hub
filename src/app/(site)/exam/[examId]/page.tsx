@@ -31,13 +31,16 @@ export default async function Page(props: Props) {
 	if (!exam) notFound();
 	const folder = await prisma.folder.findUnique({
 		where: { id: exam.folderId },
-		select: { classId: true },
+		select: { classId: true, parentClass: { select: { hidden: true } } },
 	});
 	if (!folder) notFound();
 
-	const status = await getExamStatus(exam, await getViewer());
-	if (status.state === "signin") redirect("/auth/signin");
-	// The folder's exams panel says what is still locking it.
+	const viewer = await getViewer();
+	// A hidden class is for admins only.
+	if (folder.parentClass.hidden && viewer?.role !== "ADMIN")
+		redirect("/classes");
+	const status = await getExamStatus(exam, viewer);
+	// The folder's exams panel says what is still locking it (or offers sign-in).
 	const folderHref = `/class/${folder.classId}/folder/${exam.folderId}`;
 	if (status.state !== "open") redirect(folderHref);
 

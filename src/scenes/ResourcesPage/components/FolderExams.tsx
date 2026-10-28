@@ -1,4 +1,5 @@
 "use client";
+import { signInWithGoogle } from "@/components/Auth/GoogleSigninDialog";
 import { IconAction } from "@/components/ui/buttons";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import IconTile from "@/components/ui/IconTile";
@@ -115,7 +116,7 @@ function ExamAction({
 		);
 	if (status.state === "signin")
 		return (
-			<Button component={Link} href='/auth/signin' variant='outlined' fullWidth>
+			<Button variant='outlined' fullWidth onClick={signInWithGoogle}>
 				سجّل الدخول لتقديم الامتحان
 			</Button>
 		);
@@ -215,6 +216,9 @@ export default function FolderExams({
 				onClose={() => setOpen(false)}
 				PaperProps={{
 					sx: { width: { xs: "100%", sm: 400 }, p: 2.5, gap: 2 },
+					// A modal panel: announced as a dialog, like the app's others.
+					role: "dialog",
+					"aria-modal": true,
 					"aria-label": "امتحانات المجلد",
 				}}
 			>

@@ -44,7 +44,6 @@ export default function BunnyPlayer({
 	const [attempt, setAttempt] = useState(0);
 	const boxRef = useRef<HTMLDivElement>(null);
 	const markRef = useRef<HTMLDivElement>(null);
-	const [markPos, setMarkPos] = useState({ top: 8, left: 8 });
 	const ready = open && playback.status === "ready";
 	const tampered = useWatermarkGuard(
 		boxRef,
@@ -82,20 +81,6 @@ export default function BunnyPlayer({
 			setPlayback({ status: "loading" });
 		};
 	}, [open, videoId, attempt]);
-
-	// Moves every few seconds so it cannot be cropped or blurred in one spot.
-	useEffect(() => {
-		if (!ready) return;
-		const id = setInterval(
-			() =>
-				setMarkPos({
-					top: 3 + Math.random() * 94,
-					left: 3 + Math.random() * 94,
-				}),
-			4000
-		);
-		return () => clearInterval(id);
-	}, [ready]);
 
 	let content;
 	if (tampered) {
@@ -165,10 +150,10 @@ export default function BunnyPlayer({
 						aria-hidden
 						sx={{
 							position: "absolute",
-							top: `${markPos.top}%`,
-							left: `${markPos.left}%`,
-							// Shifting by the same % keeps the whole text inside the box.
-							transform: `translate(-${markPos.left}%, -${markPos.top}%)`,
+							// Fixed in the top right corner (inline start of the RTL page;
+							// a plain `right` would be flipped by the RTL style plugin).
+							top: 8,
+							insetInlineStart: 8,
 							zIndex: 2,
 							pointerEvents: "none",
 							userSelect: "none",
@@ -178,7 +163,6 @@ export default function BunnyPlayer({
 							fontWeight: 600,
 							direction: "ltr",
 							whiteSpace: "nowrap",
-							transition: "top 1.5s ease, left 1.5s ease, transform 1.5s ease",
 						}}
 					>
 						{playback.watermark}

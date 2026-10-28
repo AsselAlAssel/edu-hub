@@ -15,10 +15,9 @@ export default withAuth(
 	},
 	{
 		secret: process.env.SECRET,
-		callbacks: {
-			authorized: ({ token, req }) =>
-				!!token || !req.nextUrl.pathname.startsWith("/admin"),
-		},
+		// Guests reach the handler too, which sends them home: there is no
+		// sign-in page to redirect to.
+		callbacks: { authorized: () => true },
 	}
 );
 

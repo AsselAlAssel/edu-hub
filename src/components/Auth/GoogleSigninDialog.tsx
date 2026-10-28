@@ -46,11 +46,8 @@ export function signInWithGoogle() {
  * Used by /auth/error (NextAuth's error page): remembers a message for the
  * page the student came from and returns the URL to send them back to.
  */
-export function stashSigninError(code: string | null) {
-	const message =
-		code === "OAuthAccountNotLinked"
-			? "هذا البريد مسجّل بكلمة مرور، استخدم حساب Google آخر."
-			: "تعذّر تسجيل الدخول بحساب Google، حاول مرة أخرى.";
+export function stashSigninError() {
+	const message = "تعذّر تسجيل الدخول بحساب Google، حاول مرة أخرى.";
 	try {
 		sessionStorage.setItem(ERROR_KEY, message);
 		// Same-origin paths only (no open redirect via a tampered value).
@@ -61,7 +58,7 @@ export function stashSigninError(code: string | null) {
 	}
 }
 
-/** Student sign-in: Google only. Admins use /auth/signin. */
+/** The only sign-in: Google, for students and the admin alike. */
 export default function GoogleSigninDialog({
 	open,
 	onClose,

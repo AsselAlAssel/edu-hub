@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default async function Page() {
 	// Middleware already gates /admin; this is defence in depth.
 	const session = await getServerSession(authOptions);
-	if (session?.user?.role !== "ADMIN") redirect("/auth/signin");
+	if (session?.user?.role !== "ADMIN") redirect("/");
 
 	const data = await getLandingData();
 	return <ProfilerPage landingData={data} />;

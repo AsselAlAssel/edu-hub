@@ -180,7 +180,7 @@ describe("header & mobile navigation", () => {
 			name: "إغلاق القائمة",
 		});
 		// Header (desktop) and drawer both offer sign-in; both open the Google
-		// dialog (no link to the admin-only /auth/signin).
+		// dialog (there is no sign-in page).
 		const signinButtons = screen.getAllByRole("button", {
 			name: "تسجيل الدخول",
 		});

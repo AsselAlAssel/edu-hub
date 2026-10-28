@@ -169,8 +169,7 @@ export default function SideBar({
 				</Stagger>
 			</Box>
 
-			{/* Guests get the student (Google) sign-in, like the desktop header;
-			    admins use /auth/signin. */}
+			{/* Guests get the Google sign-in, like the desktop header. */}
 			<Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
 				{user ? (
 					<Stack spacing={2}>

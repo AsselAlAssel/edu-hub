@@ -349,16 +349,32 @@ describe("file links need sign-in", () => {
 		{ id: "1", url: "https://cdn.x/a.pdf" },
 		{ id: "2", url: "#" },
 	];
-	const getFiles = async () => {
+	const getResources = async (hidden = false) => {
+		prisma.folder.findUnique.mockResolvedValue({ parentClass: { hidden } });
 		prisma.folder.findMany.mockResolvedValue([]);
 		prisma.video.findMany.mockResolvedValue([]);
 		prisma.file.findMany.mockResolvedValue(files);
 		const route = await import("@/app/api/resources/[folderId]/route");
-		const res = await route.GET(req("GET"), {
+		return route.GET(req("GET"), {
 			params: Promise.resolve({ folderId: FOLDER_ID }),
 		});
-		return (await res.json()).files.map((file: { url: string }) => file.url);
 	};
+	const getFiles = async () =>
+		(await (await getResources()).json()).files.map(
+			(file: { url: string }) => file.url
+		);
+
+	it("a hidden class is 404 for guests and students", async () => {
+		asGuest();
+		expect((await getResources(true)).status).toBe(404);
+		asUser();
+		prisma.user.findUnique.mockResolvedValue({
+			id: "b".repeat(24),
+			role: "USER",
+			unlockedUnitIds: [],
+		});
+		expect((await getResources(true)).status).toBe(404);
+	});
 
 	it("guests get neither the URL nor the name", async () => {
 		asGuest();

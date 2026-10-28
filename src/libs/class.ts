@@ -26,6 +26,16 @@ export const getClasses = (includeHidden = false) =>
 
 export type ClassWithMeta = Awaited<ReturnType<typeof getClasses>>[number];
 
+/** True when the folder's class is hidden and `viewer` is not an admin. */
+export async function isHiddenFrom(folderId: string, viewer: Viewer) {
+	if (viewer?.role === "ADMIN") return false;
+	const folder = await prisma.folder.findUnique({
+		where: { id: folderId },
+		select: { parentClass: { select: { hidden: true } } },
+	});
+	return !!folder?.parentClass.hidden;
+}
+
 export const getClass = (classId: string) =>
 	prisma.class.findUnique({
 		where: { id: classId },

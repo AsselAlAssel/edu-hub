@@ -12,7 +12,7 @@ import { createEduTheme } from "../../theme";
 /**
  * Regression: a stylis version mismatch (prefixer 4.3 inside emotion's 4.2
  * compiler) crashed SSR of any MUI input ("reading 'push'" on ::placeholder),
- * taking down /auth/signin. Mirrors ThemeRegistry's cache setup.
+ * taking down any page with a form. Mirrors ThemeRegistry's cache setup.
  */
 describe("RTL emotion SSR", () => {
 	it("server-renders MUI inputs with the RTL + prefixer plugins", () => {

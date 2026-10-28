@@ -6,7 +6,7 @@ import EmptyAddResources, {
 	type AddKind,
 } from "@/components/EmptyAddResources/EmptyAddResources";
 import { PageHeader, PageShell } from "@/components/ui/PageShell";
-import { EmptyState, ErrorState } from "@/components/ui/States";
+import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 import useProgress, { useWatchTracker } from "@/hooks/useProgress";
 import { useResource } from "@/hooks/useResourceApi";
 import useRole from "@/hooks/useRole";
@@ -34,6 +34,8 @@ import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { Button, ListItemIcon, Menu, MenuItem, Stack } from "@mui/material";
 import type { ResourceVideo } from "@/libs/class";
 import type { Folder, Video } from "@prisma/client";
+import { useSession } from "next-auth/react";
+import { useRouter } from "nextjs-toploader/app";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import FilesSection from "./components/FilesSection";
 import FolderSection from "./components/FolderSection";
@@ -122,6 +124,7 @@ export default function ResourcesPage({
 	className,
 	classId,
 	breadcrumb,
+	hidden = false,
 }: {
 	resources: ResourceData;
 	folderId: string;
@@ -129,8 +132,12 @@ export default function ResourcesPage({
 	className: string;
 	classId: string;
 	breadcrumb: { id: string; name: string }[];
+	/** Hidden class: the cached page is empty; only admins load it. */
+	hidden?: boolean;
 }) {
 	const { isAdmin } = useRole();
+	const { status: sessionStatus } = useSession();
+	const router = useRouter();
 	const { data: swrData, error, mutate } = useResource({ folderId, resources });
 	const data: ResourceData = swrData ?? resources;
 	const { folders, files, videos } = data;
@@ -148,6 +155,13 @@ export default function ResourcesPage({
 	useEffect(() => {
 		if (loadViewer) void mutate().finally(() => setViewerLoaded(true));
 	}, [loadViewer, mutate]);
+	// Hidden class: admins fetch its content, everyone else goes back to the
+	// class list (the API refuses them too).
+	useEffect(() => {
+		if (!hidden || sessionStatus === "loading") return;
+		if (isAdmin) void mutate();
+		else router.replace("/classes");
+	}, [hidden, sessionStatus, isAdmin, mutate, router]);
 	// Decided on the server (getResources); admins always play.
 	const isLocked = (video: ResourceVideo) => !isAdmin && !!video.locked;
 
@@ -160,7 +174,14 @@ export default function ResourcesPage({
 		if (dialog?.type === "play") tracker.stop();
 		setDialog(null);
 	};
-	const play = (video: ResourceVideo) => {
+	const play = async (video: ResourceVideo) => {
+		// Clicked before the viewer's own view arrived (or before the session
+		// loaded, so even an admin looks like a guest): the cached view locks
+		// every paid video, so ask the server before showing the paywall.
+		if (video.locked && !viewerLoaded) {
+			const fresh = await mutate();
+			video = fresh?.videos.find((v) => v.id === video.id) ?? video;
+		}
 		if (isLocked(video)) return setDialog({ type: "paywall" });
 		// Bunny playback is not tracked: its iframe reports no position.
 		if (video.isBunny) return setDialog({ type: "bunny", video });
@@ -183,7 +204,7 @@ export default function ResourcesPage({
 		if (!url.searchParams.has("v")) return;
 		url.searchParams.delete("v");
 		window.history.replaceState(window.history.state, "", url);
-		if (video) play(video);
+		if (video) void play(video);
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- runs once, when the viewer is known
 	}, [progress.ready, loadViewer, viewerLoaded]);
 
@@ -349,7 +370,9 @@ export default function ResourcesPage({
 	);
 
 	let content;
-	if (error && !swrData) {
+	if (hidden && !isAdmin) {
+		content = <LoadingState />;
+	} else if (error && !swrData) {
 		content = (
 			<ErrorState
 				action={

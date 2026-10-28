@@ -53,10 +53,4 @@ test.describe("what's new dialog", () => {
 		await page.keyboard.press("ArrowRight");
 		await expect(dialog.getByText("سجّل دخولك بنقرة واحدة")).toBeVisible();
 	});
-
-	test("stays off the sign-in page", async ({ page }) => {
-		await page.goto("/auth/signin");
-		await page.waitForTimeout(2000);
-		await expect(page.getByRole("dialog")).toHaveCount(0);
-	});
 });

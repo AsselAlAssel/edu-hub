@@ -6,11 +6,13 @@ export const SITE_URL = (
 
 export const SITE_NAME = "محمد صبح للفيزياء";
 
+// Rendered from scripts/og-cover.html. New name on every redesign: WhatsApp
+// and Facebook cache share images by URL.
 const COVER = {
-	url: "/images/cover.png",
+	url: "/images/og-cover.png",
 	width: 1200,
 	height: 630,
-	alt: "شروحات الفيزياء - محمد صبح",
+	alt: "منصة محمد صبح للفيزياء: فيديوهات شرح وملفات وامتحانات لكل الصفوف",
 };
 
 /** Page metadata with canonical URL + matching Open Graph/Twitter cards. */
