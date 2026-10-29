@@ -36,6 +36,7 @@ yarn-error.log*
 next-env.d.ts
 # verification builds (NEXT_DIST_DIR)
 /.next-verify/
+/.next-qa/
 /.next-before/
 /.next-after/
 /.next-dev/

@@ -1,3 +1,4 @@
+import { isFirstLevelFolder } from "@/libs/access";
 import { revalidateResourcePages } from "@/libs/revalidate";
 import {
 	cleanString,
@@ -11,6 +12,15 @@ import { prisma } from "@/libs/prismaDb";
 import { recursiveDelete } from "@/libs/uitls";
 import { NextRequest, NextResponse } from "next/server";
 
+const MAX_UNIT_PRICE = 100_000;
+
+/** null (free) or a whole number of ILS. */
+const isValidUnitPrice = (price: unknown) =>
+	price === null ||
+	(Number.isInteger(price) &&
+		(price as number) > 0 &&
+		(price as number) <= MAX_UNIT_PRICE);
+
 export const POST = async (req: NextRequest) => {
 	const denied = await requireAdmin();
 	if (denied) return denied;
@@ -18,7 +28,14 @@ export const POST = async (req: NextRequest) => {
 	const body = await readJson(req);
 	const name = cleanString(body.name, 120);
 	const { classId, parentFolderId } = body;
-	if (!name || !isObjectId(classId) || !isObjectId(parentFolderId)) {
+	// Optional: a price on creation makes the new folder a paid unit.
+	const price = body.price ?? null;
+	if (
+		!name ||
+		!isObjectId(classId) ||
+		!isObjectId(parentFolderId) ||
+		!isValidUnitPrice(price)
+	) {
 		return jsonError("Missing Fields", 400);
 	}
 
@@ -28,6 +45,9 @@ export const POST = async (req: NextRequest) => {
 	if (!parentFolder) return jsonError("Parent Folder not found", 404);
 	if (parentFolder.classId !== classId) {
 		return jsonError("Class not found", 404);
+	}
+	if (price !== null && !parentFolder.isRoot) {
+		return jsonError("Only a class's first-level folders can be priced", 400);
 	}
 
 	const lastFolder = await prisma.folder.findFirst({
@@ -42,6 +62,7 @@ export const POST = async (req: NextRequest) => {
 			classId,
 			parentFolderId,
 			rank: getRankAfterLast(lastFolder?.rank),
+			...(price !== null && { price }),
 		},
 	});
 
@@ -73,6 +94,34 @@ export const PUT = async (req: NextRequest) => {
 
 	revalidateResourcePages();
 	return NextResponse.json(folder, { status: 200 });
+};
+
+/** Sets (whole ILS) or clears (null) a unit's price; first-level folders only. */
+export const PATCH = async (req: NextRequest) => {
+	const denied = await requireAdmin();
+	if (denied) return denied;
+
+	const { folderId, price } = await readJson(req);
+	if (
+		!isObjectId(folderId) ||
+		price === undefined ||
+		!isValidUnitPrice(price)
+	) {
+		return jsonError("Missing Fields", 400);
+	}
+
+	const folder = await prisma.folder.findUnique({ where: { id: folderId } });
+	if (!folder) return jsonError("Folder not found", 404);
+	if (!(await isFirstLevelFolder(folder))) {
+		return jsonError("Only a class's first-level folders can be priced", 400);
+	}
+
+	const updated = await prisma.folder.update({
+		where: { id: folderId },
+		data: { price },
+	});
+	revalidateResourcePages();
+	return NextResponse.json(updated, { status: 200 });
 };
 
 export const DELETE = async (req: NextRequest) => {

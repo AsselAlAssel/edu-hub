@@ -4,40 +4,45 @@ import AppDialog from "@/components/ui/AppDialog";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import GoogleIcon from "@mui/icons-material/Google";
-import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
 import { Box, Button, ButtonBase, Stack, Typography } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { useState, type KeyboardEvent } from "react";
 import {
-	CompleteScene,
-	ProgressScene,
-	ResumeScene,
-	SigninScene,
+	ExamScene,
+	LockedScene,
+	ResultScene,
+	SubscribeScene,
+	WatchScene,
 } from "./scenes";
 import useWhatsNew from "./useWhatsNew";
 
+// The student's journey, one step per slide: locked → subscribe → watch → exam → result.
 const SLIDES = [
 	{
-		Scene: SigninScene,
-		title: "سجّل دخولك بنقرة واحدة",
-		text: "استخدم حسابك في Google، بلا كلمات مرور ولا نماذج طويلة، ليُحفظ تقدّمك تلقائيًا.",
+		Scene: LockedScene,
+		title: "وحدات كاملة للمشتركين",
+		text: "وحدات مدفوعة فيها فيديوهات وملفات وامتحانات، تبقى مقفلة حتى تشترك فيها.",
 	},
 	{
-		Scene: CompleteScene,
-		title: "كل فيديو تُنهيه يُحفظ تلقائيًا",
-		text: "عند مشاهدة 90٪ من الفيديو يُعلَّم مكتملًا، ويمكنك تعليمه بنفسك من الدائرة بجانب عنوانه.",
+		Scene: SubscribeScene,
+		title: "اشترك برسالة واتساب واحدة",
+		text: "سجّل دخولك واضغط «اشترك عبر واتساب»، فتصلنا رسالة جاهزة باسم الوحدة ونفتحها لك بعد الدفع.",
 	},
 	{
-		Scene: ResumeScene,
-		title: "أكمِل من حيث توقفت",
-		text: "نتذكّر الثانية التي توقفت عندها، فيبدأ الفيديو منها في المرة القادمة.",
+		Scene: WatchScene,
+		title: "شاهد فيديوهات الوحدة",
+		text: "بعد فتح الوحدة على حسابك تظهر لك كل فيديوهاتها وملفاتها، ويُحفظ تقدّمك فيها.",
 	},
 	{
-		Scene: ProgressScene,
-		title: "تابع تقدّمك في كل صف",
-		text: "صفحة «تقدّمي» تعرض نسبة إنجازك في كل صف، والفيديوهات التي لم تُكملها بعد.",
+		Scene: ExamScene,
+		title: "امتحانات داخل كل وحدة",
+		text: "سؤال في كل شاشة مع خريطة للأسئلة، وبعض الامتحانات تُفتح بعد أن تُنهي فيديوهات الوحدة.",
+	},
+	{
+		Scene: ResultScene,
+		title: "نتيجتك فور التسليم",
+		text: "تظهر علامتك مباشرة مع مراجعة لكل سؤال، ويمكنك إعادة الامتحان لتحسين أفضل نتيجة.",
 	},
 ] as const;
 
@@ -171,14 +176,8 @@ export default function WhatsNewDialog() {
 								التالي
 							</Button>
 						) : session?.user ? (
-							<Button
-								variant='contained'
-								component={Link}
-								href='/progress'
-								startIcon={<InsightsOutlinedIcon />}
-								onClick={() => finish()}
-							>
-								اعرض تقدّمي
+							<Button variant='contained' onClick={() => finish()}>
+								يلّا نبدأ
 							</Button>
 						) : (
 							<Button

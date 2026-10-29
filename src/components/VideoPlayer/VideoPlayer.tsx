@@ -43,31 +43,7 @@ export default function VideoPlayer({
 	onProgress?: (playedSeconds: number, duration: number) => void;
 }) {
 	const duration = useRef(0);
-	const handleCloseRef = useRef(handleClose);
-	handleCloseRef.current = handleClose;
-
-	// The device/browser back button closes the player instead of leaving the
-	// page: opening pushes a history entry (keeping Next's router state),
-	// and every close goes back through it.
-	useEffect(() => {
-		if (!open) return;
-		if (!onPlayerEntry()) {
-			window.history.pushState(
-				{ ...window.history.state, [HISTORY_KEY]: true },
-				""
-			);
-		}
-		const onPopState = () => {
-			if (!onPlayerEntry()) handleCloseRef.current();
-		};
-		window.addEventListener("popstate", onPopState);
-		return () => window.removeEventListener("popstate", onPopState);
-	}, [open]);
-
-	const close = () => {
-		if (onPlayerEntry()) window.history.back();
-		else handleClose();
-	};
+	const close = useCloseOnBack(open, handleClose);
 
 	return (
 		<AppDialog
@@ -110,4 +86,36 @@ export default function VideoPlayer({
 			</Box>
 		</AppDialog>
 	);
+}
+
+/**
+ * The device/browser back button closes a player dialog instead of leaving
+ * the page: opening pushes a history entry (keeping Next's router state),
+ * and every close goes back through it. Returns the close handler to use.
+ */
+export function useCloseOnBack(open: boolean, handleClose: () => void) {
+	const handleCloseRef = useRef(handleClose);
+	handleCloseRef.current = handleClose;
+
+	useEffect(() => {
+		if (!open) return;
+		if (!onPlayerEntry()) {
+			window.history.pushState(
+				{ ...window.history.state, [HISTORY_KEY]: true },
+				""
+			);
+		}
+		const onPopState = () => {
+			if (!onPlayerEntry()) handleCloseRef.current();
+		};
+		window.addEventListener("popstate", onPopState);
+		return () => window.removeEventListener("popstate", onPopState);
+	}, [open]);
+
+	const close = () => {
+		if (onPlayerEntry()) window.history.back();
+		else handleClose();
+	};
+
+	return close;
 }

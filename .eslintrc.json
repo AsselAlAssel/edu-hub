@@ -10,9 +10,7 @@
 		"sourceType": "module",
 		"ecmaFeatures": {
 			"jsx": true
-		},
-		"tsconfigRootDir": "__dirname"
-		// "project": "./tsconfig.json"
+		}
 	},
 	"settings": {
 		"react": {

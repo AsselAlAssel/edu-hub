@@ -19,9 +19,11 @@ declare module "next-auth" {
 const INVALID_CREDENTIALS = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
 
 export const authOptions: NextAuthOptions = {
+	// No sign-in page: everyone signs in with Google from the header dialog.
+	// NextAuth sends most Google failures to signIn (?error=…), so both go to
+	// /auth/error, which returns to the student's page with a toast.
 	pages: {
-		signIn: "/auth/signin",
-		// OAuth (Google) failures: back to the student's page with a toast.
+		signIn: "/auth/error",
 		error: "/auth/error",
 	},
 	adapter: PrismaAdapter(prisma),
@@ -31,10 +33,13 @@ export const authOptions: NextAuthOptions = {
 	},
 
 	providers: [
-		// Students sign in with Google; new accounts get the default USER role.
+		// Everyone signs in with Google; new accounts get the default USER role.
 		GoogleProvider({
 			clientId: process.env.GOOGLE_CLIENT_ID ?? "",
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+			// Google verifies the email, so an account made with a password
+			// (the admin's) can sign in with the same Gmail.
+			allowDangerousEmailAccountLinking: true,
 		}),
 		CredentialsProvider({
 			name: "credentials",

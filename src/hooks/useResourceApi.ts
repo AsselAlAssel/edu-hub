@@ -1,4 +1,3 @@
-import type { File, Folder, Video } from "@prisma/client";
 import {
 	deleteFileRequest,
 	deleteVideoRequest,
@@ -14,6 +13,7 @@ import {
 	type UpdateFileNameInput,
 	type UpdateVideoNameInput,
 } from "@/services/resource.service";
+import type { ResourceData } from "@/scenes/ResourcesPage/resourceDnd";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 
@@ -26,24 +26,17 @@ export const useResource = ({
 	resources,
 }: {
 	folderId: string;
-	resources: {
-		folders: Folder[];
-		files: File[];
-		videos: Video[];
-	};
+	resources: ResourceData;
 }) => {
 	// Server-rendered data seeds the cache; no duplicate request on mount.
-	const { data, error, isLoading, mutate } = useSWR<
+	const { data, error, isLoading, mutate } = useSWR<ResourceData, unknown>(
+		folderId ? `/api/resources/${folderId}` : null,
+		getResources,
 		{
-			folders: Folder[];
-			files: File[];
-			videos: Video[];
-		},
-		unknown
-	>(folderId ? `/api/resources/${folderId}` : null, getResources, {
-		fallbackData: resources,
-		revalidateOnMount: false,
-	});
+			fallbackData: resources,
+			revalidateOnMount: false,
+		}
+	);
 
 	return {
 		data,

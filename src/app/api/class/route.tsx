@@ -110,6 +110,8 @@ export const PATCH = async (req: NextRequest) => {
 	revalidatePath("/classes");
 	revalidatePath("/progress");
 	revalidatePath("/");
+	// Folder pages cache the class's content (or, when hidden, nothing).
+	revalidatePath("/(site)/class/[classId]/folder/[folderId]", "page");
 	return NextResponse.json(updated, { status: 200 });
 };
 

@@ -4,7 +4,9 @@ import Surface from "@/components/ui/Surface";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
-import { Box, Stack, Typography } from "@mui/material";
+import LockOpenRoundedIcon from "@mui/icons-material/LockOpenRounded";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { Box, Chip, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import type { Folder } from "@prisma/client";
 import Link from "next/link";
@@ -20,6 +22,8 @@ export default function FolderCard({
 	onDelete,
 	dropState = "idle",
 	isAdmin = false,
+	owned = false,
+	onPrice,
 }: {
 	folder: Folder;
 	handle?: ReactNode;
@@ -27,6 +31,10 @@ export default function FolderCard({
 	onDelete: () => void;
 	dropState?: DropState;
 	isAdmin?: boolean;
+	/** The student has bought this paid unit. */
+	owned?: boolean;
+	/** Admin "unit price" action, on the class root page only. */
+	onPrice?: () => void;
 }) {
 	const href = `/class/${folder.classId}/folder/${folder.id}`;
 	const isOver = dropState === "over";
@@ -139,6 +147,14 @@ export default function FolderCard({
 					>
 						أفلِت هنا للنقل إلى هذا المجلد
 					</Typography>
+				) : folder.price ? (
+					<Chip
+						size='small'
+						icon={owned ? <LockOpenRoundedIcon /> : <LockOutlinedIcon />}
+						color={owned ? "success" : "default"}
+						label={owned ? "مشترك" : `${folder.price} ₪`}
+						sx={{ mt: 0.5, fontWeight: 700 }}
+					/>
 				) : null}
 			</Box>
 			{isAdmin ? (
@@ -150,6 +166,7 @@ export default function FolderCard({
 						deleteLabel='حذف المجلد'
 						onEdit={onEdit}
 						onDelete={onDelete}
+						onPrice={onPrice}
 					/>
 				</Stack>
 			) : (

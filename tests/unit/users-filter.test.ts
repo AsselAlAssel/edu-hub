@@ -1,7 +1,11 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import type { PublicUser } from "@/libs/users";
-import { filterUsers, userStats } from "@/scenes/ProfilerPage/usersFilter";
+import {
+	filterUsers,
+	unitCount,
+	userStats,
+} from "@/scenes/ProfilerPage/usersFilter";
 
 const NOW = new Date(2026, 9, 21).getTime();
 const daysAgo = (days: number) => new Date(NOW - days * 86_400_000);
@@ -27,6 +31,27 @@ const users = [
 	user("c", "Rana", 100),
 ];
 const base = { query: "", role: "ALL", joined: "ALL", sort: "newest" } as const;
+
+describe("filterUsers by subscription", () => {
+	it("PAID keeps only students with at least one unit still on sale", () => {
+		const subscriber = {
+			...user("d", "Lina", 1),
+			unlockedUnitIds: ["u1"],
+		} as PublicUser;
+		// Owns only a unit since deleted or made free.
+		const stale = {
+			...user("e", "Omar", 1),
+			unlockedUnitIds: ["gone"],
+		} as PublicUser;
+		const all = [...users, subscriber, stale];
+		const paid = { ...base, subscription: "PAID" } as const;
+		expect(
+			filterUsers(all, paid, NOW, new Set(["u1"])).map((u) => u.id)
+		).toEqual(["d"]);
+		expect(unitCount(stale, new Set(["u1"]))).toBe(0);
+		expect(filterUsers(all, base, NOW)).toHaveLength(5);
+	});
+});
 
 describe("filterUsers", () => {
 	it("filters by search, role (null role = USER) and join window", () => {

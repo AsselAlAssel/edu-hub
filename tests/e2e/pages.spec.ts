@@ -56,7 +56,7 @@ const firstFolderUrl = async (page: Page) => {
 };
 
 test.describe("every public page", () => {
-	for (const path of ["/", "/classes", "/auth/signin"]) {
+	for (const path of ["/", "/classes"]) {
 		test(`${path} renders cleanly`, async ({ page }) => {
 			const errors = collectErrors(page);
 			await page.goto(path);
@@ -276,10 +276,8 @@ test.describe("SEO", () => {
 	});
 
 	test("private pages are not indexable", async ({ page }) => {
-		await page.goto("/auth/signin");
-		const robots = await page
-			.locator('meta[name="robots"]')
-			.getAttribute("content");
-		expect(robots).toContain("noindex");
+		// /auth/error redirects on the client, so read the server HTML.
+		const html = await (await page.request.get("/auth/error")).text();
+		expect(html).toMatch(/<meta name="robots" content="[^"]*noindex/);
 	});
 });

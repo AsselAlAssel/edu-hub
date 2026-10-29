@@ -3,6 +3,7 @@ import ActionsMenu from "@/components/ui/ActionsMenu";
 import Surface from "@/components/ui/Surface";
 import { formatTime, type VideoProgress } from "@/hooks/useProgress";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import RadioButtonUncheckedRoundedIcon from "@mui/icons-material/RadioButtonUncheckedRounded";
 import {
@@ -14,16 +15,19 @@ import {
 	Typography,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
+import type { ResourceVideo } from "@/libs/class";
 import type { Video } from "@prisma/client";
 import Image from "next/image";
 import type { ReactNode } from "react";
 
+// Bunny videos reach the client without videoId; their cards use the thumbnail route.
 export const youtubeThumbnail = (
 	video: Pick<Video, "videoId" | "thumbnailUrl">
-) =>
-	video.videoId
+) => {
+	return video.videoId
 		? `https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg`
 		: video.thumbnailUrl;
+};
 
 export default function VideoCard({
 	video,
@@ -35,8 +39,9 @@ export default function VideoCard({
 	onMove,
 	progress,
 	onToggleDone,
+	locked = false,
 }: {
-	video: Video;
+	video: ResourceVideo;
 	handle?: ReactNode;
 	onChangeName: () => void;
 	onDelete: () => void;
@@ -46,14 +51,21 @@ export default function VideoCard({
 	progress?: VideoProgress;
 	/** Present for signed-in students: the manual "finished" toggle. */
 	onToggleDone?: (completed: boolean) => void;
+	/** Paid-unit video the student has not bought; `onPlay` opens the paywall. */
+	locked?: boolean;
 }) {
-	const thumbnail = youtubeThumbnail(video);
-	const done = !!progress?.completed;
-	const badge = done
-		? "مكتمل"
-		: progress?.position
-			? `تابع من ${formatTime(progress.position)}`
-			: null;
+	const thumbnail = video.isBunny
+		? `/api/video/${video.id}/thumbnail`
+		: youtubeThumbnail(video);
+	// A locked video reads as locked, even if it was finished before access ended.
+	const done = !locked && !!progress?.completed;
+	const badge = locked
+		? "للمشتركين"
+		: done
+			? "مكتمل"
+			: progress?.position
+				? `تابع من ${formatTime(progress.position)}`
+				: null;
 	return (
 		<Surface
 			interactive
@@ -68,7 +80,11 @@ export default function VideoCard({
 		>
 			<ButtonBase
 				onClick={onPlay}
-				aria-label={`تشغيل الفيديو: ${video.name}${badge ? ` (${badge})` : ""}`}
+				aria-label={
+					locked
+						? `فيديو للمشتركين: ${video.name}`
+						: `تشغيل الفيديو: ${video.name}${badge ? ` (${badge})` : ""}`
+				}
 				sx={(theme) => ({
 					position: "relative",
 					display: "block",
@@ -136,7 +152,7 @@ export default function VideoCard({
 						"& svg": { fontSize: 30 },
 					})}
 				>
-					<PlayArrowRoundedIcon />
+					{locked ? <LockOutlinedIcon /> : <PlayArrowRoundedIcon />}
 				</Box>
 				{badge ? (
 					<Box

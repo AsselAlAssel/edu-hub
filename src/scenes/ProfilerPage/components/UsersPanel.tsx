@@ -1,11 +1,13 @@
 "use client";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { SearchField } from "@/components/ui/FormField";
-import IconTile from "@/components/ui/IconTile";
+import StatTile from "@/components/ui/StatTile";
 import { ErrorState, EmptyState } from "@/components/ui/States";
 import Surface from "@/components/ui/Surface";
 import { getErrorMessage } from "@/libs/errors";
+import type { PaidUnitGroup } from "@/libs/access";
 import type { PublicUser, RoleName } from "@/libs/users";
+import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
@@ -27,15 +29,17 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import useSWR from "swr";
 import {
 	filterUsers,
 	roleOf,
+	unitCount,
 	userStats,
 	type UserFilters,
 } from "../usersFilter";
+import UnitsDialog from "./UnitsDialog";
 
 const USERS_KEY = "/api/user";
 const fetchUsers = (url: string) =>
@@ -48,37 +52,13 @@ const DEFAULT_FILTERS: UserFilters = {
 	role: "ALL",
 	joined: "ALL",
 	sort: "newest",
+	subscription: "ALL",
 };
+const UNITS_KEY = "/api/units";
+const fetchUnits = (url: string) =>
+	axios.get<PaidUnitGroup[]>(url).then((res) => res.data);
 const dateFormat = new Intl.DateTimeFormat("ar", { dateStyle: "medium" });
 const monthFormat = new Intl.DateTimeFormat("ar", { month: "short" });
-
-function StatTile({
-	icon,
-	label,
-	value,
-	tone,
-}: {
-	icon: ReactNode;
-	label: string;
-	value: number;
-	tone: "primary" | "secondary" | "success" | "info";
-}) {
-	return (
-		<Surface sx={{ p: 2, display: "flex", alignItems: "center", gap: 1.5 }}>
-			<IconTile tone={tone} size={44}>
-				{icon}
-			</IconTile>
-			<Box sx={{ minWidth: 0 }}>
-				<Typography variant='h5' sx={{ fontWeight: 800, lineHeight: 1.1 }}>
-					{value.toLocaleString("ar")}
-				</Typography>
-				<Typography variant='body2' sx={{ color: "text.secondary" }} noWrap>
-					{label}
-				</Typography>
-			</Box>
-		</Surface>
-	);
-}
 
 function SignupsChart({
 	monthly,
@@ -144,12 +124,26 @@ export default function UsersPanel() {
 	const [page, setPage] = useState(1);
 	const [toDelete, setToDelete] = useState<PublicUser | null>(null);
 	const [busyId, setBusyId] = useState<string | null>(null);
+	const [unitsFor, setUnitsFor] = useState<PublicUser | null>(null);
+	const { data: unitGroups, error: unitsError } = useSWR(UNITS_KEY, fetchUnits);
+	// "الحادي عشر: الوحدة 1" by unit id, for the chips on each student.
+	const unitLabels = useMemo(
+		() =>
+			new Map(
+				(unitGroups ?? []).flatMap((group) =>
+					group.units.map(
+						(unit) => [unit.id, `${group.className}: ${unit.name}`] as const
+					)
+				)
+			),
+		[unitGroups]
+	);
 
 	// ponytail: filters/pages client-side over the full list; move to
 	// server-side paging (skip/take) if users grow into the tens of thousands.
 	const users = useMemo(
-		() => filterUsers(data ?? [], filters),
-		[data, filters]
+		() => filterUsers(data ?? [], filters, Date.now(), unitLabels),
+		[data, filters, unitLabels]
 	);
 	const stats = useMemo(() => userStats(data ?? []), [data]);
 	const pageCount = Math.max(1, Math.ceil(users.length / PAGE_SIZE));
@@ -309,6 +303,21 @@ export default function UsersPanel() {
 						<MenuItem value='oldest'>الأقدم</MenuItem>
 						<MenuItem value='name'>الاسم</MenuItem>
 					</Select>
+					<Select
+						size='small'
+						value={filters.subscription}
+						onChange={(event) =>
+							setFilter(
+								"subscription",
+								event.target.value as UserFilters["subscription"]
+							)
+						}
+						inputProps={{ "aria-label": "تصفية حسب الاشتراك" }}
+						sx={{ flex: 1, minWidth: 120 }}
+					>
+						<MenuItem value='ALL'>كل الطلاب</MenuItem>
+						<MenuItem value='PAID'>المشتركون فقط</MenuItem>
+					</Select>
 				</Stack>
 			</Stack>
 
@@ -409,9 +418,43 @@ export default function UsersPanel() {
 										>
 											انضم {dateFormat.format(new Date(user.createdAt))}
 										</Typography>
+										{unitCount(user, unitLabels) ? (
+											<Stack
+												direction='row'
+												flexWrap='wrap'
+												gap={0.5}
+												sx={{ mt: 0.75 }}
+											>
+												{(user.unlockedUnitIds ?? []).map((id) =>
+													unitLabels.has(id) ? (
+														<Chip
+															key={id}
+															size='small'
+															color='success'
+															variant='outlined'
+															label={unitLabels.get(id)}
+														/>
+													) : null
+												)}
+											</Stack>
+										) : null}
 									</Box>
 								</Stack>
 								<Stack direction='row' alignItems='center' gap={1}>
+									<Button
+										size='small'
+										variant={
+											unitCount(user, unitLabels) ? "contained" : "outlined"
+										}
+										color={unitCount(user, unitLabels) ? "success" : "primary"}
+										startIcon={<SellOutlinedIcon />}
+										onClick={() => setUnitsFor(user)}
+										aria-label={`وحدات ${user.name || user.email}`}
+									>
+										{unitCount(user, unitLabels)
+											? `الوحدات (${unitCount(user, unitLabels)})`
+											: "فتح وحدات"}
+									</Button>
 									<Select
 										size='small'
 										value={role}
@@ -467,6 +510,13 @@ export default function UsersPanel() {
 				loading={!!toDelete && busyId === toDelete.id}
 				onClose={() => setToDelete(null)}
 				onConfirm={deleteUser}
+			/>
+			<UnitsDialog
+				user={unitsFor}
+				groups={unitGroups}
+				error={unitsError}
+				onClose={() => setUnitsFor(null)}
+				onSaved={() => void mutate()}
 			/>
 		</Stack>
 	);

@@ -8,12 +8,7 @@ export const metadata = pageMetadata({
 	noIndex: true,
 });
 
-/** NextAuth's error page (pages.error): bounces straight back with a toast. */
-export default async function SigninErrorPage({
-	searchParams,
-}: {
-	searchParams: Promise<{ error?: string }>;
-}) {
-	const { error } = await searchParams;
-	return <SigninErrorRedirect code={error ?? null} />;
+/** NextAuth's sign-in and error page: bounces straight back with a toast. */
+export default function SigninErrorPage() {
+	return <SigninErrorRedirect />;
 }

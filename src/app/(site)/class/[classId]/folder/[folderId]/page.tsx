@@ -71,8 +71,11 @@ export default async function Page(props: Props) {
 
 	const { classItem, breadcrumb, rootFolderId } = loaded;
 	// Cached for everyone, so no file links here: signed-in users get them
-	// from /api/resources (see ResourcesPage).
-	const resources = await getResources(params.folderId);
+	// from /api/resources (see ResourcesPage). A hidden class caches nothing:
+	// admins load it there, everyone else is sent back to the class list.
+	const resources = classItem.hidden
+		? { folders: [], files: [], videos: [] }
+		: await getResources(params.folderId);
 
 	const folderUrl = (id: string) =>
 		`${SITE_URL}/class/${params.classId}/folder/${id}`;
@@ -95,6 +98,7 @@ export default async function Page(props: Props) {
 				className={classItem.name}
 				classId={params.classId}
 				breadcrumb={breadcrumb}
+				hidden={classItem.hidden}
 			/>
 		</>
 	);

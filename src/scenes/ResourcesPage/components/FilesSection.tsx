@@ -5,11 +5,12 @@ import {
 } from "@/components/Auth/GoogleSigninDialog";
 import SortableGrid from "@/components/SortableGrid";
 import { cardGridSx } from "@/components/ui/Skeletons";
-import { SIGNIN_FILE_URL } from "@/libs/constant";
+import { PAID_FILE_URL, SIGNIN_FILE_URL } from "@/libs/constant";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import type { File } from "@prisma/client";
+import type { ReactNode } from "react";
 import AddResourceCard from "./AddResourceCard";
 import FileCard from "./FileCard";
 import ResourceSection from "./ResourceSection";
@@ -20,8 +21,8 @@ const fakeFiles = (["pdf", "docx", "pdf"] as const).map(
 		({ id: `locked-${index}`, name: "ملف الدرس", type, url: "#" }) as File
 );
 
-/** Guests: blurred placeholder cards under a Google sign-in box. */
-function LockedFiles() {
+/** Blurred placeholder cards under a box explaining how to unlock them. */
+function LockedFiles({ title, action }: { title: string; action: ReactNode }) {
 	return (
 		<Box sx={{ position: "relative" }}>
 			<Box
@@ -68,15 +69,9 @@ function LockedFiles() {
 						component='p'
 						sx={{ fontWeight: 700 }}
 					>
-						ملفات الدرس متاحة للطلاب المسجّلين
+						{title}
 					</Typography>
-					<Button
-						variant='outlined'
-						startIcon={<GoogleLogo />}
-						onClick={signInWithGoogle}
-					>
-						سجّل الدخول للوصول للملفات
-					</Button>
+					{action}
 				</Stack>
 			</Stack>
 		</Box>
@@ -90,6 +85,7 @@ export default function FilesSection({
 	onRename,
 	onDelete,
 	onMove,
+	onSubscribe,
 }: {
 	files: File[];
 	isAdmin: boolean;
@@ -97,9 +93,15 @@ export default function FilesSection({
 	onRename: (file: File) => void;
 	onDelete: (file: File) => void;
 	onMove?: (file: File) => void;
+	/** Opens the paywall for files of a paid unit the student has not bought. */
+	onSubscribe?: () => void;
 }) {
 	if (!files.length && !isAdmin) return null;
-	const locked = !isAdmin && files.some((file) => file.url === SIGNIN_FILE_URL);
+	const needsSignin =
+		!isAdmin && files.some((file) => file.url === SIGNIN_FILE_URL);
+	const needsUnit =
+		!isAdmin && files.some((file) => file.url === PAID_FILE_URL);
+	const locked = needsSignin || needsUnit;
 
 	return (
 		<ResourceSection
@@ -108,8 +110,28 @@ export default function FilesSection({
 			count={locked ? undefined : files.length}
 			icon={<DescriptionOutlinedIcon />}
 		>
-			{locked ? (
-				<LockedFiles />
+			{needsSignin ? (
+				<LockedFiles
+					title='ملفات الدرس متاحة للطلاب المسجّلين'
+					action={
+						<Button
+							variant='outlined'
+							startIcon={<GoogleLogo />}
+							onClick={signInWithGoogle}
+						>
+							سجّل الدخول للوصول للملفات
+						</Button>
+					}
+				/>
+			) : needsUnit ? (
+				<LockedFiles
+					title='ملفات هذه الوحدة للمشتركين'
+					action={
+						<Button variant='contained' onClick={onSubscribe}>
+							طريقة الاشتراك
+						</Button>
+					}
+				/>
 			) : (
 				<SortableGrid
 					items={files}

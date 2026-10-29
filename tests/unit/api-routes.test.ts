@@ -224,6 +224,35 @@ describe("validation", () => {
 		);
 	});
 
+	it("video POST stores Bunny links from our library without a thumbnail", async () => {
+		const guid = "594324c9-0b1e-48cc-945a-f1bd20716fc0";
+		vi.stubEnv("BUNNY_LIBRARY_ID", "789604");
+		prisma.folder.findUnique.mockResolvedValue({
+			id: FOLDER_ID,
+			classId: CLASS_ID,
+		});
+		prisma.video.findFirst.mockResolvedValue(null);
+		prisma.video.create.mockResolvedValue({ id: OTHER_ID });
+		const video = await import("@/app/api/video/route");
+		const post = (url: string) =>
+			video.POST(
+				req("POST", { name: "v", url, folderId: FOLDER_ID, classId: CLASS_ID })
+			);
+
+		expect(
+			(await post(`https://iframe.mediadelivery.net/embed/111/${guid}`)).status
+		).toBe(400);
+		expect(
+			(await post(`https://player.mediadelivery.net/play/789604/${guid}`))
+				.status
+		).toBe(201);
+		expect(prisma.video.create.mock.calls[0][0].data).toMatchObject({
+			videoId: guid,
+			url: `https://iframe.mediadelivery.net/embed/789604/${guid}`,
+			thumbnailUrl: "",
+		});
+	});
+
 	it("folder PUT renames by folderId and still accepts the legacy parentFolderId", async () => {
 		prisma.folder.findUnique.mockResolvedValue({
 			id: FOLDER_ID,
@@ -320,16 +349,32 @@ describe("file links need sign-in", () => {
 		{ id: "1", url: "https://cdn.x/a.pdf" },
 		{ id: "2", url: "#" },
 	];
-	const getFiles = async () => {
+	const getResources = async (hidden = false) => {
+		prisma.folder.findUnique.mockResolvedValue({ parentClass: { hidden } });
 		prisma.folder.findMany.mockResolvedValue([]);
 		prisma.video.findMany.mockResolvedValue([]);
 		prisma.file.findMany.mockResolvedValue(files);
 		const route = await import("@/app/api/resources/[folderId]/route");
-		const res = await route.GET(req("GET"), {
+		return route.GET(req("GET"), {
 			params: Promise.resolve({ folderId: FOLDER_ID }),
 		});
-		return (await res.json()).files.map((file: { url: string }) => file.url);
 	};
+	const getFiles = async () =>
+		(await (await getResources()).json()).files.map(
+			(file: { url: string }) => file.url
+		);
+
+	it("a hidden class is 404 for guests and students", async () => {
+		asGuest();
+		expect((await getResources(true)).status).toBe(404);
+		asUser();
+		prisma.user.findUnique.mockResolvedValue({
+			id: "b".repeat(24),
+			role: "USER",
+			unlockedUnitIds: [],
+		});
+		expect((await getResources(true)).status).toBe(404);
+	});
 
 	it("guests get neither the URL nor the name", async () => {
 		asGuest();
@@ -338,6 +383,12 @@ describe("file links need sign-in", () => {
 
 	it("signed-in students get the real URL", async () => {
 		asUser();
+		// Access is read from the DB, not the session.
+		prisma.user.findUnique.mockResolvedValue({
+			id: "b".repeat(24),
+			role: "USER",
+			unlockedUnitIds: [],
+		});
 		expect(await getFiles()).toEqual(["https://cdn.x/a.pdf", "#"]);
 	});
 });

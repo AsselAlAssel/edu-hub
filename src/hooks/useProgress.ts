@@ -2,7 +2,8 @@
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import useSWR from "swr";
+import useSWR, { mutate as mutateKeys } from "swr";
+import { isFolderExamsKey } from "@/constants/exams";
 
 export type VideoProgress = {
 	videoId: string;
@@ -93,6 +94,8 @@ export default function useProgress() {
 				// (SWR refetches when another page mounts).
 				{ revalidate: false }
 			);
+			// Finishing (or un-finishing) a video can unlock an exam.
+			if (patch.completed !== undefined) void mutateKeys(isFolderExamsKey);
 		},
 		[mutate]
 	);

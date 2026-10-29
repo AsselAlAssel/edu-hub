@@ -8,6 +8,7 @@ export const publicUserSelect = {
 	role: true,
 	image: true,
 	createdAt: true,
+	unlockedUnitIds: true,
 } as const;
 
 export const listUsers = () =>

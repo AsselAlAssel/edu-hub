@@ -1,11 +1,12 @@
 "use client";
 import dynamic from "next/dynamic";
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
+import FolderExams from "./components/FolderExams";
 import EmptyAddResources, {
 	type AddKind,
 } from "@/components/EmptyAddResources/EmptyAddResources";
 import { PageHeader, PageShell } from "@/components/ui/PageShell";
-import { EmptyState, ErrorState } from "@/components/ui/States";
+import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 import useProgress, { useWatchTracker } from "@/hooks/useProgress";
 import { useResource } from "@/hooks/useResourceApi";
 import useRole from "@/hooks/useRole";
@@ -31,7 +32,10 @@ import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
 import SmartDisplayOutlinedIcon from "@mui/icons-material/SmartDisplayOutlined";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { Button, ListItemIcon, Menu, MenuItem, Stack } from "@mui/material";
+import type { ResourceVideo } from "@/libs/class";
 import type { Folder, Video } from "@prisma/client";
+import { useSession } from "next-auth/react";
+import { useRouter } from "nextjs-toploader/app";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import FilesSection from "./components/FilesSection";
 import FolderSection from "./components/FolderSection";
@@ -68,6 +72,15 @@ const VideoPlayer = dynamic(() => import("@/components/VideoPlayer"), {
 const MoveDialog = dynamic(() => import("./components/MoveDialog"), {
 	ssr: false,
 });
+const BunnyPlayer = dynamic(() => import("@/components/BunnyPlayer"), {
+	ssr: false,
+});
+const PaywallDialog = dynamic(() => import("./components/PaywallDialog"), {
+	ssr: false,
+});
+const PriceDialog = dynamic(() => import("./components/PriceDialog"), {
+	ssr: false,
+});
 
 type Named = { id: string; name: string };
 type DialogState =
@@ -76,6 +89,9 @@ type DialogState =
 	| { type: "delete"; kind: ResourceKind; item: Named }
 	| { type: "move"; kind: "file" | "video"; item: Named }
 	| { type: "play"; video: Video; startAt: number }
+	| { type: "bunny"; video: Video }
+	| { type: "paywall" }
+	| { type: "price"; folder: Folder }
 	| null;
 
 /** "4 مجلدات · 6 فيديوهات · 3 ملفات" from real counts. */
@@ -108,6 +124,7 @@ export default function ResourcesPage({
 	className,
 	classId,
 	breadcrumb,
+	hidden = false,
 }: {
 	resources: ResourceData;
 	folderId: string;
@@ -115,19 +132,38 @@ export default function ResourcesPage({
 	className: string;
 	classId: string;
 	breadcrumb: { id: string; name: string }[];
+	/** Hidden class: the cached page is empty; only admins load it. */
+	hidden?: boolean;
 }) {
 	const { isAdmin } = useRole();
+	const { status: sessionStatus } = useSession();
+	const router = useRouter();
 	const { data: swrData, error, mutate } = useResource({ folderId, resources });
 	const data: ResourceData = swrData ?? resources;
 	const { folders, files, videos } = data;
 	const actions = useResourceMutations(folderId, classId);
 	const progress = useProgress();
 	const tracker = useWatchTracker(progress.save, progress.signedIn && !isAdmin);
-	// The cached page has no file links; fetch them once the user is known.
+	// The cached page is the guest view: no file links, every paid unit locked.
+	// Once the user is known, fetch their own view (links, bought units).
+	const access = data.access;
 	const hasLockedFiles = files.some((file) => file.url === SIGNIN_FILE_URL);
+	const hasPaidContent =
+		!!access?.unit?.price || folders.some((folder) => folder.price);
+	const loadViewer = progress.signedIn && (hasLockedFiles || hasPaidContent);
+	const [viewerLoaded, setViewerLoaded] = useState(false);
 	useEffect(() => {
-		if (progress.signedIn && hasLockedFiles) void mutate();
-	}, [progress.signedIn, hasLockedFiles, mutate]);
+		if (loadViewer) void mutate().finally(() => setViewerLoaded(true));
+	}, [loadViewer, mutate]);
+	// Hidden class: admins fetch its content, everyone else goes back to the
+	// class list (the API refuses them too).
+	useEffect(() => {
+		if (!hidden || sessionStatus === "loading") return;
+		if (isAdmin) void mutate();
+		else router.replace("/classes");
+	}, [hidden, sessionStatus, isAdmin, mutate, router]);
+	// Decided on the server (getResources); admins always play.
+	const isLocked = (video: ResourceVideo) => !isAdmin && !!video.locked;
 
 	const [dialog, setDialog] = useState<DialogState>(null);
 	const [addMenuAnchor, setAddMenuAnchor] = useState<HTMLElement | null>(null);
@@ -138,27 +174,39 @@ export default function ResourcesPage({
 		if (dialog?.type === "play") tracker.stop();
 		setDialog(null);
 	};
-	const play = (video: Video) => {
+	const play = async (video: ResourceVideo) => {
+		// Clicked before the viewer's own view arrived (or before the session
+		// loaded, so even an admin looks like a guest): the cached view locks
+		// every paid video, so ask the server before showing the paywall.
+		if (video.locked && !viewerLoaded) {
+			const fresh = await mutate();
+			video = fresh?.videos.find((v) => v.id === video.id) ?? video;
+		}
+		if (isLocked(video)) return setDialog({ type: "paywall" });
+		// Bunny playback is not tracked: its iframe reports no position.
+		if (video.isBunny) return setDialog({ type: "bunny", video });
 		const saved = progress.byVideo.get(video.id);
 		tracker.start(video.id, saved);
 		setDialog({ type: "play", video, startAt: saved?.position ?? 0 });
 	};
 
 	// "Continue watching" links (…/folder/<id>?v=<videoId>) open the video at
-	// its saved position: wait for progress, then drop ?v from the URL.
+	// its saved position: wait for progress and for the viewer's own resources
+	// (the cached ones lock every paid video), then drop ?v from the URL.
 	// (window, not useSearchParams: that would opt this ISR page out of SSR.)
 	const deepLinkHandled = useRef(false);
 	useEffect(() => {
 		if (deepLinkHandled.current || !progress.ready) return;
+		if (loadViewer && !viewerLoaded) return;
 		deepLinkHandled.current = true;
 		const url = new URL(window.location.href);
 		const video = videos.find((item) => item.id === url.searchParams.get("v"));
 		if (!url.searchParams.has("v")) return;
 		url.searchParams.delete("v");
 		window.history.replaceState(window.history.state, "", url);
-		if (video) play(video);
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- runs once, when progress is known
-	}, [progress.ready]);
+		if (video) void play(video);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- runs once, when the viewer is known
+	}, [progress.ready, loadViewer, viewerLoaded]);
 
 	const title = isRootFolder
 		? className
@@ -291,10 +339,17 @@ export default function ResourcesPage({
 				onCreate={() => openCreate("folder")}
 				onRename={rename("folder")}
 				onDelete={remove("folder")}
+				ownedUnitIds={access?.ownedUnitIds}
+				onPrice={
+					isAdmin && isRootFolder
+						? (folder) => setDialog({ type: "price", folder })
+						: undefined
+				}
 			/>
 			<VideosSection
 				videos={videos}
 				isAdmin={isAdmin}
+				isLocked={isLocked}
 				onAdd={() => openCreate("video")}
 				onPlay={play}
 				progress={progress}
@@ -309,12 +364,15 @@ export default function ResourcesPage({
 				onRename={rename("file")}
 				onDelete={remove("file")}
 				onMove={move("file")}
+				onSubscribe={() => setDialog({ type: "paywall" })}
 			/>
 		</Stack>
 	);
 
 	let content;
-	if (error && !swrData) {
+	if (hidden && !isAdmin) {
+		content = <LoadingState />;
+	} else if (error && !swrData) {
 		content = (
 			<ErrorState
 				action={
@@ -362,44 +420,52 @@ export default function ResourcesPage({
 				title={title}
 				description={summary || undefined}
 				actions={
-					isAdmin ? (
-						<>
-							<Button
-								startIcon={<AddRoundedIcon />}
-								aria-haspopup='menu'
-								aria-expanded={!!addMenuAnchor}
-								onClick={(event) => setAddMenuAnchor(event.currentTarget)}
-							>
-								إضافة محتوى
-							</Button>
-							<Menu
-								anchorEl={addMenuAnchor}
-								open={!!addMenuAnchor}
-								onClose={() => setAddMenuAnchor(null)}
-								anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-								transformOrigin={{ vertical: "top", horizontal: "left" }}
-							>
-								<MenuItem onClick={() => openCreate("folder")}>
-									<ListItemIcon>
-										<CreateNewFolderOutlinedIcon fontSize='small' />
-									</ListItemIcon>
-									مجلد جديد
-								</MenuItem>
-								<MenuItem onClick={() => openCreate("video")}>
-									<ListItemIcon>
-										<SmartDisplayOutlinedIcon fontSize='small' />
-									</ListItemIcon>
-									فيديو من يوتيوب
-								</MenuItem>
-								<MenuItem onClick={() => openCreate("file")}>
-									<ListItemIcon>
-										<UploadFileOutlinedIcon fontSize='small' />
-									</ListItemIcon>
-									رفع ملف
-								</MenuItem>
-							</Menu>
-						</>
-					) : undefined
+					<>
+						<FolderExams
+							folderId={folderId}
+							folderName={title}
+							isAdmin={isAdmin}
+							onSubscribe={() => setDialog({ type: "paywall" })}
+						/>
+						{isAdmin ? (
+							<>
+								<Button
+									startIcon={<AddRoundedIcon />}
+									aria-haspopup='menu'
+									aria-expanded={!!addMenuAnchor}
+									onClick={(event) => setAddMenuAnchor(event.currentTarget)}
+								>
+									إضافة محتوى
+								</Button>
+								<Menu
+									anchorEl={addMenuAnchor}
+									open={!!addMenuAnchor}
+									onClose={() => setAddMenuAnchor(null)}
+									anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+									transformOrigin={{ vertical: "top", horizontal: "left" }}
+								>
+									<MenuItem onClick={() => openCreate("folder")}>
+										<ListItemIcon>
+											<CreateNewFolderOutlinedIcon fontSize='small' />
+										</ListItemIcon>
+										مجلد جديد
+									</MenuItem>
+									<MenuItem onClick={() => openCreate("video")}>
+										<ListItemIcon>
+											<SmartDisplayOutlinedIcon fontSize='small' />
+										</ListItemIcon>
+										إضافة فيديو
+									</MenuItem>
+									<MenuItem onClick={() => openCreate("file")}>
+										<ListItemIcon>
+											<UploadFileOutlinedIcon fontSize='small' />
+										</ListItemIcon>
+										رفع ملف
+									</MenuItem>
+								</Menu>
+							</>
+						) : null}
+					</>
 				}
 			>
 				<Stack sx={{ mb: 2 }}>
@@ -420,7 +486,10 @@ export default function ResourcesPage({
 						open={dialog?.type === "create" && dialog.kind === "folder"}
 						handleClose={close}
 						busy={actions.pending === "folder"}
-						onSubmit={async (name) => closeOn(await actions.createFolder(name))}
+						withPrice={isRootFolder}
+						onSubmit={async (name, price) =>
+							closeOn(await actions.createFolder(name, price))
+						}
 					/>
 					<VideoForm
 						open={dialog?.type === "create" && dialog.kind === "video"}
@@ -474,6 +543,11 @@ export default function ResourcesPage({
 							await actions.remove(dialog.kind, dialog.item.id);
 						}}
 					/>
+					<PriceDialog
+						folder={dialog?.type === "price" ? dialog.folder : null}
+						onClose={close}
+						onSaved={() => void mutate()}
+					/>
 					<MoveDialog
 						open={dialog?.type === "move"}
 						itemName={dialog?.type === "move" ? dialog.item.name : ""}
@@ -501,6 +575,20 @@ export default function ResourcesPage({
 				title={dialog?.type === "play" ? dialog.video.name : undefined}
 				startAt={dialog?.type === "play" ? dialog.startAt : 0}
 				onProgress={tracker.onProgress}
+			/>
+			<BunnyPlayer
+				open={dialog?.type === "bunny"}
+				handleClose={close}
+				videoId={dialog?.type === "bunny" ? dialog.video.id : ""}
+				title={dialog?.type === "bunny" ? dialog.video.name : undefined}
+			/>
+			<PaywallDialog
+				open={dialog?.type === "paywall"}
+				onClose={close}
+				unit={access?.unit ?? null}
+				className={className}
+				whatsAppNumber={access?.whatsAppNumber ?? null}
+				signedIn={progress.signedIn}
 			/>
 		</PageShell>
 	);

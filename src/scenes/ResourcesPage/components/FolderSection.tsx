@@ -25,6 +25,8 @@ export default function FolderSection({
 	onCreate,
 	onRename,
 	onDelete,
+	ownedUnitIds = [],
+	onPrice,
 }: {
 	folders: Folder[];
 	isAdmin: boolean;
@@ -33,6 +35,10 @@ export default function FolderSection({
 	onCreate: () => void;
 	onRename: (folder: Folder) => void;
 	onDelete: (folder: Folder) => void;
+	/** The student's paid units, to badge folders as bought. */
+	ownedUnitIds?: string[];
+	/** Admin price action; only on the class root page (first-level folders). */
+	onPrice?: (folder: Folder) => void;
 }) {
 	if (!folders.length && !isAdmin) return null;
 
@@ -63,6 +69,8 @@ export default function FolderSection({
 						}
 						onEdit={() => onRename(folder)}
 						onDelete={() => onDelete(folder)}
+						owned={ownedUnitIds.includes(folder.id)}
+						onPrice={onPrice ? () => onPrice(folder) : undefined}
 					/>
 				)}
 				extraItems={

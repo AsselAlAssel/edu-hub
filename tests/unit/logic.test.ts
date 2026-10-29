@@ -3,7 +3,9 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/libs/prismaDb", () => ({ prisma: {} }));
 
+import { AxiosError, type AxiosResponse } from "axios";
 import { isObjectId } from "@/libs/api";
+import { getErrorMessage } from "@/libs/errors";
 import { getYouTubeVideoID } from "@/libs/constant";
 import { parseLandingPayload } from "@/libs/landing";
 import { getExtension, validateUpload } from "@/libs/uploadRules";
@@ -212,5 +214,29 @@ describe("design tokens", () => {
 			for (const stop of [c.cyan, c.azure])
 				expect(ratio(c.onPrimary, stop)).toBeGreaterThanOrEqual(4.5);
 		}
+	});
+});
+
+describe("getErrorMessage", () => {
+	const fail = (status: number, data?: unknown) =>
+		new AxiosError("x", "ERR", undefined, undefined, {
+			status,
+			data,
+		} as AxiosResponse);
+
+	it("shows the API's Arabic message, not the generic one", () => {
+		expect(
+			getErrorMessage(
+				fail(400, { message: "يلزم من 2 إلى 6 خيارات غير فارغة" })
+			)
+		).toBe("يلزم من 2 إلى 6 خيارات غير فارغة");
+	});
+
+	it("hides English (developer) messages behind the status text", () => {
+		expect(getErrorMessage(fail(400, { message: "Missing Fields" }))).toBe(
+			"البيانات المُدخلة غير صالحة."
+		);
+		expect(getErrorMessage(fail(500), "تعذّر الحفظ")).toBe("تعذّر الحفظ");
+		expect(getErrorMessage(new Error("boom"), "fallback")).toBe("fallback");
 	});
 });

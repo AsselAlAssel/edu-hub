@@ -188,27 +188,9 @@ test.describe("classes & resources", () => {
 });
 
 test.describe("authentication", () => {
-	test("sign-in validates in Arabic without contacting the server", async ({
-		page,
-	}) => {
-		await page.goto("/auth/signin");
-		// The header has its own (Google) sign-in button: target the form's.
-		await page
-			.getByRole("form", { name: "نموذج تسجيل الدخول" })
-			.getByRole("button", { name: "تسجيل الدخول" })
-			.click();
-		await expect(page.getByText("البريد الإلكتروني مطلوب")).toBeVisible();
-		await page.getByLabel(/البريد الإلكتروني/).fill("x@y");
-		await page.getByRole("button", { name: "إظهار كلمة المرور" }).click();
-		await expect(page.getByLabel(/كلمة المرور/).first()).toHaveAttribute(
-			"type",
-			"text"
-		);
-	});
-
-	test("admin area redirects guests to sign-in", async ({ page }) => {
+	test("admin area sends guests home", async ({ page }) => {
 		await page.goto("/admin/profile");
-		await expect(page).toHaveURL(/\/auth\/signin/);
+		await expect(page).toHaveURL(/^[^?]*\/$/);
 	});
 });
 
