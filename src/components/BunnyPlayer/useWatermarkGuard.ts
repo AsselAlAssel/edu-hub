@@ -41,7 +41,10 @@ export default function useWatermarkGuard(
 				setTampered(true);
 				return;
 			}
-			const br = b.getBoundingClientRect();
+			// While the iframe alone is fullscreen, the watermark sits above it.
+			const fullscreen = document.fullscreenElement;
+			const frame = fullscreen && b.contains(fullscreen) ? fullscreen : b;
+			const br = frame.getBoundingClientRect();
 			const mr = m.getBoundingClientRect();
 			const inside =
 				mr.left >= br.left - 1 &&
