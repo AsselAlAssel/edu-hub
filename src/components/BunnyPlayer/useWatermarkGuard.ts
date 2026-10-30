@@ -15,6 +15,8 @@ const isVisible = (el: HTMLElement) => {
 	);
 };
 
+const GRACE_MS = 2000;
+
 /**
  * True once the watermark is removed, emptied, hidden or pushed out of the
  * player box; the caller then stops playback.
@@ -32,12 +34,13 @@ export default function useWatermarkGuard(
 		// Each open starts clean: one stop must not block the next video.
 		if (!active) return setTampered(false);
 		if (!box.current) return;
+		let hiddenSince = 0;
 		const check = () => {
 			const b = box.current;
 			const m = mark.current;
 			// The whole player gone means the dialog closed, not tampering.
 			if (!b) return;
-			if (!m || !b.contains(m) || m.textContent !== text || !isVisible(m)) {
+			if (!m || !b.contains(m) || m.textContent !== text) {
 				setTampered(true);
 				return;
 			}
@@ -51,7 +54,13 @@ export default function useWatermarkGuard(
 				mr.right <= br.right + 1 &&
 				mr.top >= br.top - 1 &&
 				mr.bottom <= br.bottom + 1;
-			if (!inside) setTampered(true);
+			if (isVisible(m) && inside) {
+				hiddenSince = 0;
+				return;
+			}
+			// Fullscreen switches and screen rotation hide or move it for a moment.
+			hiddenSince ||= Date.now();
+			if (Date.now() - hiddenSince >= GRACE_MS) setTampered(true);
 		};
 		const observer = new MutationObserver(check);
 		observer.observe(box.current, {

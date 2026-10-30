@@ -20,13 +20,19 @@ export default function useFullscreenWatermark(
 			const current = document.fullscreenElement;
 			if (current && current !== b && b.contains(current)) {
 				m.setAttribute("popover", "manual");
-				m.showPopover();
+				if (!m.matches(":popover-open")) m.showPopover();
 			} else if (m.hasAttribute("popover")) {
 				m.hidePopover();
 				m.removeAttribute("popover");
 			}
 		};
+		// The browser closes popovers on every fullscreen request.
+		const m = mark.current;
+		m?.addEventListener("toggle", onChange);
 		document.addEventListener("fullscreenchange", onChange);
-		return () => document.removeEventListener("fullscreenchange", onChange);
+		return () => {
+			m?.removeEventListener("toggle", onChange);
+			document.removeEventListener("fullscreenchange", onChange);
+		};
 	}, [box, mark, active]);
 }
