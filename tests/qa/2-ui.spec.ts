@@ -231,7 +231,7 @@ test.describe("paid student", () => {
 		await expect(page.getByText("50 ₪")).toHaveCount(0);
 	});
 
-	test("player: watermark fixed in the top right, never moves, fullscreen works", async ({
+	test("player: watermark fixed in the top right, never moves", async ({
 		page,
 	}) => {
 		await openFolder(page, seed.owned.id);
@@ -251,16 +251,6 @@ test.describe("paid student", () => {
 		await page.waitForTimeout(5000);
 		expect(await mark.boundingBox()).toEqual(first);
 		await expect(dialog).not.toContainText("تم إيقاف الفيديو");
-
-		await dialog.getByRole("button", { name: "ملء الشاشة" }).click();
-		await expect
-			.poll(() => page.evaluate(() => !!document.fullscreenElement))
-			.toBe(true);
-		const fsBox = (await iframe.boundingBox())!;
-		const fsMark = (await mark.boundingBox())!;
-		expect(fsBox.x + fsBox.width - (fsMark.x + fsMark.width)).toBeLessThan(20);
-		expect(fsMark.y - fsBox.y).toBeLessThan(20);
-		await page.evaluate(() => document.exitFullscreen());
 	});
 
 	test("tampering with the watermark stops the video", async ({ page }) => {

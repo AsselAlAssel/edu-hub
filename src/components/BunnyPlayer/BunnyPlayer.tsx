@@ -6,8 +6,7 @@ import {
 import AppDialog from "@/components/ui/AppDialog";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { useCloseOnBack } from "@/components/VideoPlayer/VideoPlayer";
-import FullscreenRoundedIcon from "@mui/icons-material/FullscreenRounded";
-import { Box, Button, Stack } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import useWatermarkGuard from "./useWatermarkGuard";
 
@@ -116,7 +115,7 @@ export default function BunnyPlayer({
 		);
 	} else if (open) {
 		content = (
-			<Stack spacing={1.5}>
+			<>
 				<Box
 					ref={boxRef}
 					sx={(theme) => ({
@@ -168,15 +167,7 @@ export default function BunnyPlayer({
 						{playback.watermark}
 					</Box>
 				</Box>
-				<Button
-					size='small'
-					startIcon={<FullscreenRoundedIcon />}
-					onClick={() => void boxRef.current?.requestFullscreen?.()}
-					sx={{ alignSelf: "flex-start" }}
-				>
-					ملء الشاشة
-				</Button>
-			</Stack>
+			</>
 		);
 	}
 
