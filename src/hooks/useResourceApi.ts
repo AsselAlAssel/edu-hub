@@ -24,17 +24,20 @@ const getResources = async (key: string) => {
 export const useResource = ({
 	folderId,
 	resources,
+	live,
 }: {
 	folderId: string;
 	resources: ResourceData;
+	/** Fetch the viewer's own view; otherwise the server data is enough. */
+	live: boolean;
 }) => {
-	// Server-rendered data seeds the cache; no duplicate request on mount.
+	// Server-rendered data is the fallback; one (deduped) request once `live`.
 	const { data, error, isLoading, mutate } = useSWR<ResourceData, unknown>(
-		folderId ? `/api/resources/${folderId}` : null,
+		live && folderId ? `/api/resources/${folderId}` : null,
 		getResources,
 		{
 			fallbackData: resources,
-			revalidateOnMount: false,
+			revalidateOnFocus: false,
 		}
 	);
 

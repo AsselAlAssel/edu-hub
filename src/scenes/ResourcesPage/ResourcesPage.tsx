@@ -138,32 +138,46 @@ export default function ResourcesPage({
 	const { isAdmin } = useRole();
 	const { status: sessionStatus } = useSession();
 	const router = useRouter();
-	const { data: swrData, error, mutate } = useResource({ folderId, resources });
-	const data: ResourceData = swrData ?? resources;
-	const { folders, files, videos } = data;
-	const actions = useResourceMutations(folderId, classId);
 	const progress = useProgress();
-	const tracker = useWatchTracker(progress.save, progress.signedIn && !isAdmin);
 	// The cached page is the guest view: no file links, every paid unit locked.
 	// Once the user is known, fetch their own view (links, bought units).
-	const access = data.access;
-	const hasLockedFiles = files.some((file) => file.url === SIGNIN_FILE_URL);
+	// Admins always fetch: live data, hidden classes, and their edits revalidate it.
+	const hasLockedFiles = resources.files.some(
+		(file) => file.url === SIGNIN_FILE_URL
+	);
 	const hasPaidContent =
-		!!access?.unit?.price || folders.some((folder) => folder.price);
+		!!resources.access?.unit?.price ||
+		resources.folders.some((folder) => folder.price);
 	const loadViewer = progress.signedIn && (hasLockedFiles || hasPaidContent);
-	const [viewerLoaded, setViewerLoaded] = useState(false);
-	useEffect(() => {
-		if (loadViewer) void mutate().finally(() => setViewerLoaded(true));
-	}, [loadViewer, mutate]);
-	// Hidden class: admins fetch its content, everyone else goes back to the
+	const live = isAdmin || loadViewer;
+	const {
+		data: swrData,
+		error,
+		isLoading,
+		mutate,
+	} = useResource({ folderId, resources, live });
+	const viewerLoaded = live && !isLoading;
+	const data: ResourceData = swrData ?? resources;
+	const { folders, files, videos } = data;
+	const access = data.access;
+	const actions = useResourceMutations(folderId, classId);
+	const tracker = useWatchTracker(progress.save, progress.signedIn && !isAdmin);
+	// Hidden class: only admins may see it; everyone else goes back to the
 	// class list (the API refuses them too).
 	useEffect(() => {
-		if (!hidden || sessionStatus === "loading") return;
-		if (isAdmin) void mutate();
-		else router.replace("/classes");
-	}, [hidden, sessionStatus, isAdmin, mutate, router]);
+		if (hidden && sessionStatus !== "loading" && !isAdmin) {
+			router.replace("/classes");
+		}
+	}, [hidden, sessionStatus, isAdmin, router]);
 	// Decided on the server (getResources); admins always play.
 	const isLocked = (video: ResourceVideo) => !isAdmin && !!video.locked;
+	// Until the viewer is known the cached guest view would show an owner a
+	// lock; badges wait instead (play() still checks the real access). Only a
+	// video locked for guests can change, so the rest render right away.
+	const viewerPending =
+		sessionStatus === "loading" || (loadViewer && !viewerLoaded);
+	const showLocked = (video: ResourceVideo) =>
+		viewerPending && video.locked && !isAdmin ? null : isLocked(video);
 
 	const [dialog, setDialog] = useState<DialogState>(null);
 	const [addMenuAnchor, setAddMenuAnchor] = useState<HTMLElement | null>(null);
@@ -339,7 +353,7 @@ export default function ResourcesPage({
 				onCreate={() => openCreate("folder")}
 				onRename={rename("folder")}
 				onDelete={remove("folder")}
-				ownedUnitIds={access?.ownedUnitIds}
+				ownedUnitIds={viewerPending ? null : access?.ownedUnitIds}
 				onPrice={
 					isAdmin && isRootFolder
 						? (folder) => setDialog({ type: "price", folder })
@@ -349,7 +363,7 @@ export default function ResourcesPage({
 			<VideosSection
 				videos={videos}
 				isAdmin={isAdmin}
-				isLocked={isLocked}
+				isLocked={showLocked}
 				onAdd={() => openCreate("video")}
 				onPlay={play}
 				progress={progress}
@@ -370,7 +384,9 @@ export default function ResourcesPage({
 	);
 
 	let content;
-	if (hidden && !isAdmin) {
+	// Hidden class: the cached page is empty until the admin's fetch lands,
+	// so show loading instead of a false "empty".
+	if (hidden && !viewerLoaded) {
 		content = <LoadingState />;
 	} else if (error && !swrData) {
 		content = (

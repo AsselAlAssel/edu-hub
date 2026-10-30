@@ -11,6 +11,9 @@ import {
 import useSWRMutation from "swr/mutation";
 import useSwr from "swr";
 
+// Callers await mutate("/api/class") themselves; skip SWR's second refetch.
+const noRevalidate = { revalidate: false };
+
 const createClass = async (
 	_key: string,
 	{ arg }: { arg: CreateClassInput }
@@ -21,7 +24,8 @@ const createClass = async (
 export const useCreateClass = () => {
 	const { data, isMutating, trigger } = useSWRMutation(
 		"/api/class",
-		createClass
+		createClass,
+		noRevalidate
 	);
 	return { data, isMutating, trigger };
 };
@@ -36,7 +40,8 @@ const updateClass = async (
 export const useUpdateClass = () => {
 	const { data, isMutating, trigger } = useSWRMutation(
 		"/api/class",
-		updateClass
+		updateClass,
+		noRevalidate
 	);
 	return {
 		data,
@@ -55,7 +60,8 @@ const deleteClass = async (
 export const useDeleteClass = () => {
 	const { data, isMutating, trigger } = useSWRMutation(
 		"/api/class",
-		deleteClass
+		deleteClass,
+		noRevalidate
 	);
 	return {
 		data,

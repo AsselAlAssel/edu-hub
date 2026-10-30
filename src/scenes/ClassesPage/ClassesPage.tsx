@@ -4,7 +4,7 @@ import ClassItem from "@/components/Admin/Classes/ClassItem";
 import ContinueWatching from "@/components/Progress/ContinueWatching";
 import { RiseItem } from "@/components/ui/motion";
 import { PageHeader, PageShell } from "@/components/ui/PageShell";
-import { cardGridSx } from "@/components/ui/Skeletons";
+import { CardGridSkeleton, cardGridSx } from "@/components/ui/Skeletons";
 import { EmptyState, ErrorState } from "@/components/ui/States";
 import { PrimaryButton } from "@/components/ui/buttons";
 import { useAllClass } from "@/hooks/useClassApi";
@@ -34,10 +34,13 @@ export default function ClassesPage({ classes }: { classes: ClassWithMeta[] }) {
 	const [filter, setFilter] = useState<VisibilityFilter>("all");
 	const all = data ?? [];
 	const list = isAdmin ? all.filter(FILTERS[filter].match) : all;
-
-	// The server render is the public (cached) list; admins refetch to get hidden classes.
+	// The server render is the public (cached) list; admins refetch to get
+	// hidden classes, and see a skeleton until then instead of a partial list.
+	const [adminLoaded, setAdminLoaded] = useState(false);
+	// `data !== classes`: SWR already holds the admin list (an earlier visit).
+	const adminLoading = isAdmin && !adminLoaded && data === classes;
 	useEffect(() => {
-		if (isAdmin) void mutate();
+		if (isAdmin) void mutate().finally(() => setAdminLoaded(true));
 	}, [isAdmin, mutate]);
 
 	const createButton = isAdmin ? (
@@ -62,7 +65,7 @@ export default function ClassesPage({ classes }: { classes: ClassWithMeta[] }) {
 				actions={createButton}
 			/>
 
-			{isAdmin && all.length ? (
+			{adminLoading ? null : isAdmin && all.length ? (
 				<Stack
 					direction='row'
 					gap={1}
@@ -84,7 +87,9 @@ export default function ClassesPage({ classes }: { classes: ClassWithMeta[] }) {
 				</Stack>
 			) : null}
 
-			{isAdmin && all.length && !list.length ? (
+			{adminLoading ? (
+				<CardGridSkeleton count={all.length + 1} />
+			) : isAdmin && all.length && !list.length ? (
 				<EmptyState
 					icon={<SchoolOutlinedIcon />}
 					title={

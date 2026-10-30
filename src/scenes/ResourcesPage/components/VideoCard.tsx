@@ -9,6 +9,7 @@ import RadioButtonUncheckedRoundedIcon from "@mui/icons-material/RadioButtonUnch
 import {
 	Box,
 	ButtonBase,
+	CircularProgress,
 	IconButton,
 	Stack,
 	Tooltip,
@@ -51,14 +52,17 @@ export default function VideoCard({
 	progress?: VideoProgress;
 	/** Present for signed-in students: the manual "finished" toggle. */
 	onToggleDone?: (completed: boolean) => void;
-	/** Paid-unit video the student has not bought; `onPlay` opens the paywall. */
-	locked?: boolean;
+	/**
+	 * Paid-unit video the student has not bought; `onPlay` opens the paywall.
+	 * null: not known yet (the viewer's access is still loading).
+	 */
+	locked?: boolean | null;
 }) {
 	const thumbnail = video.isBunny
 		? `/api/video/${video.id}/thumbnail`
 		: youtubeThumbnail(video);
 	// A locked video reads as locked, even if it was finished before access ended.
-	const done = !locked && !!progress?.completed;
+	const done = locked === false && !!progress?.completed;
 	const badge = locked
 		? "للمشتركين"
 		: done
@@ -152,7 +156,13 @@ export default function VideoCard({
 						"& svg": { fontSize: 30 },
 					})}
 				>
-					{locked ? <LockOutlinedIcon /> : <PlayArrowRoundedIcon />}
+					{locked === null ? (
+						<CircularProgress size={22} color='inherit' />
+					) : locked ? (
+						<LockOutlinedIcon />
+					) : (
+						<PlayArrowRoundedIcon />
+					)}
 				</Box>
 				{badge ? (
 					<Box

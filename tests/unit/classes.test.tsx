@@ -77,8 +77,9 @@ describe("classes catalog", () => {
 		expect(
 			screen.getByRole("button", { name: /إنشاء صف جديد/ })
 		).toBeInTheDocument();
+		// Skeleton until the admin fetch (hidden classes included) lands.
 		await userEvent.click(
-			screen.getByRole("button", { name: "خيارات الصف: الصف 1" })
+			await screen.findByRole("button", { name: "خيارات الصف: الصف 1" })
 		);
 		await userEvent.click(
 			await screen.findByRole("menuitem", { name: "حذف الصف" })

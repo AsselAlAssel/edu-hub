@@ -6,11 +6,23 @@ import { asUser, oid, renderWithTheme } from "../utils";
 
 const state = vi.hoisted(() => ({
 	data: null as unknown,
-	mutate: (() => Promise.resolve()) as () => Promise<unknown>,
+	isLoading: true,
+	rerender: () => {},
 }));
-vi.mock("@/hooks/useResourceApi", () => ({
-	useResource: () => ({ data: state.data, error: null, mutate: state.mutate }),
-}));
+vi.mock("@/hooks/useResourceApi", async () => {
+	const { useReducer } = await import("react");
+	return {
+		useResource: () => {
+			state.rerender = useReducer((n: number) => n + 1, 0)[1];
+			return {
+				data: state.data,
+				error: null,
+				isLoading: state.isLoading,
+				mutate: async () => state.data,
+			};
+		},
+	};
+});
 vi.mock("@/hooks/useProgress", async (importOriginal) => ({
 	...(await importOriginal<typeof import("@/hooks/useProgress")>()),
 	default: () => ({
@@ -67,9 +79,8 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("?v= deep link into a paid unit", () => {
 	it("waits for the viewer's own resources before choosing player or paywall", async () => {
-		let loaded!: () => void;
 		state.data = resources(true); // the cached guest view
-		state.mutate = () => new Promise<void>((resolve) => (loaded = resolve));
+		state.isLoading = true;
 		renderWithTheme(
 			<ResourcesPage
 				resources={resources(true) as never}
@@ -85,7 +96,8 @@ describe("?v= deep link into a paid unit", () => {
 
 		await act(async () => {
 			state.data = resources(false);
-			loaded();
+			state.isLoading = false;
+			state.rerender();
 		});
 		const dialog = await screen.findByRole("dialog");
 		expect(within(dialog).queryByText("100 ₪")).toBeNull();

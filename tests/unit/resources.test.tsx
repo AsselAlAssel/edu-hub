@@ -10,6 +10,7 @@ import ResourcesPage, {
 	summarizeResources,
 } from "@/scenes/ResourcesPage/ResourcesPage";
 import { moveResourceItem } from "@/services/move.service";
+import { fetchResources } from "@/services/resource.service";
 import { asAdmin, asGuest, asUser, oid, renderWithTheme } from "../utils";
 
 vi.mock("@/services/move.service", () => ({
@@ -231,7 +232,11 @@ describe("resource explorer (student)", () => {
 });
 
 describe("resource explorer (admin)", () => {
-	beforeEach(() => asAdmin());
+	beforeEach(() => {
+		asAdmin();
+		// Admins always fetch their live view; serve the same folder back.
+		vi.mocked(fetchResources).mockResolvedValue(resources as never);
+	});
 
 	it("exposes labelled drag handles, action menus and add cards", () => {
 		renderPage();

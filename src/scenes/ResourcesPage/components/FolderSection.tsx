@@ -35,8 +35,8 @@ export default function FolderSection({
 	onCreate: () => void;
 	onRename: (folder: Folder) => void;
 	onDelete: (folder: Folder) => void;
-	/** The student's paid units, to badge folders as bought. */
-	ownedUnitIds?: string[];
+	/** The student's paid units, to badge folders as bought; null while loading. */
+	ownedUnitIds?: string[] | null;
 	/** Admin price action; only on the class root page (first-level folders). */
 	onPrice?: (folder: Folder) => void;
 }) {
@@ -69,7 +69,7 @@ export default function FolderSection({
 						}
 						onEdit={() => onRename(folder)}
 						onDelete={() => onDelete(folder)}
-						owned={ownedUnitIds.includes(folder.id)}
+						owned={ownedUnitIds ? ownedUnitIds.includes(folder.id) : null}
 						onPrice={onPrice ? () => onPrice(folder) : undefined}
 					/>
 				)}

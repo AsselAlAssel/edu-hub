@@ -6,7 +6,7 @@ import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import LockOpenRoundedIcon from "@mui/icons-material/LockOpenRounded";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { Box, Chip, Stack, Typography } from "@mui/material";
+import { Box, Chip, Skeleton, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import type { Folder } from "@prisma/client";
 import Link from "next/link";
@@ -31,8 +31,8 @@ export default function FolderCard({
 	onDelete: () => void;
 	dropState?: DropState;
 	isAdmin?: boolean;
-	/** The student has bought this paid unit. */
-	owned?: boolean;
+	/** The student has bought this paid unit; null while not known yet. */
+	owned?: boolean | null;
 	/** Admin "unit price" action, on the class root page only. */
 	onPrice?: () => void;
 }) {
@@ -147,6 +147,13 @@ export default function FolderCard({
 					>
 						أفلِت هنا للنقل إلى هذا المجلد
 					</Typography>
+				) : folder.price && owned === null ? (
+					<Skeleton
+						variant='rounded'
+						width={64}
+						height={24}
+						sx={{ mt: 0.5, borderRadius: 4 }}
+					/>
 				) : folder.price ? (
 					<Chip
 						size='small'

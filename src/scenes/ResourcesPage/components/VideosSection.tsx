@@ -86,7 +86,8 @@ export default function VideosSection({
 	isAdmin: boolean;
 	progress: Progress;
 	/** Paid-unit videos the student cannot open (shown with a lock). */
-	isLocked?: (video: Video) => boolean;
+	/** null: not known yet. */
+	isLocked?: (video: Video) => boolean | null;
 	onAdd: () => void;
 	onPlay: (video: Video) => void;
 	onRename: (video: Video) => void;
@@ -127,7 +128,7 @@ export default function VideosSection({
 						progress={progress.byVideo.get(video.id)}
 						locked={isLocked(video)}
 						onToggleDone={
-							progress.signedIn && !isAdmin && !isLocked(video)
+							progress.signedIn && !isAdmin && isLocked(video) === false
 								? (completed) => void toggleDone(video, completed)
 								: undefined
 						}
