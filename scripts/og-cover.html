@@ -54,9 +54,21 @@
 				padding: 0 72px;
 				gap: 40px;
 				background:
-					radial-gradient(520px 380px at 88% 8%, rgba(34, 211, 238, 0.22), transparent 70%),
-					radial-gradient(560px 420px at 10% 95%, rgba(139, 92, 246, 0.28), transparent 70%),
-					radial-gradient(420px 300px at 30% 30%, rgba(56, 189, 248, 0.1), transparent 70%);
+					radial-gradient(
+						520px 380px at 88% 8%,
+						rgba(34, 211, 238, 0.22),
+						transparent 70%
+					),
+					radial-gradient(
+						560px 420px at 10% 95%,
+						rgba(139, 92, 246, 0.28),
+						transparent 70%
+					),
+					radial-gradient(
+						420px 300px at 30% 30%,
+						rgba(56, 189, 248, 0.1),
+						transparent 70%
+					);
 			}
 			/* Lab grid, fading toward the edges. */
 			.canvas::before {
@@ -67,7 +79,11 @@
 					linear-gradient(rgba(34, 211, 238, 0.08) 1px, transparent 1px),
 					linear-gradient(90deg, rgba(34, 211, 238, 0.08) 1px, transparent 1px);
 				background-size: 42px 42px;
-				mask-image: radial-gradient(ellipse at center, #000 35%, transparent 80%);
+				mask-image: radial-gradient(
+					ellipse at center,
+					#000 35%,
+					transparent 80%
+				);
 			}
 			/* Thin lit edge along the top. */
 			.canvas::after {
@@ -75,7 +91,12 @@
 				position: absolute;
 				inset: 0 0 auto;
 				height: 4px;
-				background: linear-gradient(90deg, var(--violet), var(--azure), var(--cyan));
+				background: linear-gradient(
+					90deg,
+					var(--violet),
+					var(--azure),
+					var(--cyan)
+				);
 			}
 
 			/* ---------- Text side (right in RTL) ---------- */
@@ -121,7 +142,12 @@
 				letter-spacing: -0.5px;
 			}
 			h1 .glow {
-				background: linear-gradient(100deg, var(--cyan) 0%, var(--azure) 50%, var(--violet) 100%);
+				background: linear-gradient(
+					100deg,
+					var(--cyan) 0%,
+					var(--azure) 50%,
+					var(--violet) 100%
+				);
 				-webkit-background-clip: text;
 				background-clip: text;
 				color: transparent;
@@ -224,7 +250,11 @@
 				place-items: center;
 				overflow: hidden;
 				background:
-					radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.18), transparent 50%),
+					radial-gradient(
+						circle at 70% 30%,
+						rgba(255, 255, 255, 0.18),
+						transparent 50%
+					),
 					linear-gradient(120deg, var(--azure), var(--violet));
 			}
 			.thumb .formula {
@@ -331,7 +361,9 @@
 		<main class="canvas">
 			<section class="copy">
 				<div class="brand">
-					<div class="brand-mark"><img src="../public/images/logo/logo.svg" alt="" /></div>
+					<div class="brand-mark">
+						<img src="../public/images/logo/logo.svg" alt="" />
+					</div>
 					<div>
 						<div class="brand-name">محمد صبح</div>
 						<div class="brand-sub">منصة الفيزياء</div>
@@ -346,12 +378,16 @@
 
 				<div class="features">
 					<span class="chip">
-						<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72L19 12z" /></svg>
+						<svg viewBox="0 0 24 24" fill="currentColor">
+							<path d="M8 5.14v13.72L19 12z" />
+						</svg>
 						فيديوهات شرح
 					</span>
 					<span class="chip">
 						<svg viewBox="0 0 24 24" fill="currentColor">
-							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm-1 7V3.5L18.5 9z" />
+							<path
+								d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm-1 7V3.5L18.5 9z"
+							/>
 						</svg>
 						ملفات دراسية
 					</span>
@@ -365,7 +401,9 @@
 					</span>
 					<span class="chip">
 						<svg viewBox="0 0 24 24" fill="currentColor">
-							<path d="m3.5 18.49 6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z" />
+							<path
+								d="m3.5 18.49 6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"
+							/>
 						</svg>
 						تتبّع تقدّمك
 					</span>
@@ -377,11 +415,35 @@
 			<section class="visual">
 				<svg class="orbits" viewBox="0 0 430 520" fill="none">
 					<g transform="translate(215 260)" stroke-width="1.5">
-						<ellipse rx="200" ry="70" stroke="#22D3EE" stroke-opacity="0.5" transform="rotate(30)" />
-						<ellipse rx="200" ry="70" stroke="#8B5CF6" stroke-opacity="0.55" transform="rotate(-30)" />
-						<ellipse rx="200" ry="70" stroke="#38BDF8" stroke-opacity="0.4" transform="rotate(90)" />
+						<ellipse
+							rx="200"
+							ry="70"
+							stroke="#22D3EE"
+							stroke-opacity="0.5"
+							transform="rotate(30)"
+						/>
+						<ellipse
+							rx="200"
+							ry="70"
+							stroke="#8B5CF6"
+							stroke-opacity="0.55"
+							transform="rotate(-30)"
+						/>
+						<ellipse
+							rx="200"
+							ry="70"
+							stroke="#38BDF8"
+							stroke-opacity="0.4"
+							transform="rotate(90)"
+						/>
 						<circle r="7" fill="#22D3EE" />
-						<circle cx="173" cy="100" r="5" fill="#22D3EE" transform="rotate(0)" />
+						<circle
+							cx="173"
+							cy="100"
+							r="5"
+							fill="#22D3EE"
+							transform="rotate(0)"
+						/>
 						<circle cx="-150" cy="140" r="5" fill="#8B5CF6" />
 					</g>
 				</svg>
@@ -390,7 +452,9 @@
 					<div class="thumb">
 						<span class="formula latin">F = ma</span>
 						<div class="play">
-							<svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.14v13.72L19 12z" /></svg>
+							<svg width="30" height="30" viewBox="0 0 24 24" fill="#fff">
+								<path d="M8 5.14v13.72L19 12z" />
+							</svg>
 						</div>
 						<div class="bar"><i></i></div>
 					</div>
@@ -411,8 +475,20 @@
 
 				<div class="card exam">
 					<div class="ring">
-						<svg width="104" height="104" viewBox="0 0 104 104" style="transform: rotate(-90deg)">
-							<circle cx="52" cy="52" r="42" fill="none" stroke="rgba(148,163,184,0.2)" stroke-width="10" />
+						<svg
+							width="104"
+							height="104"
+							viewBox="0 0 104 104"
+							style="transform: rotate(-90deg)"
+						>
+							<circle
+								cx="52"
+								cy="52"
+								r="42"
+								fill="none"
+								stroke="rgba(148,163,184,0.2)"
+								stroke-width="10"
+							/>
 							<circle
 								cx="52"
 								cy="52"
@@ -434,7 +510,9 @@
 						<span class="latin">90%</span>
 					</div>
 					<div class="exam-title">نتيجة الامتحان</div>
-					<div class="exam-sub"><span class="latin">9</span> من <span class="latin">10</span> صحيحة</div>
+					<div class="exam-sub">
+						<span class="latin">9</span> من <span class="latin">10</span> صحيحة
+					</div>
 				</div>
 			</section>
 		</main>

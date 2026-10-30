@@ -22,25 +22,25 @@ Spec: `docs/superpowers/specs/2026-10-25-paid-units-design.md`.
 
 ## File map
 
-| File | Responsibility |
-|---|---|
-| `prisma/schema.prisma` | `Folder.price Int?`, `User.unlockedUnitIds String[] @db.ObjectId` |
-| `src/libs/bunny.ts` | signing (exists) + `parseBunnyUrl`, `isBunnyUrl` |
-| `src/libs/access.ts` (new) | `getViewer`, `getUnit`, `canOpenUnit` |
-| `src/libs/class.ts` | `getResources(folderId, viewer)` adds `access`, locks paid files |
-| `src/libs/constant.ts` | `PAID_FILE_URL` marker |
-| `src/app/api/resources/[folderId]/route.tsx` | pass viewer |
-| `src/app/api/video/[id]/playback/route.ts` (new) | signed embed URL + watermark |
-| `src/app/api/video/route.ts` | accept Bunny links |
-| `src/app/api/folder/route.ts` | `PATCH` price (first-level only) |
-| `src/app/api/units/route.ts` (new) | admin: classes with priced units |
-| `src/app/api/user/[id]/units/route.ts` (new) | admin: set a user's units |
-| `src/libs/users.ts` | `unlockedUnitIds` in `publicUserSelect` |
-| `src/components/BunnyPlayer/` (new) | dialog player with watermark guard |
-| `src/scenes/ResourcesPage/**` | lock UI, paywall, Bunny routing, price action |
-| `src/components/VideoForm/VideoForm.tsx` | accept Bunny links |
-| `src/scenes/ProfilerPage/components/UsersPanel.tsx`, `UnitsDialog.tsx` (new), `usersFilter.ts` | unit chips, dialog, "subscribers" filter |
-| remove `src/app/(site)/bunny-test`, `src/app/api/bunny-test`, `tests/unit/bunny-test.test.ts` | cleanup |
+| File                                                                                           | Responsibility                                                    |
+| ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `prisma/schema.prisma`                                                                         | `Folder.price Int?`, `User.unlockedUnitIds String[] @db.ObjectId` |
+| `src/libs/bunny.ts`                                                                            | signing (exists) + `parseBunnyUrl`, `isBunnyUrl`                  |
+| `src/libs/access.ts` (new)                                                                     | `getViewer`, `getUnit`, `canOpenUnit`                             |
+| `src/libs/class.ts`                                                                            | `getResources(folderId, viewer)` adds `access`, locks paid files  |
+| `src/libs/constant.ts`                                                                         | `PAID_FILE_URL` marker                                            |
+| `src/app/api/resources/[folderId]/route.tsx`                                                   | pass viewer                                                       |
+| `src/app/api/video/[id]/playback/route.ts` (new)                                               | signed embed URL + watermark                                      |
+| `src/app/api/video/route.ts`                                                                   | accept Bunny links                                                |
+| `src/app/api/folder/route.ts`                                                                  | `PATCH` price (first-level only)                                  |
+| `src/app/api/units/route.ts` (new)                                                             | admin: classes with priced units                                  |
+| `src/app/api/user/[id]/units/route.ts` (new)                                                   | admin: set a user's units                                         |
+| `src/libs/users.ts`                                                                            | `unlockedUnitIds` in `publicUserSelect`                           |
+| `src/components/BunnyPlayer/` (new)                                                            | dialog player with watermark guard                                |
+| `src/scenes/ResourcesPage/**`                                                                  | lock UI, paywall, Bunny routing, price action                     |
+| `src/components/VideoForm/VideoForm.tsx`                                                       | accept Bunny links                                                |
+| `src/scenes/ProfilerPage/components/UsersPanel.tsx`, `UnitsDialog.tsx` (new), `usersFilter.ts` | unit chips, dialog, "subscribers" filter                          |
+| remove `src/app/(site)/bunny-test`, `src/app/api/bunny-test`, `tests/unit/bunny-test.test.ts`  | cleanup                                                           |
 
 ---
 
@@ -49,6 +49,7 @@ Spec: `docs/superpowers/specs/2026-10-25-paid-units-design.md`.
 **Files:** Modify `prisma/schema.prisma`, `src/libs/bunny.ts`. Create `src/libs/access.ts`, `tests/unit/access.test.ts`.
 
 **Produces:**
+
 - `parseBunnyUrl(url: string): { libraryId: string; videoId: string } | null` (accepts `https://{iframe|player}.mediadelivery.net/{embed|play}/<lib>/<guid>`)
 - `isBunnyUrl(url: string): boolean`
 - `type Viewer = { id: string; role: string | null; unlockedUnitIds: string[] } | null`

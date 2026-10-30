@@ -26,10 +26,10 @@ from the admin users page. Access never expires; the admin removes it manually.
 
 ## Data (production DB: additive, optional fields only)
 
-| Model | New field | Meaning |
-|---|---|---|
-| `Folder` | `price Int?` | Unit price in ILS. Only accepted on first-level folders. |
-| `User` | `unlockedUnitIds String[] @db.ObjectId` | Units this student owns. |
+| Model    | New field                               | Meaning                                                  |
+| -------- | --------------------------------------- | -------------------------------------------------------- |
+| `Folder` | `price Int?`                            | Unit price in ILS. Only accepted on first-level folders. |
+| `User`   | `unlockedUnitIds String[] @db.ObjectId` | Units this student owns.                                 |
 
 No new collections, no changes or deletions to existing fields or documents.
 Existing documents without the new fields must read as "no price" / "no units"
