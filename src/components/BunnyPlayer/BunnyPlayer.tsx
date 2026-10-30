@@ -8,6 +8,7 @@ import { ErrorState, LoadingState } from "@/components/ui/States";
 import { useCloseOnBack } from "@/components/VideoPlayer/VideoPlayer";
 import { Box, Button } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
+import useBoxFullscreen from "./useBoxFullscreen";
 import useWatermarkGuard from "./useWatermarkGuard";
 
 type Playback =
@@ -50,6 +51,7 @@ export default function BunnyPlayer({
 		playback.status === "ready" ? playback.watermark : "",
 		ready
 	);
+	useBoxFullscreen(boxRef, ready);
 
 	// One request per open (or per retry click): no automatic retries.
 	useEffect(() => {
@@ -130,12 +132,11 @@ export default function BunnyPlayer({
 						"&:fullscreen": { maxWidth: "none", borderRadius: 0 },
 					})}
 				>
-					{/* No allowFullScreen: the iframe alone would go fullscreen and leave
-					    the watermark behind. The box goes fullscreen instead. */}
+					{/* useBoxFullscreen swaps the iframe's fullscreen for the box's. */}
 					<iframe
 						src={playback.url}
 						title={title}
-						allow='accelerometer; gyroscope; autoplay; encrypted-media'
+						allow='accelerometer; gyroscope; autoplay; encrypted-media; fullscreen'
 						style={{
 							border: 0,
 							position: "absolute",
