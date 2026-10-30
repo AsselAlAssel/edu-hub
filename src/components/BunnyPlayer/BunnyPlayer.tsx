@@ -6,9 +6,9 @@ import {
 import AppDialog from "@/components/ui/AppDialog";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { useCloseOnBack } from "@/components/VideoPlayer/VideoPlayer";
-import { Box, Button } from "@mui/material";
+import FullscreenRoundedIcon from "@mui/icons-material/FullscreenRounded";
+import { Box, Button, Stack } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import useFullscreenWatermark from "./useFullscreenWatermark";
 import useWatermarkGuard from "./useWatermarkGuard";
 
 type Playback =
@@ -51,7 +51,6 @@ export default function BunnyPlayer({
 		playback.status === "ready" ? playback.watermark : "",
 		ready
 	);
-	useFullscreenWatermark(boxRef, markRef, ready);
 
 	// One request per open (or per retry click): no automatic retries.
 	useEffect(() => {
@@ -117,7 +116,7 @@ export default function BunnyPlayer({
 		);
 	} else if (open) {
 		content = (
-			<>
+			<Stack spacing={1.5}>
 				<Box
 					ref={boxRef}
 					sx={(theme) => ({
@@ -132,11 +131,12 @@ export default function BunnyPlayer({
 						"&:fullscreen": { maxWidth: "none", borderRadius: 0 },
 					})}
 				>
-					{/* useFullscreenWatermark keeps the watermark above the fullscreen iframe. */}
+					{/* No allowFullScreen: the iframe alone would go fullscreen and leave
+					    the watermark behind. The box goes fullscreen instead. */}
 					<iframe
 						src={playback.url}
 						title={title}
-						allow='accelerometer; gyroscope; autoplay; encrypted-media; fullscreen'
+						allow='accelerometer; gyroscope; autoplay; encrypted-media'
 						style={{
 							border: 0,
 							position: "absolute",
@@ -163,21 +163,20 @@ export default function BunnyPlayer({
 							fontWeight: 600,
 							direction: "ltr",
 							whiteSpace: "nowrap",
-							"&:popover-open": {
-								margin: 0,
-								bottom: "auto",
-								insetInlineEnd: "auto",
-								padding: 0,
-								border: 0,
-								background: "transparent",
-								overflow: "visible",
-							},
 						}}
 					>
 						{playback.watermark}
 					</Box>
 				</Box>
-			</>
+				<Button
+					size='small'
+					startIcon={<FullscreenRoundedIcon />}
+					onClick={() => void boxRef.current?.requestFullscreen?.()}
+					sx={{ alignSelf: "flex-start" }}
+				>
+					ملء الشاشة
+				</Button>
+			</Stack>
 		);
 	}
 
