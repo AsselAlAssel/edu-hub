@@ -38,9 +38,6 @@ import SideBar from "../Sidebar";
 
 export { APP_BAR_HEIGHT };
 
-/** Fits the "تسجيل الدخول" button, the widest account state (+ toggle and gap). */
-const ACCOUNT_SLOT_WIDTH = 148;
-
 /** Reading progress along the header's bottom edge (fills from the right in RTL). */
 function ScrollProgress() {
 	const { scrollYProgress } = useScroll();
@@ -103,14 +100,21 @@ export default function Header() {
 			{/* Reading progress belongs to the long landing page only. */}
 			{pathname === "/" ? <ScrollProgress /> : null}
 			<PageContainer sx={{ height: "100%" }}>
-				<Stack
-					direction='row'
-					alignItems='center'
-					justifyContent='space-between'
-					height='100%'
-					gap={2}
+				<Box
+					sx={{
+						display: "grid",
+						gridTemplateColumns: {
+							xs: "minmax(0, 1fr) auto",
+							md: "minmax(0, 1fr) auto minmax(0, 1fr)",
+						},
+						alignItems: "center",
+						height: "100%",
+						columnGap: 2,
+					}}
 				>
-					<Logo />
+					<Box sx={{ justifySelf: "start" }}>
+						<Logo />
+					</Box>
 
 					<Box
 						component='nav'
@@ -181,15 +185,14 @@ export default function Header() {
 						</Stack>
 					</Box>
 
-					{/* Fixed width on desktop, packed to the outer (left) edge: the
-					    nav never moves when the session arrives after a refresh, and
-					    the loading circle becomes the avatar in the same spot. */}
+					{/* Equal side columns keep the nav centered and steady while the
+					    session loads; the loading circle becomes the avatar in place. */}
 					<Stack
 						direction='row'
 						alignItems='center'
 						justifyContent='flex-end'
 						gap={1}
-						sx={{ width: { md: ACCOUNT_SLOT_WIDTH + 50 } }}
+						sx={{ justifySelf: "end" }}
 					>
 						<ThemeToggle />
 						<Box sx={{ display: { xs: "none", md: "flex" } }}>
@@ -237,7 +240,7 @@ export default function Header() {
 							<MenuRoundedIcon />
 						</IconButton>
 					</Stack>
-				</Stack>
+				</Box>
 			</PageContainer>
 
 			<Menu
