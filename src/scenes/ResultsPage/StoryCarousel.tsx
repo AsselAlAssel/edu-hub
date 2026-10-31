@@ -6,7 +6,8 @@ import { Box, IconButton, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useState, type KeyboardEvent } from "react";
+import { isVideoUrl } from "@/libs/uploadRules";
+import { useRef, useState, type KeyboardEvent } from "react";
 
 const SPRING = {
 	type: "spring",
@@ -28,8 +29,13 @@ export default function StoryCarousel({
 	title: string;
 }) {
 	const [current, setCurrent] = useState(0);
+	const stage = useRef<HTMLDivElement>(null);
 	const count = images.length;
-	const go = (i: number) => setCurrent(Math.max(0, Math.min(count - 1, i)));
+	const go = (i: number) => {
+		// A video moved to the side stops playing.
+		stage.current?.querySelectorAll("video").forEach((v) => v.pause());
+		setCurrent(Math.max(0, Math.min(count - 1, i)));
+	};
 
 	const onKeyDown = (e: KeyboardEvent) => {
 		if (e.key === "ArrowLeft") go(current + 1);
@@ -41,6 +47,7 @@ export default function StoryCarousel({
 	return (
 		<Box role='group' aria-roledescription='معرض صور' aria-label={title}>
 			<Box
+				ref={stage}
 				tabIndex={0}
 				onKeyDown={onKeyDown}
 				aria-label='اسحب أو استخدم الأسهم للتنقل بين الصور'
@@ -119,28 +126,50 @@ export default function StoryCarousel({
 												: "0 16px 30px -18px rgba(0,0,0,0.55)",
 									})}
 								>
-									{/* Blurred fill behind the uncropped image. */}
-									<Image
-										src={src}
-										alt=''
-										fill
-										sizes='200px'
-										unoptimized={!canOptimizeImage(src)}
-										style={{
-											objectFit: "cover",
-											filter: "blur(22px) saturate(1.2)",
-											transform: "scale(1.2)",
-										}}
-									/>
-									<Image
-										src={src}
-										alt={`${title} (${i + 1} من ${count})`}
-										fill
-										draggable={false}
-										sizes='(max-width: 900px) 80vw, 480px'
-										unoptimized={!canOptimizeImage(src)}
-										style={{ objectFit: "contain" }}
-									/>
+									{isVideoUrl(src) ? (
+										<video
+											src={`${src}#t=0.1`}
+											controls={d === 0}
+											playsInline
+											preload='metadata'
+											aria-label={`${title} (${i + 1} من ${count})`}
+											// Keeps the controls usable instead of starting a swipe.
+											onPointerDownCapture={(e) =>
+												d === 0 && e.stopPropagation()
+											}
+											style={{
+												width: "100%",
+												height: "100%",
+												objectFit: "contain",
+												backgroundColor: "#000",
+											}}
+										/>
+									) : (
+										<>
+											{/* Blurred fill behind the uncropped image. */}
+											<Image
+												src={src}
+												alt=''
+												fill
+												sizes='200px'
+												unoptimized={!canOptimizeImage(src)}
+												style={{
+													objectFit: "cover",
+													filter: "blur(22px) saturate(1.2)",
+													transform: "scale(1.2)",
+												}}
+											/>
+											<Image
+												src={src}
+												alt={`${title} (${i + 1} من ${count})`}
+												fill
+												draggable={false}
+												sizes='(max-width: 900px) 80vw, 480px'
+												unoptimized={!canOptimizeImage(src)}
+												style={{ objectFit: "contain" }}
+											/>
+										</>
+									)}
 								</Box>
 							</motion.div>
 						);

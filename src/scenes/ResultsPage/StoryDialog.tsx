@@ -38,7 +38,7 @@ const toValues = (story?: Story): StoryInput => ({
 	youtubeUrl: story?.youtubeUrl ?? "",
 });
 
-/** Add or edit a story: title, description, then images or a YouTube link. */
+/** Add or edit a story: title, description, then images/videos or a YouTube link. */
 export default function StoryDialog({
 	open,
 	onClose,
@@ -155,11 +155,11 @@ export default function StoryDialog({
 					>
 						<ToggleButton value='images'>
 							<PhotoLibraryOutlinedIcon fontSize='small' />
-							صور
+							صور وفيديوهات
 						</ToggleButton>
 						<ToggleButton value='video'>
 							<YouTubeIcon fontSize='small' />
-							فيديو YouTube
+							YouTube
 						</ToggleButton>
 					</ToggleButtonGroup>
 				</Box>
@@ -216,7 +216,7 @@ export default function StoryDialog({
 						rules={{
 							// Only mounted (and checked) while "صور" is chosen.
 							validate: (value) =>
-								value.length > 0 || "أضف صورة واحدة على الأقل",
+								value.length > 0 || "أضف صورة أو فيديو واحد على الأقل",
 						}}
 						render={({ field: { value, onChange }, fieldState: { error } }) => (
 							<Box>
@@ -228,7 +228,7 @@ export default function StoryDialog({
 								/>
 								<FormHelperText error={!!error}>
 									{error?.message ??
-										`${value.length} من ${MAX_IMAGES} صور · الصورة الأولى تظهر أولاً`}
+										`${value.length} من ${MAX_IMAGES} · الأول يظهر أولاً`}
 								</FormHelperText>
 							</Box>
 						)}

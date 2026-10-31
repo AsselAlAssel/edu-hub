@@ -4,7 +4,11 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "node:crypto";
 import { getSessionUser } from "@/libs/api";
 import { r2Client } from "@/libs/r2";
-import { type UploadKind, validateUpload } from "@/libs/uploadRules";
+import {
+	getExtension,
+	type UploadKind,
+	validateUpload,
+} from "@/libs/uploadRules";
 
 /**
  * Presigned PUT URL for R2. Admin-only: every upload surface (resources,
@@ -22,7 +26,9 @@ export async function getSignedURL(
 	const invalid = validateUpload(file, kind);
 	if (invalid) return { failure: invalid };
 
-	const key = `${Date.now()}-${randomUUID()}`;
+	// Keeps the extension so the results gallery can tell videos from images.
+	const extension = getExtension(file.name);
+	const key = `${Date.now()}-${randomUUID()}${extension ? `.${extension}` : ""}`;
 	const url = await getSignedUrl(
 		r2Client,
 		new PutObjectCommand({

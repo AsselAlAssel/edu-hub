@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 
 const MAX_IMAGES = 10;
 
-/** Title, description, images and YouTube link from a request body. */
+/** Title, description, images/videos and YouTube link from a request body. */
 function readStory(body: Record<string, unknown>) {
 	const title = cleanString(body.title, 150);
 	const description =
@@ -25,8 +25,13 @@ function readStory(body: Record<string, unknown>) {
 			: "";
 	const rawImages: unknown[] = Array.isArray(body.images) ? body.images : [];
 	const images = rawImages
-		.filter((url): url is string => typeof url === "string" && !!url)
-		.map((url) => url.slice(0, 2000))
+		// Uploaded or pasted image/video links.
+		.filter(
+			(url): url is string =>
+				typeof url === "string" &&
+				/^https?:\/\//i.test(url) &&
+				url.length <= 2000
+		)
 		.slice(0, MAX_IMAGES);
 	const youtubeUrl = cleanString(body.youtubeUrl, 500);
 	if (!title) return { error: "Missing title" };

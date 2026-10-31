@@ -2,6 +2,7 @@
 import { getYouTubeVideoID } from "@/libs/constant";
 import { canOptimizeImage } from "@/libs/images";
 import type { Story } from "@/libs/story";
+import { isVideoUrl } from "@/libs/uploadRules";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import { Box, ButtonBase } from "@mui/material";
 import { alpha, type Theme } from "@mui/material/styles";
@@ -25,7 +26,7 @@ const frameSx = (theme: Theme) => ({
 	boxShadow: `0 24px 60px -30px ${alpha(theme.tokens.colors.violet, 0.45)}`,
 });
 
-/** A story's YouTube video (opens in the player dialog) or its images. */
+/** A story's YouTube video (opens in the player dialog) or its images/videos. */
 export default function StoryMedia({ story }: { story: Story }) {
 	const videoId = story.youtubeUrl ? getYouTubeVideoID(story.youtubeUrl) : null;
 	if (story.youtubeUrl && videoId)
@@ -43,8 +44,19 @@ export default function StoryMedia({ story }: { story: Story }) {
 	return null;
 }
 
-/** Full width, natural height (nothing cropped). */
+/** Full width, natural height (nothing cropped). Videos play inline. */
 function StoryImage({ src, alt }: { src: string; alt: string }) {
+	if (isVideoUrl(src))
+		return (
+			<video
+				src={`${src}#t=0.1`}
+				controls
+				playsInline
+				preload='metadata'
+				aria-label={alt}
+				style={{ display: "block", width: "100%", maxHeight: "80vh" }}
+			/>
+		);
 	return (
 		<Image
 			src={src}

@@ -8,7 +8,7 @@ import { isObjectId } from "@/libs/api";
 import { getErrorMessage } from "@/libs/errors";
 import { getYouTubeVideoID } from "@/libs/constant";
 import { parseLandingPayload } from "@/libs/landing";
-import { getExtension, validateUpload } from "@/libs/uploadRules";
+import { getExtension, isVideoUrl, validateUpload } from "@/libs/uploadRules";
 import { isNavItemActive, NAV_ITEMS } from "@/constants/navigation";
 import {
 	computeReorder,
@@ -54,6 +54,25 @@ describe("upload validation", () => {
 		expect(
 			validateUpload({ name: "huge.png", size: 11 * MB }, "image")
 		).toMatch(/يتجاوز/);
+	});
+	it("takes images and videos for the results gallery", () => {
+		expect(
+			validateUpload({ name: "story.MP4", size: 150 * MB }, "media")
+		).toBeNull();
+		expect(validateUpload({ name: "a.png", size: 11 * MB }, "media")).toMatch(
+			/يتجاوز/
+		);
+		expect(validateUpload({ name: "a.pdf", size: MB }, "media")).toMatch(
+			/غير مدعوم/
+		);
+		expect(
+			isVideoUrl(
+				"https://pub-x.r2.dev/WhatsApp%20Video%202026-10-31%20at%202.00.17%20PM.mp4"
+			)
+		).toBe(true);
+		expect(isVideoUrl("https://x.dev/a.mp4?v=1")).toBe(true);
+		expect(isVideoUrl("https://x.dev/1-uuid.webp")).toBe(false);
+		expect(isVideoUrl("not a url")).toBe(false);
 	});
 	it("extracts lower-case extensions", () => {
 		expect(getExtension("Unit 1.DOCX")).toBe("docx");
