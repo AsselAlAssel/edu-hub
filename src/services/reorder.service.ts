@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export type ReorderType = "folder" | "file" | "video";
+export type ReorderType = "folder" | "file" | "video" | "story";
 
 export type ReorderParams = {
 	type: ReorderType;

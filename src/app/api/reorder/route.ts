@@ -2,9 +2,10 @@ import { revalidateResourcePages } from "@/libs/revalidate";
 import { isObjectId, jsonError, readJson, requireAdmin } from "@/libs/api";
 import { getRankBetween } from "@/libs/lexorank";
 import { prisma } from "@/libs/prismaDb";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
-const RANK_TYPES = ["folder", "file", "video"] as const;
+const RANK_TYPES = ["folder", "file", "video", "story"] as const;
 type RankType = (typeof RANK_TYPES)[number];
 
 const optionalRank = (value: unknown) =>
@@ -35,7 +36,12 @@ export const POST = async (req: NextRequest) => {
 		const data = { rank: newRank };
 		if (type === "folder") await prisma.folder.update({ where, data });
 		else if (type === "file") await prisma.file.update({ where, data });
-		else await prisma.video.update({ where, data });
+		else if (type === "video") await prisma.video.update({ where, data });
+		else {
+			await prisma.story.update({ where, data });
+			revalidatePath("/results");
+			return NextResponse.json({ rank: newRank });
+		}
 
 		revalidateResourcePages();
 		return NextResponse.json({ rank: newRank });

@@ -12,6 +12,7 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
 	{ label: "الرئيسية", href: "/#home", section: "home" },
 	{ label: "الصفوف", href: "/classes", match: ["/classes", "/class/"] },
+	{ label: "نتائجنا", href: "/results", match: ["/results"] },
 	{ label: "عن المنصة", href: "/#about", section: "about" },
 	{ label: "تواصل معنا", href: "/#contact", section: "contact" },
 ];

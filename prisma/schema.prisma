@@ -192,6 +192,18 @@ model ExamAttempt {
   @@index([examId])
 }
 
+// A student's success story on /results: images, or a YouTube video.
+model Story {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  images      String[]
+  youtubeUrl  String?
+  rank        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model LandingPage {
   id             String  @id @default(auto()) @map("_id") @db.ObjectId
   headerTitle    String

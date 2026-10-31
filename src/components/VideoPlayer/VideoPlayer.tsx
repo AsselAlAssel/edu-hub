@@ -1,6 +1,7 @@
 "use client";
 import AppDialog from "@/components/ui/AppDialog";
-import { Box, CircularProgress } from "@mui/material";
+import FullscreenRoundedIcon from "@mui/icons-material/FullscreenRounded";
+import { Box, Button, CircularProgress, Stack } from "@mui/material";
 import dynamic from "next/dynamic";
 import { useEffect, useRef } from "react";
 
@@ -43,6 +44,7 @@ export default function VideoPlayer({
 	onProgress?: (playedSeconds: number, duration: number) => void;
 }) {
 	const duration = useRef(0);
+	const boxRef = useRef<HTMLDivElement>(null);
 	const close = useCloseOnBack(open, handleClose);
 
 	return (
@@ -53,37 +55,52 @@ export default function VideoPlayer({
 			maxWidth='md'
 			fullScreenOnMobile={false}
 		>
-			<Box
-				sx={(theme) => ({
-					position: "relative",
-					aspectRatio: "16 / 9",
-					// Fit the viewport height too (phones in landscape).
-					maxWidth: "calc((100dvh - 150px) * 16 / 9)",
-					mx: "auto",
-					borderRadius: `${theme.tokens.radii.md}px`,
-					overflow: "hidden",
-					backgroundColor: theme.palette.common.black,
-				})}
-			>
-				{/* Unmounted on close, which stops playback. */}
-				{open && url ? (
-					<ReactPlayer
-						url={url}
-						playing
-						controls
-						width='100%'
-						height='100%'
-						style={{ position: "absolute", inset: 0 }}
-						config={{
-							playerVars: { rel: 0, start: Math.floor(startAt) },
-						}}
-						onDuration={(seconds) => (duration.current = seconds)}
-						onProgress={({ playedSeconds }) =>
-							duration.current && onProgress?.(playedSeconds, duration.current)
-						}
-					/>
-				) : null}
-			</Box>
+			<Stack spacing={1.5}>
+				<Box
+					ref={boxRef}
+					sx={(theme) => ({
+						position: "relative",
+						aspectRatio: "16 / 9",
+						// Fit the viewport height too (phones in landscape).
+						maxWidth: "calc((100dvh - 200px) * 16 / 9)",
+						width: "100%",
+						mx: "auto",
+						borderRadius: `${theme.tokens.radii.md}px`,
+						overflow: "hidden",
+						backgroundColor: theme.palette.common.black,
+						"&:fullscreen": { maxWidth: "none", borderRadius: 0 },
+					})}
+				>
+					{/* Unmounted on close, which stops playback. */}
+					{open && url ? (
+						<ReactPlayer
+							url={url}
+							playing
+							controls
+							width='100%'
+							height='100%'
+							style={{ position: "absolute", inset: 0 }}
+							config={{
+								playerVars: { rel: 0, start: Math.floor(startAt) },
+							}}
+							onDuration={(seconds) => (duration.current = seconds)}
+							onProgress={({ playedSeconds }) =>
+								duration.current &&
+								onProgress?.(playedSeconds, duration.current)
+							}
+						/>
+					) : null}
+				</Box>
+				{/* Same button as the paid (Bunny) player, for one look. */}
+				<Button
+					size='small'
+					startIcon={<FullscreenRoundedIcon />}
+					onClick={() => void boxRef.current?.requestFullscreen?.()}
+					sx={{ alignSelf: "flex-start" }}
+				>
+					ملء الشاشة
+				</Button>
+			</Stack>
 		</AppDialog>
 	);
 }
