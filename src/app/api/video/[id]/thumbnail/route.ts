@@ -1,6 +1,7 @@
 import { isObjectId } from "@/libs/api";
 import { signBunnyEmbedUrl } from "@/libs/bunny";
 import { parseBunnyUrl } from "@/libs/bunnyUrl";
+import { isHiddenFrom } from "@/libs/class";
 import { prisma } from "@/libs/prismaDb";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -29,12 +30,15 @@ export const GET = async (
 	if (!isObjectId(id)) return fallback();
 	const video = await prisma.video.findUnique({
 		where: { id },
-		select: { url: true },
+		select: { url: true, folderId: true },
 	});
 	const bunny = video && parseBunnyUrl(video.url);
 	const libraryId = process.env.BUNNY_LIBRARY_ID?.trim();
 	const tokenKey = process.env.BUNNY_TOKEN_KEY?.trim();
 	if (!bunny || !libraryId || !tokenKey) return fallback();
+	// Checked as a guest, admins included: the image is cached publicly, so an
+	// admin's copy would reach everyone. Hidden classes get the placeholder.
+	if (await isHiddenFrom(video.folderId, null)) return fallback();
 
 	try {
 		// The route is public, so Bunny is fetched at most once per video per

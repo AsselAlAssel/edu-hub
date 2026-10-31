@@ -2,6 +2,7 @@ import { canOpenUnit, getUnit, getViewer } from "@/libs/access";
 import { isObjectId, jsonError } from "@/libs/api";
 import { BUNNY_TOKEN_TTL_SECONDS, signBunnyEmbedUrl } from "@/libs/bunny";
 import { parseBunnyUrl } from "@/libs/bunnyUrl";
+import { isHiddenFrom } from "@/libs/class";
 import { prisma } from "@/libs/prismaDb";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -27,6 +28,10 @@ export const GET = async (
 	});
 	const bunny = video && parseBunnyUrl(video.url);
 	if (!video || !bunny) return jsonError("Video not found", 404);
+	// A hidden class does not exist for students (same as /api/resources).
+	if (await isHiddenFrom(video.folderId, viewer)) {
+		return jsonError("Video not found", 404);
+	}
 
 	if (!canOpenUnit(viewer, await getUnit(video.folderId))) {
 		return jsonError("Forbidden", 403);

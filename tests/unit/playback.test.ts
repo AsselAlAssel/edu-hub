@@ -20,7 +20,10 @@ vi.mock("@/libs/folder", () => ({
 	getBreadcrumbs: vi.fn(async () => crumbs.current),
 }));
 
+import { createHash } from "node:crypto";
 import { GET } from "@/app/api/video/[id]/playback/route";
+import { GET as THUMBNAIL } from "@/app/api/video/[id]/thumbnail/route";
+import { BUNNY_TOKEN_TTL_SECONDS, signBunnyEmbedUrl } from "@/libs/bunny";
 
 const KEY = "4742a81b-bf15-42fe-8b1c-8fcb9024c550";
 const GUID = "32d140e2-e4f4-4eec-9d53-20371e9be607";
@@ -44,6 +47,7 @@ const signIn = (unlockedUnitIds: string[] = [], role = "USER") => {
 
 beforeEach(() => {
 	session.current = null;
+	prisma.folder.findUnique.mockReset();
 	vi.stubEnv("BUNNY_LIBRARY_ID", "759");
 	vi.stubEnv("BUNNY_TOKEN_KEY", KEY);
 	crumbs.current = [
@@ -106,5 +110,69 @@ describe("GET /api/video/[id]/playback", () => {
 		signIn([UNIT]);
 		vi.stubEnv("BUNNY_TOKEN_KEY", "");
 		expect((await call()).status).toBe(500);
+	});
+
+	it("404 without a signed URL when the class is hidden, even for owners", async () => {
+		signIn([UNIT]);
+		prisma.folder.findUnique.mockResolvedValueOnce({
+			parentClass: { hidden: true },
+		});
+		const res = await call();
+		const body = await res.json();
+		expect(res.status).toBe(404);
+		expect(body.message).toBe("Video not found");
+		expect(body.url).toBeUndefined();
+		expect(JSON.stringify(body)).not.toContain("token=");
+	});
+
+	it("still lets admins play in a hidden class", async () => {
+		signIn([], "ADMIN");
+		prisma.folder.findUnique.mockResolvedValueOnce({
+			parentClass: { hidden: true },
+		});
+		expect((await call()).status).toBe(200);
+	});
+
+	it("expires TTL seconds from now, in UNIX seconds", async () => {
+		signIn([UNIT]);
+		vi.spyOn(Date, "now").mockReturnValue(1_700_000_000_500);
+		const { url, expires } = await (await call()).json();
+		expect(expires).toBe(1_700_000_000 + BUNNY_TOKEN_TTL_SECONDS);
+		expect(new URL(url).searchParams.get("expires")).toBe(String(expires));
+	});
+});
+
+describe("signBunnyEmbedUrl", () => {
+	it("signs SHA256_HEX(key + videoId + expires) into the embed URL", () => {
+		const expires = 1_700_000_120;
+		const url = new URL(
+			signBunnyEmbedUrl({
+				libraryId: "759",
+				videoId: GUID,
+				tokenKey: KEY,
+				expires,
+			})
+		);
+		expect(url.pathname).toBe(`/embed/759/${GUID}`);
+		expect(url.searchParams.get("token")).toBe(
+			createHash("sha256")
+				.update(KEY + GUID + expires)
+				.digest("hex")
+		);
+		expect(url.searchParams.get("expires")).toBe("1700000120");
+	});
+});
+
+describe("GET /api/video/[id]/thumbnail", () => {
+	it("serves the placeholder for a hidden class without calling Bunny", async () => {
+		const fetchSpy = vi.spyOn(globalThis, "fetch");
+		prisma.folder.findUnique.mockResolvedValueOnce({
+			parentClass: { hidden: true },
+		});
+		const res = await THUMBNAIL(new Request("http://x") as never, {
+			params: Promise.resolve({ id: VIDEO }),
+		});
+		expect(res.headers.get("location")).toContain("video-placeholder.svg");
+		expect(fetchSpy).not.toHaveBeenCalled();
 	});
 });
