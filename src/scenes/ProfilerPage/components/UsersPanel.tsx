@@ -263,7 +263,17 @@ export default function UsersPanel() {
 					value={filters.query}
 					onChange={(event) => setFilter("query", event.target.value)}
 				/>
-				<Stack direction='row' gap={1.5} sx={{ flexShrink: 0 }}>
+				<Box
+					sx={{
+						display: "grid",
+						gridTemplateColumns: {
+							xs: "repeat(2, minmax(0, 1fr))",
+							md: "repeat(4, auto)",
+						},
+						gap: 1.5,
+						flexShrink: 0,
+					}}
+				>
 					<Select
 						size='small'
 						value={filters.role}
@@ -271,7 +281,7 @@ export default function UsersPanel() {
 							setFilter("role", event.target.value as UserFilters["role"])
 						}
 						inputProps={{ "aria-label": "تصفية حسب الصلاحية" }}
-						sx={{ flex: 1, minWidth: 110 }}
+						sx={{ minWidth: { md: 110 } }}
 					>
 						<MenuItem value='ALL'>كل الصلاحيات</MenuItem>
 						<MenuItem value='USER'>الطلاب</MenuItem>
@@ -284,7 +294,7 @@ export default function UsersPanel() {
 							setFilter("joined", event.target.value as UserFilters["joined"])
 						}
 						inputProps={{ "aria-label": "تصفية حسب تاريخ التسجيل" }}
-						sx={{ flex: 1, minWidth: 110 }}
+						sx={{ minWidth: { md: 110 } }}
 					>
 						<MenuItem value='ALL'>كل الأوقات</MenuItem>
 						<MenuItem value='7'>آخر 7 أيام</MenuItem>
@@ -297,7 +307,7 @@ export default function UsersPanel() {
 							setFilter("sort", event.target.value as UserFilters["sort"])
 						}
 						inputProps={{ "aria-label": "الترتيب" }}
-						sx={{ flex: 1, minWidth: 100 }}
+						sx={{ minWidth: { md: 100 } }}
 					>
 						<MenuItem value='newest'>الأحدث</MenuItem>
 						<MenuItem value='oldest'>الأقدم</MenuItem>
@@ -313,12 +323,12 @@ export default function UsersPanel() {
 							)
 						}
 						inputProps={{ "aria-label": "تصفية حسب الاشتراك" }}
-						sx={{ flex: 1, minWidth: 120 }}
+						sx={{ minWidth: { md: 120 } }}
 					>
 						<MenuItem value='ALL'>كل الطلاب</MenuItem>
 						<MenuItem value='PAID'>المشتركون فقط</MenuItem>
 					</Select>
-				</Stack>
+				</Box>
 			</Stack>
 
 			{data ? (
