@@ -1,30 +1,56 @@
 "use client";
 import axios from "axios";
-import { SessionProvider, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import toast from "react-hot-toast";
+
+// Survives reloads, so a fresh page in a browser whose session was revoked
+// (signed in on another device) is told apart from a guest.
+const FLAG = "signed-in";
+const flag = {
+	get: () => {
+		try {
+			return localStorage.getItem(FLAG) === "1";
+		} catch {
+			return false;
+		}
+	},
+	set: (on: boolean) => {
+		try {
+			if (on) localStorage.setItem(FLAG, "1");
+			else localStorage.removeItem(FLAG);
+		} catch {
+			// Storage blocked: behave as a guest.
+		}
+	},
+};
 
 // Set by SessionGuard; lets non-axios callers (fetch) report a 401 too.
 let onUnauthorized = () => {};
 export const reportUnauthorized = () => onUnauthorized();
 
+/** The user's own sign-out: no "session ended" toast afterwards. */
+export const logout = () => {
+	flag.set(false);
+	return signOut({ callbackUrl: "/" });
+};
+
 /**
  * A signed-in user whose session died (signed in on another device, expired)
  * is signed out and sent home the moment any API answers 401 or the session
- * refetch comes back empty. Guests getting a 401 are left alone.
+ * comes back empty. Guests getting a 401 are left alone.
  */
-function SessionGuard() {
+export default function SessionGuard() {
 	const { status } = useSession();
 	const router = useRouter();
-	const signedIn = useRef(false);
 	const kicking = useRef(false);
 
 	useEffect(() => {
 		onUnauthorized = () => {
-			if (!signedIn.current || kicking.current) return;
+			if (!flag.get() || kicking.current) return;
 			kicking.current = true;
-			signedIn.current = false;
+			flag.set(false);
 			toast.error("انتهت جلستك أو تم تسجيل الدخول من جهاز آخر", {
 				id: "session-ended",
 			});
@@ -42,22 +68,9 @@ function SessionGuard() {
 	}, [router]);
 
 	useEffect(() => {
-		if (status === "authenticated") signedIn.current = true;
+		if (status === "authenticated") flag.set(true);
 		else if (status === "unauthenticated") onUnauthorized();
 	}, [status]);
 
 	return null;
-}
-
-export default function AuthProvider({
-	children,
-}: {
-	children: React.ReactNode;
-}) {
-	return (
-		<SessionProvider>
-			<SessionGuard />
-			{children}
-		</SessionProvider>
-	);
 }

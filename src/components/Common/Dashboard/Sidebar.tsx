@@ -21,7 +21,8 @@ import {
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { Stagger, StaggerItem } from "@/components/ui/motion";
-import { signOut, useSession } from "next-auth/react";
+import { logout } from "@/components/Auth/SessionGuard";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -197,7 +198,7 @@ export default function SideBar({
 							startIcon={<LogoutRoundedIcon />}
 							onClick={() => {
 								onClose();
-								void signOut({ callbackUrl: "/" });
+								void logout();
 							}}
 						>
 							تسجيل الخروج

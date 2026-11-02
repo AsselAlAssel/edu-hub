@@ -30,7 +30,8 @@ import {
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { motion, useScroll, useSpring } from "framer-motion";
-import { signOut, useSession } from "next-auth/react";
+import { logout } from "@/components/Auth/SessionGuard";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -285,7 +286,7 @@ export default function Header() {
 				<MenuItem
 					onClick={() => {
 						closeMenu();
-						void signOut({ callbackUrl: "/" });
+						void logout();
 					}}
 					sx={{ color: "error.main" }}
 				>

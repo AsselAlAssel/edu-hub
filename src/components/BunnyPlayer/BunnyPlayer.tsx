@@ -3,7 +3,7 @@ import {
 	GoogleLogo,
 	signInWithGoogle,
 } from "@/components/Auth/GoogleSigninDialog";
-import { reportUnauthorized } from "@/app/context/AuthContext";
+import { reportUnauthorized } from "@/components/Auth/SessionGuard";
 import AppDialog from "@/components/ui/AppDialog";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { useCloseOnBack } from "@/components/VideoPlayer/VideoPlayer";

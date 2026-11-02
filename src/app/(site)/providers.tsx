@@ -1,12 +1,14 @@
 "use client";
 
+import SessionGuard from "@/components/Auth/SessionGuard";
 import { MotionProvider } from "@/components/ui/motion";
 import { SessionProvider } from "next-auth/react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
 	return (
-		// Not on every tab focus: the server re-reads role and units per request anyway.
-		<SessionProvider refetchOnWindowFocus={false}>
+		// Refetch on tab focus: catches a session revoked by a sign-in elsewhere.
+		<SessionProvider>
+			<SessionGuard />
 			<MotionProvider>{children}</MotionProvider>
 		</SessionProvider>
 	);
