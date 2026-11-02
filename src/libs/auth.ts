@@ -85,6 +85,20 @@ export const authOptions: NextAuthOptions = {
 			const { token, trigger, session } = payload;
 			const user: User = payload.user;
 
+			// One device at a time: signing in elsewhere deletes this token's
+			// session row. Throwing makes NextAuth clear the cookie and every
+			// getServerSession() return null (so APIs answer 401).
+			if (!user) {
+				const row = token.sessionId
+					? await prisma.session.findUnique({
+							where: { sessionId: token.sessionId },
+						})
+					: null;
+				if (!row || row.expires < new Date()) {
+					throw new Error("Session revoked: signed in on another device");
+				}
+			}
+
 			// `update()` data comes from the client: only allow display fields,
 			// never role/uid/sub (that would let any user make itself an admin).
 			if (trigger === "update") {
