@@ -89,10 +89,9 @@ export const authOptions: NextAuthOptions = {
 			// session row. Throwing makes NextAuth clear the cookie and every
 			// getServerSession() return null (so APIs answer 401).
 			if (!user) {
-				const row = token.sessionId
-					? await prisma.session.findUnique({
-							where: { sessionId: token.sessionId },
-						})
+				const sessionId = token.sessionId;
+				const row = sessionId
+					? await prisma.session.findUnique({ where: { sessionId } })
 					: null;
 				if (!row || row.expires < new Date()) {
 					throw new Error("Session revoked: signed in on another device");

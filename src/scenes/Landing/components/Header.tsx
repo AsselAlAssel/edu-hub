@@ -51,6 +51,7 @@ function Stats({ stats }: { stats?: PlatformStats | null }) {
 		{ value: stats?.classes ?? 0, label: "صفوف دراسية" },
 		{ value: stats?.videos ?? 0, label: "فيديو شرح" },
 		{ value: stats?.files ?? 0, label: "ملف دراسي" },
+		{ value: stats?.exams ?? 0, label: "امتحان" },
 	].filter((item) => item.value > 0);
 	if (!items.length) return null;
 

@@ -50,7 +50,10 @@ describe("landing page", () => {
 
 	it("shows only real, non-zero platform stats in the hero", () => {
 		renderWithTheme(
-			<Landing data={landing} stats={{ classes: 6, videos: 42, files: 0 }} />
+			<Landing
+				data={landing}
+				stats={{ classes: 6, videos: 42, files: 0, exams: 0 }}
+			/>
 		);
 		const hero = document.getElementById("home")!;
 		expect(within(hero).getByText("6+")).toBeInTheDocument();

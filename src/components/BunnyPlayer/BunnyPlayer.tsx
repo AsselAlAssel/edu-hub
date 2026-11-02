@@ -3,6 +3,7 @@ import {
 	GoogleLogo,
 	signInWithGoogle,
 } from "@/components/Auth/GoogleSigninDialog";
+import { reportUnauthorized } from "@/app/context/AuthContext";
 import AppDialog from "@/components/ui/AppDialog";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { useCloseOnBack } from "@/components/VideoPlayer/VideoPlayer";
@@ -60,6 +61,7 @@ export default function BunnyPlayer({
 			.then(async (res) => {
 				if (cancelled) return;
 				if (!res.ok) {
+					if (res.status === 401) reportUnauthorized();
 					setPlayback({
 						status: "error",
 						message: ERRORS[res.status] ?? "تعذّر تشغيل الفيديو.",
