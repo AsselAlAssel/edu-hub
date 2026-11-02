@@ -394,6 +394,38 @@ describe("resource dialogs", () => {
 	});
 });
 
+describe("files while a signed-in student's own view loads", () => {
+	const locked = { ...file("4", ""), url: "signin" };
+
+	it("shows skeletons, not the sign-in box, until the links arrive", () => {
+		hookState.override = {
+			data: undefined,
+			error: undefined,
+			isLoading: true,
+			mutate: vi.fn(),
+		};
+		renderPage({ ...resources, files: [locked] });
+		expect(
+			screen.queryByRole("button", { name: /سجّل الدخول للوصول للملفات/ })
+		).toBeNull();
+		expect(screen.queryByText("ملفات الدرس متاحة للطلاب المسجّلين")).toBeNull();
+	});
+
+	it("then shows the real files", () => {
+		hookState.override = {
+			data: resources,
+			error: undefined,
+			isLoading: false,
+			mutate: vi.fn(),
+		};
+		renderPage({ ...resources, files: [locked] });
+		expect(screen.getByText("ملخص الحركة")).toBeInTheDocument();
+		expect(
+			screen.queryByRole("button", { name: /سجّل الدخول للوصول للملفات/ })
+		).toBeNull();
+	});
+});
+
 describe("resource explorer (guest)", () => {
 	it("files are behind a sign-in box: no names, no links, no count", () => {
 		asGuest();

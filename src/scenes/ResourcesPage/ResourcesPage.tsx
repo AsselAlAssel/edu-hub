@@ -374,6 +374,7 @@ export default function ResourcesPage({
 			<FilesSection
 				files={files}
 				isAdmin={isAdmin}
+				pending={viewerPending}
 				onAdd={() => openCreate("file")}
 				onRename={rename("file")}
 				onDelete={remove("file")}

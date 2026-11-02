@@ -4,7 +4,7 @@ import {
 	signInWithGoogle,
 } from "@/components/Auth/GoogleSigninDialog";
 import SortableGrid from "@/components/SortableGrid";
-import { cardGridSx } from "@/components/ui/Skeletons";
+import { CardGridSkeleton, cardGridSx } from "@/components/ui/Skeletons";
 import { PAID_FILE_URL, SIGNIN_FILE_URL } from "@/libs/constant";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -86,9 +86,12 @@ export default function FilesSection({
 	onDelete,
 	onMove,
 	onSubscribe,
+	pending = false,
 }: {
 	files: File[];
 	isAdmin: boolean;
+	/** The viewer's own files are still loading: show skeletons, not a lock. */
+	pending?: boolean;
 	onAdd: () => void;
 	onRename: (file: File) => void;
 	onDelete: (file: File) => void;
@@ -110,7 +113,9 @@ export default function FilesSection({
 			count={locked ? undefined : files.length}
 			icon={<DescriptionOutlinedIcon />}
 		>
-			{needsSignin ? (
+			{locked && pending ? (
+				<CardGridSkeleton count={3} />
+			) : needsSignin ? (
 				<LockedFiles
 					title='ملفات الدرس متاحة للطلاب المسجّلين'
 					action={
