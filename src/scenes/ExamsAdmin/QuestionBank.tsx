@@ -3,6 +3,7 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { SearchField } from "@/components/ui/FormField";
 import { EmptyState, ErrorState } from "@/components/ui/States";
 import Surface from "@/components/ui/Surface";
+import useDebounced from "@/hooks/useDebounced";
 import { getErrorMessage } from "@/libs/errors";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
@@ -21,7 +22,7 @@ import {
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import useSWR, { useSWRConfig } from "swr";
 import {
@@ -36,16 +37,6 @@ import QuestionCard from "./QuestionCard";
 import QuestionDialog from "./QuestionDialog";
 
 const SEARCH_DELAY_MS = 300;
-
-/** Waits until typing pauses before the value is used for a request. */
-function useDebounced(value: string, delay: number) {
-	const [debounced, setDebounced] = useState(value);
-	useEffect(() => {
-		const timer = setTimeout(() => setDebounced(value), delay);
-		return () => clearTimeout(timer);
-	}, [value, delay]);
-	return debounced;
-}
 
 /** A list of questions fetched from `url`; mounted only when it is on screen. */
 function QuestionList({
