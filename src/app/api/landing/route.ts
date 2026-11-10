@@ -23,7 +23,8 @@ const upsertLanding = async (req: NextRequest) => {
 		saved = await prisma.landingPage.create({ data: parsed.data });
 	}
 
-	revalidatePath("/");
+	// Layout scope: the WhatsApp number also shows in the site-wide "what's new".
+	revalidatePath("/", "layout");
 	return NextResponse.json(saved, { status: existing ? 200 : 201 });
 };
 

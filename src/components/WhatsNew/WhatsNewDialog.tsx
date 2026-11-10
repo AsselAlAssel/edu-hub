@@ -7,18 +7,33 @@ import GoogleIcon from "@mui/icons-material/Google";
 import { Box, Button, ButtonBase, Stack, Typography } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSession } from "next-auth/react";
-import { useState, type KeyboardEvent } from "react";
+import { useState, type ComponentType, type KeyboardEvent } from "react";
 import {
+	displayPhone,
 	ExamScene,
 	LockedScene,
+	PhoneScene,
 	ResultScene,
 	SubscribeScene,
 	WatchScene,
 } from "./scenes";
 import useWhatsNew from "./useWhatsNew";
 
+type Slide = {
+	Scene: ComponentType<{ number?: string }>;
+	title: string;
+	text: string;
+};
+
+/** Announcement first: the new contact number (from the admin landing settings). */
+const phoneSlide = (number: string): Slide => ({
+	Scene: PhoneScene,
+	title: "رقم تواصل جديد للمنصة",
+	text: `تغيّر رقم التواصل مع المنصة، والرقم الجديد ${displayPhone(number)}. احفظه عندك وراسلنا عليه على واتساب لأي سؤال أو اشتراك.`,
+});
+
 // The student's journey, one step per slide: locked → subscribe → watch → exam → result.
-const SLIDES = [
+const SLIDES: readonly Slide[] = [
 	{
 		Scene: LockedScene,
 		title: "وحدات كاملة للمشتركين",
@@ -44,7 +59,7 @@ const SLIDES = [
 		title: "نتيجتك فور التسليم",
 		text: "تظهر علامتك مباشرة مع مراجعة لكل سؤال، ويمكنك إعادة الامتحان لتحسين أفضل نتيجة.",
 	},
-] as const;
+];
 
 // RTL: moving forward brings the next slide in from the left.
 const slideVariants = {
@@ -54,15 +69,22 @@ const slideVariants = {
 };
 
 /** One-time tour of the new student features, shown on the public pages. */
-export default function WhatsNewDialog() {
+export default function WhatsNewDialog({
+	whatsAppNumber,
+}: {
+	whatsAppNumber: string | null;
+}) {
 	const { open, close } = useWhatsNew();
 	const { data: session } = useSession();
 	const [[index, direction], setPage] = useState([0, 1]);
-	const last = index === SLIDES.length - 1;
-	const { Scene, title, text } = SLIDES[index];
+	const slides = whatsAppNumber
+		? [phoneSlide(whatsAppNumber), ...SLIDES]
+		: SLIDES;
+	const last = index === slides.length - 1;
+	const { Scene, title, text } = slides[index];
 
 	const go = (to: number) => {
-		if (to < 0 || to >= SLIDES.length || to === index) return;
+		if (to < 0 || to >= slides.length || to === index) return;
 		setPage([to, to > index ? 1 : -1]);
 	};
 
@@ -98,9 +120,9 @@ export default function WhatsNewDialog() {
 						transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
 						role='group'
 						aria-roledescription='شريحة'
-						aria-label={`${index + 1} من ${SLIDES.length}: ${title}`}
+						aria-label={`${index + 1} من ${slides.length}: ${title}`}
 					>
-						<Scene />
+						<Scene number={whatsAppNumber ?? ""} />
 						<Box sx={{ mt: 2.5, minHeight: { xs: 104, sm: 92 } }}>
 							<Typography
 								variant='h5'
@@ -141,7 +163,7 @@ export default function WhatsNewDialog() {
 					</Box>
 
 					<Stack direction='row' gap={0.75} aria-label='الشرائح'>
-						{SLIDES.map((slide, i) => (
+						{slides.map((slide, i) => (
 							<ButtonBase
 								key={slide.title}
 								onClick={() => go(i)}

@@ -1,3 +1,4 @@
+import { getLandingData } from "@/actions/landing";
 import ToastContext from "@/app/context/ToastContext";
 import BackToTopFab from "@/components/Common/BackToTopFab";
 import Header from "@/components/Common/Dashboard/Header";
@@ -6,7 +7,9 @@ import WhatsNewDialog from "@/components/WhatsNew/WhatsNewDialog";
 import type { ReactNode } from "react";
 
 /** Skip link → sticky header → <main> landmark → footer → floating helpers. */
-export default function AppShell({ children }: { children: ReactNode }) {
+export default async function AppShell({ children }: { children: ReactNode }) {
+	// DB down must not take the whole site with it; the phone slide just hides.
+	const landing = await getLandingData().catch(() => null);
 	return (
 		<>
 			<a href='#main-content' className='qa-skip-link'>
@@ -23,7 +26,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 			<FooterWrapper />
 			<BackToTopFab />
 			<ToastContext />
-			<WhatsNewDialog />
+			<WhatsNewDialog whatsAppNumber={landing?.whatsAppNumber ?? null} />
 		</>
 	);
 }

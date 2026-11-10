@@ -255,6 +255,55 @@ function ChatWindow() {
 	);
 }
 
+/** "+970 598…" for display; isolated LTR so the "+" stays put inside Arabic text. */
+export const displayPhone = (digits: string) => `⁦+${digits}⁩`;
+
+/** New contact number: a WhatsApp card where the new number pops in. */
+export function PhoneScene({ number = "" }: { number?: string }) {
+	return (
+		<Stage>
+			<Box sx={{ ...cardSx(250), textAlign: "center" }}>
+				<Box
+					component={motion.div}
+					initial={{ scale: 0, rotate: -20 }}
+					animate={{ scale: 1, rotate: 0 }}
+					transition={{ ...spring, delay: 0.15 }}
+					sx={{
+						mx: "auto",
+						mb: 1,
+						width: 48,
+						height: 48,
+						display: "grid",
+						placeItems: "center",
+						borderRadius: "50%",
+						color: "#fff",
+						backgroundColor: "#25d366",
+					}}
+				>
+					<WhatsAppIcon />
+				</Box>
+				<Typography sx={{ fontSize: "0.8rem", color: "text.secondary" }}>
+					رقم التواصل مع المنصة
+				</Typography>
+				<Typography
+					component={motion.p}
+					initial={{ opacity: 0, y: 8 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ ...spring, delay: 0.6 }}
+					className='qa-latin'
+					sx={{ fontWeight: 800, fontSize: "1.15rem", my: 0.75 }}
+				>
+					{displayPhone(number)}
+				</Typography>
+				<Badge tone='success' delay={1.1}>
+					<CheckCircleRoundedIcon />
+					رقم جديد
+				</Badge>
+			</Box>
+		</Stage>
+	);
+}
+
 /** 2. Subscribe: the ready WhatsApp message goes out, the unit gets opened. */
 export function SubscribeScene() {
 	return (
