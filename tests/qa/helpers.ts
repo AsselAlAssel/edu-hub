@@ -85,8 +85,13 @@ export async function readSeed(admin: APIRequestContext): Promise<Seed> {
 	for (const e of (await (await admin.get("/api/exams")).json()).exams)
 		exams[e.title] = e;
 	const users: Seed["users"] = {};
-	for (const u of await (await admin.get("/api/user")).json())
-		users[u.email] = u;
+	for (let page = 1, total = Infinity; (page - 1) * 100 < total; page++) {
+		const body = await (
+			await admin.get(`/api/user?page=${page}&pageSize=100`)
+		).json();
+		for (const u of body.users) users[u.email] = u;
+		total = body.total;
+	}
 
 	return {
 		classId: cls.id,

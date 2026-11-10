@@ -6,8 +6,9 @@ import {
 	requireAdmin,
 } from "@/libs/api";
 import { prisma } from "@/libs/prismaDb";
+import { parseUsersQuery } from "@/libs/userQuery";
 import {
-	listUsers,
+	listUsersPage,
 	publicUserSelect,
 	ROLES,
 	type RoleName,
@@ -16,12 +17,17 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-/** Admin: list users without credentials. */
-export const GET = async () => {
+/**
+ * Admin: one page of users without credentials, filtered and sorted.
+ * ?page&pageSize&q&role=ADMIN|USER&joined=7|30&sort=newest|oldest|name&subscription=PAID
+ */
+export const GET = async (req: NextRequest) => {
 	const denied = await requireAdmin();
 	if (denied) return denied;
 
-	return NextResponse.json(await listUsers());
+	return NextResponse.json(
+		await listUsersPage(parseUsersQuery(req.nextUrl.searchParams))
+	);
 };
 
 /** Admin: change a user's role. Admins cannot change their own role. */

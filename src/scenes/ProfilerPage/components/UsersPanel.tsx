@@ -4,8 +4,14 @@ import { SearchField } from "@/components/ui/FormField";
 import StatTile from "@/components/ui/StatTile";
 import { ErrorState, EmptyState } from "@/components/ui/States";
 import Surface from "@/components/ui/Surface";
+import { useUsers, useUserStats } from "@/hooks/useUsersApi";
 import { getErrorMessage } from "@/libs/errors";
 import type { PaidUnitGroup } from "@/libs/access";
+import {
+	DEFAULT_USER_FILTERS,
+	USERS_PAGE_SIZE,
+	type UserFilters,
+} from "@/libs/userQuery";
 import type { PublicUser, RoleName } from "@/libs/users";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
@@ -19,6 +25,7 @@ import {
 	Button,
 	Chip,
 	IconButton,
+	LinearProgress,
 	MenuItem,
 	Pagination,
 	Select,
@@ -32,28 +39,10 @@ import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import useSWR from "swr";
-import {
-	filterUsers,
-	roleOf,
-	unitCount,
-	userStats,
-	type UserFilters,
-} from "../usersFilter";
+import { roleOf, unitCount } from "../usersFilter";
 import UnitsDialog from "./UnitsDialog";
 
-const USERS_KEY = "/api/user";
-const fetchUsers = (url: string) =>
-	axios.get<PublicUser[]>(url).then((res) => res.data);
-
 const ROLE_LABELS: Record<RoleName, string> = { ADMIN: "مشرف", USER: "مستخدم" };
-const PAGE_SIZE = 10;
-const DEFAULT_FILTERS: UserFilters = {
-	query: "",
-	role: "ALL",
-	joined: "ALL",
-	sort: "newest",
-	subscription: "ALL",
-};
 const UNITS_KEY = "/api/units";
 const fetchUnits = (url: string) =>
 	axios.get<PaidUnitGroup[]>(url).then((res) => res.data);
@@ -63,7 +52,8 @@ const monthFormat = new Intl.DateTimeFormat("ar", { month: "short" });
 function SignupsChart({
 	monthly,
 }: {
-	monthly: { start: Date; count: number }[];
+	// Dates arrive as ISO strings over JSON.
+	monthly: { start: Date | string; count: number }[];
 }) {
 	const max = Math.max(1, ...monthly.map((month) => month.count));
 	return (
@@ -78,12 +68,15 @@ function SignupsChart({
 				sx={{ height: 120 }}
 				role='img'
 				aria-label={monthly
-					.map((month) => `${monthFormat.format(month.start)}: ${month.count}`)
+					.map(
+						(month) =>
+							`${monthFormat.format(new Date(month.start))}: ${month.count}`
+					)
 					.join("، ")}
 			>
 				{monthly.map((month) => (
 					<Stack
-						key={month.start.toISOString()}
+						key={String(month.start)}
 						alignItems='center'
 						justifyContent='flex-end'
 						sx={{ flex: 1, height: "100%", minWidth: 0 }}
@@ -106,7 +99,7 @@ function SignupsChart({
 							sx={{ color: "text.secondary", mt: 0.5 }}
 							noWrap
 						>
-							{monthFormat.format(month.start)}
+							{monthFormat.format(new Date(month.start))}
 						</Typography>
 					</Stack>
 				))}
@@ -119,9 +112,18 @@ function SignupsChart({
 export default function UsersPanel() {
 	const { data: session } = useSession();
 	const myId = session?.user?.id;
-	const { data, error, isLoading, mutate } = useSWR(USERS_KEY, fetchUsers);
-	const [filters, setFilters] = useState(DEFAULT_FILTERS);
+	const [filters, setFilters] = useState(DEFAULT_USER_FILTERS);
 	const [page, setPage] = useState(1);
+	const {
+		data,
+		error,
+		isLoading,
+		isFetching,
+		changeRole,
+		deleteUser,
+		refresh,
+	} = useUsers(filters, page);
+	const { data: stats } = useUserStats();
 	const [toDelete, setToDelete] = useState<PublicUser | null>(null);
 	const [busyId, setBusyId] = useState<string | null>(null);
 	const [unitsFor, setUnitsFor] = useState<PublicUser | null>(null);
@@ -139,21 +141,14 @@ export default function UsersPanel() {
 		[unitGroups]
 	);
 
-	// ponytail: filters/pages client-side over the full list; move to
-	// server-side paging (skip/take) if users grow into the tens of thousands.
-	const users = useMemo(
-		() => filterUsers(data ?? [], filters, Date.now(), unitLabels),
-		[data, filters, unitLabels]
-	);
-	const stats = useMemo(() => userStats(data ?? []), [data]);
-	const pageCount = Math.max(1, Math.ceil(users.length / PAGE_SIZE));
-	const currentPage = Math.min(page, pageCount);
-	const pageUsers = users.slice(
-		(currentPage - 1) * PAGE_SIZE,
-		currentPage * PAGE_SIZE
-	);
+	const users = data?.users ?? [];
+	const total = data?.total ?? 0;
+	// The server returns the last page when the requested one is past the end.
+	const currentPage = data?.page ?? page;
+	const pageCount = Math.max(1, Math.ceil(total / USERS_PAGE_SIZE));
+	const firstShown = (currentPage - 1) * USERS_PAGE_SIZE + 1;
 	const isFiltered =
-		JSON.stringify(filters) !== JSON.stringify(DEFAULT_FILTERS);
+		JSON.stringify(filters) !== JSON.stringify(DEFAULT_USER_FILTERS);
 
 	const setFilter = <K extends keyof UserFilters>(
 		key: K,
@@ -163,23 +158,10 @@ export default function UsersPanel() {
 		setPage(1);
 	};
 
-	const changeRole = async (user: PublicUser, role: RoleName) => {
+	const updateRole = async (user: PublicUser, role: RoleName) => {
 		setBusyId(user.id);
 		try {
-			await mutate(
-				axios
-					.patch(USERS_KEY, { id: user.id, role })
-					.then(() => undefined as unknown as PublicUser[]),
-				{
-					optimisticData: (current = []) =>
-						current.map((item) =>
-							item.id === user.id ? { ...item, role } : item
-						),
-					rollbackOnError: true,
-					populateCache: false,
-					revalidate: true,
-				}
-			);
+			await changeRole(user.id, role);
 			toast.success("تم تحديث الصلاحية");
 		} catch (err) {
 			toast.error(getErrorMessage(err, "تعذّر تحديث الصلاحية"));
@@ -188,13 +170,12 @@ export default function UsersPanel() {
 		}
 	};
 
-	const deleteUser = async () => {
+	const confirmDelete = async () => {
 		if (!toDelete) return;
 		const target = toDelete;
 		setBusyId(target.id);
 		try {
-			await axios.delete(USERS_KEY, { data: { id: target.id } });
-			await mutate();
+			await deleteUser(target.id);
 			toast.success("تم حذف المستخدم");
 			setToDelete(null);
 		} catch (err) {
@@ -209,7 +190,7 @@ export default function UsersPanel() {
 			<ErrorState
 				title='تعذّر تحميل المستخدمين'
 				action={
-					<Button variant='outlined' onClick={() => void mutate()}>
+					<Button variant='outlined' onClick={() => void refresh()}>
 						إعادة المحاولة
 					</Button>
 				}
@@ -219,7 +200,7 @@ export default function UsersPanel() {
 
 	return (
 		<Stack spacing={2.5}>
-			{data ? (
+			{stats ? (
 				<>
 					<Box
 						sx={{
@@ -338,15 +319,15 @@ export default function UsersPanel() {
 						sx={{ color: "text.secondary" }}
 						aria-live='polite'
 					>
-						{users.length === 0
+						{total === 0
 							? "لا نتائج"
-							: `عرض ${(currentPage - 1) * PAGE_SIZE + 1}–${Math.min(currentPage * PAGE_SIZE, users.length)} من ${users.length}`}
+							: `عرض ${firstShown}–${firstShown + users.length - 1} من ${total}`}
 					</Typography>
 					{isFiltered ? (
 						<Button
 							size='small'
 							onClick={() => {
-								setFilters(DEFAULT_FILTERS);
+								setFilters(DEFAULT_USER_FILTERS);
 								setPage(1);
 							}}
 						>
@@ -356,7 +337,11 @@ export default function UsersPanel() {
 				</Stack>
 			) : null}
 
-			{isLoading ? (
+			{data && isFetching ? (
+				<LinearProgress aria-label='جارٍ تحميل المستخدمين' />
+			) : null}
+
+			{!data && isLoading ? (
 				<Stack spacing={1.5} aria-hidden>
 					{[0, 1, 2].map((index) => (
 						<Skeleton key={index} variant='rounded' height={76} />
@@ -372,10 +357,18 @@ export default function UsersPanel() {
 				<Stack
 					component='ul'
 					spacing={1.5}
-					sx={{ listStyle: "none", m: 0, p: 0 }}
 					aria-label='المستخدمون'
+					aria-busy={isFetching}
+					// The previous page stays, dimmed, until the next one arrives.
+					sx={{
+						listStyle: "none",
+						m: 0,
+						p: 0,
+						opacity: isFetching ? 0.55 : 1,
+						transition: "opacity 150ms",
+					}}
 				>
-					{pageUsers.map((user) => {
+					{users.map((user) => {
 						const isMe = user.id === myId;
 						const role = roleOf(user);
 						return (
@@ -470,7 +463,7 @@ export default function UsersPanel() {
 										value={role}
 										disabled={isMe || busyId === user.id}
 										onChange={(event) =>
-											void changeRole(user, event.target.value as RoleName)
+											void updateRole(user, event.target.value as RoleName)
 										}
 										inputProps={{
 											"aria-label": `صلاحية ${user.name || user.email}`,
@@ -519,14 +512,14 @@ export default function UsersPanel() {
 				confirmLabel='حذف المستخدم'
 				loading={!!toDelete && busyId === toDelete.id}
 				onClose={() => setToDelete(null)}
-				onConfirm={deleteUser}
+				onConfirm={confirmDelete}
 			/>
 			<UnitsDialog
 				user={unitsFor}
 				groups={unitGroups}
 				error={unitsError}
 				onClose={() => setUnitsFor(null)}
-				onSaved={() => void mutate()}
+				onSaved={() => void refresh()}
 			/>
 		</Stack>
 	);

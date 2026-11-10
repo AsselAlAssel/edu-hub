@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { prisma, session, r2 } = vi.hoisted(() => {
@@ -10,6 +11,7 @@ const { prisma, session, r2 } = vi.hoisted(() => {
 		update: vi.fn(),
 		delete: vi.fn(),
 		deleteMany: vi.fn(),
+		count: vi.fn(),
 	});
 	return {
 		prisma: {
@@ -47,6 +49,8 @@ const asUser = () =>
 	(session.current = {
 		user: { id: "b".repeat(24), role: "USER", email: "u@x.dev" },
 	});
+const listReq = (search = "") =>
+	new NextRequest(`http://localhost/api/user${search}`);
 const asGuest = () => (session.current = null);
 
 const req = (method: string, body?: unknown) =>
@@ -96,7 +100,14 @@ describe("authorization", () => {
 			() =>
 				import("@/app/api/landing/route").then((m) => m.PUT(req("PUT", {}))),
 		],
-		["user GET", () => import("@/app/api/user/route").then((m) => m.GET())],
+		[
+			"user GET",
+			() => import("@/app/api/user/route").then((m) => m.GET(listReq())),
+		],
+		[
+			"user/stats GET",
+			() => import("@/app/api/user/stats/route").then((m) => m.GET()),
+		],
 		[
 			"user/get-all GET",
 			() => import("@/app/api/user/get-all/route").then((m) => m.GET()),
@@ -114,13 +125,31 @@ describe("authorization", () => {
 
 	it("never returns password hashes from the user list", async () => {
 		asAdmin();
+		prisma.user.count.mockResolvedValue(0);
 		prisma.user.findMany.mockResolvedValue([]);
 		const { GET } = await import("@/app/api/user/route");
-		await GET();
+		await GET(listReq());
 		const { select } = prisma.user.findMany.mock.calls[0][0];
 		expect(select).toBeDefined();
 		expect(select.password).toBeUndefined();
 		expect(select.passwordResetToken).toBeUndefined();
+	});
+
+	it("user list returns one page, clamped to the last one", async () => {
+		asAdmin();
+		prisma.user.count.mockResolvedValue(25);
+		prisma.user.findMany.mockResolvedValue([]);
+		const { GET } = await import("@/app/api/user/route");
+		const res = await GET(listReq("?page=9&pageSize=10&q=sami"));
+		expect(await res.json()).toEqual({
+			users: [],
+			total: 25,
+			page: 3,
+			pageSize: 10,
+		});
+		const { skip, take, where } = prisma.user.findMany.mock.calls[0][0];
+		expect({ skip, take }).toEqual({ skip: 20, take: 10 });
+		expect(prisma.user.count).toHaveBeenCalledWith({ where });
 	});
 
 	it("user/delete: a regular user cannot delete someone else (legacy hole)", async () => {
