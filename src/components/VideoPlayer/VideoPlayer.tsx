@@ -1,9 +1,9 @@
 "use client";
 import AppDialog from "@/components/ui/AppDialog";
-import FullscreenRoundedIcon from "@mui/icons-material/FullscreenRounded";
-import { Box, Button, CircularProgress, Stack } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import dynamic from "next/dynamic";
 import { useEffect, useRef } from "react";
+import PlayerFrame from "./PlayerFrame";
 
 // The YouTube-only build of react-player, loaded only when a video is opened.
 const ReactPlayer = dynamic(() => import("react-player/youtube"), {
@@ -55,52 +55,26 @@ export default function VideoPlayer({
 			maxWidth='md'
 			fullScreenOnMobile={false}
 		>
-			<Stack spacing={1.5}>
-				<Box
-					ref={boxRef}
-					sx={(theme) => ({
-						position: "relative",
-						aspectRatio: "16 / 9",
-						// Fit the viewport height too (phones in landscape).
-						maxWidth: "calc((100dvh - 200px) * 16 / 9)",
-						width: "100%",
-						mx: "auto",
-						borderRadius: `${theme.tokens.radii.md}px`,
-						overflow: "hidden",
-						backgroundColor: theme.palette.common.black,
-						"&:fullscreen": { maxWidth: "none", borderRadius: 0 },
-					})}
-				>
-					{/* Unmounted on close, which stops playback. */}
-					{open && url ? (
-						<ReactPlayer
-							url={url}
-							playing
-							controls
-							width='100%'
-							height='100%'
-							style={{ position: "absolute", inset: 0 }}
-							config={{
-								playerVars: { rel: 0, start: Math.floor(startAt) },
-							}}
-							onDuration={(seconds) => (duration.current = seconds)}
-							onProgress={({ playedSeconds }) =>
-								duration.current &&
-								onProgress?.(playedSeconds, duration.current)
-							}
-						/>
-					) : null}
-				</Box>
-				{/* Same button as the paid (Bunny) player, for one look. */}
-				<Button
-					size='small'
-					startIcon={<FullscreenRoundedIcon />}
-					onClick={() => void boxRef.current?.requestFullscreen?.()}
-					sx={{ alignSelf: "flex-start" }}
-				>
-					ملء الشاشة
-				</Button>
-			</Stack>
+			<PlayerFrame boxRef={boxRef}>
+				{/* Unmounted on close, which stops playback. */}
+				{open && url ? (
+					<ReactPlayer
+						url={url}
+						playing
+						controls
+						width='100%'
+						height='100%'
+						style={{ position: "absolute", inset: 0 }}
+						config={{
+							playerVars: { rel: 0, start: Math.floor(startAt) },
+						}}
+						onDuration={(seconds) => (duration.current = seconds)}
+						onProgress={({ playedSeconds }) =>
+							duration.current && onProgress?.(playedSeconds, duration.current)
+						}
+					/>
+				) : null}
+			</PlayerFrame>
 		</AppDialog>
 	);
 }

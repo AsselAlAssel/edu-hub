@@ -7,8 +7,8 @@ import { reportUnauthorized } from "@/components/Auth/SessionGuard";
 import AppDialog from "@/components/ui/AppDialog";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { useCloseOnBack } from "@/components/VideoPlayer/VideoPlayer";
-import FullscreenRoundedIcon from "@mui/icons-material/FullscreenRounded";
-import { Box, Button, Stack } from "@mui/material";
+import PlayerFrame from "@/components/VideoPlayer/PlayerFrame";
+import { Box, Button } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import useWatermarkGuard from "./useWatermarkGuard";
 
@@ -118,67 +118,44 @@ export default function BunnyPlayer({
 		);
 	} else if (open) {
 		content = (
-			<Stack spacing={1.5}>
-				<Box
-					ref={boxRef}
-					sx={(theme) => ({
-						position: "relative",
-						aspectRatio: "16 / 9",
-						maxWidth: "calc((100dvh - 200px) * 16 / 9)",
+			<PlayerFrame boxRef={boxRef}>
+				{/* No allowFullScreen: the iframe alone would go fullscreen and leave
+				    the watermark behind. The box goes fullscreen instead. */}
+				<iframe
+					src={playback.url}
+					title={title}
+					allow='accelerometer; gyroscope; autoplay; encrypted-media'
+					style={{
+						border: 0,
+						position: "absolute",
+						inset: 0,
 						width: "100%",
-						mx: "auto",
-						borderRadius: `${theme.tokens.radii.md}px`,
-						overflow: "hidden",
-						backgroundColor: theme.palette.common.black,
-						"&:fullscreen": { maxWidth: "none", borderRadius: 0 },
-					})}
+						height: "100%",
+					}}
+				/>
+				<Box
+					ref={markRef}
+					aria-hidden
+					sx={{
+						position: "absolute",
+						// Fixed in the top right corner (inline start of the RTL page;
+						// a plain `right` would be flipped by the RTL style plugin).
+						top: 8,
+						insetInlineStart: 8,
+						zIndex: 2,
+						pointerEvents: "none",
+						userSelect: "none",
+						color: "rgba(255,255,255,0.55)",
+						textShadow: "0 0 3px rgba(0,0,0,0.8)",
+						fontSize: { xs: 11, md: 14 },
+						fontWeight: 600,
+						direction: "ltr",
+						whiteSpace: "nowrap",
+					}}
 				>
-					{/* No allowFullScreen: the iframe alone would go fullscreen and leave
-					    the watermark behind. The box goes fullscreen instead. */}
-					<iframe
-						src={playback.url}
-						title={title}
-						allow='accelerometer; gyroscope; autoplay; encrypted-media'
-						style={{
-							border: 0,
-							position: "absolute",
-							inset: 0,
-							width: "100%",
-							height: "100%",
-						}}
-					/>
-					<Box
-						ref={markRef}
-						aria-hidden
-						sx={{
-							position: "absolute",
-							// Fixed in the top right corner (inline start of the RTL page;
-							// a plain `right` would be flipped by the RTL style plugin).
-							top: 8,
-							insetInlineStart: 8,
-							zIndex: 2,
-							pointerEvents: "none",
-							userSelect: "none",
-							color: "rgba(255,255,255,0.55)",
-							textShadow: "0 0 3px rgba(0,0,0,0.8)",
-							fontSize: { xs: 11, md: 14 },
-							fontWeight: 600,
-							direction: "ltr",
-							whiteSpace: "nowrap",
-						}}
-					>
-						{playback.watermark}
-					</Box>
+					{playback.watermark}
 				</Box>
-				<Button
-					size='small'
-					startIcon={<FullscreenRoundedIcon />}
-					onClick={() => void boxRef.current?.requestFullscreen?.()}
-					sx={{ alignSelf: "flex-start" }}
-				>
-					ملء الشاشة
-				</Button>
-			</Stack>
+			</PlayerFrame>
 		);
 	}
 
