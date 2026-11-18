@@ -44,7 +44,6 @@ export default function VideoPlayer({
 	onProgress?: (playedSeconds: number, duration: number) => void;
 }) {
 	const duration = useRef(0);
-	const boxRef = useRef<HTMLDivElement>(null);
 	const close = useCloseOnBack(open, handleClose);
 
 	return (
@@ -55,7 +54,7 @@ export default function VideoPlayer({
 			maxWidth='md'
 			fullScreenOnMobile={false}
 		>
-			<PlayerFrame boxRef={boxRef}>
+			<PlayerFrame>
 				{/* Unmounted on close, which stops playback. */}
 				{open && url ? (
 					<ReactPlayer

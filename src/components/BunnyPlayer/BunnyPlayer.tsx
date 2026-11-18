@@ -119,12 +119,12 @@ export default function BunnyPlayer({
 	} else if (open) {
 		content = (
 			<PlayerFrame boxRef={boxRef}>
-				{/* No allowFullScreen: the iframe alone would go fullscreen and leave
-				    the watermark behind. The box goes fullscreen instead. */}
+				{/* The player's own fullscreen (native on iPhone) leaves the watermark behind. */}
 				<iframe
 					src={playback.url}
 					title={title}
-					allow='accelerometer; gyroscope; autoplay; encrypted-media'
+					allow='accelerometer; gyroscope; autoplay; encrypted-media; fullscreen'
+					allowFullScreen
 					style={{
 						border: 0,
 						position: "absolute",
