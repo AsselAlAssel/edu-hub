@@ -10,21 +10,22 @@ test.describe("what's new dialog", () => {
 		await page.goto("/classes");
 		const dialog = page.getByRole("dialog", { name: "ما الجديد في المنصة؟" });
 		await expect(dialog).toBeVisible();
-		await expect(dialog.getByText("سجّل دخولك بنقرة واحدة")).toBeVisible();
+		await expect(
+			dialog.getByRole("heading", { name: "3 وحدات مدفوعة في المنصة" })
+		).toBeVisible();
+		await expect(dialog.getByRole("button", { name: "إغلاق" })).toBeDisabled();
+		await expect(dialog.getByRole("button", { name: "تخطّي" })).toHaveCount(0);
 
-		// Next ×3 reaches the last slide; a guest gets the sign-in call to action.
-		for (const title of [
-			"كل فيديو تُنهيه يُحفظ تلقائيًا",
-			"أكمِل من حيث توقفت",
-			"تابع تقدّمك في كل صف",
-		]) {
+		// A visitor must step through every announcement before dismissing it.
+		for (const title of ["توزيع الوحدات حسب التوجيهي", "للاشتراك بالوحدات"]) {
 			await dialog.getByRole("button", { name: "التالي" }).click();
-			await expect(dialog.getByText(title)).toBeVisible();
+			await expect(dialog.getByRole("heading", { name: title })).toBeVisible();
 		}
 		await expect(
-			// exact: the slide dots' labels also contain the slide titles.
 			dialog.getByRole("button", { name: "سجّل دخولك", exact: true })
 		).toBeVisible();
+		await expect(dialog.getByRole("button", { name: "إغلاق" })).toBeEnabled();
+		await expect(dialog.getByRole("button", { name: "تخطّي" })).toBeVisible();
 
 		// The slide never makes the page scroll sideways (phones included).
 		const overflow = await page.evaluate(
@@ -48,9 +49,11 @@ test.describe("what's new dialog", () => {
 		await dialog.getByRole("button", { name: "التالي" }).focus();
 		await page.keyboard.press("ArrowLeft");
 		await expect(
-			dialog.getByText("كل فيديو تُنهيه يُحفظ تلقائيًا")
+			dialog.getByRole("heading", { name: "توزيع الوحدات حسب التوجيهي" })
 		).toBeVisible();
 		await page.keyboard.press("ArrowRight");
-		await expect(dialog.getByText("سجّل دخولك بنقرة واحدة")).toBeVisible();
+		await expect(
+			dialog.getByRole("heading", { name: "3 وحدات مدفوعة في المنصة" })
+		).toBeVisible();
 	});
 });

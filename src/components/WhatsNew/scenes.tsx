@@ -304,6 +304,93 @@ export function PhoneScene({ number = "" }: { number?: string }) {
 	);
 }
 
+function UnitMapScene({ label, units }: { label: string; units: string[] }) {
+	return (
+		<Stage>
+			<Box sx={{ width: 270, display: "grid", gap: 1 }}>
+				<Typography
+					component={motion.p}
+					initial={{ opacity: 0, y: -8 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={spring}
+					sx={{ textAlign: "center", fontWeight: 800, color: "primary.main" }}
+				>
+					{label}
+				</Typography>
+				{units.map((unit, index) => (
+					<Box
+						key={unit}
+						component={motion.div}
+						initial={{ opacity: 0, x: 28, scale: 0.94 }}
+						animate={{ opacity: 1, x: 0, scale: 1 }}
+						transition={{ ...spring, delay: 0.08 + index * 0.08 }}
+						sx={(theme) => ({
+							display: "flex",
+							alignItems: "center",
+							gap: 1,
+							px: 1.5,
+							py: 1,
+							borderRadius: `${theme.tokens.radii.md}px`,
+							border: `1px solid ${theme.tokens.colors.border}`,
+							backgroundColor: theme.tokens.colors.surface,
+							boxShadow: theme.tokens.shadows.medium,
+						})}
+					>
+						<FolderRoundedIcon color='primary' />
+						<Typography sx={{ flex: 1, fontWeight: 800, fontSize: "0.9rem" }}>
+							{unit}
+						</Typography>
+						<LockRoundedIcon sx={{ color: "text.secondary", fontSize: 18 }} />
+					</Box>
+				))}
+			</Box>
+		</Stage>
+	);
+}
+
+/** Three paid units appear one after another. */
+export function AllUnitsScene(_: { number?: string }) {
+	return (
+		<UnitMapScene
+			label='الوحدات المدفوعة'
+			units={["الوحدة الأولى", "الوحدة الثانية", "الوحدة الثالثة"]}
+		/>
+	);
+}
+
+/** The same study path is shown under two cohort labels. */
+export function ClassMappingScene(_: { number?: string }) {
+	return (
+		<UnitMapScene
+			label='توزيع الوحدات'
+			units={["2009: الوحدة الأولى", "2008: الوحدتان الثانية والثالثة"]}
+		/>
+	);
+}
+
+/** The 2009 cohort gets its first paid unit. */
+export function Class2009Scene(_: { number?: string }) {
+	return <UnitMapScene label='توجيهي 2009' units={["الوحدة الأولى"]} />;
+}
+
+/** The 2008 cohort gets its second and third paid units. */
+export function Class2008Scene(_: { number?: string }) {
+	return (
+		<UnitMapScene
+			label='توجيهي 2008'
+			units={["الوحدة الثانية", "الوحدة الثالثة"]}
+		/>
+	);
+}
+
+export function Class2008Unit2Scene(_: { number?: string }) {
+	return <UnitMapScene label='توجيهي 2008' units={["الوحدة الثانية"]} />;
+}
+
+export function Class2008Unit3Scene(_: { number?: string }) {
+	return <UnitMapScene label='توجيهي 2008' units={["الوحدة الثالثة"]} />;
+}
+
 /** 2. Subscribe: the ready WhatsApp message goes out, the unit gets opened. */
 export function SubscribeScene() {
 	return (

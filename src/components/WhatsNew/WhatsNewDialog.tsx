@@ -4,18 +4,16 @@ import AppDialog from "@/components/ui/AppDialog";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import GoogleIcon from "@mui/icons-material/Google";
-import { Box, Button, ButtonBase, Stack, Typography } from "@mui/material";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useState, type ComponentType, type KeyboardEvent } from "react";
 import {
 	displayPhone,
-	ExamScene,
-	LockedScene,
+	AllUnitsScene,
+	ClassMappingScene,
 	PhoneScene,
-	ResultScene,
-	SubscribeScene,
-	WatchScene,
 } from "./scenes";
 import useWhatsNew from "./useWhatsNew";
 
@@ -25,40 +23,27 @@ type Slide = {
 	text: string;
 };
 
-/** Announcement first: the new contact number (from the admin landing settings). */
-const phoneSlide = (number: string): Slide => ({
+/** The three-step announcement: overview, labels, then subscription contact. */
+const phoneSlide = (number: string | null): Slide => ({
 	Scene: PhoneScene,
-	title: "رقم تواصل جديد للمنصة",
-	text: `تغيّر رقم التواصل مع المنصة، والرقم الجديد ${displayPhone(number)}. احفظه عندك وراسلنا عليه على واتساب لأي سؤال أو اشتراك.`,
+	title: "للاشتراك بالوحدات",
+	text: number
+		? `للاشتراك تواصلوا معنا عبر واتساب على الرقم التالي: ${displayPhone(number)}.`
+		: "للاشتراك بالوحدات، تواصلوا معنا عبر واتساب.",
 });
 
-// The student's journey, one step per slide: locked → subscribe → watch → exam → result.
-const SLIDES: readonly Slide[] = [
+const unitSlides = (number: string | null): readonly Slide[] => [
 	{
-		Scene: LockedScene,
-		title: "وحدات كاملة للمشتركين",
-		text: "وحدات مدفوعة فيها فيديوهات وملفات وامتحانات، تبقى مقفلة حتى تشترك فيها.",
+		Scene: AllUnitsScene,
+		title: "3 وحدات مدفوعة في المنصة",
+		text: "الوحدة الأولى والثانية والثالثة متاحة للطلاب بالاشتراك.",
 	},
 	{
-		Scene: SubscribeScene,
-		title: "اشترك برسالة واتساب واحدة",
-		text: "سجّل دخولك واضغط «اشترك عبر واتساب»، فتصلنا رسالة جاهزة باسم الوحدة ونفتحها لك بعد الدفع.",
+		Scene: ClassMappingScene,
+		title: "توزيع الوحدات حسب التوجيهي",
+		text: "الوحدة الأولى لصف توجيهي 2009، والوحدتان الثانية والثالثة لصف توجيهي 2008. يمكنك الاشتراك في أي وحدة؛ فهي لنفس المسار، والاختلاف في التسمية فقط.",
 	},
-	{
-		Scene: WatchScene,
-		title: "شاهد فيديوهات الوحدة",
-		text: "بعد فتح الوحدة على حسابك تظهر لك كل فيديوهاتها وملفاتها، ويُحفظ تقدّمك فيها.",
-	},
-	{
-		Scene: ExamScene,
-		title: "امتحانات داخل كل وحدة",
-		text: "سؤال في كل شاشة مع خريطة للأسئلة، وبعض الامتحانات تُفتح بعد أن تُنهي فيديوهات الوحدة.",
-	},
-	{
-		Scene: ResultScene,
-		title: "نتيجتك فور التسليم",
-		text: "تظهر علامتك مباشرة مع مراجعة لكل سؤال، ويمكنك إعادة الامتحان لتحسين أفضل نتيجة.",
-	},
+	phoneSlide(number),
 ];
 
 // RTL: moving forward brings the next slide in from the left.
@@ -77,10 +62,11 @@ export default function WhatsNewDialog({
 	const { open, close } = useWhatsNew();
 	const { data: session } = useSession();
 	const [[index, direction], setPage] = useState([0, 1]);
-	const slides = whatsAppNumber
-		? [phoneSlide(whatsAppNumber), ...SLIDES]
-		: SLIDES;
+	const slides = unitSlides(whatsAppNumber);
 	const last = index === slides.length - 1;
+	const whatsappUrl = whatsAppNumber
+		? `https://wa.me/${whatsAppNumber.replace(/\D/g, "")}`
+		: null;
 	const { Scene, title, text } = slides[index];
 
 	const go = (to: number) => {
@@ -102,10 +88,13 @@ export default function WhatsNewDialog({
 	return (
 		<AppDialog
 			open={open}
-			onClose={() => finish()}
+			onClose={() => {
+				if (last) finish();
+			}}
 			title='ما الجديد في المنصة؟'
 			maxWidth='sm'
 			fullScreenOnMobile={false}
+			busy={!last}
 		>
 			{/* overflowX: the sliding slide must not flash a horizontal scrollbar. */}
 			<Box onKeyDown={onKeyDown} sx={{ pb: 1, overflowX: "hidden" }}>
@@ -117,7 +106,7 @@ export default function WhatsNewDialog({
 						initial='enter'
 						animate='center'
 						exit='exit'
-						transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+						transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
 						role='group'
 						aria-roledescription='شريحة'
 						aria-label={`${index + 1} من ${slides.length}: ${title}`}
@@ -134,6 +123,31 @@ export default function WhatsNewDialog({
 							<Typography sx={{ color: "text.secondary", lineHeight: 1.8 }}>
 								{text}
 							</Typography>
+							{last && whatsappUrl ? (
+								<Button
+									component='a'
+									href={whatsappUrl}
+									target='_blank'
+									rel='noopener noreferrer'
+									variant='contained'
+									startIcon={<WhatsAppIcon />}
+									sx={{
+										mt: 2,
+										px: 2.5,
+										borderRadius: 999,
+										fontWeight: 800,
+										background:
+											"linear-gradient(135deg, #075e54 0%, #128c7e 100%)",
+										boxShadow: "0 8px 18px rgba(18, 140, 126, 0.28)",
+										"&:hover": {
+											background:
+												"linear-gradient(135deg, #064c44 0%, #0d6f64 100%)",
+										},
+									}}
+								>
+									راسلنا على واتساب
+								</Button>
+							) : null}
 						</Box>
 					</motion.div>
 				</AnimatePresence>
@@ -147,7 +161,11 @@ export default function WhatsNewDialog({
 					sx={{ mt: 2.5 }}
 				>
 					<Box sx={{ minWidth: 96 }}>
-						{index > 0 ? (
+						{last ? (
+							<Button variant='text' color='inherit' onClick={() => finish()}>
+								تخطّي
+							</Button>
+						) : index > 0 ? (
 							<Button
 								variant='text'
 								startIcon={<ArrowForwardRoundedIcon />}
@@ -155,20 +173,21 @@ export default function WhatsNewDialog({
 							>
 								السابق
 							</Button>
-						) : (
-							<Button variant='text' color='inherit' onClick={() => finish()}>
-								تخطّي
-							</Button>
-						)}
+						) : null}
 					</Box>
 
-					<Stack direction='row' gap={0.75} aria-label='الشرائح'>
+					<Stack
+						direction='row'
+						gap={0.75}
+						role='progressbar'
+						aria-label='تقدّم الإعلان'
+						aria-valuemin={1}
+						aria-valuemax={slides.length}
+						aria-valuenow={index + 1}
+					>
 						{slides.map((slide, i) => (
-							<ButtonBase
+							<Box
 								key={slide.title}
-								onClick={() => go(i)}
-								aria-label={`الشريحة ${i + 1}: ${slide.title}`}
-								aria-current={i === index ? "step" : undefined}
 								sx={(theme) => ({
 									width: i === index ? 22 : 8,
 									height: 8,
