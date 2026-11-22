@@ -3,6 +3,7 @@ import type { Video } from "@prisma/client";
 import { isBunnyUrl } from "./bunnyUrl";
 import { PAID_FILE_URL, SIGNIN_FILE_URL } from "./constant";
 import { prisma } from "./prismaDb";
+import { findGrant } from "./unitGrants";
 
 const classInclude = {
 	folders: { where: { isRoot: true } },
@@ -72,10 +73,13 @@ export const getResources = async (folderId: string, viewer?: Viewer) => {
 		return { ...video, url: "", videoId: "", isBunny: true, locked: !canOpen };
 	};
 
+	const grant =
+		unit?.price && viewer ? findGrant(viewer.unitGrants, unit.id) : null;
 	const access: ResourceAccess = {
 		unit,
 		canOpen,
 		ownedUnitIds: viewer?.unlockedUnitIds ?? [],
+		accessEndsAt: grant ? new Date(grant.expiresAt).toISOString() : null,
 		whatsAppNumber,
 	};
 	return {
@@ -94,6 +98,8 @@ export type ResourceAccess = {
 	canOpen: boolean;
 	/** The viewer's own units, to badge priced folders on the class page. */
 	ownedUnitIds: string[];
+	/** When the viewer's access to this paid unit ends (or ended), if ever granted. */
+	accessEndsAt: string | null;
 	whatsAppNumber: string | null;
 };
 

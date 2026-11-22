@@ -101,11 +101,15 @@ export function usersWhere(
 		and.push({ createdAt: { gte: new Date(now - Number(joined) * DAY) } });
 	}
 	if (subscription === "PAID") {
-		and.push(
-			onSaleIds.length
-				? { unlockedUnitIds: { hasSome: onSaleIds } }
-				: { id: { in: [] } }
-		);
+		const activeGrant = {
+			unitGrants: {
+				some: {
+					unitId: { in: onSaleIds },
+					expiresAt: { gt: new Date(now) },
+				},
+			},
+		};
+		and.push(onSaleIds.length ? activeGrant : { id: { in: [] } });
 	}
 	return and.length ? { AND: and } : {};
 }

@@ -92,7 +92,11 @@ describe("usersWhere", () => {
 			).AND
 		).toEqual([
 			{ createdAt: { gte: new Date(NOW - 7 * 86_400_000) } },
-			{ unlockedUnitIds: { hasSome: ["u1"] } },
+			{
+				unitGrants: {
+					some: { unitId: { in: ["u1"] }, expiresAt: { gt: new Date(NOW) } },
+				},
+			},
 		]);
 		// Nothing on sale: no subscribers.
 		expect(
@@ -126,9 +130,15 @@ describe("monthStarts", () => {
 });
 
 describe("unitCount and roleOf", () => {
-	it("counts only units still on sale; a missing role is a student", () => {
-		const user = { unlockedUnitIds: ["u1", "gone"] } as PublicUser;
-		expect(unitCount(user, new Set(["u1"]))).toBe(1);
+	it("counts only open units still on sale; a missing role is a student", () => {
+		const user = {
+			unitGrants: [
+				{ unitId: "u1", expiresAt: new Date(NOW + 1) },
+				{ unitId: "u2", expiresAt: new Date(NOW - 1) },
+				{ unitId: "gone", expiresAt: new Date(NOW + 1) },
+			],
+		} as unknown as PublicUser;
+		expect(unitCount(user, new Set(["u1", "u2"]), NOW)).toBe(1);
 		expect(roleOf({ role: null } as PublicUser)).toBe("USER");
 		expect(roleOf({ role: "ADMIN" } as PublicUser)).toBe("ADMIN");
 	});

@@ -25,6 +25,7 @@ vi.mock("@/libs/revalidate", () => ({ revalidateResourcePages: vi.fn() }));
 import { PATCH, POST } from "@/app/api/folder/route";
 import { GET as listUnits } from "@/app/api/units/route";
 import { PUT as setUnits } from "@/app/api/user/[id]/units/route";
+import { unitAccessEnd } from "@/libs/access";
 
 const ROOT = "a".repeat(24);
 const UNIT = "b".repeat(24);
@@ -183,8 +184,10 @@ describe("GET /api/units", () => {
 });
 
 describe("PUT /api/user/[id]/units", () => {
-	const put = (unitIds: unknown, id = USER) =>
-		setUnits(json("PUT", { unitIds }), { params: Promise.resolve({ id }) });
+	const put = (unitIds: unknown, id = USER, expiresAt?: unknown) =>
+		setUnits(json("PUT", { unitIds, expiresAt }), {
+			params: Promise.resolve({ id }),
+		});
 
 	it("is admin-only", async () => {
 		asStudent();
@@ -199,24 +202,47 @@ describe("PUT /api/user/[id]/units", () => {
 		expect((await put([UNIT], "bad")).status).toBe(400);
 	});
 
+	it("lets the admin set an end date by hand (23:59 Jerusalem)", async () => {
+		asAdmin();
+		prisma.user.findUnique.mockResolvedValueOnce({ unitGrants: [] });
+		expect((await put([UNIT], USER, { [UNIT]: "2027-06-30" })).status).toBe(
+			200
+		);
+		expect(prisma.user.update.mock.lastCall![0].data.unitGrants).toEqual([
+			{ unitId: UNIT, expiresAt: new Date("2027-06-30T20:59:00.000Z") },
+		]);
+	});
+
+	it("rejects bad end dates or dates for units not being saved", async () => {
+		asAdmin();
+		expect((await put([UNIT], USER, { [UNIT]: "2027-02-30" })).status).toBe(
+			400
+		);
+		expect((await put([UNIT], USER, { [UNIT]: "soon" })).status).toBe(400);
+		expect((await put([], USER, { [UNIT]: "2027-06-30" })).status).toBe(400);
+		expect((await put([UNIT], USER, ["2027-06-30"])).status).toBe(400);
+	});
+
 	it("404 for unknown users", async () => {
 		asAdmin();
 		prisma.user.findUnique.mockResolvedValueOnce(null);
 		expect((await put([UNIT])).status).toBe(404);
 	});
 
-	it("replaces the list, deduplicated; [] removes all", async () => {
+	it("opens each unit until the cutoff, deduplicated; [] removes all", async () => {
 		asAdmin();
+		prisma.user.findUnique.mockResolvedValueOnce({ unitGrants: [] });
 		expect((await put([UNIT, UNIT])).status).toBe(200);
-		expect(prisma.user.update).toHaveBeenLastCalledWith(
-			expect.objectContaining({
-				where: { id: USER },
-				data: { unlockedUnitIds: [UNIT] },
-			})
-		);
+		const { where, data } = prisma.user.update.mock.lastCall![0];
+		expect(where).toEqual({ id: USER });
+		expect(data.unitGrants).toEqual([
+			{ unitId: UNIT, expiresAt: unitAccessEnd() },
+		]);
+
+		prisma.user.findUnique.mockResolvedValueOnce({ unitGrants: [] });
 		expect((await put([])).status).toBe(200);
 		expect(prisma.user.update).toHaveBeenLastCalledWith(
-			expect.objectContaining({ data: { unlockedUnitIds: [] } })
+			expect.objectContaining({ data: { unitGrants: [] } })
 		);
 	});
 });

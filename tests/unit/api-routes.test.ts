@@ -400,7 +400,7 @@ describe("file links need sign-in", () => {
 		prisma.user.findUnique.mockResolvedValue({
 			id: "b".repeat(24),
 			role: "USER",
-			unlockedUnitIds: [],
+			unitGrants: [],
 		});
 		expect((await getResources(true)).status).toBe(404);
 	});
@@ -416,7 +416,7 @@ describe("file links need sign-in", () => {
 		prisma.user.findUnique.mockResolvedValue({
 			id: "b".repeat(24),
 			role: "USER",
-			unlockedUnitIds: [],
+			unitGrants: [],
 		});
 		expect(await getFiles()).toEqual(["https://cdn.x/a.pdf", "#"]);
 	});

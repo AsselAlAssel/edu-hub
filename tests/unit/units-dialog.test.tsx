@@ -14,7 +14,10 @@ const student = {
 	id: "u1",
 	name: "أحمد",
 	email: "a@x.dev",
-	unlockedUnitIds: ["stale", "unit-1"],
+	unitGrants: [
+		{ unitId: "stale", expiresAt: new Date(Date.now() + 86_400_000) },
+		{ unitId: "unit-1", expiresAt: new Date(Date.now() + 86_400_000) },
+	],
 } as unknown as PublicUser;
 const groups = [
 	{
@@ -51,6 +54,7 @@ describe("UnitsDialog", () => {
 
 		expect(axios.put).toHaveBeenCalledWith("/api/user/u1/units", {
 			unitIds: ["unit-1", "unit-2"],
+			expiresAt: {},
 		});
 		expect(onSaved).toHaveBeenCalled();
 	});

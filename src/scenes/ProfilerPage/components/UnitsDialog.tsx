@@ -4,6 +4,7 @@ import { SecondaryButton } from "@/components/ui/buttons";
 import { EmptyState, ErrorState } from "@/components/ui/States";
 import type { PaidUnitGroup } from "@/libs/access";
 import { getErrorMessage } from "@/libs/errors";
+import { findGrant, isGrantActive } from "@/libs/unitGrants";
 import type { PublicUser } from "@/libs/users";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -16,6 +17,7 @@ import {
 	ButtonBase,
 	Skeleton,
 	Stack,
+	TextField,
 	Typography,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
@@ -23,15 +25,26 @@ import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
+const dateFormat = new Intl.DateTimeFormat("ar", { dateStyle: "medium" });
+
+/** "YYYY-MM-DD" of a date in the admin's local time, for <input type=date>. */
+const toDayInput = (date: Date | string) => {
+	const d = new Date(date);
+	const pad = (n: number) => String(n).padStart(2, "0");
+	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+
 type UnitRowProps = {
 	name: string;
 	price: number | null;
 	selected: boolean;
+	/** When access ends, ended, or that saving opens it for a year. */
+	note: string | null;
 	onToggle: () => void;
 };
 
 /** A whole-row toggle: lock when closed, green check when the student has it. */
-function UnitRow({ name, price, selected, onToggle }: UnitRowProps) {
+function UnitRow({ name, price, selected, note, onToggle }: UnitRowProps) {
 	return (
 		<ButtonBase
 			role='checkbox'
@@ -72,9 +85,20 @@ function UnitRow({ name, price, selected, onToggle }: UnitRowProps) {
 				) : (
 					<LockOutlinedIcon sx={{ color: "text.disabled" }} />
 				)}
-				<Typography sx={{ fontWeight: 600, textAlign: "start" }} noWrap>
-					{name}
-				</Typography>
+				<Box sx={{ minWidth: 0, textAlign: "start" }}>
+					<Typography sx={{ fontWeight: 600 }} noWrap>
+						{name}
+					</Typography>
+					{note ? (
+						<Typography
+							variant='caption'
+							component='p'
+							sx={{ color: "text.secondary" }}
+						>
+							{note}
+						</Typography>
+					) : null}
+				</Box>
 			</Stack>
 			<Typography
 				sx={{
@@ -108,10 +132,28 @@ export default function UnitsDialog({
 	onSaved: () => void;
 }) {
 	const [checked, setChecked] = useState<Set<string>>(new Set());
+	/** End days of open units as loaded, and the admin's edits ("" = default). */
+	const [initialDays, setInitialDays] = useState<Record<string, string>>({});
+	const [days, setDays] = useState<Record<string, string>>({});
 	const [busy, setBusy] = useState(false);
 	useEffect(() => {
-		if (user) setChecked(new Set(user.unlockedUnitIds ?? []));
+		if (!user) return;
+		const open = (user.unitGrants ?? []).filter((grant) =>
+			isGrantActive(grant)
+		);
+		const loaded = Object.fromEntries(
+			open.map((grant) => [grant.unitId, toDayInput(grant.expiresAt)])
+		);
+		setChecked(new Set(open.map((grant) => grant.unitId)));
+		setInitialDays(loaded);
+		setDays(loaded);
 	}, [user]);
+
+	const noteFor = (unitId: string, selected: boolean) => {
+		const grant = findGrant(user?.unitGrants ?? [], unitId);
+		if (selected || !grant || isGrantActive(grant)) return null;
+		return `انتهت في ${dateFormat.format(new Date(grant.expiresAt))}`;
+	};
 
 	const units = useMemo(
 		() => (groups ?? []).flatMap((group) => group.units),
@@ -135,8 +177,14 @@ export default function UnitsDialog({
 		setBusy(true);
 		try {
 			// Only units still on sale: a unit made free since drops out of the list.
+			const expiresAt = Object.fromEntries(
+				selected
+					.map((unit) => [unit.id, days[unit.id] ?? ""])
+					.filter(([id, day]) => day && day !== initialDays[id])
+			);
 			await axios.put(`/api/user/${user.id}/units`, {
 				unitIds: selected.map((unit) => unit.id),
+				expiresAt,
 			});
 			toast.success("تم تحديث وحدات الطالب");
 			onSaved();
@@ -171,33 +219,68 @@ export default function UnitsDialog({
 	} else {
 		content = (
 			<Stack spacing={2.5}>
+				<Button
+					size='small'
+					disabled={!checked.size}
+					onClick={() => setChecked(new Set())}
+					sx={{ alignSelf: "flex-end" }}
+				>
+					إلغاء الكل
+				</Button>
 				{groups.map((group) => {
-					const ids = group.units.map((unit) => unit.id);
-					const allOn = ids.every((id) => checked.has(id));
 					return (
 						<Box key={group.classId} component='section'>
-							<Stack
-								direction='row'
-								alignItems='center'
-								justifyContent='space-between'
-								sx={{ mb: 1 }}
-							>
-								<Typography component='h3' sx={{ fontWeight: 800 }}>
-									{group.className}
-								</Typography>
-								<Button size='small' onClick={() => setMany(ids, !allOn)}>
-									{allOn ? "إلغاء الكل" : "تحديد الكل"}
-								</Button>
-							</Stack>
+							<Typography component='h3' sx={{ fontWeight: 800, mb: 1 }}>
+								{group.className}
+							</Typography>
 							<Stack spacing={1}>
 								{group.units.map((unit) => (
-									<UnitRow
+									<Stack
 										key={unit.id}
-										name={unit.name}
-										price={unit.price}
-										selected={checked.has(unit.id)}
-										onToggle={() => setMany([unit.id], !checked.has(unit.id))}
-									/>
+										direction={{ xs: "column", sm: "row" }}
+										alignItems={{ xs: "stretch", sm: "flex-start" }}
+										gap={1}
+									>
+										<Box sx={{ flex: 1, minWidth: 0 }}>
+											<UnitRow
+												name={unit.name}
+												price={unit.price}
+												selected={checked.has(unit.id)}
+												note={noteFor(unit.id, checked.has(unit.id))}
+												onToggle={() =>
+													setMany([unit.id], !checked.has(unit.id))
+												}
+											/>
+										</Box>
+										{checked.has(unit.id) ? (
+											<TextField
+												type='date'
+												size='small'
+												value={days[unit.id] ?? ""}
+												onChange={(event) =>
+													setDays((current) => ({
+														...current,
+														[unit.id]: event.target.value,
+													}))
+												}
+												inputProps={{
+													"aria-label": `ينتهي اشتراك «${unit.name}» في`,
+												}}
+												helperText={
+													days[unit.id]
+														? undefined
+														: initialDays[unit.id]
+															? "فارغ: يبقى التاريخ الحالي"
+															: "فارغ: 31 آب القادم"
+												}
+												sx={{
+													width: { xs: "100%", sm: 180 },
+													flexShrink: 0,
+													"& .MuiInputBase-root": { minHeight: 50 },
+												}}
+											/>
+										) : null}
+									</Stack>
 								))}
 							</Stack>
 						</Box>
@@ -241,7 +324,7 @@ export default function UnitsDialog({
 			busy={busy}
 			maxWidth='sm'
 			title={title}
-			description='اختر الوحدات التي دفع الطالب ثمنها. تُفتح له أو تُغلق فور الحفظ.'
+			description='اختر الوحدات التي دفع الطالب ثمنها. تبقى كل وحدة مفتوحة حتى 31 آب من العام القادم، ويمكنك تعديل التاريخ لكل وحدة (تُغلق الساعة 23:59 من ذلك اليوم). لتجديد وحدة منتهية حدّدها واحفظ.'
 			actions={
 				<Stack
 					direction='row'
