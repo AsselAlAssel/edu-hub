@@ -35,13 +35,17 @@ const call = (id = VIDEO) =>
 	GET(new Request("http://x") as never, {
 		params: Promise.resolve({ id }),
 	});
-const signIn = (unlockedUnitIds: string[] = [], role = "USER") => {
+const signIn = (
+	unlockedUnitIds: string[] = [],
+	role = "USER",
+	expiresAt = new Date(Date.now() + 86_400_000)
+) => {
 	session.current = { user: { id: USER, email: "s@x.dev" } };
 	prisma.user.findUnique.mockResolvedValue({
 		id: USER,
 		email: "s@x.dev",
 		role,
-		unlockedUnitIds,
+		unitGrants: unlockedUnitIds.map((unitId) => ({ unitId, expiresAt })),
 	});
 };
 
@@ -84,6 +88,11 @@ describe("GET /api/video/[id]/playback", () => {
 
 	it("403 without the unit", async () => {
 		signIn([]);
+		expect((await call()).status).toBe(403);
+	});
+
+	it("403 once the unit's year has run out", async () => {
+		signIn([UNIT], "USER", new Date(Date.now() - 1000));
 		expect((await call()).status).toBe(403);
 	});
 

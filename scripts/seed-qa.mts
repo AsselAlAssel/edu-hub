@@ -171,7 +171,9 @@ async function seed() {
 			name: "طالب مشترك",
 			email: "paid@qa.test",
 			password,
-			unlockedUnitIds: [owned.id],
+			unitGrants: [
+				{ unitId: owned.id, expiresAt: new Date(Date.now() + 300 * 864e5) },
+			],
 		},
 	});
 	await prisma.user.create({

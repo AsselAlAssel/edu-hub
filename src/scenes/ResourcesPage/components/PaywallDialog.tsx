@@ -15,14 +15,21 @@ const classLabel = (name: string) =>
 	/^(ال)?صف/.test(name.trim()) ? name.trim() : `الصف ${name.trim()}`;
 
 /** wa.me link with a ready, polite message naming the unit and class. */
-export const subscribeLink = (number: string, unit: Unit, className: string) =>
+export const subscribeLink = (
+	number: string,
+	unit: Unit,
+	className: string,
+	renew = false
+) =>
 	`https://wa.me/${number}?text=${encodeURIComponent(
 		[
 			"السلام عليكم ورحمة الله،",
-			`أرغب بالاشتراك في «${unit.name}» من ${classLabel(className)} (${unit.price} ₪).`,
+			`أرغب ${renew ? "بتجديد اشتراكي" : "بالاشتراك"} في «${unit.name}» من ${classLabel(className)} (${unit.price} ₪).`,
 			"أرجو تزويدي بطريقة الدفع، وشكراً جزيلاً.",
 		].join("\n")
 	)}`;
+
+const dateFormat = new Intl.DateTimeFormat("ar", { dateStyle: "long" });
 
 /** Locked paid-unit content: price + subscribe on WhatsApp (sign in first). */
 export default function PaywallDialog({
@@ -32,6 +39,7 @@ export default function PaywallDialog({
 	className,
 	whatsAppNumber,
 	signedIn,
+	expiredAt = null,
 }: {
 	open: boolean;
 	onClose: () => void;
@@ -39,8 +47,11 @@ export default function PaywallDialog({
 	className: string;
 	whatsAppNumber: string | null;
 	signedIn: boolean;
+	/** Set when the student had the unit and the year ran out. */
+	expiredAt?: string | null;
 }) {
 	if (!unit?.price) return null;
+	const renew = !!expiredAt;
 	return (
 		<AppDialog
 			open={open}
@@ -51,7 +62,9 @@ export default function PaywallDialog({
 			<Stack spacing={2} alignItems='center' textAlign='center'>
 				<LockOutlinedIcon sx={{ fontSize: 40, color: "primary.main" }} />
 				<Typography>
-					فيديوهات وملفات هذه الوحدة متاحة بعد الاشتراك فيها.
+					{renew
+						? `انتهى اشتراكك في هذه الوحدة بتاريخ ${dateFormat.format(new Date(expiredAt))}. جدّد اشتراكك لتفتح لك من جديد.`
+						: "فيديوهات وملفات هذه الوحدة متاحة بعد الاشتراك فيها، حتى 31 آب من العام القادم."}
 				</Typography>
 				<Typography variant='h5' component='p' sx={{ fontWeight: 800 }}>
 					{unit.price} ₪
@@ -75,11 +88,11 @@ export default function PaywallDialog({
 						variant='contained'
 						color='success'
 						startIcon={<WhatsAppIcon />}
-						href={subscribeLink(whatsAppNumber, unit, className)}
+						href={subscribeLink(whatsAppNumber, unit, className, renew)}
 						target='_blank'
 						rel='noopener noreferrer'
 					>
-						اشترك عبر واتساب
+						{renew ? "جدّد عبر واتساب" : "اشترك عبر واتساب"}
 					</Button>
 				) : null}
 			</Stack>

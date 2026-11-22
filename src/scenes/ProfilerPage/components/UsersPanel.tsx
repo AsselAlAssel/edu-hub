@@ -39,6 +39,7 @@ import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import useSWR from "swr";
+import { isGrantActive } from "@/libs/unitGrants";
 import { roleOf, unitCount } from "../usersFilter";
 import UnitsDialog from "./UnitsDialog";
 
@@ -421,26 +422,32 @@ export default function UsersPanel() {
 										>
 											انضم {dateFormat.format(new Date(user.createdAt))}
 										</Typography>
-										{unitCount(user, unitLabels) ? (
+										{(user.unitGrants ?? []).some((grant) =>
+											unitLabels.has(grant.unitId)
+										) && (
 											<Stack
 												direction='row'
 												flexWrap='wrap'
 												gap={0.5}
 												sx={{ mt: 0.75 }}
 											>
-												{(user.unlockedUnitIds ?? []).map((id) =>
-													unitLabels.has(id) ? (
+												{(user.unitGrants ?? [])
+													.filter((grant) => unitLabels.has(grant.unitId))
+													.map((grant) => (
 														<Chip
-															key={id}
+															key={grant.unitId}
 															size='small'
-															color='success'
+															color={
+																isGrantActive(grant) ? "success" : "default"
+															}
 															variant='outlined'
-															label={unitLabels.get(id)}
+															label={`${unitLabels.get(grant.unitId)} · ${
+																isGrantActive(grant) ? "حتى" : "انتهت"
+															} ${dateFormat.format(new Date(grant.expiresAt))}`}
 														/>
-													) : null
-												)}
+													))}
 											</Stack>
-										) : null}
+										)}
 									</Box>
 								</Stack>
 								<Stack direction='row' alignItems='center' gap={1}>

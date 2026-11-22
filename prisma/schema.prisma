@@ -41,8 +41,15 @@ model User {
   accounts              Account[]
   progress              VideoProgress[]
   examAttempts          ExamAttempt[]
-  // Paid units (first-level folders) the admin unlocked for this student.
-  unlockedUnitIds       String[]        @db.ObjectId
+  // Paid units (first-level folders) the admin unlocked, each for a limited time.
+  unitGrants            UnitGrant[]
+}
+
+// Access to one paid unit; it closes at expiresAt. Expired grants are kept so
+// the admin and the student can see when it ended.
+type UnitGrant {
+  unitId    String   @db.ObjectId
+  expiresAt DateTime
 }
 
 // OAuth links (Google), required by the NextAuth Prisma adapter.

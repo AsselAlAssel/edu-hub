@@ -15,7 +15,13 @@ vi.mock("@/libs/folder", () => ({
 	getBreadcrumbs: vi.fn(async () => crumbs.current),
 }));
 
-import { canOpenUnit, getUnit } from "@/libs/access";
+import {
+	canOpenUnit,
+	getUnit,
+	unitAccessEnd,
+	unitAccessEndInYear,
+	unitAccessEndOn,
+} from "@/libs/access";
 import { isBunnyUrl, parseBunnyUrl } from "@/libs/bunnyUrl";
 
 const GUID = "594324c9-0b1e-48cc-945a-f1bd20716fc0";
@@ -53,6 +59,7 @@ describe("canOpenUnit", () => {
 		email: null,
 		role: "USER",
 		unlockedUnitIds: [] as string[],
+		unitGrants: [],
 	};
 
 	it("opens anything outside a paid unit", () => {
@@ -98,5 +105,38 @@ describe("getUnit", () => {
 		});
 		// The price rides on the breadcrumb walk: no extra query.
 		expect(prisma.folder.findUnique).not.toHaveBeenCalled();
+	});
+});
+
+describe("unit access cutoff (31/8, 23:59 Jerusalem)", () => {
+	it("closes on 31 August of the year after opening", () => {
+		expect(unitAccessEnd(new Date("2026-11-22T08:00:00Z")).toISOString()).toBe(
+			"2027-08-31T20:59:00.000Z"
+		);
+		expect(unitAccessEnd(new Date("2027-03-01T08:00:00Z")).toISOString()).toBe(
+			"2028-08-31T20:59:00.000Z"
+		);
+	});
+
+	it("uses the Jerusalem year at the new year boundary", () => {
+		// 31/12/2026 23:30 UTC is already 1/1/2027 in Jerusalem.
+		expect(unitAccessEnd(new Date("2026-12-31T23:30:00Z")).toISOString()).toBe(
+			"2028-08-31T20:59:00.000Z"
+		);
+		expect(unitAccessEndInYear(2027).toISOString()).toBe(
+			"2027-08-31T20:59:00.000Z"
+		);
+	});
+
+	it("reads admin days as 23:59 Jerusalem, summer and winter", () => {
+		expect(unitAccessEndOn("2027-06-30")?.toISOString()).toBe(
+			"2027-06-30T20:59:00.000Z"
+		);
+		expect(unitAccessEndOn("2027-01-15")?.toISOString()).toBe(
+			"2027-01-15T21:59:00.000Z"
+		);
+		for (const bad of ["2027-02-30", "2027-6-30", "", null, 5]) {
+			expect(unitAccessEndOn(bad)).toBeNull();
+		}
 	});
 });

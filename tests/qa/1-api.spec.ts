@@ -451,7 +451,9 @@ test.describe("admin: units", () => {
 
 		const res = await put([seed.locked.id, seed.locked.id]);
 		expect(res.status()).toBe(200);
-		expect((await res.json()).unlockedUnitIds).toEqual([seed.locked.id]);
+		expect(
+			(await res.json()).unitGrants.map((g: { unitId: string }) => g.unitId)
+		).toEqual([seed.locked.id]);
 		expect((await playback(free, "فيديو مقفل")).status()).toBe(200);
 		expect((await resources(free, seed.locked.id)).files[0].url).toMatch(
 			/^https/

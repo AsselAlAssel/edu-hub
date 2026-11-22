@@ -30,6 +30,7 @@ const student = {
 	email: null,
 	role: "USER",
 	unlockedUnitIds: [] as string[],
+	unitGrants: [] as { unitId: string; expiresAt: Date }[],
 };
 
 const run = (viewer?: Parameters<typeof getResources>[1]) =>
@@ -99,6 +100,17 @@ describe("getResources in a paid unit", () => {
 
 		const admin = await run({ ...student, role: "ADMIN" });
 		expect(admin.files[0].url).toBe(R2_URL);
+	});
+
+	it("locks a unit whose year ran out and says when it ended", async () => {
+		const ended = new Date(Date.now() - 86_400_000);
+		const expired = await run({
+			...student,
+			unitGrants: [{ unitId: UNIT, expiresAt: ended }],
+		});
+		expect(expired.access.canOpen).toBe(false);
+		expect(expired.files[0].url).not.toBe(R2_URL);
+		expect(expired.access.accessEndsAt).toBe(ended.toISOString());
 	});
 });
 

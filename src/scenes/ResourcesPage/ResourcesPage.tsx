@@ -606,6 +606,7 @@ export default function ResourcesPage({
 				className={className}
 				whatsAppNumber={access?.whatsAppNumber ?? null}
 				signedIn={progress.signedIn}
+				expiredAt={access?.canOpen ? null : (access?.accessEndsAt ?? null)}
 			/>
 		</PageShell>
 	);
