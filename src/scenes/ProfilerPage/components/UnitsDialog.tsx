@@ -4,7 +4,7 @@ import { SecondaryButton } from "@/components/ui/buttons";
 import { EmptyState, ErrorState } from "@/components/ui/States";
 import type { PaidUnitGroup } from "@/libs/access";
 import { getErrorMessage } from "@/libs/errors";
-import { findGrant, isGrantActive } from "@/libs/unitGrants";
+import { defaultEndDay, findGrant, isGrantActive } from "@/libs/unitGrants";
 import type { PublicUser } from "@/libs/users";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -15,6 +15,7 @@ import {
 	Box,
 	Button,
 	ButtonBase,
+	InputAdornment,
 	Skeleton,
 	Stack,
 	TextField,
@@ -172,6 +173,15 @@ export default function UnitsDialog({
 			return next;
 		});
 
+	/** Ticking a unit with no end day yet fills in the default cutoff. */
+	const toggle = (id: string) => {
+		const on = !checked.has(id);
+		setMany([id], on);
+		if (on && !days[id]) {
+			setDays((current) => ({ ...current, [id]: defaultEndDay() }));
+		}
+	};
+
 	const save = async () => {
 		if (!user || !groups) return;
 		setBusy(true);
@@ -180,7 +190,10 @@ export default function UnitsDialog({
 			const expiresAt = Object.fromEntries(
 				selected
 					.map((unit) => [unit.id, days[unit.id] ?? ""])
-					.filter(([id, day]) => day && day !== initialDays[id])
+					.filter(
+						// Untouched days are left to the server (current end or the cutoff).
+						([id, day]) => day && day !== (initialDays[id] ?? defaultEndDay())
+					)
 			);
 			await axios.put(`/api/user/${user.id}/units`, {
 				unitIds: selected.map((unit) => unit.id),
@@ -247,9 +260,7 @@ export default function UnitsDialog({
 												price={unit.price}
 												selected={checked.has(unit.id)}
 												note={noteFor(unit.id, checked.has(unit.id))}
-												onToggle={() =>
-													setMany([unit.id], !checked.has(unit.id))
-												}
+												onToggle={() => toggle(unit.id)}
 											/>
 										</Box>
 										{checked.has(unit.id) ? (
@@ -263,6 +274,13 @@ export default function UnitsDialog({
 														[unit.id]: event.target.value,
 													}))
 												}
+												InputProps={{
+													startAdornment: (
+														<InputAdornment position='start'>
+															ينتهي
+														</InputAdornment>
+													),
+												}}
 												inputProps={{
 													"aria-label": `ينتهي اشتراك «${unit.name}» في`,
 												}}
@@ -274,7 +292,7 @@ export default function UnitsDialog({
 															: "فارغ: 31 آب القادم"
 												}
 												sx={{
-													width: { xs: "100%", sm: 180 },
+													width: { xs: "100%", sm: 230 },
 													flexShrink: 0,
 													"& .MuiInputBase-root": { minHeight: 50 },
 												}}

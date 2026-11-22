@@ -1,20 +1,14 @@
 import { getSessionUser } from "./api";
 import { getBreadcrumbs } from "./folder";
 import { prisma } from "./prismaDb";
-import { activeUnitIds, type UnitGrant } from "./unitGrants";
+import {
+	activeUnitIds,
+	UNIT_ACCESS_CUTOFF,
+	type UnitGrant,
+} from "./unitGrants";
 import { yearIn, zonedDate } from "./zonedTime";
 
-/**
- * When paid-unit access ends: 31 August of the year after the unit was opened,
- * 23:59 in Palestine. One Tawjihi school year.
- */
-export const UNIT_ACCESS_CUTOFF = {
-	month: 8,
-	day: 31,
-	hour: 23,
-	minute: 59,
-	timeZone: "Asia/Jerusalem",
-} as const;
+export { UNIT_ACCESS_CUTOFF };
 
 const {
 	timeZone: ACCESS_TZ,

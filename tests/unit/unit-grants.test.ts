@@ -1,6 +1,10 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { activeUnitIds, nextUnitGrants } from "@/libs/unitGrants";
+import {
+	activeUnitIds,
+	defaultEndDay,
+	nextUnitGrants,
+} from "@/libs/unitGrants";
 
 const NOW = Date.UTC(2026, 10, 22);
 const DAY = 86_400_000;
@@ -55,5 +59,16 @@ describe("nextUnitGrants", () => {
 		expect(next(current, [])).toEqual([
 			{ unitId: "ended", expiresAt: at(-10) },
 		]);
+	});
+});
+
+describe("defaultEndDay", () => {
+	it("is 31 August of the next year", () => {
+		expect(defaultEndDay(new Date(NOW))).toBe("2027-08-31");
+	});
+
+	it("uses the year in Jerusalem, not UTC", () => {
+		// 31 Dec 2026 22:30 UTC is already 1 Jan 2027 in Jerusalem.
+		expect(defaultEndDay(new Date("2026-12-31T22:30:00Z"))).toBe("2028-08-31");
 	});
 });

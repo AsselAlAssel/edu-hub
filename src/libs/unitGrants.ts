@@ -1,3 +1,25 @@
+import { yearIn } from "./zonedTime";
+
+/**
+ * When paid-unit access ends: 31 August of the year after the unit was opened,
+ * 23:59 in Palestine. One Tawjihi school year. Lives here (no server imports)
+ * so the admin dialog can show the default date.
+ */
+export const UNIT_ACCESS_CUTOFF = {
+	month: 8,
+	day: 31,
+	hour: 23,
+	minute: 59,
+	timeZone: "Asia/Jerusalem",
+} as const;
+
+/** The default end day ("YYYY-MM-DD") of a unit opened at `openedAt`. */
+export const defaultEndDay = (openedAt: Date = new Date()) => {
+	const { month, day, timeZone } = UNIT_ACCESS_CUTOFF;
+	const pad = (n: number) => String(n).padStart(2, "0");
+	return `${yearIn(openedAt, timeZone) + 1}-${pad(month)}-${pad(day)}`;
+};
+
 /** Dates come back from the API as ISO strings, from Prisma as Dates. */
 export type UnitGrant = { unitId: string; expiresAt: Date | string };
 
