@@ -13,9 +13,10 @@ export type { LandingSectionId };
  * crosses a band just under the sticky header.
  */
 export function useLandingScrollSpy(enabled: boolean): LandingSectionId | null {
-	const [active, setActive] = useState<LandingSectionId | null>(
-		enabled ? "home" : null
-	);
+	// Starts null even on "/": the prerendered "/" HTML does not see pathname
+	// "/" (proxy.ts exists), so an initial "home" rendered the nav pill only on
+	// the client and broke hydration (React #418). The observer sets it on mount.
+	const [active, setActive] = useState<LandingSectionId | null>(null);
 
 	useEffect(() => {
 		if (!enabled || typeof IntersectionObserver === "undefined") {
