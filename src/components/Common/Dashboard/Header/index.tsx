@@ -40,7 +40,7 @@ import SideBar from "../Sidebar";
 export { APP_BAR_HEIGHT };
 
 /** Reading progress along the header's bottom edge (fills from the right in RTL). */
-function ScrollProgress() {
+function ScrollProgress({ hidden }: { hidden: boolean }) {
 	const { scrollYProgress } = useScroll();
 	const scaleX = useSpring(scrollYProgress, {
 		stiffness: 160,
@@ -52,6 +52,7 @@ function ScrollProgress() {
 			aria-hidden
 			style={{
 				scaleX,
+				display: hidden ? "none" : undefined,
 				position: "absolute",
 				insetInline: 0,
 				bottom: -1,
@@ -98,8 +99,11 @@ export default function Header() {
 				]),
 			})}
 		>
-			{/* Reading progress belongs to the long landing page only. */}
-			{pathname === "/" ? <ScrollProgress /> : null}
+			{/* Reading progress belongs to the long landing page only. Always
+			    mounted, hidden elsewhere: the prerendered "/" HTML does not see
+			    pathname "/" (proxy.ts exists), so mounting it conditionally broke
+			    hydration (React #418) and re-rendered the whole page. */}
+			<ScrollProgress hidden={pathname !== "/"} />
 			<PageContainer sx={{ height: "100%" }}>
 				<Box
 					sx={{
